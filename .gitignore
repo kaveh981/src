@@ -1,0 +1,32 @@
+# Logs
+#####################
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+#####################
+node_modules
+
+# Compiled files
+#####################
+*.js
+*.js.map
+
+# Typings
+#####################
+typings
+
+# IDEs and editors
+#####################
+.idea
+
+# OS generated files
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
