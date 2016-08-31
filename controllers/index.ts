@@ -1,17 +1,14 @@
 'use strict';
 
 import * as express from 'express';
-
-let IndexModel = require('../models/index');
+import {Index} from '../models/index';
 
 module.exports = function (router: express.Router): void {
 
-    let model = new IndexModel();
+    let model: Index = new Index();
 
     router.route('/').get((req: express.Request, res: express.Response) => {
-        
         res.send('<h1>Hello, ' + model.name + ' !</h1>');
-        
     });
 
 };

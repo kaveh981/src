@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = class IndexModel {
-    name: string;
+export class Index {
+    public name: string;
     constructor() {
         this.name = 'index';
     }
-};
+}
