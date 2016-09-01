@@ -5,18 +5,21 @@ import * as http from 'http';
 
 let kraken: Function = require('kraken-js');
 
-let app: express.Application = express();
-let port: number = process.env.PORT || 8000;
+export class Server {
 
-app.use(kraken());
+    // Starts the server
+    public static start(): void {
+        let app: express.Application = express();
+        let port: number = process.env.PORT || 8000;
 
-let server: http.Server = http.createServer(app);
-server.on('listening', () => {
-    console.log('Server listening on http://localhost:%d', server.address().port);
-});
+        app.use(kraken());
 
-function startServer(): void {
-    server.listen(port);
+        let server: http.Server = http.createServer(app);
+        server.on('listening', () => {
+            console.log('Server listening on http://localhost:%d', server.address().port);
+        });
+
+        server.listen(port);
+    }
+
 }
-
-module.exports = startServer;
