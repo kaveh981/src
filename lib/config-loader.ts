@@ -2,14 +2,15 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as Promise from 'bluebird';
 
 // Simple configuration loader, reads from the config folder.
 class ConfigLoader {
 
     // Load the configuration from ./config/filename, returns content as JSON object.
-    public static loadConfig(filename: string): JSON {
+    public static loadConfig(filename: string): Object {
 
-        let configContent: JSON;
+        let configContent: Object;
         let fileContent: string;
         let filepath: string = path.join(__dirname, `../config/${filename}`);
 
@@ -22,6 +23,8 @@ class ConfigLoader {
 
         return configContent;
     }
+
+    public static loadConfigAsync(file)
 }
 
 export { ConfigLoader };
