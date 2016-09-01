@@ -4,5 +4,13 @@ import * as express from 'express';
 import * as http from 'http';
 
 import {Server} from './server';
+import { DatabaseManager } from './lib/database-manager';
 
-Server.start();
+console.log("Initializing DatabaseManager...");
+
+DatabaseManager.initialize()
+    .then(() => {
+        console.log("DatabaseManager initialized.");
+        console.log("Starting server...");
+        Server.start();
+    });
