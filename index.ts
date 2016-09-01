@@ -3,6 +3,15 @@
 import * as express from 'express';
 import * as http from 'http';
 
+import { DatabaseManager } from './lib/database-manager';
+
 let startServer: Function = require('./server');
 
-startServer();
+console.log("Initializing DatabaseManager...");
+
+DatabaseManager.initialize()
+    .then(() => {
+        console.log("DatabaseManager initialized.");
+        console.log("Starting server...");
+        startServer();
+    });
