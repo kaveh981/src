@@ -1,0 +1,12 @@
+{
+    "development": {
+        "client": "mysql",
+        "connection": {
+            "host": "YOUR GUI IP HERE",
+            "user": "viper",
+            "password": "viper123",
+            "database": "Viper2"
+        }
+    },
+    "production": {}
+}
