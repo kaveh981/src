@@ -25,7 +25,6 @@
         "no-unused-expression": true,
         "no-use-before-declare": true,
         "no-var-keyword": true,
-        "no-any": true,
         "radix": true,
         "switch-default": true,
         "triple-equals": true,

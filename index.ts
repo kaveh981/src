@@ -3,6 +3,6 @@
 import * as express from 'express';
 import * as http from 'http';
 
-let startServer: Function = require('./server');
+import {Server} from './server';
 
-startServer();
+Server.start();
