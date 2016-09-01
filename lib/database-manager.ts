@@ -13,7 +13,7 @@ interface IDatabaseManager extends Knex.QueryInterface {
 // The database manager class which extends Knex. After calling initialize, it properly extends the knex.js object.
 class DatabaseManager {
 
-    // Load the configuration from db-config.json and copy properties from Knex to itself.
+    // Load the configuration from environment and copy properties from Knex to itself.
     public initialize(): Promise<any> {
 
         return new Promise((resolve: Function, reject: Function) => {
