@@ -7,6 +7,11 @@ import { DatabaseManager } from './lib/database-manager';
 
 let startServer: Function = require('./server');
 
-DatabaseManager.initialize();
+console.log("Initializing DatabaseManager...");
 
-startServer();
+DatabaseManager.initialize()
+    .then(() => {
+        console.log("DatabaseManager initialized.");
+        console.log("Starting server...");
+        startServer();
+    });
