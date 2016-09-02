@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  api:
+    extends:
+      file: "common.yml"
+      service: "api"
+    image: "$REPO/rocket.api.core:newest"
+    entrypoint: "sh /src/searhaack.git/rocket/api/docker/scripts/entrypoint.sh development"
+    volumes:
+     - "$SRC_DIR:/src/"

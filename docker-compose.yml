@@ -1,0 +1,11 @@
+version: '2'
+
+networks:
+  atwater:
+    external: true
+
+services:
+  api:
+    extends:
+      file: "api/docker/compose/$IMAGE_TYPE.yml"
+      service: "api"

@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  api:
+    networks:
+      atwater:
+        aliases:
+          - api
+    restart: "always"
