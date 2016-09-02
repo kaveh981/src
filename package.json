@@ -6,9 +6,11 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node index.ts",
-    "postinstall": "typings install"
+    "postinstall": "typings install",
+    "test": "ts-node node_modules/tape/bin/tape test/*.ts --reporter spec"
   },
   "dependencies": {
+    "bluebird": "^3.4.5",
     "construx": "^1.0.0",
     "construx-copier": "^1.0.0",
     "dotenv": "^2.0.0",
