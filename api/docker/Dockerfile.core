@@ -1,0 +1,14 @@
+FROM centos:centos7
+
+RUN curl --silent --location https://rpm.nodesource.com/setup_6.x | bash - && \
+    yum install -y nodejs
+
+ARG GIT_COMMIT
+ARG DATE
+
+LABEL  SERVICE_NAME=api           \
+       GIT_COMMIT=$GIT_COMMIT   \
+       DATE=$DATE               \
+       IMAGE_TYPE=core
+
+CMD [ "node", "-e", "console.log('Hello api.core container');" ]
