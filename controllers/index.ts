@@ -1,7 +1,7 @@
 'use strict';
 
 import * as express from 'express';
-import {Index} from '../models/index';
+import { Index } from '../models/index';
 
 module.exports = function (router: express.Router): void {
 
