@@ -5,7 +5,6 @@
     "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160829034835",
     "knex": "registry:dt/knex#0.0.0+20160819212955",
     "node": "registry:dt/node#6.0.0+20160830141956",
-    "request": "registry:dt/request#0.0.0+20160726020908",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
   }
