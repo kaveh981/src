@@ -4,6 +4,9 @@ import * as Knex from 'knex';
 import * as Promise from 'bluebird';
 
 import { ConfigLoader } from './config-loader';
+import { Logger } from './logger';
+
+const Log: Logger = new Logger("DBMA");
 
 // DatabaseManager interface. As we can't implement this in the class directly it has to be separate. Not a big deal.
 interface IDatabaseManager extends Knex.QueryInterface {
@@ -15,6 +18,8 @@ class DatabaseManager {
 
     // Load the configuration from environment and copy properties from Knex to itself.
     public initialize(): Promise<any> {
+
+        Log.info('Initializing database connection...');
 
         return new Promise((resolve: Function, reject: Function) => {
             let databaseConfig: Knex.Config = {
@@ -31,7 +36,14 @@ class DatabaseManager {
 
             Object.assign(this, queryBuilder);
 
+            Log.info('Database connection established successfully.');
+
             resolve();
+        })
+        .catch((err: ErrorEvent) => {
+            Log.warn('Database failed to connect.');
+            Log.error(err.toString());
+            throw err;
         });
 
     }
