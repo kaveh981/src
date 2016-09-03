@@ -2,10 +2,13 @@ version: '2'
 
 networks:
   atwater:
-    external: true
+    external:
+      name: "atw-external"
 
 services:
-  api:
+  atw-api:
     extends:
       file: "api/docker/compose/$IMAGE_TYPE.yml"
-      service: "api"
+      service: "atw-api"
+#    ports:
+#      - "8000:8000"

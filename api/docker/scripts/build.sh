@@ -4,7 +4,7 @@
 REPO=ir.indexexchange.com:5000
 VERSION=${VERSION-"newest"}
 TYPE=${TYPE-"core"}
-SERVICE_NAME=${NAME-"api"}
+SERVICE_NAME=${NAME-"atw-api"}
 GIT_COMMIT=$(git rev-parse --short HEAD)
 DATE=`date +%Y-%m-%d`
 
@@ -12,8 +12,8 @@ DATE=`date +%Y-%m-%d`
 #BUILD_CONTEXT=/src
 
 # Test for any BUILD_CONTEXT built from this script's location [ SEEMS TO WORK ! ! ! ]
-HERE=$(readlink -f $(dirname $0))
-BUILD_CONTEXT=$(readlink -f $HERE/../../../..)
+#HERE=$(readlink -f $(dirname $0))
+BUILD_CONTEXT=$(readlink -f $(dirname $0)/../../../..)
 echo "Build context set to: $BUILD_CONTEXT"
 
 # Below is the config for setting the build context

@@ -27,10 +27,13 @@ RUN \
   rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
   ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+# Label img with Commit hash and date at build time
 ARG GIT_COMMIT
 ARG DATE
 
-LABEL  SERVICE_NAME=api \
+LABEL  SERVICE_NAME=atw-api \
     GIT_COMMIT=$GIT_COMMIT \
     DATE=$DATE \
     IMAGE_TYPE=core
+
+EXPOSE 8000

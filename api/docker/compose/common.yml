@@ -1,9 +1,10 @@
 version: '2'
 
 services:
-  api:
+  atw-api:
+    container_name: "atw-api"
     networks:
       atwater:
         aliases:
-          - api
+          - "api"
     restart: "always"
