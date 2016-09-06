@@ -5,7 +5,7 @@ import { Logger } from '../../lib/logger';
 
 const Log: Logger = new Logger('IXMB');
 
-export class BuyerModel {
+class BuyerModel {
     public static getDSPFromId(userId: number): Promise<any> {
         return DatabaseManager.select('dspid')
             .from('ixmBuyers')
@@ -35,3 +35,5 @@ export class BuyerModel {
             });
     }
 }
+
+export { BuyerModel }

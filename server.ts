@@ -9,7 +9,7 @@ const Log: Logger = new Logger('SRVR');
 
 const kraken: Function = require('kraken-js');
 
-export class Server {
+class Server {
 
     // Starts the server
     public static start(): void {
@@ -31,3 +31,5 @@ export class Server {
     }
 
 }
+
+export { Server }

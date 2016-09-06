@@ -1,8 +1,10 @@
 'use strict';
 
-export class Index {
+class Index {
     public name: string;
     constructor() {
         this.name = 'index';
     }
 }
+
+export { Index }
