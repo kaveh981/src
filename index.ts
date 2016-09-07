@@ -9,4 +9,7 @@ import { DatabaseManager } from './lib/database-manager';
 DatabaseManager.initialize()
     .then(() => {
         Server.start();
+    })
+    .catch((err: ErrorEvent) => {
+        // Clean up.
     });
