@@ -3,7 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { ConfigLoader } from './config-loader';
+import { Config } from './config';
 
 // Write stream for file writing needs to be global so that all loggers can access it.
 function createLogWriteStream(filename: string): fs.WriteStream {
@@ -25,8 +25,8 @@ const consoleLevel: number = 2;
 const logLevels: any = {
     "0": "TRACE",
     "1": "DEBUG",
-    "2": "INFO",
-    "3": "WARN",
+    "2": "INFO ",
+    "3": "WARN ",
     "4": "ERROR",
     "5": "FATAL"
 };
