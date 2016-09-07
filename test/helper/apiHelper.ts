@@ -1,7 +1,7 @@
-import * as promise from 'bluebird';
+import * as Promise from 'bluebird';
 import * as http from 'request';
 
-export class ApiHelper {
+class ApiHelper {
 
     private queryString: boolean = false;
     private options: any = {};
@@ -39,39 +39,36 @@ export class ApiHelper {
             reqOpts.json = requestBody;
         }
 
-        let PromiseRequest: Function = promise.method(() => {
-            return new Promise((resolve: Function, reject: Function) => {
-                let request: any = http(reqOpts, (error: Error, response: any , body: any) => {
+        return new Promise((resolve: Function, reject: Function) => {
+            let request: any = http(reqOpts, (error: Error, response: any , body: any) => {
 
-                    if (error) {
-                        console.log('Problem with request:', error);
-                        reject(error);
-                    } else if (response.statusCode === 400) {
-                        let result: any = {
-                            'error': response.body.error,
-                            'httpVersion': response.httpVersion,
-                            'httpStatusCode': response.statusCode,
-                            'headers': response.headers,
-                            'trailers': response.trailers
-                        };
-                        resolve(result);
+                if (error) {
+                    console.log('Problem with request:', error);
+                    reject(error);
+                } else if (response.statusCode === 400) {
+                    let result: any = {
+                        'error': response.body.error,
+                        'httpVersion': response.httpVersion,
+                        'httpStatusCode': response.statusCode,
+                        'headers': response.headers,
+                        'trailers': response.trailers
+                    };
+                    resolve(result);
 
-                    } else {
-                        let result: any = {
-                            'httpVersion': response.httpVersion,
-                            'httpStatusCode': response.statusCode,
-                            'headers': response.headers,
-                            'body': response.body,
-                            'trailers': response.trailers
-                        };
-                        resolve(result);
-                    }
-                });
+                } else {
+                    let result: any = {
+                        'httpVersion': response.httpVersion,
+                        'httpStatusCode': response.statusCode,
+                        'headers': response.headers,
+                        'body': response.body,
+                        'trailers': response.trailers
+                    };
+                    resolve(result);
+                }
             });
-        });
-        return PromiseRequest(reqOpts).then((value: any) => {
-            return value;
         });
     }
 
 }
+
+export { ApiHelper }

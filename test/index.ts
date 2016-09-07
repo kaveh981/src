@@ -1,7 +1,11 @@
+'use strict';
+
 import * as test from 'tape';
-import {ApiHelper} from './helper/apiHelper';
 import * as express from 'express';
-import {Test} from "tape";
+
+import { Test } from "tape";
+import { ApiHelper } from './helper/apiHelper';
+
 let api: ApiHelper = new ApiHelper();
 
 api.setOptions({
