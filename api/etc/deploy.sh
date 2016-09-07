@@ -11,4 +11,4 @@ cp -r $SRC/.env $DEST
 
 # Install dependencies
 cd $DEST
-npm install
+npm install && npm run postinstall

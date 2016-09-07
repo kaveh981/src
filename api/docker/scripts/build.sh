@@ -11,8 +11,7 @@ DATE=`date +%Y-%m-%d`
 #this defines the build context directory,
 #BUILD_CONTEXT=/src
 
-# Test for any BUILD_CONTEXT built from this script's location [ SEEMS TO WORK ! ! ! ]
-#HERE=$(readlink -f $(dirname $0))
+# Test for any BUILD_CONTEXT built from this script's location [ SEEMS TO WORK ]
 BUILD_CONTEXT=$(readlink -f $(dirname $0)/../../../..)
 echo "Build context set to: $BUILD_CONTEXT"
 
