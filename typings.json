@@ -7,5 +7,8 @@
     "node": "registry:dt/node#6.0.0+20160830141956",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
+  },
+  "dependencies": {
+    "request": "registry:npm/request#2.69.0+20160428223725"
   }
 }
