@@ -1,3 +1,5 @@
+'use strict';
+
 import * as Promise from 'bluebird';
 import * as http from 'request';
 
