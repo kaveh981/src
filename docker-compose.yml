@@ -9,3 +9,7 @@ services:
     extends:
       file: "api/docker/compose/$IMAGE_TYPE.yml"
       service: "atw-api"
+  atw-nginx:
+    extends:
+      file: "nginx/docker/compose/$IMAGE_TYPE.yml"
+      service: "atw-nginx"
