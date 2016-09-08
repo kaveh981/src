@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  atw-nginx:
+    container_name: "atw-nginx"
+    restart: "always"
+    networks:
+      - atwater

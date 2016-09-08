@@ -30,3 +30,9 @@ typings
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local Config Files
+######################
+.env
+entrypoint_local.sh
+docker-compose.override.yml

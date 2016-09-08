@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  atw-nginx:
+    extends:
+      file: "./common.yml"
+      service: "atw-nginx"
+    image: "$REPO/atw-nginx.core:newest"
+    entrypoint: "sh /src/atwater.git/nginx/docker/scripts/entrypoint.sh"
+    volumes:
+      - "$SRC_DIR:/src"
+    ports:
+      - "4430:443"
