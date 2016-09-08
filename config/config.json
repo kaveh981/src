@@ -3,15 +3,7 @@
         "contentPath": "path:./locales",
         "fallback": "en-US"
     },
-    "specialization": {},
     "middleware": {
-        "static": {
-            "module": {
-                "arguments": [
-                    "path:./.build"
-                ]
-            }
-        },
         "router": {
             "module": {
                 "arguments": [
@@ -19,6 +11,11 @@
                         "directory": "path:./controllers"
                     }
                 ]
+            }
+        },
+        "logger": {
+            "module": {
+                "name": "path:./middleware/http-logger"
             }
         }
     }

@@ -19,19 +19,6 @@ class Config {
     // Configuration information
     private static configMap: any = {};
 
-    // Load up all the config into configMap
-    public static initialize(): Promise<{}> {
-        return new Promise((resolve: Function, reject: Function) => {
-            let files: string[] = fs.readdirSync(path.join(__dirname, '../config/'));
-
-            files.forEach((file: string) => {
-                this.loadConfig(file);
-            });
-
-            resolve();
-        });
-    }
-
     // Retrieve an environment variable
     public static getVar(variable: string): string {
         let value: string = process.env[variable];
@@ -45,6 +32,10 @@ class Config {
 
     // Get config by name
     public static get(config: string): any {
+        if (!this.configMap[config]) {
+            this.loadConfig(config + '.json');
+        }
+
         return this.configMap[config];
     }
 

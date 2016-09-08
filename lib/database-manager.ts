@@ -72,7 +72,7 @@ class DatabaseManager {
         Log.info('Shutting down the DatabaseManager...');
 
         if (this.clientPool) {
-            Log.info('Destroying client pool...');
+            Log.debug('Destroying client pool...');
             this.clientPool.destroy();
         }
 
