@@ -25,8 +25,8 @@ class Server {
 
             let server: http.Server = http.createServer(app);
 
-            server.on('listening', (err) => {
-                Log.info(`Server has started successfully.`);
+            server.on('listening', () => {
+                Log.info(`Server has started successfully, listening on port ${port}.`);
                 resolve();
             });
 
@@ -36,6 +36,10 @@ class Server {
             });
 
             server.listen(port);
+        })
+        .catch((err: ErrorEvent) => {
+            Log.error(err.toString());
+            throw err;
         });
     }
 

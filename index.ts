@@ -6,12 +6,14 @@ import * as Promise from 'bluebird';
 
 import { Server } from './server';
 import { DatabaseManager } from './lib/database-manager';
-import { BuyerModel } from './models/buyers';
 import { Config } from './lib/config';
+import { Validator } from './lib/validator';
+
+import { BuyerModel } from './models/buyers';
 
 Promise.resolve()
     .then(() => {
-        return Config.initialize();
+        return Validator.initialize();
     })
     .then(() => {
         return DatabaseManager.initialize();
