@@ -36,8 +36,8 @@ const logLevels: any = {
 
 // Log colors
 const logColors: any = {
-    "0": chalk.cyan.dim,
-    "1": chalk.green.dim,
+    "0": chalk.cyan,
+    "1": chalk.green,
     "2": chalk.white,
     "3": chalk.yellow,
     "4": chalk.red.bold,
