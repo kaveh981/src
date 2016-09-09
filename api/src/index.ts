@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
 
-import { Server } from './server';
+import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { Config } from './lib/config';
 import { Validator } from './lib/validator';

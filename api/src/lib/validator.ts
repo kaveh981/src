@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Logger } from './logger';
+import { Logger } from './Logger';
 
 const Log: Logger = new Logger('VLDT');
 

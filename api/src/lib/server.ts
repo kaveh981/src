@@ -3,11 +3,18 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
+import * as path from 'path';
 
-import { Logger } from './lib/logger';
-import { Config } from './lib/config';
+import { Logger } from './logger';
+import { Config } from './config';
 
 const Log: Logger = new Logger('SRVR');
+
+const basedir: string = path.join(__dirname, '../');
+
+const krakenOptions: any = {
+    basedir: basedir
+};
 
 const kraken: Function = require('kraken-js');
 
@@ -21,7 +28,7 @@ class Server {
 
             Log.info(`Starting the server on port ${port}...`);
 
-            app.use(kraken());
+            app.use(kraken(krakenOptions));
 
             let server: http.Server = http.createServer(app);
 
@@ -31,8 +38,7 @@ class Server {
             });
 
             server.on('error', (err: ErrorEvent) => {
-                Log.error(err.toString());
-                reject();
+                throw err;
             });
 
             server.listen(port);
