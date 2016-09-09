@@ -3,9 +3,14 @@
     "bluebird": "registry:dt/bluebird#3.0.0+20160811111256",
     "express": "registry:dt/express#4.0.0+20160708185218",
     "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160829034835",
+    "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
     "knex": "registry:dt/knex#0.0.0+20160819212955",
     "node": "registry:dt/node#6.0.0+20160830141956",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
+  },
+  "dependencies": {
+    "chalk": "registry:npm/chalk#1.1.1+20160812215109",
+    "request": "registry:npm/request#2.69.0+20160428223725"
   }
 }

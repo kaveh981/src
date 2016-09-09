@@ -2,8 +2,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as chalk from 'chalk';
 
-import { ConfigLoader } from './config-loader';
+import { Config } from './config';
 
 // Write stream for file writing needs to be global so that all loggers can access it.
 function createLogWriteStream(filename: string): fs.WriteStream {
@@ -18,17 +19,27 @@ function createLogWriteStream(filename: string): fs.WriteStream {
 
 const writeStream: fs.WriteStream = createLogWriteStream('output.log');
 
-// Level of console to display. TODO: Place in config
-const consoleLevel: number = 2;
+// Level of console to display.
+const consoleLevel: number = Config.get('logger')['consoleLevel'];
 
 // Log level names
 const logLevels: any = {
     "0": "TRACE",
     "1": "DEBUG",
-    "2": "INFO",
-    "3": "WARN",
+    "2": "INFO ",
+    "3": "WARN ",
     "4": "ERROR",
     "5": "FATAL"
+};
+
+// Log colors
+const logColors: any = {
+    "0": chalk.cyan.dim,
+    "1": chalk.green.dim,
+    "2": chalk.white,
+    "3": chalk.yellow,
+    "4": chalk.red.bold,
+    "5": chalk.bgRed.bold
 };
 
 // Message interface
@@ -86,7 +97,8 @@ class Logger {
     // Write the message to the console if it is greater than the consoleLevel, also write to file.
     private outputLog(message: IMessage): void {
         if (message.LEVEL >= consoleLevel) {
-            console.log(`(${this.name.toUpperCase()}) [${message.LOG_LEVEL}]: ${message.MESSAGE}`);
+            let msg: string = `(${this.name.toUpperCase()}) [${message.LOG_LEVEL}]: ${message.MESSAGE}`;
+            console.log(logColors[message.LEVEL](msg));
         }
 
         writeStream.write(JSON.stringify(message) + '\n');
