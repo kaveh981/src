@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  atw-api:
+    extends:
+      file: "common.yml"
+      service: "atw-api"
+    image: "$REPO/atw-api.core:newest"
+    entrypoint: "sh /src/atwater.git/api/docker/scripts/entrypoint.sh"
+    volumes:
+      - "$SRC_DIR:/src/:ro"

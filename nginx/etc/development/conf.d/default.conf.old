@@ -2,14 +2,13 @@ proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=one:8m max_size=50m inact
 proxy_temp_path /var/tmp/nginx;
 
 # containerized api
-upstream indexmarketapi {
-  server api00.indexexchange.com:7999;
-  server api00.indexexchange.com:8000 backup;
+upstream atw-api {
+  server atw-api:8000;
 }
 
 server {
     listen       443 ssl;
-    server_name  api01.*;
+    server_name  atw-api.*;
 
     ## SSL Settings
     ssl_certificate     ssl/system.indexexchange.com.crt;
@@ -24,7 +23,7 @@ server {
 
     ssl_prefer_server_ciphers on;
 
-    root /opt/searhaack/assets;
+    #root /opt/atwater/assets;
 
     # Forward to API
     location /api/ { 
@@ -38,7 +37,7 @@ server {
         return 204;
       }
 
-      proxy_pass         indexmarketapi;
+      proxy_pass         http://atw-api:8000;
       proxy_set_header   Upgrade $http_upgrade;
       proxy_set_header   Connection 'update';
       proxy_set_header   Host $host;

@@ -31,6 +31,8 @@ typings
 ehthumbs.db
 Thumbs.db
 
-# Environment Variables
+# Local Config Files
 ######################
 .env
+entrypoint_local.sh
+docker-compose.override.yml

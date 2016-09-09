@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  atw-api:
+    container_name: "atw-api"
+    networks:
+      atwater:
+        aliases:
+          - "api"
+    restart: "always"
