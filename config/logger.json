@@ -1,3 +1,4 @@
 {
-    "consoleLevel": 2
+    "consoleLevel": 0,
+    "consoleFilter": []
 }

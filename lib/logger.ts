@@ -6,6 +6,8 @@ import * as chalk from 'chalk';
 
 import { Config } from './config';
 
+const loggerConfig: any = Config.get('logger');
+
 // Write stream for file writing needs to be global so that all loggers can access it.
 function createLogWriteStream(filename: string): fs.WriteStream {
     let logDirectory: string = path.join(__dirname, `../logs/`);
@@ -20,7 +22,7 @@ function createLogWriteStream(filename: string): fs.WriteStream {
 const writeStream: fs.WriteStream = createLogWriteStream('output.log');
 
 // Level of console to display.
-const consoleLevel: number = Config.get('logger')['consoleLevel'];
+const consoleLevel: number = loggerConfig['consoleLevel'];
 
 // Log level names
 const logLevels: any = {
@@ -96,7 +98,7 @@ class Logger {
 
     // Write the message to the console if it is greater than the consoleLevel, also write to file.
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= consoleLevel) {
+        if (message.LEVEL >= consoleLevel && loggerConfig['consoleFilter'].indexOf(message.ORIGIN) === -1) {
             let msg: string = `(${this.name.toUpperCase()}) [${message.LOG_LEVEL}]: ${message.MESSAGE}`;
             console.log(logColors[message.LEVEL](msg));
         }
