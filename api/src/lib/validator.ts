@@ -94,8 +94,11 @@ class Validator {
             return {
                 success: 0,
                 errors: result.getErrors().map((error: ramlValidator.IStatus) => {
-                    Log.trace(`${error.getMessage()} for ${error.getValidationPathAsString()}`);
-                    return error.getMessage();
+                    let msg = `${error.getMessage()}${error.getValidationPathAsString() ?
+                        ' for ' + error.getValidationPathAsString() : ''}`;
+
+                    Log.trace(msg);
+                    return msg;
                 })
             };
         }

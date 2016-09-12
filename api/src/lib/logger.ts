@@ -28,8 +28,8 @@ const consoleLevel: number = loggerConfig['consoleLevel'];
 const logLevels: any = {
     "0": "TRACE",
     "1": "DEBUG",
-    "2": "INFO ",
-    "3": "WARN ",
+    "2": "INFO",
+    "3": "WARN",
     "4": "ERROR",
     "5": "FATAL"
 };
@@ -98,8 +98,9 @@ class Logger {
 
     // Write the message to the console if it is greater than the consoleLevel, also write to file.
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= consoleLevel && loggerConfig['consoleFilter'].indexOf(message.ORIGIN) === -1) {
-            let msg: string = `(${this.name.toUpperCase()}) [${message.LOG_LEVEL}]: ${message.MESSAGE}`;
+        if (message.LEVEL >= consoleLevel && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+            let msg: string = `(${this.name.toUpperCase()}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
+
             console.log(logColors[message.LEVEL](msg));
         }
 
