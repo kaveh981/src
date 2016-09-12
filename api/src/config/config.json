@@ -14,8 +14,21 @@
             }
         },
         "logger": {
+            "priority": 10,
             "module": {
                 "name": "path:./middleware/http-logger"
+            }
+        },
+        "resAugmenter": {
+            "priority": 20,
+            "module": {
+                "name": "path:./middleware/res-augmenter"
+            }
+        },
+        "authHandler": {
+            "priority": 30,
+            "module": {
+                "name": "path:./middleware/auth-handler"
             }
         }
     }
