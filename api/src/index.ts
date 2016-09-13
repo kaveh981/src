@@ -25,3 +25,8 @@ Promise.resolve()
         // Clean up.
         DatabaseManager.shutdown();
     });
+
+process.on('SIGTERM', () => {
+    console.log('Shutting down gracefully...');
+    setTimeout(process.exit, 0, 0);
+});

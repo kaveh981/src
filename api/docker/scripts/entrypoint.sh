@@ -3,4 +3,4 @@
 ENV=${ENV:-production}
 
 ENV=ENV sh /src/atwater.git/api/etc/deploy.sh
-sh /bin/start.sh $ENV
+exec sh /bin/start.sh $ENV
