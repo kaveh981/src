@@ -81,7 +81,7 @@ function augmentResponse(res: express.Response): void {
         };
 
         res.status(204).send(JSON.stringify(msg));
-    }
+    };
 
     // Send JSON payload
     res.sendPayload = (payload: any) => {
@@ -105,7 +105,7 @@ function augmentResponse(res: express.Response): void {
 };
 
 // The augmentation middleware
-function ResponseAugmenter(req: express.Request, res: express.Response, next: Function) {
+function ResponseAugmenter(req: express.Request, res: express.Response, next: Function): void {
     augmentResponse(res);
     next();
 }
