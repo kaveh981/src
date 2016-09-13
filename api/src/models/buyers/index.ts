@@ -37,6 +37,18 @@ class BuyerModel {
             });
     }
 
+    // Check if the userId is in ixmBuyers
+    public static isIXMBuyer(userId: number): Promise<boolean> {
+        return DatabaseManager.select().from('ixmBuyers').where('userID', userId).limit(1)
+            .then((rows: any) => {
+                return rows.length !== 0;
+            })
+            .catch((err: ErrorEvent) => {
+                Log.error(err.toString());
+                throw err;
+            });
+    }
+
     // Get all dspIDs associated with a given userID
     public static getDSPsFromId(userId: number): Promise<any> {
         return DatabaseManager.select('dspid')

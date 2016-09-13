@@ -16,22 +16,29 @@ declare module 'express' {
         sendError(status: number, error: string, message?: string): void;
         sendValidationError(details: string[]): void;
         sendPayload(payload: any): void;
-        sendSchemedPayload(payload: any, schema: string): void;
-        sendNotFoundError(resource: string): void;
+        sendNotFoundError(): void;
         sendUnauthorizedError(): void;
+        sendNoContent(): void;
         sendInternalAuthError(): void;
     }
+}
+
+// The standardized response object
+interface IHttpResponse {
+    'status': number;
+    'message': string;
+    'data': any;
 }
 
 // Add the extra functions to the response object
 function augmentResponse(res: express.Response): void {
 
     // Send an error message.
-    res.sendError = (status: number, error: string, message: string = '') => {
-        let msg = {
+    res.sendError = (status: number, error: string) => {
+        let msg: IHttpResponse = {
             'status': status,
-            'error': error,
-            'message': message
+            'message': error,
+            'data': {}
         };
 
         res.status(status).send(JSON.stringify(msg));
@@ -39,17 +46,25 @@ function augmentResponse(res: express.Response): void {
 
     // Validation error.
     res.sendValidationError = (details: string[]) => {
-        res.sendError(400, 'VALIDATION_ERROR', JSON.stringify(details));
+        let msg: IHttpResponse = {
+            'status': 400,
+            'message': 'VALIDATION_ERROR',
+            'data': {
+                'errors': JSON.stringify(details)
+            }
+        };
+
+        res.status(400).send(JSON.stringify(msg));
     };
 
     // 404 error handler
-    res.sendNotFoundError = (resource: string) => {
-        res.sendError(404, 'RESOURCE_NOT_FOUND', `Resource ${resource} could not be found.`);
+    res.sendNotFoundError = () => {
+        res.sendError(404, 'NOT_FOUND');
     };
 
     // 403 error hanlder
     res.sendUnauthorizedError = () => {
-        res.sendError(403, 'UNAUTHORIZED', 'You are not authorized to complete that action.');
+        res.sendError(403, 'UNAUTHORIZED');
     };
 
     // 500 error
@@ -57,28 +72,34 @@ function augmentResponse(res: express.Response): void {
         res.sendError(500, "INTERNAL_AUTHENTICATION_ERROR");
     };
 
-    // Send JSON payload
-    res.sendPayload = (payload: any) => {
-        let msg = {
-            'status': 200,
-            'error': 'NONE',
-            'message': {}
+    // 204 no content
+    res.sendNoContent = () => {
+        let msg: IHttpResponse = {
+            'status': 204,
+            'message': 'NO_CONTENT',
+            'data': {}
         };
 
-        Object.assign(msg.message, payload);
+        res.status(204).send(JSON.stringify(msg));
+    }
+
+    // Send JSON payload
+    res.sendPayload = (payload: any) => {
+
+        if (!payload || Object.keys(payload).length === 0) {
+            res.sendNoContent();
+            return;
+        }
+
+        let msg: IHttpResponse = {
+            'status': 200,
+            'message': 'OK',
+            'data': {}
+        };
+
+        Object.assign(msg.data, payload);
 
         res.status(200).send(JSON.stringify(msg));
-    };
-
-    // Send JSON payload verified against a schema
-    res.sendSchemedPayload = (payload: any, schema: string) => {
-        let validationResult = Validator.validate(payload, schema);
-
-        if (!validationResult.success) {
-            res.sendError(500, 'INTERNAL_SCHEMA_ERROR');
-        } else {
-            res.sendPayload(payload);
-        }
     };
 
 };
