@@ -18,7 +18,7 @@ import { Logger } from './logger';
 const Log: Logger = new Logger("DBMA");
 
 // DatabaseManager interface. As we can't implement this in the class directly it has to be separate. Not a big deal.
-interface IDatabaseManager extends Knex.QueryInterface {
+interface IDatabaseManager extends Knex {
     initialize(): Promise<{}>;
     shutdown(): void;
 }
