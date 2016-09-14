@@ -54,7 +54,7 @@ class PackageModel {
             });
     }
 
-    public static getPackagesOfOwner (packageOwner: string): Promise<any> {
+    public static getPackagesFromOwner (packageOwner: string): Promise<any> {
         return DatabaseManager.select('packageID')
             .from('ixmPackages')
             .where('owner', packageOwner)
@@ -64,7 +64,7 @@ class PackageModel {
             });
     }
 
-    public static getPackagesBasedOnStatus (packageStatus: string): Promise<any> {
+    public static getPackagesFromStatus (packageStatus: string): Promise<any> {
         return DatabaseManager.select('packageID')
             .from('ixmPackages')
             .where('status', packageStatus)
