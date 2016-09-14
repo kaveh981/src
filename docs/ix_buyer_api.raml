@@ -1,0 +1,225 @@
+#%RAML 1.0
+---
+################################
+# Overview
+################################
+
+title: Index Exchange Buyer API
+baseUri: https://market.indexexchange.com/api/{version}
+version: v1
+mediaType: application/json
+documentation:
+    -   title: Misc Notes
+        content: |
+            Lipsum generator - panipsum.com/generate/?submit=1&p=5&w=None&pl=3&q=&wl17=Klingon&wl58=Stripper+Names&wl62=Theological+Demons&wl102=Upside+Down+Lipsum
+
+
+################################
+# Object Definitions
+################################
+
+types:
+    Contact:
+        type: object
+        description: An object containing contact information, which may be associated with deals, available deal sections or profiles.
+        properties:
+            title:
+                type: string
+                required: false
+                displayName: Job Title
+                description: The contact's job title or position
+            name:
+                type: string
+                required: true
+                displayName: Contact Name
+                description: The contact's name
+            email:
+                type: string
+                required: true
+                displayName: Contact Email
+                description: The contact's email address
+            phone:
+                type: string
+                required: true
+                displayName: Contact Phone Number
+                description: The contact's phone number
+        example: |
+            {
+                "title": "Captain",
+                "name": "Jimdex Exchange",
+                "email": "jimdex.exchange@indexexchange.com",
+                "phone": "666 765 4321"
+            }
+
+    Deal:
+        type: object
+        description: An object describing a deal available to buy on a deal section
+        properties:
+            id:
+                type: integer
+                required: true
+                displayName: Deal ID
+                description: The unique identifier for the deal
+            external_id:
+                type: string
+                required: false
+                displayName: External Deal ID
+                description: An external deal reference.
+            owner_id:
+                type: integer
+                required: true
+                displayName: Publisher ID(s)
+                description: The ID of the creator of the deal
+            name:
+                type: string
+                required: true
+                displayName: Name
+                description: Name of the deal
+            site_id:
+                type: integer[]
+                required: true
+                displayName: Site ID(s)
+                description: An array of unique website IDs involved in the deal
+            deal_section_id: # ? Provide API paths to access ?
+                type: integer[]
+                required: true
+                displayName: Deal Section Id(s)
+                description: An array of Deal Section IDs, indicating which sections will be active in this deal.
+            description:
+            	type: string
+            	required: true
+            	displayName: Description
+            	description: A description of the deal in question
+            status:
+                type: string
+                required: true
+                displayName: Status
+                description: The deal's current status. May be one of... # ? what are the list of statuses?
+                enum: ["active", "paused", "deleted"] # ? See above - this will be the field values list
+            public:
+            	type: integer
+            	required: true
+            	displayName: Public
+            	description: Indicates whether a deal is publicly viewable or if it is only viewable by targeted people
+            start_date:
+                type: datetime
+                required: true
+                displayName: Start Date
+                description: The start date of the deal, if applicable. RFC3339 format, UTC. Will be set to time of creation if available immediately.
+            end_date:
+                type: datetime
+                required: false # should we omit date for 'ongoing'? Or?
+                displayName: End Date
+                description: The end date of the deal, if applicable. RFC3339 format, UTC.
+            price:
+                type: number
+                required: true
+                displayName: Deal Price
+                description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
+            impressions:
+            	type: number
+                required: false
+                displayName: Impressions
+                description: The projected amount of impressions for the package
+            budget:
+            	type: number
+                required: false
+                displayName: Budget
+                description: The projected amount to be spent by the buyer
+            currency:
+                type: string
+                required: true
+                displayName: Currency
+                description: Three-letter currency code for the deal.
+                example: USD
+            auction_type:
+                type: integer
+                required: true
+                displayName: Auction Type,
+                description: The auction type - 1 = First Price, 2 = Second Price, 3 = Fixed Rate
+                enum: [1,2,3] # Use integer or string values? Strings clearer, ints are what system uses
+            transaction_type:
+                type: integer
+                required: true
+                displayName: Transaction Type
+                description: The type of transaction for the deal - private market, etc. # TODO: improve
+                enum: [1] # TODO: find list of types
+            contact:
+                type: Contact
+                required: true
+                displayName: Contact Information
+                description: The primary contact information for the deal
+            terms:
+                type: string
+                required: false
+                displayName: Terms & Conditions
+                description: The terms & conditions for the deal - extra information describing the deal.
+            created_at:
+                type: datetime
+                required: true
+                displayName: Created At
+                description: The timestamp the deal was created at. RFC3339 format, UTC.
+            modified_at:
+                type: datetime
+                required: true
+                displayName: Modified At
+                description: The timestamp the deal was last modified at. RFC3339 format, UTC.
+        example: |
+            {
+                "id": 999,
+                "external_id": "DEAL-4-U-BB",
+                "publisher_id": [123],
+                "publisher_name": ["Jimdex Exchange, Inc."],
+                "site_id": [111,222],
+                "deal_section_id": [4321, 9876],
+                "description": "I am a deal"
+                "status": "active",
+                "public": 1
+                "start_date": "2016-08-08T08:00:00Z",
+                "end_date": "2016-08-28T20:08:08Z",
+                "price": 1.99,
+                "impressions": 8
+                "budget": 9999999.99
+                "currency": "USD",
+                "auction_type": 1,
+                "transaction_type": 1,
+                "contact": {
+                    "title": "Captain",
+                    "name": "Jimdex Exchange",
+                    "email": "jimdex.exchange@indexexchange.com",
+                    "phone": "666 765 4321"
+                },
+                "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+                "created_at": "2016-04-04T04:00:00Z",
+                "modified_at": "2016-04-14T14:00:00Z"
+            }
+
+################################
+# Route Definitions
+################################
+
+/deals:
+    get:
+        description: Retrieve packages from Index Market
+        queryParameters:
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Deal[]
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            404: # 404 = "Not found"
+            418: # 418 = "I'm a teapot" return tea
+            500: # 500 = "Internal Server Error" something done broke
+    put:
+        description: Create a new package in the IX system to be offered to one or more publishers. Publisher(s) may accept the package as offered, or create a counter-offer, or modify a previously created package in the IX system. Only available to the package creator.
+        body:
+            type: Deal
+        responses:
+            201: #201 = "Created"
+    /{deal_id}:
+        get:
+        put:
+        delete:

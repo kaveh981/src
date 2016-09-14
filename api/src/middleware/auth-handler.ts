@@ -24,7 +24,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
     let authHeader = req.get(authConfig['header']);
     let userId = Number(authHeader);
 
-     if (userId && !isNaN(userId)) {
+     if (!isNaN(userId)) {
          BuyerModel.isIXMBuyer(userId)
             .then((isBuyer: boolean) => {
                 if (isBuyer) {
