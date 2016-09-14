@@ -92,7 +92,7 @@ function augmentResponse(res: express.Response): void {
         res.sendError(400, '400', details);
     };
 
-    // 403 error hanlder
+    // 403 error handler
     res.sendUnauthorizedError = () => {
         res.sendError(401, '401');
     };
