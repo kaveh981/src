@@ -40,55 +40,6 @@ interface IHttpResponse {
 // Add the extra functions to the response object
 function augmentResponse(res: express.Response): void {
 
-    // Send an error message.
-    res.sendError = (status: number, error: string, details: string[]) => {
-        let msg: IHttpResponse = {
-            status: status,
-            message: errorMessages[error] || errorMessages[status] || '',
-            data: {}
-        };
-
-        if (details) {
-            msg.data = {
-                errors: details
-            };
-        }
-
-        res.status(status).send(JSON.stringify(msg));
-    };
-
-    // Validation error.
-    res.sendValidationError = (details: string[]) => {
-        res.sendError(400, '400', details);
-    };
-
-    // 403 error hanlder
-    res.sendUnauthorizedError = () => {
-        res.sendError(401, '401');
-    };
-
-    // 404 error handler
-    res.sendNotFoundError = () => {
-        res.sendError(404, '404');
-    };
-
-
-    // 500 general error
-    res.sendInternalError = () => {
-        res.sendError(500, '500');
-    };
-
-    // 204 no content
-    res.sendNoContent = () => {
-        let msg: IHttpResponse = {
-            'status': 204,
-            'message': errorMessages['204'],
-            'data': {}
-        };
-
-        res.status(204).send(JSON.stringify(msg));
-    };
-
     // Send JSON payload
     res.sendPayload = (payload: any) => {
         // If the payload is undefined or is an empty object, send no content
@@ -106,6 +57,54 @@ function augmentResponse(res: express.Response): void {
         Object.assign(msg.data, payload);
 
         res.status(200).send(JSON.stringify(msg));
+    };
+
+    // Send an error message.
+    res.sendError = (status: number, error: string, details: string[]) => {
+        let msg: IHttpResponse = {
+            status: status,
+            message: errorMessages[error] || errorMessages[status] || '',
+            data: {}
+        };
+
+        if (details) {
+            msg.data = {
+                errors: details
+            };
+        }
+
+        res.status(status).send(JSON.stringify(msg));
+    };
+
+    // 204 no content
+    res.sendNoContent = () => {
+        let msg: IHttpResponse = {
+            'status': 204,
+            'message': errorMessages['204'],
+            'data': {}
+        };
+
+        res.status(204).send(JSON.stringify(msg));
+    };
+
+    // Validation error.
+    res.sendValidationError = (details: string[]) => {
+        res.sendError(400, '400', details);
+    };
+
+    // 403 error hanlder
+    res.sendUnauthorizedError = () => {
+        res.sendError(401, '401');
+    };
+
+    // 404 error handler
+    res.sendNotFoundError = () => {
+        res.sendError(404, '404');
+    };
+
+    // 500 general error
+    res.sendInternalError = () => {
+        res.sendError(500, '500');
     };
 
 };
