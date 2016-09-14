@@ -21,30 +21,43 @@ const kraken: Function = require('kraken-js');
 class Server {
 
     // Starts the server
-    public static initialize(): Promise<{}> {
+    public static initialize(): Promise<void> {
         return new Promise((resolve: Function, reject: Function) => {
-            let app: express.Application = express();
+            let app: any = express();
             let port: string = Config.getVar('SERVER_PORT');
 
             Log.info(`Starting the server on port ${port}...`);
 
             app.use(kraken(krakenOptions));
 
-            let server: http.Server = http.createServer(app);
+            app.on('middleware:before', (event: any) => {
+                let middlewarePath = event.config.module.name;
 
-            server.on('listening', () => {
-                Log.info(`Server has started successfully, listening on port ${port}.`);
-                resolve();
+                if (middlewarePath) {
+                    Log.debug(`Loading middleware ${middlewarePath.split('\\').pop()}...`);
+                } else {
+                    Log.debug(`Loading un-named middleware...`);
+                }
             });
 
-            server.on('error', (err: ErrorEvent) => {
-                throw err;
+            app.on('start', () => {
+                resolve(port);
+            });
+
+            let server: http.Server = http.createServer(app);
+
+            server.on('error', (err: Error) => {
+                Log.error(err);
+                reject(err);
             });
 
             server.listen(port);
         })
-        .catch((err: ErrorEvent) => {
-            Log.error(err.toString());
+        .then((port: string) => {
+           Log.info(`Server has started successfully, listening on port ${port}.`);            
+        })
+        .catch((err: Error) => {
+            Log.error(err);
             throw err;
         });
     }

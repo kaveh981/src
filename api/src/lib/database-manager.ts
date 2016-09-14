@@ -55,13 +55,13 @@ class DatabaseManager {
                     this.clientPool = queryBuilder.client;
                     resolve();
                 })
-                .catch((err: ErrorEvent) => {
+                .catch((err: Error) => {
                     reject(err);
                 });
         })
-        .catch((err: ErrorEvent) => {
+        .catch((err: Error) => {
             Log.warn('Database failed to connect.');
-            Log.error(err.toString());
+            Log.error(err);
             throw err;
         });
 

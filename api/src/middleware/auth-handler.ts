@@ -69,7 +69,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
 //         });
 
 //         // Log a warning on error, no need to throw anything.
-//         request.on('error', (err: ErrorEvent) => {
+//         request.on('error', (err: Error) => {
 //             Log.warn('Authentication error ' + err);
 //             res.sendInternalAuthError();
 //         });
