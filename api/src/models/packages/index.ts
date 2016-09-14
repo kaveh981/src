@@ -54,6 +54,26 @@ class PackageModel {
             });
     }
 
+    // Get all packages with the given status, the return value is an array of package objects
+    public static getPackagesFromStatus (packageStatus: string): Promise<any> {
+        return DatabaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+                'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createdDate', 'modifiedDate',
+                DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID AS sections)'))
+            .from('ixmPackages')
+            .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
+            .where('status', packageStatus)
+            .then((packages: any) => {
+                return packages.forEach((ixPackage: any) => {
+                    ixPackage.sections = ixPackage.sections.split(',');
+                })
+            })
+            .catch((err: ErrorEvent) => {
+                Log.error(err.toString());
+                throw err;
+            });
+    }
+
+    // Get all packages with the given status, the return value is an array of package objects 
     public static getPackagesFromOwner (packageOwner: string): Promise<any> {
         return DatabaseManager.select('packageID')
             .from('ixmPackages')
@@ -63,17 +83,8 @@ class PackageModel {
                 throw err;
             });
     }
-
-    public static getPackagesFromStatus (packageStatus: string): Promise<any> {
-        return DatabaseManager.select('packageID')
-            .from('ixmPackages')
-            .where('status', packageStatus)
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
-                throw err;
-            });
-    } 
     
+    // Add a package and related mappings of sections 
     public static addPackage (newPackage: IPackage): Promise<any> {
         return DatabaseManager.insert({
                 ownerID: newPackage.ownerID, 
@@ -103,12 +114,11 @@ class PackageModel {
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
                 throw err;
-            });
-             
+            });          
     }
 
     // Get package information from ID
-    public static getPackageInfo (packageID: number): Promise<any> {
+    private static getPackageInfo (packageID: number): Promise<any> {
         return DatabaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
                 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createdDate', 'modifiedDate')
             .from('ixmPackages')
@@ -122,20 +132,23 @@ class PackageModel {
             });
     }
 
-    public static getPackageSections (packageID: number): Promise<any> {
+    // Get array of sections associated to a package
+    private static getPackageSections (packageID: number): Promise<number []> {
         return DatabaseManager.select('sectionID')
             .from('ixmPackageSectionMappings')
             .where('packageID', packageID)
             .then((sectionObjects: any) => {
-                sectionObjects.forEach()
+                let sectionIDs: number[]; 
+                sectionObjects.forEach((sectionObject: any) => {
+                    sectionIDs.push(sectionObject.sectionID);
+                })
+                return sectionIDs;
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
                 throw err;
-            });
-               
+            });          
     }
-
 }
 
 export { PackageModel }
