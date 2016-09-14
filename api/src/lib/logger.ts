@@ -11,6 +11,11 @@ const loggerConfig: any = Config.get('logger');
 // Write stream for file writing needs to be global so that all loggers can access it.
 function createLogWriteStream(filename: string): fs.WriteStream {
     let logFile: string = path.join(__dirname, '../', filename);
+    let logFolder: string = path.dirname(logFile);
+
+    if (!fs.existsSync(logFolder)) {
+        fs.mkdirSync(logFolder);
+    }
 
     return fs.createWriteStream(logFile, { flags: 'a' });
 }
