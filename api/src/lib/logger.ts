@@ -10,38 +10,43 @@ const loggerConfig: any = Config.get('logger');
 
 // Write stream for file writing needs to be global so that all loggers can access it.
 function createLogWriteStream(filename: string): fs.WriteStream {
-    let logDirectory: string = path.join(__dirname, `../logs/`);
+    let logFile: string = path.join(__dirname, '../', filename);
+    let logFolder: string = path.dirname(logFile);
 
-    if (!fs.existsSync(logDirectory)) {
-        fs.mkdir(logDirectory);
+    if (!fs.existsSync(logFolder)) {
+        fs.mkdirSync(logFolder);
     }
 
-    return fs.createWriteStream(logDirectory + filename, { flags: 'a' });
+    return fs.createWriteStream(logFile, { flags: 'a' });
 }
 
-const writeStream: fs.WriteStream = createLogWriteStream('output.log');
+// Create the list of write streams.
+const writeStreams: fs.WriteStream[] =
+    loggerConfig['outputFiles'].map((file: string) => {
+        return createLogWriteStream(file);
+    });
 
 // Level of console to display.
 const consoleLevel: number = loggerConfig['consoleLevel'];
 
 // Log level names
 const logLevels: any = {
-    "0": "TRACE",
-    "1": "DEBUG",
-    "2": "INFO",
-    "3": "WARN",
-    "4": "ERROR",
-    "5": "FATAL"
+    '0': 'TRACE',
+    '1': 'DEBUG',
+    '2': 'INFO',
+    '3': 'WARN',
+    '4': 'ERROR',
+    '5': 'FATAL'
 };
 
 // Log colors
 const logColors: any = {
-    "0": chalk.cyan,
-    "1": chalk.green,
-    "2": chalk.white,
-    "3": chalk.yellow,
-    "4": chalk.red.bold,
-    "5": chalk.bgRed.bold
+    '0': chalk.cyan,
+    '1': chalk.green,
+    '2': chalk.white,
+    '3': chalk.yellow,
+    '4': chalk.red.bold,
+    '5': chalk.bgRed.bold
 };
 
 // Message interface
@@ -66,13 +71,26 @@ class Logger {
     }
 
     // Log at various levels with appropriate functions
-    public fatal(text: string): IMessage {
-        return this.log(text, 5);
+    public fatal(err: string | Error): IMessage {
+        let errorMessage = this.log(err.toString(), 5);
+
+        if (typeof err !== 'string') {
+            this.log(err.stack, 0);
+        }
+
+        return errorMessage;
     }
 
-    public error(text: string): IMessage {
-        return this.log(text, 4);
+    public error(err: string | Error): IMessage {
+        let errorMessage = this.log(err.toString(), 4);
+
+        if (typeof err !== 'string') {
+            this.log(err.stack, 0);
+        }
+
+        return errorMessage;
     }
+
     public warn(text: string): IMessage {
         return this.log(text, 3);
     }
@@ -104,7 +122,7 @@ class Logger {
             console.log(logColors[message.LEVEL](msg));
         }
 
-        writeStream.write(JSON.stringify(message) + '\n');
+        writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
     }
 
     // Create a message in the correct format for logging.
@@ -115,7 +133,7 @@ class Logger {
             DATE: date.toISOString(),
             LEVEL: logLevel,
             LOG_LEVEL: logLevels[logLevel],
-            LABEL: "IXM BUYER API",
+            LABEL: 'IXM BUYER API',
             ORIGIN: origin,
             MESSAGE: message
         };

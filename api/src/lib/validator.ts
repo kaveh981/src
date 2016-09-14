@@ -33,7 +33,7 @@ class Validator {
 
             // We need to populate the typeCollection in the correct format to be used by raml-typesystem
             files.forEach((file: string) => {
-                Log.trace(`Loading schema ${file}...`);
+                Log.debug(`Loading schema ${file}...`);
 
                 let fileContent: string = fs.readFileSync(path.join(schemaDirectory, file), 'utf8');
                 let jsonSchema: any = yamlParser.safeLoad(fileContent);
@@ -41,7 +41,7 @@ class Validator {
                 Object.assign(typeCollection.types, jsonSchema);
                 typeNames = typeNames.concat(Object.keys(jsonSchema));
 
-                Log.trace(`Schema ${file} has been loaded.`);
+                Log.debug(`Schema ${file} has been loaded.`);
             });
 
             let schemaList: ramlValidator.IParsedTypeCollection = ramlValidator.loadTypeCollection(typeCollection);
@@ -50,7 +50,7 @@ class Validator {
             typeNames.forEach((name: string) => {
                 let type: ramlValidator.IParsedType = schemaList.getType(name);
 
-                Log.trace(`Validating schema ${type.name()}...`);
+                Log.debug(`Validating schema ${type.name()}...`);
 
                 let validationResult: ramlValidator.IStatus = type.validateType();
 
@@ -67,8 +67,8 @@ class Validator {
             this.schemas = schemaList;
             resolve();
         })
-        .catch((err: ErrorEvent) => {
-            Log.error(err.toString());
+        .catch((err: Error) => {
+            Log.error(err);
             throw err;
         });
     }

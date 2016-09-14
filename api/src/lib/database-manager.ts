@@ -18,7 +18,7 @@ import { Logger } from './logger';
 const Log: Logger = new Logger("DBMA");
 
 // DatabaseManager interface. As we can't implement this in the class directly it has to be separate. Not a big deal.
-interface IDatabaseManager extends Knex.QueryInterface {
+interface IDatabaseManager extends Knex {
     initialize(): Promise<{}>;
     shutdown(): void;
 }
@@ -55,13 +55,13 @@ class DatabaseManager {
                     this.clientPool = queryBuilder.client;
                     resolve();
                 })
-                .catch((err: ErrorEvent) => {
+                .catch((err: Error) => {
                     reject(err);
                 });
         })
-        .catch((err: ErrorEvent) => {
+        .catch((err: Error) => {
             Log.warn('Database failed to connect.');
-            Log.error(err.toString());
+            Log.error(err);
             throw err;
         });
 

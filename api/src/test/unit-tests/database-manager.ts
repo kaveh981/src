@@ -14,11 +14,11 @@ test('Database Selection Test', (assert: test.Test) => {
                     .then((rows: any) => {
                         assert.equal(rows.length, 1, 'Selected one user from the users table.');
                     })
-                    .catch((err: ErrorEvent) => {
+                    .catch((err: Error) => {
                         assert.fail('User selection failed ' + err);
                     });
             })
-            .catch((err: ErrorEvent) => {
+            .catch((err: Error) => {
                 assert.fail('Database failed with error: ' + err);
             })
             .finally(() => {
