@@ -1,5 +1,5 @@
 {
-    "consoleLevel": 1,
+    "consoleLevel": 0,
     "consoleFilter": [],
     "outputFiles": ["./logs/output.log"]
 }

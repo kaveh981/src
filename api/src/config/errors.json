@@ -3,7 +3,12 @@
     "204": "No content.",
     
     "400": "Malformed request.",
+    
     "401": "Unauthorized.",
+    "401_INVALID_HEADER": "Authentication header is invalid.",
+    "401_NO_HEADER": "Authentication header not provided.",
+    "401_NOT_IXMBUYER": "Provided user ID is not an Index Market Buyer. If you would like access, please contact your.mom@indexexchange.com",
+
     "403": "Forbidden.",    
     "404": "Not found.",
 
