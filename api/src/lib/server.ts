@@ -54,7 +54,7 @@ class Server {
             server.listen(port);
         })
         .then((port: string) => {
-           Log.info(`Server has started successfully, listening on port ${port}.`);            
+           Log.info(`Server has started successfully, listening on port ${port}.`);
         })
         .catch((err: Error) => {
             Log.error(err);
