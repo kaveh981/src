@@ -26,7 +26,7 @@ test('Validator Test', (assert: test.Test) => {
                     'Bad rat should have two failures, bad diet and bad attitude.');
 
             })
-            .catch((err: ErrorEvent) => {
+            .catch((err: Error) => {
                 assert.fail('Initialization failed with error: ' + err);
                 assert.end();
             });

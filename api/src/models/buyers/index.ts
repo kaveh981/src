@@ -43,8 +43,8 @@ class BuyerModel {
             .then((rows: any) => {
                 return rows.length !== 0;
             })
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
+            .catch((err: Error) => {
+                Log.error(err);
                 throw err;
             });
     }
@@ -54,8 +54,8 @@ class BuyerModel {
         return DatabaseManager.select('dspid')
             .from('ixmBuyers')
             .where('userid', userId)
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
+            .catch((err: Error) => {
+                Log.error(err);
                 throw err;
             });
     }
@@ -65,8 +65,8 @@ class BuyerModel {
         return DatabaseManager.select('userid')
             .from('ixmBuyers')
             .where('dspid', dspId)
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
+            .catch((err: Error) => {
+                Log.error(err);
                 throw err;
             });
     }
@@ -75,8 +75,8 @@ class BuyerModel {
     public static addBuyer(userId: number, dspId: number): Promise<any> {
         return DatabaseManager.insert({userId: userId, dspId: dspId})
             .into('ixmBuyers')
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
+            .catch((err: Error) => {
+                Log.error(err);
                 throw err;
             });
     }
@@ -86,8 +86,8 @@ class BuyerModel {
         return DatabaseManager.select('emailAddress', 'firstName', 'lastName', 'companyName')
             .from('users')
             .where('userid', userId)
-            .catch((err: ErrorEvent) => {
-                Log.error(err.toString());
+            .catch((err: Error) => {
+                Log.error(err);
                 throw err;
             });
     }

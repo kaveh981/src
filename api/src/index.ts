@@ -21,7 +21,7 @@ Promise.resolve()
     .then(() => {
         return Server.initialize();
     })
-    .catch((err: ErrorEvent) => {
+    .catch((err: Error) => {
         // Clean up.
         DatabaseManager.shutdown();
     });
