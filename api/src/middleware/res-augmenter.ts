@@ -49,9 +49,9 @@ function augmentResponse(res: express.Response): void {
         }
 
         let msg: IHttpResponse = {
-            'status': 200,
-            'message': errorMessages['200'],
-            'data': {}
+            status: 200,
+            message: errorMessages['200'],
+            data: {}
         };
 
         Object.assign(msg.data, payload);
@@ -79,9 +79,9 @@ function augmentResponse(res: express.Response): void {
     // 204 no content
     res.sendNoContent = () => {
         let msg: IHttpResponse = {
-            'status': 204,
-            'message': errorMessages['204'],
-            'data': {}
+            status: 204,
+            message: errorMessages['204'],
+            data: {}
         };
 
         res.status(204).send(JSON.stringify(msg));
