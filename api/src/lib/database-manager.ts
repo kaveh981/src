@@ -1,12 +1,3 @@
-/**
- * DatabaseManager
- *
- * The `DatabaseManager` object is a singleton which needs to be initialized before use. Import `DatabaseManager`
- * from `./lib/database-manager` and call the method `DatabaseManager.initialize()`. The `DatabaseManager` object
- * is an extension of the [Knex Query Builder](http://knexjs.org/#Builder) object, so refer to their documentation
- * for usage.
- *
- */
 'use strict';
 
 import * as Knex from 'knex';
@@ -17,19 +8,30 @@ import { Logger } from './logger';
 
 const Log: Logger = new Logger("DBMA");
 
-// DatabaseManager interface. As we can't implement this in the class directly it has to be separate. Not a big deal.
+/**
+ * DatabaseManager interface hack.
+ */
+// As we can't implement this in the class directly it has to be separate.
 interface IDatabaseManager extends Knex {
     initialize(): Promise<{}>;
     shutdown(): void;
 }
 
-// The database manager class which extends Knex. After calling initialize, it properly extends the knex.js object.
+/**
+ * The singleton database manager class which extends Knex. After calling initialize it properly extends the knex.js object,
+ * before this it does not have any knex methods.
+ */
 class DatabaseManager {
 
-    // The internal client pool, no actual type for this
+    /**
+     * The internal db client pool, no actual type for this
+     */
     private clientPool: any;
 
-    // Load the configuration from environment and copy properties from Knex to itself.
+    /**
+     * Load the database configuration from environment and copy properties from Knex to itself.
+     * @returns Empty promise which resolves once the database connection is established.
+     */
     public initialize(): Promise<{}> {
 
         Log.info(`Initializing database connection to ${Config.getVar('DB_DATABASE')}@${Config.getVar('DB_HOST')}...`);
@@ -67,7 +69,9 @@ class DatabaseManager {
 
     }
 
-    // Close down the database connection
+    /**
+     * Close down the database connection. If the client pool is open, destroys it.
+     */
     public shutdown(): void {
         Log.info('Shutting down the DatabaseManager...');
 

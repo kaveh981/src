@@ -1,6 +1,5 @@
 'use strict';
 
-// Reponse augmenter
 import * as express from 'express';
 
 import { Validator } from '../lib/validator';
@@ -8,36 +7,22 @@ import { Config } from '../lib/config';
 
 const errorMessages = Config.get('errors');
 
-// Augment the express response interface
-declare module 'express' {
-    interface Response {
-
-        // Variables
-        ixmBuyerInfo: {
-            userId: string
-        };
-
-        // Functions
-        sendError(status: number, error: string, details?: string[]): void;
-        sendPayload(payload: any): void;
-
-        // Hint functions
-        sendValidationError(details: string[]): void;
-        sendNotFoundError(): void;
-        sendUnauthorizedError(): void;
-        sendNoContent(): void;
-        sendInternalError(): void;
-    }
-}
-
-// The standardized response object
+/**
+ * The standardized response object
+ */
 interface IHttpResponse {
+    /** Status code of the response. */
     status: number;
+    /** Message to send in the response about the status code. */
     message: string;
+    /** Payload data to send. */
     data: any;
 }
 
-// Add the extra functions to the response object
+/*
+ * Adds the extra functions to the response object
+ * @param res - The response object to add new functions to.
+ */
 function augmentResponse(res: express.Response): void {
 
     // Send JSON payload
@@ -109,7 +94,9 @@ function augmentResponse(res: express.Response): void {
 
 };
 
-// The augmentation middleware
+/**
+ * The augmentation middleware, simply calls augmentResponse on the response object.
+ */
 function ResponseAugmenter(req: express.Request, res: express.Response, next: Function): void {
     augmentResponse(res);
     next();

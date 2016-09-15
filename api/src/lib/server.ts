@@ -9,22 +9,25 @@ import { Logger } from './logger';
 import { Config } from './config';
 
 const Log: Logger = new Logger('SRVR');
-
-const basedir: string = path.join(__dirname, '../');
-
-const krakenOptions: any = {
-    basedir: basedir
-};
-
 const kraken: Function = require('kraken-js');
 
+/**
+ * A static server class which spins up an express server and uses kraken configuration.
+ */
 class Server {
 
-    // Starts the server
+    /**
+     * Starts the server and attaches some logging hooks.
+     * @returns Promise which resolves on connection, rejects on error.
+     */
     public static initialize(): Promise<void> {
         return new Promise((resolve: Function, reject: Function) => {
+            let basedir: string = path.join(__dirname, '../');
             let app: any = express();
             let port: string = Config.getVar('SERVER_PORT');
+            let krakenOptions: any = {
+                basedir: basedir
+            };
 
             Log.info(`Starting the server on port ${port}...`);
 
