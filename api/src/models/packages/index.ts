@@ -8,7 +8,7 @@ import { Logger } from '../../lib/logger';
 const Log: Logger = new Logger('PKGM');
 
 /**
- * Interface for package of deal negotiation
+ * Interface for package which represents a potential deal
  */
 interface IPackage {
     /** ID of the package */
@@ -211,7 +211,7 @@ class PackageModel {
     /**
      * Insert package and section mappings into database
      * @param packageID - the ID of the package
-     * @param {number} - the ID of the section
+     * @param sectionID - the ID of the section
      * @returns Returns a array with number 0 inside
      */
     private static insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
