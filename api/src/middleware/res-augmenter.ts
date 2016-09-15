@@ -64,12 +64,12 @@ function augmentResponse(res: express.Response): void {
     // 204 no content
     res.sendNoContent = () => {
         let msg: IHttpResponse = {
-            status: 204,
-            message: errorMessages['204'],
+            status: 200,
+            message: errorMessages['200_NO_CONTENT'],
             data: {}
         };
 
-        res.status(204).send(JSON.stringify(msg));
+        res.status(200).send(JSON.stringify(msg));
     };
 
     // Validation error.

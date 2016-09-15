@@ -45,6 +45,9 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
             if (!userInfo || userInfo.userType !== 'IXMB') {
                 res.sendError(401, '401_NOT_IXMBUYER');
                 return;
+            } else if (userInfo.userStatus !== 'A') {
+                res.sendError(401, '401_NOT_ACTIVE');
+                return;
             }
 
             res.ixmBuyerInfo = { userId: authHeader };
