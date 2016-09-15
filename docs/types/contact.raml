@@ -1,0 +1,32 @@
+#%RAML 1.0 DataType
+
+type: object
+description: An object containing contact information, which may be associated with deals, available deal sections or profiles.
+properties:
+    title:
+        type: string
+        required: false
+        displayName: Job Title
+        description: The contact's job title or position
+    name:
+        type: string
+        required: true
+        displayName: Contact Name
+        description: The contact's name
+    email:
+        type: string
+        required: true
+        displayName: Contact Email
+        description: The contact's email address
+    phone:
+        type: string
+        required: true
+        displayName: Contact Phone Number
+        description: The contact's phone number
+example: |
+    {
+        "title": "Captain",
+        "name": "Jimdex Exchange",
+        "email": "jimdex.exchange@indexexchange.com",
+        "phone": "666 765 4321"
+    }
