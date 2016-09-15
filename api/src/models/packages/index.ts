@@ -47,7 +47,7 @@ class PackageModel {
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
-                return PackageModel.getPackageFromID(packageIDs[0].packageID)
+                return PackageModel.getPackageFromID(packageIDs[0].packageID);
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
@@ -57,8 +57,8 @@ class PackageModel {
 
     // Get all packages with the given status, the return value is an array of package objects
     public static getPackagesFromStatus (packageStatus: string): Promise<any> {
-        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public', 
-                'startDate','endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
+        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
+                'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
                 'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
             .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
@@ -67,7 +67,7 @@ class PackageModel {
             .then((packages: any) => {
                 packages.forEach((ixPackage: any) => {
                     ixPackage.sections = ixPackage.sections.split(',').map(Number);
-                })
+                });
                 return packages;
             })
             .catch((err: ErrorEvent) => {
@@ -78,8 +78,8 @@ class PackageModel {
 
     // Get all packages with the given status, the return value is an array of package objects 
     public static getPackagesFromOwner (packageOwner: number): Promise<any> {
-        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public', 
-                'startDate','endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
+        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
+                'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
                 'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
             .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
@@ -88,7 +88,7 @@ class PackageModel {
             .then((packages: any) => {
                 packages.forEach((ixPackage: any) => {
                     ixPackage.sections = ixPackage.sections.split(',').map(Number);
-                })
+                });
                 return packages;
             })
             .catch((err: ErrorEvent) => {
@@ -96,16 +96,16 @@ class PackageModel {
                 throw err;
             });
     }
-    
+
     // Add a package and related mappings of sections 
     public static addPackage (newPackage: any): Promise<any> {
         return DatabaseManager.insert({
-                ownerID: newPackage.ownerID, 
-                name: newPackage.name, 
+                ownerID: newPackage.ownerID,
+                name: newPackage.name,
                 description: newPackage.description,
-                status: newPackage.status, 
-                public: newPackage.publicPackage, 
-                startDate: newPackage.startDate, 
+                status: newPackage.status,
+                public: newPackage.publicPackage,
+                startDate: newPackage.startDate,
                 endDate: newPackage.endDate,
                 price: newPackage.price,
                 impressions: newPackage.impressions,
@@ -117,20 +117,13 @@ class PackageModel {
             .into('ixmPackages')
             .then((newPackageID: any) => {
                 Promise.each(newPackage.sections, (sectionID: number) => {
-                    DatabaseManager.insert({
-                        packageID: newPackageID[0],
-                        sectionID: sectionID
-                    })
-                    .into('ixmPackageSectionMappings')
-                    .then((value: any) => {
-                        console.log(value);
-                    })
-                })
+                    PackageModel.insertPackageSectionMappings(newPackageID[0], sectionID);
+                });
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
                 throw err;
-            });          
+            });
     }
 
     // Get package information from ID
@@ -139,7 +132,7 @@ class PackageModel {
                 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
             .from('ixmPackages')
             .where('packageID', packageID)
-            .then((packageInfo) => {
+            .then((packageInfo: any) => {
                 return packageInfo[0];
             })
             .catch((err: ErrorEvent) => {
@@ -157,13 +150,26 @@ class PackageModel {
                 let sectionIDs: number[] = [];
                 sectionObjects.forEach((sectionObject: any) => {
                     sectionIDs.push(sectionObject.sectionID);
-                })
+                });
                 return sectionIDs;
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
                 throw err;
-            });          
+            });
+    }
+
+    // Insert into ixmPackageSectionMappings
+    private static insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
+         return DatabaseManager.insert({
+               packageID: packageID,
+               sectionID: sectionID
+            })
+            .into('ixmPackageSectionMappings')
+            .catch((err: ErrorEvent) => {
+                Log.error(err.toString());
+                throw err;
+            });
     }
 }
 
