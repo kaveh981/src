@@ -12,21 +12,22 @@ interface IPackage {
     ownerID: number;
     name: string;
     description: string;
-    status: string; //enum
+    status: string;
     publicPackage: number;
     startDate: string;
     endDate: string;
     price: number;
     impressions: number;
     budget: number;
-    auctionType: string; //enum
+    auctionType: string;
     terms: string;
-    createdDate: string;
-    modifiedDate: string;
+    createDate: string;
+    modifiyDate: string;
     sections: number[];
 //  deals:number[]
 }
 
+// Class encapsulates functions related to ixmPackages
 class PackageModel {
 
     // Get package object includes associated sections
@@ -35,7 +36,7 @@ class PackageModel {
             .then((packageInfo: any) => {
                 return PackageModel.getPackageSections(packageID)
                 .then((sections: any) => {
-                    return Object.assign(packageInfo[0], {sections: sections})
+                    return Object.assign(packageInfo, {sections: sections});
                 });
             });
     }
@@ -46,7 +47,7 @@ class PackageModel {
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
-                return PackageModel.getPackageFromID(packageIDs[0])
+                return PackageModel.getPackageFromID(packageIDs[0].packageID)
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
@@ -56,16 +57,18 @@ class PackageModel {
 
     // Get all packages with the given status, the return value is an array of package objects
     public static getPackagesFromStatus (packageStatus: string): Promise<any> {
-        return DatabaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
-                'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createdDate', 'modifiedDate',
-                DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID AS sections)'))
+        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public', 
+                'startDate','endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
+                'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
             .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
             .where('status', packageStatus)
+            .groupBy('ixmPackages.packageID')
             .then((packages: any) => {
-                return packages.forEach((ixPackage: any) => {
-                    ixPackage.sections = ixPackage.sections.split(',');
+                packages.forEach((ixPackage: any) => {
+                    ixPackage.sections = ixPackage.sections.split(',').map(Number);
                 })
+                return packages;
             })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
@@ -74,10 +77,20 @@ class PackageModel {
     }
 
     // Get all packages with the given status, the return value is an array of package objects 
-    public static getPackagesFromOwner (packageOwner: string): Promise<any> {
-        return DatabaseManager.select('packageID')
+    public static getPackagesFromOwner (packageOwner: number): Promise<any> {
+        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public', 
+                'startDate','endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
+                'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
-            .where('owner', packageOwner)
+            .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
+            .where('ownerID', packageOwner)
+            .groupBy('ixmPackages.packageID')
+            .then((packages: any) => {
+                packages.forEach((ixPackage: any) => {
+                    ixPackage.sections = ixPackage.sections.split(',').map(Number);
+                })
+                return packages;
+            })
             .catch((err: ErrorEvent) => {
                 Log.error(err.toString());
                 throw err;
@@ -85,7 +98,7 @@ class PackageModel {
     }
     
     // Add a package and related mappings of sections 
-    public static addPackage (newPackage: IPackage): Promise<any> {
+    public static addPackage (newPackage: any): Promise<any> {
         return DatabaseManager.insert({
                 ownerID: newPackage.ownerID, 
                 name: newPackage.name, 
@@ -99,16 +112,19 @@ class PackageModel {
                 budget: newPackage.budget,
                 auctionType: newPackage.auctionType,
                 terms: newPackage.terms,
-                coreateDate: newPackage.createdDate
+                createDate: newPackage.createDate
             })
             .into('ixmPackages')
-            .then(() => {
-                newPackage.sections.forEach((sectionID: number) => {
+            .then((newPackageID: any) => {
+                Promise.each(newPackage.sections, (sectionID: number) => {
                     DatabaseManager.insert({
-                        packageID: newPackage.packageID,
+                        packageID: newPackageID[0],
                         sectionID: sectionID
                     })
                     .into('ixmPackageSectionMappings')
+                    .then((value: any) => {
+                        console.log(value);
+                    })
                 })
             })
             .catch((err: ErrorEvent) => {
@@ -120,7 +136,7 @@ class PackageModel {
     // Get package information from ID
     private static getPackageInfo (packageID: number): Promise<any> {
         return DatabaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
-                'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createdDate', 'modifiedDate')
+                'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
             .from('ixmPackages')
             .where('packageID', packageID)
             .then((packageInfo) => {
@@ -138,7 +154,7 @@ class PackageModel {
             .from('ixmPackageSectionMappings')
             .where('packageID', packageID)
             .then((sectionObjects: any) => {
-                let sectionIDs: number[]; 
+                let sectionIDs: number[] = [];
                 sectionObjects.forEach((sectionObject: any) => {
                     sectionIDs.push(sectionObject.sectionID);
                 })
