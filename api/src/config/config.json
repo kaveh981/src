@@ -3,15 +3,10 @@
         "contentPath": "path:./locales",
         "fallback": "en-US"
     },
+    
     "middleware": {
-        "router": {
-            "module": {
-                "arguments": [
-                    {
-                        "directory": "path:./controllers"
-                    }
-                ]
-            }
+        "session": {
+            "enabled": false
         },
         "logger": {
             "priority": 10,
@@ -29,6 +24,22 @@
             "priority": 30,
             "module": {
                 "name": "path:./middleware/auth-handler"
+            }
+        },
+        "router": {
+            "priority": 50,
+            "module": {
+                "arguments": [
+                    {
+                        "directory": "path:./controllers"
+                    }
+                ]
+            }
+        },
+        "errorHandler": {
+            "priority": 100,
+            "module": {
+                "name": "path:./middleware/error-handler"
             }
         }
     }

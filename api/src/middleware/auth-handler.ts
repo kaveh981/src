@@ -5,38 +5,54 @@ import * as express from 'express';
 
 import { Config } from '../lib/config';
 import { Logger } from '../lib/logger';
-import { BuyerModel } from '../models/buyers';
+import { UserModel } from '../models/user';
 
 const Log = new Logger('AUTH');
 const authConfig = Config.get('auth');
 
-// Public access switch, if the configuration is set to private we block any unauthorized access
+/**
+ * Public access switch, if the configuration is set to private we block any unauthorized access.
+ */
 function publicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
     if (!authConfig['public']) {
-        res.sendUnauthorizedError();
+        res.sendError(401, '401_NO_HEADER');
     } else {
         next();
     }
 };
 
-// Temporary authentication handler, simply extracts userId from the configured header.
+/**
+ * Temporary authentication handler, simply extracts userId from the configured header and inserts into ixmBuyerInfo
+ * if the userId corresponds to an ixmBuyer.
+ */
 function AuthHandler(req: express.Request, res: express.Response, next: Function): void {
     let authHeader = req.get(authConfig['header']);
     let userId = Number(authHeader);
 
-     if (!isNaN(userId)) {
-         BuyerModel.isIXMBuyer(userId)
-            .then((isBuyer: boolean) => {
-                if (isBuyer) {
-                    res.ixmBuyerInfo = { userId: authHeader };
-                    next();
-                } else {
-                    res.sendUnauthorizedError();
-                }
-            });
-    } else {
+    if (!authHeader) {
         publicAccessHandler(req, res, next);
+        return;
     }
+
+    if (isNaN(userId) || userId <= 0) {
+        res.sendError(401, '401_INVALID_HEADER');
+        return;
+    }
+
+    UserModel.getUserModelById(userId)
+        .then((userInfo) => {
+            // User not found or not an IXM buyer
+            if (!userInfo || userInfo.userType !== 'IXMB') {
+                res.sendError(401, '401_NOT_IXMBUYER');
+                return;
+            }
+
+            res.ixmBuyerInfo = { userId: authHeader };
+            next();
+        })
+        .catch((err: Error) => {
+            Log.error(err);
+        });
 }
 
 // // Handle authentication of request, an authenticated user request will have req.ixmBuyerInfo.userId
@@ -69,7 +85,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
 //         });
 
 //         // Log a warning on error, no need to throw anything.
-//         request.on('error', (err: ErrorEvent) => {
+//         request.on('error', (err: Error) => {
 //             Log.warn('Authentication error ' + err);
 //             res.sendInternalAuthError();
 //         });

@@ -1,91 +1,33 @@
-// Reponse augmenter
+'use strict';
+
 import * as express from 'express';
 
 import { Validator } from '../lib/validator';
+import { Config } from '../lib/config';
 
-// Augment the express response interface
-declare module 'express' {
-    interface Response {
+const errorMessages = Config.get('errors');
 
-        // Variables
-        ixmBuyerInfo: {
-            userId: string
-        };
-
-        // Functions
-        sendError(status: number, error: string, message?: string): void;
-        sendValidationError(details: string[]): void;
-        sendPayload(payload: any): void;
-        sendNotFoundError(): void;
-        sendUnauthorizedError(): void;
-        sendNoContent(): void;
-        sendInternalAuthError(): void;
-    }
-}
-
-// The standardized response object
+/**
+ * The standardized response object
+ */
 interface IHttpResponse {
-    'status': number;
-    'message': string;
-    'data': any;
+    /** Status code of the response. */
+    status: number;
+    /** Message to send in the response about the status code. */
+    message: string;
+    /** Payload data to send. */
+    data: any;
 }
 
-// Add the extra functions to the response object
+/*
+ * Adds the extra functions to the response object
+ * @param res - The response object to add new functions to.
+ */
 function augmentResponse(res: express.Response): void {
-
-    // Send an error message.
-    res.sendError = (status: number, error: string) => {
-        let msg: IHttpResponse = {
-            'status': status,
-            'message': error,
-            'data': {}
-        };
-
-        res.status(status).send(JSON.stringify(msg));
-    };
-
-    // Validation error.
-    res.sendValidationError = (details: string[]) => {
-        let msg: IHttpResponse = {
-            'status': 400,
-            'message': 'VALIDATION_ERROR',
-            'data': {
-                'errors': JSON.stringify(details)
-            }
-        };
-
-        res.status(400).send(JSON.stringify(msg));
-    };
-
-    // 404 error handler
-    res.sendNotFoundError = () => {
-        res.sendError(404, 'NOT_FOUND');
-    };
-
-    // 403 error hanlder
-    res.sendUnauthorizedError = () => {
-        res.sendError(403, 'UNAUTHORIZED');
-    };
-
-    // 500 error
-    res.sendInternalAuthError = () => {
-        res.sendError(500, "INTERNAL_AUTHENTICATION_ERROR");
-    };
-
-    // 204 no content
-    res.sendNoContent = () => {
-        let msg: IHttpResponse = {
-            'status': 204,
-            'message': 'NO_CONTENT',
-            'data': {}
-        };
-
-        res.status(204).send(JSON.stringify(msg));
-    };
 
     // Send JSON payload
     res.sendPayload = (payload: any) => {
-
+        // If the payload is undefined or is an empty object, send no content
         if (!payload || Object.keys(payload).length === 0) {
             res.sendNoContent();
             return;
@@ -93,7 +35,7 @@ function augmentResponse(res: express.Response): void {
 
         let msg: IHttpResponse = {
             'status': 200,
-            'message': 'OK',
+            'message': errorMessages['200'],
             'data': {}
         };
 
@@ -102,9 +44,59 @@ function augmentResponse(res: express.Response): void {
         res.status(200).send(JSON.stringify(msg));
     };
 
+    // Send an error message.
+    res.sendError = (status: number, error: string, details: string[]) => {
+        let msg: IHttpResponse = {
+            status: status,
+            message: errorMessages[error] || errorMessages[status] || '',
+            data: {}
+        };
+
+        if (details) {
+            msg.data = {
+                errors: details
+            };
+        }
+
+        res.status(status).send(JSON.stringify(msg));
+    };
+
+    // 204 no content
+    res.sendNoContent = () => {
+        let msg: IHttpResponse = {
+            'status': 204,
+            'message': errorMessages['204'],
+            'data': {}
+        };
+
+        res.status(204).send(JSON.stringify(msg));
+    };
+
+    // Validation error.
+    res.sendValidationError = (details: string[]) => {
+        res.sendError(400, '400', details);
+    };
+
+    // 403 error handler
+    res.sendUnauthorizedError = () => {
+        res.sendError(401, '401');
+    };
+
+    // 404 error handler
+    res.sendNotFoundError = () => {
+        res.sendError(404, '404');
+    };
+
+    // 500 general error
+    res.sendInternalError = () => {
+        res.sendError(500, '500');
+    };
+
 };
 
-// The augmentation middleware
+/**
+ * The augmentation middleware, simply calls augmentResponse on the response object.
+ */
 function ResponseAugmenter(req: express.Request, res: express.Response, next: Function): void {
     augmentResponse(res);
     next();
