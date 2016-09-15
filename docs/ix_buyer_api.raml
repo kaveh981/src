@@ -21,6 +21,7 @@ documentation:
 types:
     Contact:    !include types/contact.raml
     Deal:       !include types/deal.raml
+    Response:   !include types/response.raml
 
 ################################
 # Route Definitions
@@ -34,7 +35,7 @@ types:
             200: # 200 = "OK"
                 body:
                     application/json:
-                        type: Deal[]
+                        type: Response
             400: # 400 = "Bad Request" use for malformed requests
             401: # 401 = "Unauthorized" authentication has failed or was not provided
             403: # 403 = "Forbidden" authentication successful but insufficient permissions
