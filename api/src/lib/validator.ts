@@ -8,19 +8,31 @@ import { Logger } from './logger';
 
 const Log: Logger = new Logger('VLDT');
 
-// Interface for validation
+/**
+ * Interface for validation results
+ */
 interface IValidationResult {
+    /** Success is 1 if there were no errors, 0 otherwise. */
     success: number;
+    /** A list of the validation errors. */
     errors: string[];
 }
 
-// Validator class
+/**
+ * A schema validator class which reads from RAML.
+ */
 class Validator {
 
-    // The internal list of all schemas
+    /**
+     * An internal list of all parsed schemas
+     */
     private static schemas: ramlValidator.IParsedTypeCollection;
 
-    // Initialize the validator by loading and validating all schemas in the provided folder.
+    /**
+     * Initialize the validator by loading and validating all schemas in the provided folder.
+     * @param schemaDirectory - The directory containing all RAML schemas, relative to root directory.
+     * @returns Promise which resolves if all schemas have been loaded and validated.
+     */
     public static initialize(schemaDirectory: string = './schemas'): Promise<{}> {
         return new Promise((resolve: Function, reject: Function) => {
             Log.info('Loading and validating schemas...');
@@ -73,7 +85,12 @@ class Validator {
         });
     }
 
-    // Validate a json object against a data type
+    /**
+     * Validate a json object against a data type.
+     * @param target - The JSON object to validate.
+     * @param type - The name of the schema type to test against.
+     * @returns The result of the validation check.
+     */
     public static validate(target: any, type: string): IValidationResult {
         let schema: any = this.schemas.getType(type);
 
@@ -91,15 +108,18 @@ class Validator {
         if (result.getErrors().length > 0) {
             Log.debug(`Validation failed for ${JSON.stringify(target)} with type ${type}.`);
 
+            // Make the errors pretty.
+            let prettyErrors = result.getErrors().map((error) => {
+                let msgPath = error.getValidationPathAsString() ? ' for ' + error.getValidationPathAsString() : '';
+                let msg = error.getMessage() + msgPath;
+
+                Log.trace(msg);
+                return msg;
+            });
+
             return {
                 success: 0,
-                errors: result.getErrors().map((error: ramlValidator.IStatus) => {
-                    let msg = `${error.getMessage()}${error.getValidationPathAsString() ?
-                        ' for ' + error.getValidationPathAsString() : ''}`;
-
-                    Log.trace(msg);
-                    return msg;
-                })
+                errors: prettyErrors
             };
         }
 

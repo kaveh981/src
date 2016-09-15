@@ -10,7 +10,9 @@ import { UserModel } from '../models/user';
 const Log = new Logger('AUTH');
 const authConfig = Config.get('auth');
 
-// Public access switch, if the configuration is set to private we block any unauthorized access
+/**
+ * Public access switch, if the configuration is set to private we block any unauthorized access.
+ */
 function publicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
     if (!authConfig['public']) {
         res.sendError(401, '401_NO_HEADER');
@@ -19,7 +21,10 @@ function publicAccessHandler(req: express.Request, res: express.Response, next: 
     }
 };
 
-// Temporary authentication handler, simply extracts userId from the configured header.
+/**
+ * Temporary authentication handler, simply extracts userId from the configured header and inserts into ixmBuyerInfo
+ * if the userId corresponds to an ixmBuyer.
+ */
 function AuthHandler(req: express.Request, res: express.Response, next: Function): void {
     let authHeader = req.get(authConfig['header']);
     let userId = Number(authHeader);
