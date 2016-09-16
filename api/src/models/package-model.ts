@@ -45,7 +45,6 @@ interface IPackage {
     modifiyDate: string;
     /** Array of sectionsID associated with the package*/
     sections: number[];
-//  deals:number[]
 }
 
 /**
@@ -92,6 +91,7 @@ class PackageModel {
      * @returns Returns an array of package objects by the given status
      */
     public static getPackagesFromStatus (packageStatus: string): Promise<any> {
+        console.log(databaseManager);
         return databaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
                 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
                 'modifyDate', databaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))

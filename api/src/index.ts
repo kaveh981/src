@@ -8,32 +8,27 @@ import { Injector } from './lib/injector';
 import { Config } from './lib/config-loader';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
+
 import { Validator } from './lib/validator';
 
-import { UserModel } from './models/user';
-
 const validator = new Validator();
+Injector.put(validator, 'Validator');
+
 const databaseManager = new DatabaseManager(Config);
+Injector.put(databaseManager, 'DatabaseManager');
+
 const server = new Server(Config);
+Injector.put(server, 'Server');
 
 Promise.resolve()
     .then(() => {
-        return validator.initialize()
-            .then(() => {
-                Injector.put(validator, 'Validator');
-            });
+        return validator.initialize();
     })
     .then(() => {
-        return databaseManager.initialize()
-            .then(() => {
-                Injector.put(databaseManager, 'DatabaseManager');
-            });
+        return databaseManager.initialize();
     })
     .then(() => {
-        return server.initialize()
-            .then(() => {
-                Injector.put(server, 'Server');
-            });
+        return server.initialize();
     })
     .catch((err: Error) => {
         // Clean up.

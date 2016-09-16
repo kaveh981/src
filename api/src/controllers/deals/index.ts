@@ -4,8 +4,13 @@ import * as express from 'express';
 import * as Promise from 'bluebird';
 
 import { Logger } from '../../lib/logger';
+import { DatabaseManager } from '../../lib/database-manager';
+import { Injector } from '../../lib/injector';
+
 import { PackageModel } from '../../models/package-model';
 import { UserModel } from '../../models/user-model';
+
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -25,9 +30,11 @@ function Deals(router: express.Router): void {
                     endDate.setHours(0, 0, 0, 0);
                     today.setHours(0, 0, 0, 0);
 
-                    return UserModel.isActiveUser(activePackage.ownerID)
-                        .then((isUserActive) => {
-                            if (isUserActive
+                    let user = new UserModel(activePackage.ownerID, databaseManager);
+
+                    return user.populate()
+                        .then(() => {
+                            if (user.userStatus === 'A'
                                 && (startDate <= today || activePackage.startDate === zeroDate)
                                 && (endDate >= today || activePackage.endDate === zeroDate)
                                 && activePackage.sections.length > 0) {

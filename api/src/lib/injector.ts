@@ -16,7 +16,7 @@ class Injector {
             throw new Error(`No object with name ${name} was loaded.`);
         }
 
-        return;
+        return this.singletonMap[name];
     }
 
     /** 

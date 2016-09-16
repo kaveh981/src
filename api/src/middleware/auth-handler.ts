@@ -56,7 +56,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
                 return;
             }
 
-            res.ixmBuyerInfo = { userId: authHeader };
+            req.ixmBuyerInfo = { userId: authHeader };
             next();
         })
         .catch((err: Error) => {
