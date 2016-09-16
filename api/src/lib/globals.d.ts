@@ -1,14 +1,18 @@
 // Global definitions go here. This includes declaration merging.
 import * as express from 'express';
+import * as Knex from 'knex';
+
+
+declare module './database-manager' {
+    interface DatabaseManager extends Knex {}
+}
 
 declare module 'express' {
 
     // Augment the express response object.
     interface Response {
 
-        /**
-         * Information about the user. This should only be populated if the request comes from a real IXM Buyer.
-         */
+        /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
         ixmBuyerInfo: {
             /** The user's userId */
             userId: string
@@ -34,24 +38,16 @@ declare module 'express' {
          */
         sendValidationError(details: string[]): void;
 
-        /**
-         * Send a generic 404 not found.
-         */
+        /** Send a generic 404 not found.*/
         sendNotFoundError(): void;
 
-        /**
-         * Send a generic 401 unauthorized.
-         */
+        /** Send a generic 401 unauthorized.*/
         sendUnauthorizedError(): void;
 
-        /**
-         * Send a 204 NO CONTENT message.
-         */
+        /** Send a 204 NO CONTENT message.*/
         sendNoContent(): void;
 
-        /**
-         * Send a generic 500 internal server error.
-         */
+        /** Send a generic 500 internal server error. */
         sendInternalError(): void;
     }
 }

@@ -4,41 +4,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as chalk from 'chalk';
 
-import { Config } from './config';
+import { configLoader } from './config-loader';
 
-/**
- * Configuration from ./config/logger.json
- */
-const loggerConfig: any = Config.get('logger');
+/** Configuration from ./config/logger.json */
+const loggerConfig: any = configLoader.get('logger');
 
-/** 
- * Write stream for file writing needs to be global so that all loggers can access it.
- * @param filename - The filename relative to the root directory of the output file.
- * @returns An fs.WriteStream for the filename specified.
- */
-function createLogWriteStream(filename: string): fs.WriteStream {
-    let logFile: string = path.join(__dirname, '../', filename);
-    let logFolder: string = path.dirname(logFile);
-
-    if (!fs.existsSync(logFolder)) {
-        fs.mkdirSync(logFolder);
-    }
-
-    return fs.createWriteStream(logFile, { flags: 'a' });
-}
-
-/** 
- * The list of write streams, these must be accessible to all loggers.
- */
-const writeStreams: fs.WriteStream[] =
-    loggerConfig['outputFiles'].map((file: string) => {
-        return createLogWriteStream(file);
-    });
-
-/**
- * Level of console to display.
- */
-const consoleLevel: number = loggerConfig['consoleLevel'];
+/** The list of write streams, these must be accessible to all loggers. */
+let writeStreams: fs.WriteStream[];
 
 /**
  * Standardized message interface to log to file.
@@ -63,10 +35,11 @@ interface IMessage {
  */
 class Logger {
 
-    /**
-     * Logger name to use as origin
-     */
+    /** Logger name to use as origin */
     private name: string;
+
+    /** Level of console to display. */
+    private consoleLevel: number = loggerConfig['consoleLevel'];
 
     /**
      * Create a new logger object to log with.
@@ -74,6 +47,12 @@ class Logger {
      */
     constructor (name: string = 'CNSL') {
         this.name = name;
+
+        if (!writeStreams) {
+            writeStreams = loggerConfig['outputFiles'].map((file: string) => {
+                return this.createLogWriteStream(file);
+            });
+        }
     }
 
     /**
@@ -161,7 +140,7 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= consoleLevel && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+        if (message.LEVEL >= this.consoleLevel && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
             let msg = `(${this.name.toUpperCase()}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
@@ -189,6 +168,22 @@ class Logger {
             ORIGIN: origin,
             MESSAGE: message
         };
+    }
+
+    /** 
+     * Write stream for file writing needs to be global so that all loggers can access it.
+     * @param filename - The filename relative to the root directory of the output file.
+     * @returns An fs.WriteStream for the filename specified.
+     */
+    private createLogWriteStream(filename: string): fs.WriteStream {
+        let logFile: string = path.join(__dirname, '../', filename);
+        let logFolder: string = path.dirname(logFile);
+
+        if (!fs.existsSync(logFolder)) {
+            fs.mkdirSync(logFolder);
+        }
+
+        return fs.createWriteStream(logFile, { flags: 'a' });
     }
 
 };

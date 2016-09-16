@@ -20,13 +20,12 @@ interface IUserModel {
  * Generic IX user model.
  */
 class UserModel {
-
     /**
      * Return user information by id.
      * @param userId - The user id of the user we want information from.
      * @returns Returns a promise with an IUserModel, undefined if nothing.
      */
-    public static getUserModelById(userId: number): Promise<IUserModel> {
+    public getUserModelById(userId: number): Promise<IUserModel> {
         return DatabaseManager
                 .select('userID as userId', 'userTypes.name as userType', 'ug.name as userGroup')
                 .from('users')
@@ -34,10 +33,14 @@ class UserModel {
                 .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
                 .where('userID', userId)
                 .limit(1)
-            .then((rows: IUserModel) => {
+            .then((rows: IUserModel[]) => {
                 return rows[0];
             });
     }
 
 }
-export { UserModel };
+
+/** Leverage module import for DI */
+let usrm: UserModel = new UserModel();
+
+export { usrm as UserModel };

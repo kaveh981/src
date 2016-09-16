@@ -18,14 +18,31 @@ interface IBuyer {
 // A class for accessing and manipulating any data related to buyers
 class BuyerModel {
 
+    private userId: number;
+    private dspIds: number[];
+    private emailAddress: string;
+    private firstName: string;
+    private lastName: string;
+    private companyName: string;
+
+    constructor(initParams?: any) {
+        if (initParams) {
+            Object.assign(this, initParams);
+        }
+    }
+
+    public static createBuyerFromId(userId: number, populate?: boolean) {
+
+    }
+
     // Create an object filled with information about the specified buyer
-    public static getBuyer(userId: number, dspId?: number): Promise<IBuyer> {
-        return BuyerModel.getInfoFromId(userId)
+    public getBuyer(userId: number, dspId?: number): Promise<IBuyer> {
+        return this.getInfoFromId(userId)
             .then((info: any) => {
                 if (dspId) {
                     return Object.assign({userId: userId, dspIds: [dspId]}, info[0]);
                 } else {
-                    return BuyerModel.getDSPsFromId(userId)
+                    return this.getDSPsFromId(userId)
                         .then((dsps: any) => {
                             let dspArray: number[] = [];
                             dsps.forEach((dsp: any) => {
@@ -38,7 +55,7 @@ class BuyerModel {
     }
 
     // Check if the userId is in ixmBuyers
-    public static isIXMBuyer(userId: number): Promise<boolean> {
+    public isIXMBuyer(userId: number): Promise<boolean> {
         return DatabaseManager.select().from('ixmBuyers').where('userID', userId).limit(1)
             .then((rows: any) => {
                 return rows.length !== 0;
@@ -50,7 +67,7 @@ class BuyerModel {
     }
 
     // Get all dspIDs associated with a given userID
-    public static getDSPsFromId(userId: number): Promise<any> {
+    public getDSPsFromId(userId: number): Promise<any> {
         return DatabaseManager.select('dspid')
             .from('ixmBuyers')
             .where('userid', userId)
@@ -61,7 +78,7 @@ class BuyerModel {
     }
 
     // Get all userIDs associated with a given DSP
-    public static getIdsFromDSP(dspId: number): Promise<any> {
+    public getIdsFromDSP(dspId: number): Promise<any> {
         return DatabaseManager.select('userid')
             .from('ixmBuyers')
             .where('dspid', dspId)
@@ -72,7 +89,7 @@ class BuyerModel {
     }
 
     // Add a new buyer to the ixmBuyers table
-    public static addBuyer(userId: number, dspId: number): Promise<any> {
+    public addBuyer(userId: number, dspId: number): Promise<any> {
         return DatabaseManager.insert({userId: userId, dspId: dspId})
             .into('ixmBuyers')
             .catch((err: Error) => {
@@ -82,7 +99,7 @@ class BuyerModel {
     }
 
     // Retrieve information tied to a given userID
-    private static getInfoFromId(userId: number): Promise<any> {
+    private getInfoFromId(userId: number): Promise<any> {
         return DatabaseManager.select('emailAddress', 'firstName', 'lastName', 'companyName')
             .from('users')
             .where('userid', userId)
@@ -94,4 +111,7 @@ class BuyerModel {
 
 }
 
-export { BuyerModel }
+/** Fake DI */
+let bm = new BuyerModel();
+
+export { bm as BuyerModel }

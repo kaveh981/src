@@ -3,30 +3,29 @@
 import * as Knex from 'knex';
 import * as Promise from 'bluebird';
 
-import { Config } from './config';
+import { configLoader, ConfigLoader } from './config-loader';
 import { Logger } from './logger';
 
 const Log: Logger = new Logger("DBMA");
 
 /**
- * DatabaseManager interface hack.
- */
-// As we can't implement this in the class directly it has to be separate.
-interface IDatabaseManager extends Knex {
-    initialize(): Promise<{}>;
-    shutdown(): void;
-}
-
-/**
- * The singleton database manager class which extends Knex. After calling initialize it properly extends the knex.js object,
+ * A database manager class which extends Knex. After calling initialize it properly extends the knex.js object,
  * before this it does not have any knex methods.
  */
-class DatabaseManager {
+export class DatabaseManager  {
 
-    /**
-     * The internal db client pool, no actual type for this
-     */
+    /** The internal db client pool, no actual type for this */
     private clientPool: any;
+
+    /** Internal config loader */
+    private config: ConfigLoader;
+
+    /** Constructor
+     * @param config - The config loader to use.
+     */
+    constructor(config: ConfigLoader) {
+        this.config = config;
+    }
 
     /**
      * Load the database configuration from environment and copy properties from Knex to itself.
@@ -34,16 +33,16 @@ class DatabaseManager {
      */
     public initialize(): Promise<{}> {
 
-        Log.info(`Initializing database connection to ${Config.getVar('DB_DATABASE')}@${Config.getVar('DB_HOST')}...`);
+        Log.info(`Initializing database connection to ${this.config.getVar('DB_DATABASE')}@${this.config.getVar('DB_HOST')}...`);
 
         return new Promise((resolve: Function, reject: Function) => {
             let databaseConfig: Knex.Config = {
                 client: 'mysql',
                 connection: {
-                    host: Config.getVar('DB_HOST'),
-                    user: Config.getVar('DB_USER'),
-                    password: Config.getVar('DB_PASSWORD'),
-                    database: Config.getVar('DB_DATABASE')
+                    host: this.config.getVar('DB_HOST'),
+                    user: this.config.getVar('DB_USER'),
+                    password: this.config.getVar('DB_PASSWORD'),
+                    database: this.config.getVar('DB_DATABASE')
                 }
             };
 
@@ -85,7 +84,7 @@ class DatabaseManager {
 
 };
 
-// DatabaseManager should be a static class, but you can't type-assert a static class.
-let dbManager: IDatabaseManager = (new DatabaseManager()) as any as IDatabaseManager;
+/** Leverage module import for DI */
+let databaseManager: DatabaseManager = new DatabaseManager(configLoader);
 
-export { dbManager as DatabaseManager };
+export { databaseManager };
