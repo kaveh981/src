@@ -1,23 +1,24 @@
-// Global definitions go here. This includes declaration merging.
-import * as express from 'express';
+// Declaration merging goes here.
 import * as Knex from 'knex';
 
-
 declare module './database-manager' {
+    // Promise that the dbm will extend knex
     interface DatabaseManager extends Knex {}
 }
 
 declare module 'express' {
 
-    // Augment the express response object.
-    interface Response {
-
+    // Augment the express request object
+    interface Request {
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
         ixmBuyerInfo: {
             /** The user's userId */
             userId: string
         };
+    }
 
+    // Augment the express response object.
+    interface Response {
         /**
          * Send an error message in the correct format.
          * @param status - The status code.

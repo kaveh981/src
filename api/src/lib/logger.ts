@@ -4,10 +4,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as chalk from 'chalk';
 
-import { configLoader } from './config-loader';
+import { Injector } from './injector';
+import { Config } from './config-loader';
 
 /** Configuration from ./config/logger.json */
-const loggerConfig: any = configLoader.get('logger');
+const loggerConfig: any = Config.get('logger');
 
 /** The list of write streams, these must be accessible to all loggers. */
 let writeStreams: fs.WriteStream[];

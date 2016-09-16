@@ -130,7 +130,4 @@ class Validator {
 
 }
 
-/** Leverage module import for DI */
-let validator: Validator = new Validator();
-
-export { validator, Validator }
+export { Validator }

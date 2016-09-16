@@ -13,14 +13,14 @@ class ConfigLoader {
     public configFolder: string;
 
     /** Configuration storage */
-    private configMap: any;
+    private configMap: any = {};
 
     /**
      * Construct a new config loader which loads from the given folder.
      * @param folder - The folder containing config, located relative to the config module folder.
      */
     constructor(folder: string = '../config/') {
-        this.configFolder = folder;
+        this.configFolder = path.join(__dirname, folder);
     }
 
     /**
@@ -65,7 +65,6 @@ class ConfigLoader {
 
 }
 
-/** Leverage module import for DI */
-let configLoader: ConfigLoader = new ConfigLoader();
+let Config = new ConfigLoader();
 
-export { configLoader, ConfigLoader };
+export { Config, ConfigLoader };

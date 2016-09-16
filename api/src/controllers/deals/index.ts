@@ -2,9 +2,10 @@
 
 import * as express from 'express';
 import * as Promise from 'bluebird';
-import { PackageModel } from '../../models/packages';
+
 import { Logger } from '../../lib/logger';
-import { UserModel } from '../../models/user';
+import { PackageModel } from '../../models/package-model';
+import { UserModel } from '../../models/user-model';
 
 const Log: Logger = new Logger('DEAL');
 

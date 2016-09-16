@@ -3,7 +3,7 @@
 import * as Knex from 'knex';
 import * as Promise from 'bluebird';
 
-import { configLoader, ConfigLoader } from './config-loader';
+import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
 
 const Log: Logger = new Logger("DBMA");
@@ -20,7 +20,8 @@ export class DatabaseManager  {
     /** Internal config loader */
     private config: ConfigLoader;
 
-    /** Constructor
+    /** 
+     * Constructor
      * @param config - The config loader to use.
      */
     constructor(config: ConfigLoader) {
@@ -83,8 +84,3 @@ export class DatabaseManager  {
     }
 
 };
-
-/** Leverage module import for DI */
-let databaseManager: DatabaseManager = new DatabaseManager(configLoader);
-
-export { databaseManager };

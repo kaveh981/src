@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as Promise from 'bluebird';
 import * as path from 'path';
 
-import { configLoader, ConfigLoader } from './config-loader';
+import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
 
 const Log: Logger = new Logger('SRVR');
@@ -79,7 +79,4 @@ class Server {
 
 }
 
-/** Leverage module import for DI */
-let server = new Server(configLoader);
-
-export { server, Server }
+export { Server }

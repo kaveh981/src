@@ -4,26 +4,40 @@ import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
 
+import { Injector } from './lib/injector';
+import { Config } from './lib/config-loader';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
-import { Config } from './lib/config';
 import { Validator } from './lib/validator';
 
-import { BuyerModel } from './models/buyers';
+import { UserModel } from './models/user';
+
+const validator = new Validator();
+const databaseManager = new DatabaseManager(Config);
+const server = new Server(Config);
 
 Promise.resolve()
     .then(() => {
-        return Validator.initialize();
+        return validator.initialize()
+            .then(() => {
+                Injector.put(validator, 'Validator');
+            });
     })
     .then(() => {
-        return DatabaseManager.initialize();
+        return databaseManager.initialize()
+            .then(() => {
+                Injector.put(databaseManager, 'DatabaseManager');
+            });
     })
     .then(() => {
-        return Server.initialize();
+        return server.initialize()
+            .then(() => {
+                Injector.put(server, 'Server');
+            });
     })
     .catch((err: Error) => {
         // Clean up.
-        DatabaseManager.shutdown();
+        databaseManager.shutdown();
     });
 
 process.on('SIGTERM', () => {
