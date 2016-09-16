@@ -2,16 +2,15 @@
 
 import * as Promise from 'bluebird';
 
-import * as globals from '../../lib/globals';
-
 import { DatabaseManager } from './database-manager';
 import { Logger          } from './logger';
 import { dataGenerator } from './data-generator';
+import { Config } from './config-loader';
 
 export class DatabasePopulator {
 
     constructor (
-        private dbm = DatabaseManager,
+        private dbm: DatabaseManager = new DatabaseManager(Config),
         private logger = new Logger("DBPO"),
         private dg = dataGenerator
     ) {
