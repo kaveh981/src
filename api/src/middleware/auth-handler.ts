@@ -3,12 +3,16 @@
 import * as http from 'http';
 import * as express from 'express';
 
-import { Config } from '../lib/config';
 import { Logger } from '../lib/logger';
-import { UserModel } from '../models/user';
+import { UserModel } from '../models/user-model';
+import { DatabaseManager } from '../lib/database-manager';
+import { Config } from '../lib/config-loader';
+import { Injector } from '../lib/injector';
+
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
+const authConfig = Config.get('auth');
 
 const Log = new Logger('AUTH');
-const authConfig = Config.get('auth');
 
 /**
  * Public access switch, if the configuration is set to private we block any unauthorized access.
@@ -39,7 +43,9 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
         return;
     }
 
-    UserModel.getUserModelById(userId)
+    let user = new UserModel(authHeader, databaseManager);
+
+    user.populate()
         .then((userInfo) => {
             // User not found or not an IXM buyer
             if (!userInfo || userInfo.userType !== 'IXMB') {
@@ -50,7 +56,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
                 return;
             }
 
-            res.ixmBuyerInfo = { userId: authHeader };
+            req.ixmBuyerInfo = { userId: authHeader };
             next();
         })
         .catch((err: Error) => {

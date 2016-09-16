@@ -2,8 +2,8 @@
 
 import * as express from 'express';
 
-import { Validator } from '../lib/validator';
-import { Config } from '../lib/config';
+import { Config } from '../lib/config-loader';
+import { Injector } from '../lib/injector';
 
 const errorMessages = Config.get('errors');
 

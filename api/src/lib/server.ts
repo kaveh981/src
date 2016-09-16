@@ -5,26 +5,38 @@ import * as http from 'http';
 import * as Promise from 'bluebird';
 import * as path from 'path';
 
+import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
-import { Config } from './config';
 
 const Log: Logger = new Logger('SRVR');
+
 const kraken: Function = require('kraken-js');
 
 /**
- * A static server class which spins up an express server and uses kraken configuration.
+ * A server class which spins up an express server and uses kraken configuration.
  */
 class Server {
+
+    /** Internal config loader */
+    private config: ConfigLoader;
+
+    /**
+     * Constructor
+     * @param config - A config loader instance
+     */
+    constructor(config: ConfigLoader) {
+        this.config = config;
+    }
 
     /**
      * Starts the server and attaches some logging hooks.
      * @returns Promise which resolves on connection, rejects on error.
      */
-    public static initialize(): Promise<void> {
+    public initialize(): Promise<void> {
         return new Promise((resolve: Function, reject: Function) => {
             let basedir: string = path.join(__dirname, '../');
             let app: any = express();
-            let port: string = Config.getVar('SERVER_PORT');
+            let port: string = this.config.getVar('SERVER_PORT');
             let krakenOptions: any = {
                 basedir: basedir
             };

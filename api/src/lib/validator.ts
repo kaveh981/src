@@ -23,17 +23,15 @@ interface IValidationResult {
  */
 class Validator {
 
-    /**
-     * An internal list of all parsed schemas
-     */
-    private static schemas: ramlValidator.IParsedTypeCollection;
+    /** An internal list of all parsed schemas */
+    private schemas: ramlValidator.IParsedTypeCollection;
 
     /**
      * Initialize the validator by loading and validating all schemas in the provided folder.
      * @param schemaDirectory - The directory containing all RAML schemas, relative to root directory.
      * @returns Promise which resolves if all schemas have been loaded and validated.
      */
-    public static initialize(schemaDirectory: string = './schemas'): Promise<{}> {
+    public initialize(schemaDirectory: string = './schemas'): Promise<{}> {
         return new Promise((resolve: Function, reject: Function) => {
             Log.info('Loading and validating schemas...');
 
@@ -91,7 +89,7 @@ class Validator {
      * @param type - The name of the schema type to test against.
      * @returns The result of the validation check.
      */
-    public static validate(target: any, type: string): IValidationResult {
+    public validate(target: any, type: string): IValidationResult {
         let schema: any = this.schemas.getType(type);
 
         if (schema === null) {
