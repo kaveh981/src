@@ -2,8 +2,8 @@
 
 import * as express from 'express';
 
-import { Validator } from '../lib/validator';
-import { Config } from '../lib/config';
+import { Config } from '../lib/config-loader';
+import { Injector } from '../lib/injector';
 
 const errorMessages = Config.get('errors');
 
@@ -34,9 +34,9 @@ function augmentResponse(res: express.Response): void {
         }
 
         let msg: IHttpResponse = {
-            'status': 200,
-            'message': errorMessages['200'],
-            'data': {}
+            status: 200,
+            message: errorMessages['200'],
+            data: {}
         };
 
         Object.assign(msg.data, payload);
@@ -64,12 +64,12 @@ function augmentResponse(res: express.Response): void {
     // 204 no content
     res.sendNoContent = () => {
         let msg: IHttpResponse = {
-            'status': 204,
-            'message': errorMessages['204'],
-            'data': {}
+            status: 200,
+            message: errorMessages['200_NO_CONTENT'],
+            data: {}
         };
 
-        res.status(204).send(JSON.stringify(msg));
+        res.status(200).send(JSON.stringify(msg));
     };
 
     // Validation error.
