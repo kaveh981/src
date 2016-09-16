@@ -8,5 +8,10 @@ const logger: Logger = new Logger("TEST");
 dbPopulator.initialize()
     .then(() => {
         logger.info("DO SOME STUFF WITH dbPopulator");
+        return dbPopulator.insertNewBuyer();
     })
-    .then(dbPopulator.shutdown.bind(dbPopulator));
+    .then(dbPopulator.shutdown.bind(dbPopulator))
+    .catch((err) => {
+        logger.error("ERROR!!!");
+        dbPopulator.shutdown();
+    });

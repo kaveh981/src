@@ -2,15 +2,19 @@
 
 import * as Promise from 'bluebird';
 
+import * as globals from '../../lib/globals';
+
 import { DatabaseManager } from './database-manager';
 import { Logger          } from './logger';
+import { dataGenerator } from './data-generator';
 
-class DatabasePopulator {
-    
-    private dbm = DatabaseManager;
-    private logger = new Logger("DBPO");
+export class DatabasePopulator {
 
-    constructor () {
+    constructor (
+        private dbm = DatabaseManager,
+        private logger = new Logger("DBPO"),
+        private dg = dataGenerator
+    ) {
     }
 
     public initialize (): Promise<void> {
@@ -28,11 +32,26 @@ class DatabasePopulator {
         this.logger.info("DatabasePopulator gracefully shutdown");
     }
 
-    public insertBuyer (buyerData: IBuyer): IBuyer {
-        
+    public insertNewBuyer (): Promise<void> {
+        let newBuyerData = this.dg.generateNewBuyer();
+        let newID;
+        return this.dbm.insert(newBuyerData)
+            .into("users")
+            .then((newBuyerID: number[]) => {
+                newID = newBuyerID[0];
+                this.logger.info("Added new Buyer with userID: " + newID);
+                return this.dbm.update("status", "A")
+                    .from("users")
+                    .where('userID', '=', newID);
+            })
+            .then(() => {
+                this.logger.info("Updated UserType");
+            })
+            .catch((err) => {
+                this.logger.error(err);
+                throw err;
+            });
     }
 }
 
-const dbpop: DatabasePopulator = new DatabasePopulator();
-
-export { dbpop as dbPopulator };
+export const dbPopulator: DatabasePopulator = new DatabasePopulator();
