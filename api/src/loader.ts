@@ -4,6 +4,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
 
+/** Lib */
 import { Injector } from './lib/injector';
 import { ConfigLoader } from './lib/config-loader';
 
@@ -15,8 +16,10 @@ import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { Validator } from './lib/validator';
 
+/** Models */
 import { UserManager } from './models/user/user-manager';
 
+/** DI */
 const validator = new Validator();
 Injector.put(validator, 'Validator');
 
@@ -28,22 +31,3 @@ Injector.put(server, 'Server');
 
 const userManager = new UserManager(databaseManager);
 Injector.put(userManager, 'UserManager');
-
-function LoadDependencies(): Promise<void> {
-    return Promise.resolve()
-        .then(() => {
-            return validator.initialize();
-        })
-        .then(() => {
-            return databaseManager.initialize();
-        })
-        .then(() => {
-            return server.initialize();
-        })
-        .catch((err: Error) => {
-            // Clean up.
-            databaseManager.shutdown();
-        });
-}
-
-export { LoadDependencies }

@@ -40,3 +40,5 @@ class UserModel implements IUserModel {
         }
     }
 }
+
+export { UserModel }

@@ -2,6 +2,8 @@
 
 import * as Promise from 'bluebird';
 
+import { UserModel } from './user-model';
+
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 
@@ -25,19 +27,19 @@ class UserManager {
      * Returns a user model from an id
      * @param id - The id of the user we want information from.
      */
-    public fetchUserFromId(id: string): Promise<IUserModel> {
+    public fetchUserFromId(id: string): Promise<UserModel> {
         return this.dbm.select('userID as userId', 'status as userStatus', 'userTypes.name as userType', 'ug.name as userGroup')
-            .from('users')
-            .innerJoin('userTypes', 'userType', '=', 'userTypeID')
-            .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
-            .where('userID', id)
-            .limit(1)
-        .then((rows) => {
-            return new UserModel(rows[0]);
-        })
-        .catch((err: Error) => {
-            Log.error(err);
-        });
+                .from('users')
+                .innerJoin('userTypes', 'userType', '=', 'userTypeID')
+                .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
+                .where('userID', id)
+                .limit(1)
+            .then((rows) => {
+                return new UserModel(rows[0]);
+            })
+            .catch((err: Error) => {
+                Log.error(err);
+            });
     }
 }
 
