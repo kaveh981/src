@@ -1,6 +1,7 @@
 'use strict';
 
 interface IUserModel {
+
     /** The user's userId */
     userId: string;
 
@@ -18,6 +19,7 @@ interface IUserModel {
  * Generic IX user model.
  */
 class UserModel implements IUserModel {
+
     /** The user's userId */
     public userId: string;
 
@@ -40,3 +42,5 @@ class UserModel implements IUserModel {
         }
     }
 }
+
+export { UserModel }
