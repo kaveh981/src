@@ -82,3 +82,5 @@ class PackageModel implements IPackageModel {
         }
     }
 }
+
+export { PackageModel }

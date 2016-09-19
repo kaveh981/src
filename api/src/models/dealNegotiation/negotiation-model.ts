@@ -73,3 +73,5 @@ class NegotiationModel implements INegotiationModel {
         }
     }
 }
+
+export { NegotiationModel }

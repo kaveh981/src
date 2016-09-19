@@ -4,6 +4,7 @@ import * as Promise from 'bluebird';
 
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
+import { PackageModel } from './package-model';
 
 const Log = new Logger('mPKG');
 
@@ -26,7 +27,7 @@ class PackageManager {
      * @param packageID - the ID of the package
      * @returns Returns a package object includes associated section IDs
      */
-    public getPackageFromID (packageID: number): Promise<IPackageModel> {
+    public fetchPackageFromID (packageID: number): Promise<PackageModel> {
         return this.getPackageInfo(packageID)
             .then((packageInfo: any) => {
                 return this.getPackageSections(packageID)
@@ -41,12 +42,12 @@ class PackageManager {
      * @param packageName - the unique name of the package
      * @returns Returns a package object includes associated section IDs
      */
-    public getPackageFromName (packageName: string): Promise<IPackageModel> {
+    public fetchPackageFromName (packageName: string): Promise<PackageModel> {
         return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
-                return this.getPackageFromID(packageIDs[0].packageID);
+                return this.fetchPackageFromID(packageIDs[0].packageID);
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -59,19 +60,21 @@ class PackageManager {
      * @param packageStatus - status of the package, a enum value which could be active, paused or deleted
      * @returns Returns an array of package objects by the given status
      */
-    public getPackagesFromStatus (packageStatus: string): Promise<any> {
+    public fetchPackagesFromStatus (packageStatus: string): Promise<any> {
+        let listOfPackages = [];
         return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('status', packageStatus)
-            .then((packageIDs: any) => {
-                let listOfPackages: IPackageModel[];
-                packageIDs.forEach((packageID: any) => {
-                    this.getPackageFromID(packageID)
-                    .then((packageObject: IPackageModel) => {
-                        listOfPackages.push(packageObject);
-                    });
+            .then((idObjects: any) => {
+                return Promise.each(idObjects, (idObject: any) => {
+                    return this.fetchPackageFromID(idObject.packageID)
+                        .then((packageObject: PackageModel) => {
+                            return listOfPackages.push(packageObject);
+                        });
+                })
+                .then(() => {
+                    return listOfPackages;
                 });
-                return listOfPackages;
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -84,19 +87,21 @@ class PackageManager {
      * @param packageOwner - ID of the package's owner
      * @returns Returns an array of package objects by the given owner
      */
-    public getPackagesFromOwner (packageOwner: number): Promise<any> {
+    public fetchPackagesFromOwner (packageOwner: number): Promise<any> {
+        let listOfPackages = [];
         return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('ownerID', packageOwner)
-            .then((packageIDs: any) => {
-                let listOfPackages: IPackageModel[];
-                packageIDs.forEach((packageID: any) => {
-                    this.getPackageFromID(packageID)
-                    .then((packageObject: IPackageModel) => {
-                        listOfPackages.push(packageObject);
-                    });
+            .then((idObjects: any) => {
+                return Promise.each(idObjects, (idObject: any) => {
+                    return this.fetchPackageFromID(idObject.packageID)
+                        .then((packageObject: PackageModel) => {
+                            return listOfPackages.push(packageObject);
+                        });
+                })
+                .then(() => {
+                    return listOfPackages;
                 });
-                return listOfPackages;
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -109,7 +114,7 @@ class PackageManager {
      * @param newPackage - package object includes corresponding sections
      * @returns undefined
      */
-    public addPackage (newPackage: any): Promise<any> {
+    public savePackage (newPackage: any): Promise<any> {
         return this.dbm.insert({
                 ownerID: newPackage.ownerID,
                 name: newPackage.name,

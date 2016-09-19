@@ -4,6 +4,7 @@ import * as Promise from 'bluebird';
 
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
+import { NegotiationModel } from './negotiation-model';
 
 const Log = new Logger('mNEG');
 
@@ -26,7 +27,7 @@ class NegotiationManager {
      * @param negotiationID - the ID of the deal negotiation
      * @returns Returns a deal negotiation object
      */
-    public fetchNegotiationFromId(negotiationID: string): Promise<INegotiationModel> {
+    public fetchNegotiationFromId(negotiationID: number): Promise<NegotiationModel> {
        return this.dbm.select()
                 .from('ixmDealNegotiations')
                 .where('negotiationID', negotiationID)
@@ -41,7 +42,7 @@ class NegotiationManager {
      * @param negotiationObject - a deal negotiation object
      * @returns Returns the negotiationID of new created negotiation
      */
-    public saveNegotiation(negotiationObject: INegotiationModel): Promise<any> {
+    public saveNegotiation(negotiationObject: NegotiationModel): Promise<any> {
         return this.dbm.insert({
                     packageID: negotiationObject.packageID,
                     publisherID: negotiationObject.publisherID,
