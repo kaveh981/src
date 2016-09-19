@@ -2,10 +2,12 @@
 
 import * as express from 'express';
 
-import { Config } from '../lib/config-loader';
+import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 
-const errorMessages = Config.get('errors');
+const config = Injector.request<ConfigLoader>('ConfigLoader');
+
+const errorMessages = config.get('errors');
 
 /**
  * The standardized response object

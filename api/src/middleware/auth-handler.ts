@@ -3,14 +3,15 @@
 import * as http from 'http';
 import * as express from 'express';
 
-import { Logger } from '../lib/logger';
-import { UserModel } from '../models/user-model';
-import { DatabaseManager } from '../lib/database-manager';
-import { Config } from '../lib/config-loader';
+import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
+import { Logger } from '../lib/logger';
+import { UserManager } from '../models/user/user-manager';
 
-const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
-const authConfig = Config.get('auth');
+const userManager = Injector.request<UserManager>('UserManager');
+const config = Injector.request<ConfigLoader>('ConfigLoader');
+
+const authConfig = config.get('auth');
 
 const Log = new Logger('AUTH');
 
@@ -30,22 +31,19 @@ function publicAccessHandler(req: express.Request, res: express.Response, next: 
  * if the userId corresponds to an ixmBuyer.
  */
 function AuthHandler(req: express.Request, res: express.Response, next: Function): void {
-    let authHeader = req.get(authConfig['header']);
-    let userId = Number(authHeader);
+    let userId = req.get(authConfig['header']);
 
-    if (!authHeader) {
+    if (!userId) {
         publicAccessHandler(req, res, next);
         return;
     }
 
-    if (isNaN(userId) || userId <= 0) {
+    if (isNaN(Number(userId)) || Number(userId) <= 0) {
         res.sendError(401, '401_INVALID_HEADER');
         return;
     }
 
-    let user = new UserModel(authHeader, databaseManager);
-
-    user.populate()
+    userManager.fetchUserFromId(userId)
         .then((userInfo) => {
             // User not found or not an IXM buyer
             if (!userInfo || userInfo.userType !== 'IXMB') {
@@ -56,7 +54,7 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
                 return;
             }
 
-            req.ixmBuyerInfo = { userId: authHeader };
+            req.ixmBuyerInfo = { userId: userId };
             next();
         })
         .catch((err: Error) => {
