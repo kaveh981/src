@@ -1,14 +1,12 @@
-// Database pupulator class to insert data for testing purposes
+// Database populator class to insert data for testing purposes
 
 import * as Promise from 'bluebird';
-// import * as jsf from 'json-schema-faker';
 const jsf = require('json-schema-faker');
-// import * as faker from 'faker';
 const faker = require('faker');
 
-import { DatabaseManager } from './database-manager';
-import { Logger          } from './logger';
-import { ConfigLoader } from './config-loader';
+import { DatabaseManager } from '../../lib/database-manager';
+import { Logger          } from '../../lib/logger';
+import { ConfigLoader }    from '../../lib/config-loader';
 
 const logger = new Logger("DPOP");
 
@@ -37,7 +35,7 @@ export class DatabasePopulator {
         logger.info("DatabasePopulator gracefully shutdown");
     }
 
-    public newUser (userFields?: any): Promise<any> {
+    public newUser (userFields?: any): Promise<any> { //TODO interface userFields
         let newUserData;
         if (!userFields) {
             let schema  = this.config.get('data-gen/new-user-schema');
@@ -59,7 +57,7 @@ export class DatabasePopulator {
             });
     }
 
-    public newBuyer (): Promise<any> {
+    public newBuyer (): Promise<any> { //TODO interface NewBuyerData
         let schema = this.config.get('data-gen/new-buyer-schema');
         let newBuyerData = jsf(schema);
         return this.newUser(newBuyerData.user)
@@ -80,11 +78,17 @@ export class DatabasePopulator {
             });
     }
 
-    /*public insertNewPub (): Promise<number> {
-        //TODO Maybe you don't even need it
+    public newPub (): Promise<any> { //TODO Interface NewPubData
+        let schema = this.config.get('data-gen/new-pub-schema');
+        let newBuyerData = jsf(schema);
+        return this.newUser(newBuyerData.user)
+            .catch((err) => {
+                logger.error(err);
+                throw err;
+            });
     }
 
-    public insertNewPackage (): Promise<number> {
+    /*public insertNewPackage (): Promise<number> {
         //TODO
     }*/
 
