@@ -11,7 +11,7 @@ interface IDealModel {
 }
 
 /**
- * Generic IX user model.
+ * Generic IX deal model.
  */
 
 class DealModel implements DealModel {
