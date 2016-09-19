@@ -2,13 +2,15 @@
 
 import * as Promise from 'bluebird';
 
-import { DatabaseManager } from '../../lib/database-manager';
-import { Logger } from '../../lib/logger';
+import { Injector } from '../lib/injector';
+import { DatabaseManager } from '../lib/database-manager';
+import { Logger } from '../lib/logger';
 
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const Log: Logger = new Logger('PKGM');
 
 /**
- * Interface for package of deal negotiation
+ * Interface for package which represents a potential deal
  */
 interface IPackage {
     /** ID of the package */
@@ -43,7 +45,6 @@ interface IPackage {
     modifiyDate: string;
     /** Array of sectionsID associated with the package*/
     sections: number[];
-//  deals:number[]
 }
 
 /**
@@ -72,7 +73,7 @@ class PackageModel {
      * @returns Returns a package object includes associated section IDs
      */
     public static getPackageFromName (packageName: string): Promise<IPackage> {
-        return DatabaseManager.select('packageID')
+        return databaseManager.select('packageID')
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
@@ -90,9 +91,10 @@ class PackageModel {
      * @returns Returns an array of package objects by the given status
      */
     public static getPackagesFromStatus (packageStatus: string): Promise<any> {
-        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
+        console.log(databaseManager);
+        return databaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
                 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
-                'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
+                'modifyDate', databaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
             .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
             .where('status', packageStatus)
@@ -115,9 +117,9 @@ class PackageModel {
      * @returns Returns an array of package objects by the given owner
      */
     public static getPackagesFromOwner (packageOwner: number): Promise<any> {
-        return DatabaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
+        return databaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
                 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
-                'modifyDate', DatabaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
+                'modifyDate', databaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
             .from('ixmPackages')
             .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
             .where('ownerID', packageOwner)
@@ -140,7 +142,7 @@ class PackageModel {
      * @returns undefined
      */
     public static addPackage (newPackage: any): Promise<any> {
-        return DatabaseManager.insert({
+        return databaseManager.insert({
                 ownerID: newPackage.ownerID,
                 name: newPackage.name,
                 description: newPackage.description,
@@ -173,7 +175,7 @@ class PackageModel {
      * @returns Returns an object include all the information of the package 
      */
     private static getPackageInfo (packageID: number): Promise<any> {
-        return DatabaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+        return databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
                 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
             .from('ixmPackages')
             .where('packageID', packageID)
@@ -192,7 +194,7 @@ class PackageModel {
      * @returns Returns an array of section IDs
      */
     private static getPackageSections (packageID: number): Promise<number []> {
-        return DatabaseManager.select('sectionID')
+        return databaseManager.select('sectionID')
             .from('ixmPackageSectionMappings')
             .where('packageID', packageID)
             .then((sectionObjects: any) => {
@@ -211,11 +213,11 @@ class PackageModel {
     /**
      * Insert package and section mappings into database
      * @param packageID - the ID of the package
-     * @param {number} - the ID of the section
+     * @param sectionID - the ID of the section
      * @returns Returns a array with number 0 inside
      */
     private static insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
-         return DatabaseManager.insert({
+         return databaseManager.insert({
                packageID: packageID,
                sectionID: sectionID
             })
