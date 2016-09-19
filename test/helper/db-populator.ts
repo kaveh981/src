@@ -4,35 +4,40 @@ import * as Promise from 'bluebird';
 const jsf = require('json-schema-faker');
 const faker = require('faker');
 
-import { DatabaseManager } from '../../lib/database-manager';
-import { Logger          } from '../../lib/logger';
-import { ConfigLoader }    from '../../lib/config-loader';
+import { DatabaseManager } from '../../api/src/lib/database-manager';
+import { Logger          } from '../../api/src/lib/logger';
+import { ConfigLoader    } from '../../api/src/lib/config-loader';
 
-const logger = new Logger("DPOP");
+const Log = new Logger("DPOP");
 
 
-export class DatabasePopulator {
+class DatabasePopulator {
+
+    private dbm: DatabaseManager;
+    private config: ConfigLoader;
 
     constructor (
-        private dbm: DatabaseManager,
-        private config: ConfigLoader
+        databaseManager: DatabaseManager,
+        configLoader: ConfigLoader
     ) {
+        this.config = configLoader;
+        this.dbm = databaseManager;
         faker.locale = "es_MX";
     }
 
     public initialize (): Promise<void> {
         return this.dbm.initialize()
             .then(() => {
-                logger.info("DatabasePopulator successfully initialized")
+                Log.info("DatabasePopulator successfully initialized")
             })
             .catch((err) => {
-                logger.error(err)
+                Log.error(err)
             });
     }
 
     public shutdown (): void {
         this.dbm.shutdown();
-        logger.info("DatabasePopulator gracefully shutdown");
+        Log.info("DatabasePopulator gracefully shutdown");
     }
 
     public newUser (userFields?: any): Promise<any> { //TODO interface userFields
@@ -48,11 +53,11 @@ export class DatabasePopulator {
             .into("users")
             .then((newBuyerID: number[]) => {
                 newUserData.userID = newBuyerID[0];
-                logger.info(`Added new User: ${newUserData.userID} `);
+                Log.info(`Added new User: ${newUserData.userID} `);
                 return newUserData;
             })
             .catch((err) => {
-                logger.error(err);
+                Log.error(err);
                 throw err;
             });
     }
@@ -69,21 +74,29 @@ export class DatabasePopulator {
                     .catch((e) => { throw e });
             })
             .then(() => {
-                logger.info(`Added new Buyer with userID: ${newBuyerData.user.userID}, dspID: ${newBuyerData.dspID}`);
+                Log.info(`Added new Buyer with userID: ${newBuyerData.user.userID}, dspID: ${newBuyerData.dspID}`);
                 return newBuyerData;
             })
             .catch((err) => {
-                logger.error(err);
+                Log.error(err);
                 throw err;
             });
     }
 
     public newPub (): Promise<any> { //TODO Interface NewPubData
         let schema = this.config.get('data-gen/new-pub-schema');
-        let newBuyerData = jsf(schema);
-        return this.newUser(newBuyerData.user)
+        let newPubData = jsf(schema);
+        return this.newUser(newPubData.user)
+            .then((newUserData: any) => {
+                let publisherData = newPubData.publisher;
+                publisherData.userID = newUserData.userID;
+                newPubData.user.userID = newUserData.userID;
+                return this.dbm
+                    .insert(publisherData)
+                    .into("publishers");
+            })
             .catch((err) => {
-                logger.error(err);
+                Log.error(err);
                 throw err;
             });
     }
@@ -93,3 +106,5 @@ export class DatabasePopulator {
     }*/
 
 }
+
+export { DatabasePopulator }
