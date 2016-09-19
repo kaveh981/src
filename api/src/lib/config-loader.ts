@@ -65,6 +65,4 @@ class ConfigLoader {
 
 }
 
-let Config = new ConfigLoader();
-
-export { Config, ConfigLoader };
+export { ConfigLoader };

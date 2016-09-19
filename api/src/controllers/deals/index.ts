@@ -8,7 +8,7 @@ import { DatabaseManager } from '../../lib/database-manager';
 import { Injector } from '../../lib/injector';
 
 import { PackageModel } from '../../models/package-model';
-import { UserModel } from '../../models/user-model';
+//import { UserModel } from '../../models/user-model';
 
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
@@ -30,17 +30,17 @@ function Deals(router: express.Router): void {
                     endDate.setHours(0, 0, 0, 0);
                     today.setHours(0, 0, 0, 0);
 
-                    let user = new UserModel(activePackage.ownerID, databaseManager);
+                    // let user = new UserModel(activePackage.ownerID, databaseManager);
 
-                    return user.populate()
-                        .then(() => {
-                            if (user.userStatus === 'A'
-                                && (startDate <= today || activePackage.startDate === zeroDate)
-                                && (endDate >= today || activePackage.endDate === zeroDate)
-                                && activePackage.sections.length > 0) {
-                                    availablePackages.push(activePackage);
-                            }
-                        });
+                    // return user.populate()
+                    //     .then(() => {
+                    //         if (user.userStatus === 'A'
+                    //             && (startDate <= today || activePackage.startDate === zeroDate)
+                    //             && (endDate >= today || activePackage.endDate === zeroDate)
+                    //             && activePackage.sections.length > 0) {
+                    //                 availablePackages.push(activePackage);
+                    //         }
+                    //     });
                 })
                 .then(() => {
                     if (availablePackages.length === 0) {
