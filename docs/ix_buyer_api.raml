@@ -19,9 +19,10 @@ documentation:
 ################################
 
 types:
-    Contact:    !include types/contact.raml
-    Deal:       !include types/deal.raml
-    Response:   !include types/response.raml
+    Contact:        !include types/contact.raml
+    Deal:           !include types/deal.raml
+    Response:       !include types/response.raml
+    QueryPaging:    !include types/query_paging.raml
 
 ################################
 # Route Definitions
@@ -30,7 +31,8 @@ types:
 /deals:
     get:
         description: Retrieve packages from Index Market
-        queryParameters:
+        queryString: 
+            type: [QueryPaging]
         responses:
             200: # 200 = "OK"
                 body:
