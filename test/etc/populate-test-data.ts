@@ -1,21 +1,24 @@
 // Script to auto-populate Viper2 with data relevant to IXM Buyer API
 
 import { DatabasePopulator } from '../helper/db-populator';
-import { Logger } from '../../lib/logger';
-import { ConfigLoader } from '../../lib/config-loader';
-import { DatabaseManager } from '../../lib/database-manager';
+import { Logger }      from '../lib/logger';
+import { ConfigLoader }      from '../lib/config-loader';
+import { DatabaseManager } from '../lib/database-manager';
 
-const Config = new ConfigLoader('../test/config');
-const logger = new Logger("TEST");
+const Log= new Logger("TEST");
+const Config = new ConfigLoader('../../../test/config');
 const dbm = new DatabaseManager(Config);
-const dbPopulator = new DatabasePopulator(dbm, Config);
+const dbPopulator= new DatabasePopulator(dbm, Config);
 
-dbPopulator.initialize()
+dbm.initialize()
     .then(() => {
         return dbPopulator.newPub();
     })
-    .then(dbPopulator.shutdown.bind(dbPopulator))
+    .then((newPubData) => {
+        return dbPopulator.newSite(newPubData.user.userID);
+    })
+    .then(dbm.shutdown.bind(dbm))
     .catch((err) => {
-        logger.error(err);
-        dbPopulator.shutdown();
+        Log.error(err);
+        dbm.shutdown();
     });
