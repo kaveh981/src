@@ -1,5 +1,7 @@
 'use strict';
 
+/** Resolve any dependencies in this file and pass it to the injector for safe keeping. */
+
 import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
@@ -19,7 +21,7 @@ import { Validator } from './lib/validator';
 /** Models */
 import { UserManager } from './models/user/user-manager';
 
-/** DI */
+/** Dependency Resolution */
 const validator = new Validator();
 Injector.put(validator, 'Validator');
 
