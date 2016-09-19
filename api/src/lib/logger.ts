@@ -5,10 +5,13 @@ import * as path from 'path';
 import * as chalk from 'chalk';
 
 import { Injector } from './injector';
-import { Config } from './config-loader';
+import { ConfigLoader } from './config-loader';
+
+/** Get config */
+const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 /** Configuration from ./config/logger.json */
-const loggerConfig: any = Config.get('logger');
+const loggerConfig: any = config.get('logger');
 
 /** The list of write streams, these must be accessible to all loggers. */
 let writeStreams: fs.WriteStream[];
