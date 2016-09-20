@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "properties": {
+        "status": "A",
+        "name": "Test Site Entity",
+        "mainDomain": {
+            "faker": "internet.url"
+        },
+        "description": {
+            "faker": "company.catchPhrase"
+        }
+    },
+    "required": [
+        "status", "name", "mainDomain", "description"
+    ]
+}
