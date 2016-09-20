@@ -21,4 +21,8 @@ dbm.initialize()
     .catch((err) => {
         Log.error(err);
         dbm.shutdown();
+<<<<<<< HEAD
     });
+=======
+    });
+>>>>>>> Symlinks to api/src added
