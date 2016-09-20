@@ -22,6 +22,7 @@ import { Validator } from './lib/validator';
 import { UserManager } from './models/user/user-manager';
 import { BuyerManager } from './models/buyer/buyer-manager';
 import { PackageManager } from './models/package/package-manager';
+import { NegotiationManager } from './models/deal-negotiation/negotiation-manager';
 
 /** Dependency Resolution */
 const validator = new Validator();
@@ -41,3 +42,6 @@ Injector.put(buyerManager, 'BuyerManager');
 
 const packageManager = new PackageManager(databaseManager);
 Injector.put(packageManager, 'PackageManager');
+
+const negotiationManager = new NegotiationManager(databaseManager);
+Injector.put(negotiationManager, 'NegotiationManager');
