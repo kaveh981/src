@@ -29,11 +29,16 @@ function Deals(router: express.Router): void {
      */
     router.get('/', (req: express.Request, res: express.Response) => {
         // Extract pagination details
+        if (req.query.limit < 0 || req.query.offset < 0) {
+            res.sendValidationError(["Invalid limit or offset value"]);
+            return;
+        }
         let pagination = {
             limit: (req.query.limit > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
                 ? paginationConfig['RESULTS_LIMIT'] : req.query.limit,
             offset: Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET']
         };
+
         // Get all packages with an 'active' status
         let availablePackages = [];
         return packageManager.fetchPackagesFromStatus('active', pagination)
