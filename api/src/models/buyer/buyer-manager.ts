@@ -70,10 +70,12 @@ class BuyerManager {
      * Returns all userIDs associated with a given DSP
      * @param dspId - The ID of the DSP we want to obtain users for.
      */
-    public getIdsFromDSP(dspId: number): Promise<any> {
+    public getIdsFromDSP(dspId: number, pagination: any): Promise<any> {
         return this.dbm.select('userid')
             .from('ixmBuyers')
             .where('dspid', dspId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .catch((err: Error) => {
                 Log.error(err);
                 throw err;

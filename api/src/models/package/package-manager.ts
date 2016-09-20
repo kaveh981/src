@@ -60,11 +60,13 @@ class PackageManager {
      * @param packageStatus - status of the package, a enum value which could be active, paused or deleted
      * @returns Returns an array of package objects by the given status
      */
-    public fetchPackagesFromStatus (packageStatus: string): Promise<any> {
+    public fetchPackagesFromStatus (packageStatus: string, pagination: any): Promise<any> {
         let listOfPackages = [];
         return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('status', packageStatus)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((idObjects: any) => {
                 return Promise.each(idObjects, (idObject: any) => {
                     return this.fetchPackageFromID(idObject.packageID)
@@ -87,11 +89,13 @@ class PackageManager {
      * @param packageOwner - ID of the package's owner
      * @returns Returns an array of package objects by the given owner
      */
-    public fetchPackagesFromOwner (packageOwner: number): Promise<any> {
+    public fetchPackagesFromOwner (packageOwner: number, pagination: any): Promise<any> {
         let listOfPackages = [];
         return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('ownerID', packageOwner)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((idObjects: any) => {
                 return Promise.each(idObjects, (idObject: any) => {
                     return this.fetchPackageFromID(idObject.packageID)

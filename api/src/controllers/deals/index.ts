@@ -6,13 +6,16 @@ import * as Promise from 'bluebird';
 import { Logger } from '../../lib/logger';
 import { DatabaseManager } from '../../lib/database-manager';
 import { Injector } from '../../lib/injector';
+import { ConfigLoader } from '../../lib/config-loader';
 
 import { PackageManager } from '../../models/package/package-manager';
 import { UserManager } from '../../models/user/user-manager';
 
-const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const packageManager = Injector.request<PackageManager>('PackageManager');
 const userManager = Injector.request<UserManager>('UserManager');
+
+const config = Injector.request<ConfigLoader>('ConfigLoader');
+const paginationConfig = config.get('pagination');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -25,9 +28,15 @@ function Deals(router: express.Router): void {
      * GET request to get all available Deals
      */
     router.get('/', (req: express.Request, res: express.Response) => {
-        let availablePackages = [];
+        // Extract pagination details
+        let pagination = {
+            limit: (req.query.limit > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
+                ? paginationConfig['RESULTS_LIMIT'] : req.query.limit,
+            offset: Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET']
+        };
         // Get all packages with an 'active' status
-        return packageManager.fetchPackagesFromStatus('active')
+        let availablePackages = [];
+        return packageManager.fetchPackagesFromStatus('active', pagination)
             .then((activePackages: any) => {
                 return Promise.each(activePackages, (activePackage: any) => {
                     let startDate: Date = new Date(activePackage.startDate);
