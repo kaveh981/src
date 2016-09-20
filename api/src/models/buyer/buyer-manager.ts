@@ -18,7 +18,7 @@ class BuyerManager {
      * Constructor
      * @param database - An instance of the database manager.
      */
-    constructor(database: DatabaseManager){
+    constructor(database: DatabaseManager) {
         this.dbm = database;
     }
 
