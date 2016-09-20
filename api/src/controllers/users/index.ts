@@ -3,7 +3,6 @@
 import * as express from 'express';
 import * as Promise from 'bluebird';
 
-import { Logger } from '../../lib/logger';
 import { Injector } from '../../lib/injector';
 
 import { ContactManager } from '../../models/contact-info/contact-manager';
