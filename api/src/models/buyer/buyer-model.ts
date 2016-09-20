@@ -39,4 +39,3 @@ class BuyerModel implements IBuyerModel {
 }
 
 export { BuyerModel }
-

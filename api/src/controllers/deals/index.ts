@@ -17,7 +17,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 const Log: Logger = new Logger('DEAL');
 
 /**
- * Function that takes care of all /deal routes
+ * Function that takes care of all /deals routes
  */
 function Deals(router: express.Router): void {
 
