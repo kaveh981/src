@@ -2,7 +2,7 @@
 
 import * as express from 'express';
 
-function NotFound(req: express.Request, res: express.Response) {
+function NotFound(req: express.Request, res: express.Response): void {
     res.sendNotFoundError();
 };
 
