@@ -64,3 +64,21 @@ interface INewSectionData {
     siteIDs?: number[],
     section: ISection
 }
+
+interface INewPackageData {
+    packageID?: number,
+    ownerID: number,
+    name: string,
+    description: string,
+    status: string,
+    public: number,
+    startDate: string,
+    endDate: string,
+    price: number,
+    impressions: number,
+    budget: number,
+    auctionType: string,
+    terms: string,
+    createDate: string,
+    modifyDate?: string
+}
