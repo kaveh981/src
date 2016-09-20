@@ -95,23 +95,49 @@ class DatabasePopulator {
         newSiteData.userID = userID;
 
         return this.dbm
-            .insert(newSiteData)
+            .insert(newSiteData, "siteID")
             .into("sites")
+            .then((siteID: number[]) => {
+                newSiteData.siteID = siteID[0];
+                Log.info(`Created site ownerID: ${newSiteData.userID}, siteID: ${siteID[0]}`);
+                return newSiteData;
+            })
             .catch((e) => {
                 Log.error(e);
                 throw e;
             });
     }
 
-
-    public newSection (siteIDs: number[]): Promise<INewSectionData> {
-        let newSectionData = this.genDataObj<ISection>('new-section-schema');
+    public newSection (ownerID: number, siteIDs: number[]): Promise<INewSectionData> {
+        let section = this.genDataObj<ISection>('new-section-schema');
+        section.userID = ownerID;
+        let newSectionData = { siteIDs: siteIDs, section: section };
+        return this.dbm
+            .insert(newSectionData.section, "sectionID")
+            .into("rtbSections")
+            .then((sectionID: number[]) => {
+                newSectionData.section.sectionID = sectionID[0];
+                Log.info(`Created section ID: ${newSectionData.section.sectionID}, ownerID: ${newSectionData.section.userID}`);
+                return Promise.map(newSectionData.siteIDs, (siteID: number) => {
+                        return this.dbm
+                            .insert({siteID: siteID, sectionID: newSectionData.section.sectionID})
+                            .into("rtbSiteSections")
+                    })
+                    .then(() => {
+                        Log.info('Mapped sectionID: '+ newSectionData.section.sectionID + 
+                            'to siteIDs: ' + newSectionData.siteIDs);
+                        return newSectionData
+                    })
+                    .catch((e) => {
+                        throw e;
+                    })
+            });
 
     }
 
-    public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
+    /*public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
         //TODO newPackage method
-    }
+    }*/
 
 }
 
