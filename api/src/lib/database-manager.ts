@@ -12,7 +12,7 @@ const Log: Logger = new Logger("DBMA");
  * A database manager class which extends Knex. After calling initialize it properly extends the knex.js object,
  * before this it does not have any knex methods.
  */
-export class DatabaseManager  {
+export class DatabaseManager {
 
     /** The internal db client pool, no actual type for this */
     private clientPool: any;
