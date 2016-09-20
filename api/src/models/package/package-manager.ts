@@ -2,65 +2,35 @@
 
 import * as Promise from 'bluebird';
 
-import { Injector } from '../lib/injector';
-import { DatabaseManager } from '../lib/database-manager';
-import { Logger } from '../lib/logger';
+import { DatabaseManager } from '../../lib/database-manager';
+import { Logger } from '../../lib/logger';
+import { PackageModel } from './package-model';
 
-const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
-const Log: Logger = new Logger('PKGM');
+const Log = new Logger('mPKG');
 
-/**
- * Interface for package which represents a potential deal
- */
-interface IPackage {
-    /** ID of the package */
-    packageID: number;
-    /** ID of the package's owner, corresponding to users in database */
-    ownerID: number;
-    /** Name of the package, unique value */
-    name: string;
-    /** Description of the package */
-    description: string;
-    /** Status of the packge, which could only be active, paused or deleted */
-    status: string;
-    /** Flag to define is the package viewable to public */
-    isPublic: number;
-    /** Start date of the package */
-    startDate: string;
-    /** End date of the package */
-    endDate: string;
-    /** Price of the package */
-    price: number;
-    /** Projected amout of impressions for the package */
-    impressions: number;
-    /** Project amount to be spend by the buyer */
-    budget: number;
-    /** Auction type of the deal, which could only be first, second or fixed */
-    auctionType: string;
-    /** Free text that both parties can edit to convene of specific deal conditions */
-    terms: string;
-    /** Created date of the package */
-    createDate: string;
-    /** Modified date of the package */
-    modifiyDate: string;
-    /** Array of sectionsID associated with the package*/
-    sections: number[];
-}
+/** Package model manager */
+class PackageManager {
 
-/**
- * Class encapsulates functions related to ixmPackages
- */
-class PackageModel {
+    /** Internal dbm  */
+    private dbm: DatabaseManager;
+
+    /**
+     * Constructor
+     * @param database - An instance of the database manager.
+     */
+    constructor(database: DatabaseManager) {
+        this.dbm = database;
+    }
 
     /**
      * Get package object by ID
      * @param packageID - the ID of the package
      * @returns Returns a package object includes associated section IDs
      */
-    public static getPackageFromID (packageID: number): Promise<IPackage> {
-        return PackageModel.getPackageInfo(packageID)
+    public fetchPackageFromID (packageID: number): Promise<PackageModel> {
+        return this.getPackageInfo(packageID)
             .then((packageInfo: any) => {
-                return PackageModel.getPackageSections(packageID)
+                return this.getPackageSections(packageID)
                     .then((sections: any) => {
                         return Object.assign(packageInfo, {sections: sections});
                     });
@@ -72,12 +42,12 @@ class PackageModel {
      * @param packageName - the unique name of the package
      * @returns Returns a package object includes associated section IDs
      */
-    public static getPackageFromName (packageName: string): Promise<IPackage> {
-        return databaseManager.select('packageID')
+    public fetchPackageFromName (packageName: string): Promise<PackageModel> {
+        return this.dbm.select('packageID')
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
-                return PackageModel.getPackageFromID(packageIDs[0].packageID);
+                return this.fetchPackageFromID(packageIDs[0].packageID);
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -90,20 +60,21 @@ class PackageModel {
      * @param packageStatus - status of the package, a enum value which could be active, paused or deleted
      * @returns Returns an array of package objects by the given status
      */
-    public static getPackagesFromStatus (packageStatus: string): Promise<any> {
-        console.log(databaseManager);
-        return databaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
-                'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
-                'modifyDate', databaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
+    public fetchPackagesFromStatus (packageStatus: string): Promise<any> {
+        let listOfPackages = [];
+        return this.dbm.select('packageID')
             .from('ixmPackages')
-            .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
             .where('status', packageStatus)
-            .groupBy('ixmPackages.packageID')
-            .then((packages: any) => {
-                packages.forEach((ixPackage: any) => {
-                    ixPackage.sections = ixPackage.sections.split(',').map(Number);
+            .then((idObjects: any) => {
+                return Promise.each(idObjects, (idObject: any) => {
+                    return this.fetchPackageFromID(idObject.packageID)
+                        .then((packageObject: PackageModel) => {
+                            return listOfPackages.push(packageObject);
+                        });
+                })
+                .then(() => {
+                    return listOfPackages;
                 });
-                return packages;
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -116,19 +87,21 @@ class PackageModel {
      * @param packageOwner - ID of the package's owner
      * @returns Returns an array of package objects by the given owner
      */
-    public static getPackagesFromOwner (packageOwner: number): Promise<any> {
-        return databaseManager.select('ixmPackages.packageID', 'ownerID', 'name', 'description', 'status', 'public',
-                'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
-                'modifyDate', databaseManager.raw('GROUP_CONCAT(ixmPackageSectionMappings.sectionID) AS sections'))
+    public fetchPackagesFromOwner (packageOwner: number): Promise<any> {
+        let listOfPackages = [];
+        return this.dbm.select('packageID')
             .from('ixmPackages')
-            .leftJoin('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
             .where('ownerID', packageOwner)
-            .groupBy('ixmPackages.packageID')
-            .then((packages: any) => {
-                packages.forEach((ixPackage: any) => {
-                    ixPackage.sections = ixPackage.sections.split(',').map(Number);
+            .then((idObjects: any) => {
+                return Promise.each(idObjects, (idObject: any) => {
+                    return this.fetchPackageFromID(idObject.packageID)
+                        .then((packageObject: PackageModel) => {
+                            return listOfPackages.push(packageObject);
+                        });
+                })
+                .then(() => {
+                    return listOfPackages;
                 });
-                return packages;
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -141,8 +114,8 @@ class PackageModel {
      * @param newPackage - package object includes corresponding sections
      * @returns undefined
      */
-    public static addPackage (newPackage: any): Promise<any> {
-        return databaseManager.insert({
+    public savePackage (newPackage: any): Promise<any> {
+        return this.dbm.insert({
                 ownerID: newPackage.ownerID,
                 name: newPackage.name,
                 description: newPackage.description,
@@ -160,7 +133,7 @@ class PackageModel {
             .into('ixmPackages')
             .then((newPackageID: any) => {
                 return Promise.each(newPackage.sections, (sectionID: number) => {
-                    PackageModel.insertPackageSectionMappings(newPackageID[0], sectionID);
+                    this.insertPackageSectionMappings(newPackageID[0], sectionID);
                 });
             })
             .catch((err: Error) => {
@@ -174,8 +147,8 @@ class PackageModel {
      * @param packageID - the ID of the package
      * @returns Returns an object include all the information of the package 
      */
-    private static getPackageInfo (packageID: number): Promise<any> {
-        return databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+    private getPackageInfo (packageID: number): Promise<any> {
+        return this.dbm.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
                 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
             .from('ixmPackages')
             .where('packageID', packageID)
@@ -193,8 +166,8 @@ class PackageModel {
      * @param packageID - the ID of the package
      * @returns Returns an array of section IDs
      */
-    private static getPackageSections (packageID: number): Promise<number []> {
-        return databaseManager.select('sectionID')
+    private getPackageSections (packageID: number): Promise<number []> {
+        return this.dbm.select('sectionID')
             .from('ixmPackageSectionMappings')
             .where('packageID', packageID)
             .then((sectionObjects: any) => {
@@ -216,8 +189,8 @@ class PackageModel {
      * @param sectionID - the ID of the section
      * @returns Returns a array with number 0 inside
      */
-    private static insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
-         return databaseManager.insert({
+    private insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
+         return this.dbm.insert({
                packageID: packageID,
                sectionID: sectionID
             })
@@ -229,4 +202,4 @@ class PackageModel {
     }
 }
 
-export { PackageModel }
+export { PackageManager };
