@@ -30,7 +30,7 @@ function Deals(router: express.Router): void {
     router.get('/', (req: express.Request, res: express.Response) => {
         // Extract pagination details
         let pagination = {
-            limit: (req.query.limit > paginationConfig['RESULTS_LIMIT'] || req.query.limit === undefined)
+            limit: (req.query.limit > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
                 ? paginationConfig['RESULTS_LIMIT'] : req.query.limit,
             offset: Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET']
         };
