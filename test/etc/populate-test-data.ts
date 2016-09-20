@@ -6,9 +6,9 @@ import { ConfigLoader } from '../../lib/config-loader';
 import { DatabaseManager } from '../../lib/database-manager';
 
 const Config = new ConfigLoader('../test/config');
-const logger= new Logger("TEST");
+const logger = new Logger("TEST");
 const dbm = new DatabaseManager(Config);
-const dbPopulator= new DatabasePopulator(dbm, Config);
+const dbPopulator = new DatabasePopulator(dbm, Config);
 
 dbPopulator.initialize()
     .then(() => {
