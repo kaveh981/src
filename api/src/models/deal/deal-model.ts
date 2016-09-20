@@ -47,34 +47,34 @@ class DealModel implements DealModel {
     public id: string;
 
     /** The publisher offering the deal */
-	public userId: number;
+    public userId: number;
 
     /** The DSP buying the deal */
-	public dspId: number;
+    public dspId: number;
 
     /** A descriptive name for the deal */
-	public name: string;
+    public name: string;
 
     /** The auction type under which the deal is operating */
-	public auctionType: string;
+    public auctionType: string;
 
     /** The reserved rate of the deal */
-	public price: number;
+    public price: number;
 
     /** The current status of the deal */
-	public status: string;
+    public status: string;
 
     /** The first day when the deal will serve */
-	public startDate: string;
+    public startDate: string;
 
     /** The last day when the deal will serve */
-	public endDate: string;
+    public endDate: string;
 
     /** The external ID the DSP must use when they bid with the deal */
-	public externalID : string;
+    public externalID : string;
 
     /** The sections where the deal is eligible to serve */
-	public sections: number[];
+    public sections: number[];
 
     /**
      * Constructor
