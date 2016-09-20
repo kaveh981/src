@@ -8,7 +8,7 @@ import { DatabaseManager } from '../lib/database-manager';
 const Log= new Logger("TEST");
 const Config = new ConfigLoader('../../../test/config');
 const dbm = new DatabaseManager(Config);
-const dbPopulator= new DatabasePopulator(dbm, Config);
+const dbPopulator = new DatabasePopulator(dbm, Config);
 
 let pubData: INewPubData;
 let sites: INewSiteData[];

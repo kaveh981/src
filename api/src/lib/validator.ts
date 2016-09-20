@@ -1,3 +1,5 @@
+'use strict';
+
 import * as ramlValidator from 'raml-typesystem';
 import * as yamlParser from 'js-yaml';
 import * as Promise from 'bluebird';
