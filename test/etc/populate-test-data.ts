@@ -10,12 +10,28 @@ const Config = new ConfigLoader('../../../test/config');
 const dbm = new DatabaseManager(Config);
 const dbPopulator= new DatabasePopulator(dbm, Config);
 
+let pubData: INewPubData;
+let sites: INewSiteData[];
+
 dbm.initialize()
     .then(() => {
         return dbPopulator.newPub();
     })
     .then((newPubData) => {
-        return dbPopulator.newSite(newPubData.user.userID);
+        pubData = newPubData;
+        return dbPopulator.newSite(pubData.user.userID);
+    })
+    .then((newSiteData) => {
+        sites = [newSiteData];
+        return dbPopulator.newSite(pubData.user.userID);
+    })
+    .then((newSiteData) => {
+        sites.push(newSiteData);
+        let siteIDs = [sites[0].siteID, sites[1].siteID];
+        return dbPopulator.newSection(pubData.user.userID, siteIDs);
+    })
+    .then((newSectionData) => {
+        Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
     })
     .then(dbm.shutdown.bind(dbm))
     .catch((err) => {
