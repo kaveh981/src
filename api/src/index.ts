@@ -1,7 +1,7 @@
 'use strict';
 
 /** Set up DI */
-import './loader.ts';
+import './loader';
 
 import { Injector } from './lib/injector';
 

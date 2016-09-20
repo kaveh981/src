@@ -44,6 +44,10 @@ class BuyerManager {
                             return new BuyerModel(buyer);
                         });
                 }
+            })
+            .catch((err: Error) => {
+                Log.error(err);
+                throw err;
             });
     }
 
@@ -114,3 +118,5 @@ class BuyerManager {
             });
     }
 }
+
+export { BuyerManager }
