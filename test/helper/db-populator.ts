@@ -5,17 +5,19 @@ const jsf = require('json-schema-faker');
 const faker = require('faker');
 
 import { DatabaseManager } from '../../lib/database-manager';
-import { Logger          } from '../../lib/logger';
-import { ConfigLoader }    from '../../lib/config-loader';
+import { Logger } from '../../lib/logger';
+import { ConfigLoader } from '../../lib/config-loader';
 
 const logger = new Logger("DPOP");
 
-
 export class DatabasePopulator {
 
+    private dbm: DatabaseManager;
+    private config: ConfigLoader;
+
     constructor (
-        private dbm: DatabaseManager,
-        private config: ConfigLoader
+        dbm: DatabaseManager,
+        config: ConfigLoader
     ) {
         faker.locale = "es_MX";
     }
@@ -23,10 +25,10 @@ export class DatabasePopulator {
     public initialize (): Promise<void> {
         return this.dbm.initialize()
             .then(() => {
-                logger.info("DatabasePopulator successfully initialized")
+                logger.info("DatabasePopulator successfully initialized");
             })
             .catch((err) => {
-                logger.error(err)
+                logger.error(err);
             });
     }
 
@@ -35,13 +37,12 @@ export class DatabasePopulator {
         logger.info("DatabasePopulator gracefully shutdown");
     }
 
-    public newUser (userFields?: any): Promise<any> { //TODO interface userFields
+    public newUser (userFields?: any): Promise<any> { // TODO interface userFields
         let newUserData;
         if (!userFields) {
             let schema  = this.config.get('data-gen/new-user-schema');
             newUserData = jsf(schema);
-        }
-        else {
+        } else {
             newUserData = userFields;
         }
         return this.dbm.insert(newUserData)
@@ -57,7 +58,7 @@ export class DatabasePopulator {
             });
     }
 
-    public newBuyer (): Promise<any> { //TODO interface NewBuyerData
+    public newBuyer (): Promise<any> { // TODO interface NewBuyerData
         let schema = this.config.get('data-gen/new-buyer-schema');
         let newBuyerData = jsf(schema);
         return this.newUser(newBuyerData.user)
@@ -66,7 +67,7 @@ export class DatabasePopulator {
                 return this.dbm
                     .insert({userID: newBuyerData.user.userID, dspID: newBuyerData.dspID})
                     .into("ixmBuyers")
-                    .catch((e) => { throw e });
+                    .catch((e) => { throw e; });
             })
             .then(() => {
                 logger.info(`Added new Buyer with userID: ${newBuyerData.user.userID}, dspID: ${newBuyerData.dspID}`);
@@ -78,7 +79,7 @@ export class DatabasePopulator {
             });
     }
 
-    public newPub (): Promise<any> { //TODO Interface NewPubData
+    public newPub (): Promise<any> { // TODO Interface NewPubData
         let schema = this.config.get('data-gen/new-pub-schema');
         let newBuyerData = jsf(schema);
         return this.newUser(newBuyerData.user)
@@ -88,7 +89,7 @@ export class DatabasePopulator {
             });
     }
 
-    /*public insertNewPackage (): Promise<number> {
+    /* public insertNewPackage (): Promise<number> {
         //TODO
     }*/
 
