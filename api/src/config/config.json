@@ -36,6 +36,12 @@
                 ]
             }
         },
+        "404Handler": {
+            "priority": 99,
+            "module": {
+                "name": "path:./middleware/404-handler"
+            }
+        },
         "errorHandler": {
             "priority": 100,
             "module": {

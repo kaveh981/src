@@ -23,6 +23,7 @@ import { UserManager } from './models/user/user-manager';
 import { BuyerManager } from './models/buyer/buyer-manager';
 import { PackageManager } from './models/package/package-manager';
 import { NegotiationManager } from './models/deal-negotiation/negotiation-manager';
+import { ContactManager } from './models/contact-info/contact-manager';
 
 /** Dependency Resolution */
 const validator = new Validator();
@@ -37,7 +38,10 @@ Injector.put(server, 'Server');
 const userManager = new UserManager(databaseManager);
 Injector.put(userManager, 'UserManager');
 
-const buyerManager = new BuyerManager(databaseManager);
+const contactManager = new ContactManager(databaseManager);
+Injector.put(contactManager, 'ContactManager');
+
+const buyerManager = new BuyerManager(databaseManager, contactManager);
 Injector.put(buyerManager, 'BuyerManager');
 
 const packageManager = new PackageManager(databaseManager);
