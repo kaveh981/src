@@ -55,20 +55,20 @@ class DealModel implements DealModel {
     /** A descriptive name for the deal */
     public name: string;
 
-    /** The auction type under which the deal is operating */
-    public auctionType: string;
+    /** The auction type under which the deal is operating - private */
+    private auctionType: string;
 
     /** The reserved rate of the deal */
     public price: number;
 
-    /** The current status of the deal */
-    public status: string;
+    /** The current status of the deal - private */
+    private status: string;
 
-    /** The first day when the deal will serve */
-    public startDate: string;
+    /** The first day when the deal will serve - private */
+    private startDate: string;
 
-    /** The last day when the deal will serve */
-    public endDate: string;
+    /** The last day when the deal will serve - private */
+    private endDate: string;
 
     /** The external ID the DSP must use when they bid with the deal */
     public externalID : string;
@@ -80,11 +80,89 @@ class DealModel implements DealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal model.
      */
-    constructor(initParams?: IDealModel) {
+    public constructor(initParams?: IDealModel) {
         if (initParams) {
             Object.assign(this, initParams);
         }
     }
+
+    /**
+     * Setter for the private auctionType property - automagically called when trying to assign it 
+     * @param at - auction type about to be set
+     */
+    public set auctionType (at) {
+        if ( at === 'second' || at === 'first' || at === 'fixed' ) {
+            this.auctionType = at;
+        }
+        else {
+            throw new Error('Auction type must be either fixed, first or second');
+        }
+    }
+
+    /**
+     * Setter for the private status property - automagically called when trying to assign it 
+     * Ensures that the status is either New, Active, Deleted or Paused and converts it to the right value
+     * @param st - status about to be set
+     */
+    public set status (st: string): void {
+
+        let lowerStatus: string = st.toLowerCase();
+
+        if ( lowerStatus === 'active' ) {
+            this.status = 'A';
+        } else if ( lowerStatus === 'new' ) {
+            this.status = 'N';
+        } else if ( lowerStatus === 'paused' ) {
+            this.status = 'P';
+        } else if ( lowerStatus === 'deleted' ) {
+            this.status = 'D';
+        }
+        else {
+            throw new Error('Status must be either Active, Deleted, New or Paused');
+        }
+    }
+
+    /**
+     * Setter for the private startDate property - automagically called when trying to assign it 
+     * Ensures that the date provided follows the format 'YYYY-MM-DD'
+     * @param date - date about to be set
+     */
+    public set startDate (date: string): void {
+
+        if ( isValidDate(date) ) {
+            this.startDate = date;
+        }
+        else {
+            throw new Error('Start date must follow format "YYYY-MM-DD"');
+        }
+    }
+
+    /**
+     * Setter for the private endDate property - automagically called when trying to assign it 
+     * Ensures that the date provided follows the format 'YYYY-MM-DD'
+     * @param date - date about to be set
+     */
+    public set endDate (date: string): void {
+
+        if ( isValidDate(date) ) {
+            this.endDate = date;
+        }
+        else {
+            throw new Error('End date must follow format "YYYY-MM-DD"');
+        }
+    }
+
+    /**
+     * Helper function that makes sure that a stringhas the format 'YYYY-MM-DD'
+     * Ensures that the date provided follows the format 'YYYY-MM-DD'
+     * @param date - date about to be set
+     */
+    private function isValidDate(date: string): boolean {
+        let datePattern  = /^\d\d\d\d-\d\d-\d\d$/;
+
+        return datePattern.test(date);
+    }
+
 }
 
 export { DealModel }
