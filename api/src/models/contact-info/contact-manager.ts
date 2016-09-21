@@ -42,6 +42,7 @@ class ContactManager {
                 }
 
                 return new ContactModel({
+                    userId: id,
                     name: contactInfo.firstName + ' ' + contactInfo.lastName,
                     emailAddress: contactInfo.emailAddress,
                     phone: contactInfo.phone
