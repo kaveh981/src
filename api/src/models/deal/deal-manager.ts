@@ -28,12 +28,16 @@ class DealManager {
      * @param id - The id of the deal we want information from.
      */
     public fetchDealFromId(id: number): Promise<DealModel> {
-        return this.dbm.select('dealID as id', 'status as status', 'userID as publisherID' )
+        return this.dbm.select('dealID as id', 'userID as publisherID', 'dspID as dspId',
+                                'name', 'auctionType', 'status', 'startDate', 'endDate', 'externalDealID as externalId',
+                                this.dbm.raw('GROUP_CONCAT(sectionID) as sections') )
                 .from('rtbDeals')
+                .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
                 .where('dealID', id)
-                .limit(1)
-            .then((rows) => {
-                return new DealModel(rows[0]);
+                .groupBy('dealID')
+            .then((deals: any) => {
+                deal[0].sections = deal[0].sections.split(',');
+                return new DealModel(deal[0]);
             })
             .catch((err: Error) => {
                 Log.error(err);
