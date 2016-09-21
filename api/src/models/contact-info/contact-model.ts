@@ -1,6 +1,9 @@
 'use strict';
 
 interface IContactModel {
+    /** UserId of the contact */
+    userId: number;
+
     /** The contact person's title */
     title?: string;
 
@@ -16,6 +19,8 @@ interface IContactModel {
 
 /** Contact Model */
 class ContactModel implements IContactModel {
+    /** User Id of the model */
+    public userId: number;
 
     /** The contact person's title */
     public title: string = 'Warlord';
