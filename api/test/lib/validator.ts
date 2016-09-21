@@ -3,7 +3,7 @@
 import * as test from 'tape';
 import * as Promise from 'bluebird';
 
-import { Validator } from '../../lib/validator';
+import { Validator } from '../../src/lib/validator';
 
 test('Validator Test', (assert: test.Test) => {
     assert.plan(2);
