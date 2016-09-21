@@ -10,7 +10,7 @@ import { Logger          } from '../lib/logger';
 
 const Log = new Logger("DPOP");
 
-class DatabasePopulator {
+class DatabasePopulatorRefactor {
 
     private dbm: DatabaseManager;
     private config: ConfigLoader;
@@ -142,19 +142,9 @@ class DatabasePopulator {
             .insert(newPackage, "packageID")
             .into("ixmPackages")
             .then((packageID: number[]) => {
-                Log.info(`Created package ID: ${packageID}`);
+                Log.info(`Created package ID: ${packageID[0]}`);
 
-                return Promise.map(sectionIDs, (sectionID) => {
-                    return this.dbm
-                        .insert({packageID: packageID, sectionID: sectionID})
-                        .into("ixmPackageSectionMappings")
-                        .then(() => {
-                            Log.info(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
-                        })
-                        .catch((e) => {
-                            throw e;
-                        });
-                })
+                this.mapPackageSections(packageID[0], sectionIDs)
                 .then(() => {
                     return newPackage;
                 });
@@ -164,6 +154,23 @@ class DatabasePopulator {
             });
     }
 
+    private mapPackageSections (packageID:number, sectionIDs: number[]): Promise {
+        return Promise.map(sectionIDs, (sectionID) => {
+            return this.mapPackageSection(packageID, sectionID);
+        });
+    }
+
+    private mapPackageSection (packageID: number, sectionID: number): Promise {
+        return this.dbm.insert({packageID: packageID, sectionID: sectionID})
+            .into("ixmPackageSectionMappings")
+            .then(() => {
+                Log.info(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
+            })
+            .catch((e) => {
+                throw e;
+            });
+    }
+
 }
 
-export { DatabasePopulator }
+export { DatabasePopulatorRefactor }
