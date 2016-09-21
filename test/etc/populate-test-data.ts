@@ -1,17 +1,25 @@
 // Script to auto-populate Viper2 with data relevant to IXM Buyer API
 
-import { DatabasePopulator } from '../helper/db-populator';
-import { Logger }      from '../lib/logger';
+
+
 import { ConfigLoader }      from '../lib/config-loader';
+import { Injector } from '../lib/injector';
+
+const Config = new ConfigLoader('../../../test/config');
+Injector.put(Config, "ConfigLoader");
+
+import { Logger }      from '../lib/logger';
+const Log = new Logger("TEST");
+
+import { DatabasePopulator } from '../helper/db-populator';
 import { DatabaseManager } from '../lib/database-manager';
 
-const Log= new Logger("TEST");
-const Config = new ConfigLoader('../../../test/config');
 const dbm = new DatabaseManager(Config);
 const dbPopulator = new DatabasePopulator(dbm, Config);
 
 let pubData: INewPubData;
 let sites: INewSiteData[];
+let sections: INewSectionData[];
 
 dbm.initialize()
     .then(() => {
@@ -32,6 +40,19 @@ dbm.initialize()
     })
     .then((newSectionData) => {
         Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
+        sections = [newSectionData];
+        return dbPopulator.newSection(pubData.user.userID, [sites[0].siteID])
+    })
+    .then((newSectionData) => {
+        sections.push(newSectionData);
+        let sectionIDs: number[] = [];
+        sections.map((section) => {
+            sectionIDs.push(section.section.sectionID);
+        });
+        return dbPopulator.newPackage(pubData.user.userID, sectionIDs);
+    })
+    .then((newPackageData) => {
+        Log.info("Created package ID: " + newPackageData.packageID + ", mapped to sectionIDs: " + newPackageData.sectionIDs)
     })
     .then(dbm.shutdown.bind(dbm))
     .catch((err) => {

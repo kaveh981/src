@@ -143,7 +143,7 @@ class DatabasePopulator {
             .into("ixmPackages")
             .then((packageID: number[]) =>{
                 Log.info(`Created package ID: ${packageID}`);
-
+                newPackage.sectionIDs = sectionIDs;
                 return Promise.map(sectionIDs, (sectionID) => {
                     return this.dbm
                         .insert({packageID: packageID, sectionID: sectionID})

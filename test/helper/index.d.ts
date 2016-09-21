@@ -68,6 +68,7 @@ interface INewSectionData {
 interface INewPackageData {
     packageID?: number,
     ownerID: number,
+    sectionIDs?: number[]
     name: string,
     description: string,
     status: string,
