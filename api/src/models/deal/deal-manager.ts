@@ -28,7 +28,7 @@ class DealManager {
      * @param id - The id of the deal we want information from.
      */
     public fetchDealFromId(id: number): Promise<DealModel> {
-        return this.dbm.select('dealID as id', 'status as status' )
+        return this.dbm.select('dealID as id', 'status as status', 'userID as publisherID' )
                 .from('rtbDeals')
                 .where('dealID', id)
                 .limit(1)

@@ -6,7 +6,7 @@ interface IDealModel {
     id: number;
 
     /** The publisher offering the deal */
-    userId: number;
+    publisherId: number;
 
     /** The DSP buying the deal */
     dspId: number;
@@ -47,7 +47,7 @@ class DealModel implements DealModel {
     public id: string;
 
     /** The publisher offering the deal */
-    public userId: number;
+    public publisherId: number;
 
     /** The DSP buying the deal */
     public dspId: number;
