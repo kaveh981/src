@@ -145,7 +145,7 @@ class Logger {
      */
     private outputLog(message: IMessage): void {
         if (message.LEVEL >= this.consoleLevel && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
-            let msg = `(${this.name.toUpperCase()}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
+            let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
             console.log(chalk[color](msg));
