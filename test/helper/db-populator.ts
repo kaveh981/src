@@ -135,9 +135,34 @@ class DatabasePopulator {
             });
     }
 
-    /*public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
-        //TODO newPackage method
-    }*/
+    public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
+        let newPackage = this.genDataObj<INewPackageData>('new-package-schema');
+        newPackage.ownerID = ownerID;
+        return this.dbm
+            .insert(newPackage, "packageID")
+            .into("ixmPackages")
+            .then((packageID: number[]) =>{
+                Log.info(`Created package ID: ${packageID}`);
+
+                return Promise.map(sectionIDs, (sectionID) => {
+                    return this.dbm
+                        .insert({packageID: packageID, sectionID: sectionID})
+                        .into("ixmPackageSectionMappings")
+                        .then(() => {
+                            Log.info(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
+                        })
+                        .catch((e) => {
+                            throw e;
+                        });
+                })
+                .then(() => {
+                    return newPackage;
+                });
+            })
+            .catch((e) => {
+                throw e;
+            });
+    }
 
 }
 
