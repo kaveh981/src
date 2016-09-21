@@ -1,7 +1,7 @@
 'use strict';
 
 /** Set up DI */
-import './loader.ts';
+import './loader';
 
 import { Injector } from './lib/injector';
 
@@ -13,6 +13,7 @@ const validator = Injector.request<Validator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const server = Injector.request<Server>('Server');
 
+/** Initialize the libraries. */
 Promise.resolve()
         .then(() => {
             return validator.initialize();
