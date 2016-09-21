@@ -33,7 +33,7 @@ class Validator {
      * @param schemaDirectory - The directory containing all RAML schemas, relative to root directory.
      * @returns Promise which resolves if all schemas have been loaded and validated.
      */
-    public initialize(schemaDirectory: string = './schemas'): Promise<{}> {
+    public initialize(schemaDirectory: string = '../schemas'): Promise<{}> {
         return new Promise((resolve: Function, reject: Function) => {
             Log.info('Loading and validating schemas...');
 
