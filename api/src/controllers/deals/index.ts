@@ -29,15 +29,19 @@ function Deals(router: express.Router): void {
      */
     router.get('/', (req: express.Request, res: express.Response) => {
         // Extract pagination details
-        let pagination = {
-            limit: (Number(req.query.limit) > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
-                ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit),
-            offset: Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET']
-        };
-        if (pagination.limit < 0 || pagination.offset < 0 || isNaN(pagination.limit) || isNaN(pagination.offset)) {
+        let limit: number = (Number(req.query.limit) > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
+                ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit);
+        let offset: number = Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET'];
+
+        if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
             res.sendValidationError(["Invalid limit or offset value"]);
             return;
         }
+
+        let pagination = {
+            limit: limit,
+            offset: offset
+        };
 
         // Get all packages with an 'active' status
         let availablePackages = [];
@@ -68,7 +72,7 @@ function Deals(router: express.Router): void {
                         res.sendError(200, '200_NO_PACKAGES');
                         return;
                     }
-                    res.sendPayload(availablePackages);
+                    res.sendPayload(availablePackages, pagination);
                 });
             })
             .catch((err: Error) => {
