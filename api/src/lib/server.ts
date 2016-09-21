@@ -38,7 +38,10 @@ class Server {
             let app: any = express();
             let port: string = this.config.getVar('SERVER_PORT');
             let krakenOptions: any = {
-                basedir: basedir
+                basedir: basedir,
+                uncaughtException: (err) => {
+                    Log.error(err);
+                }
             };
 
             Log.info(`Starting the server on port ${port}...`);

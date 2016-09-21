@@ -2,7 +2,7 @@
     "consoleLevel": 0,
     "consoleFilter": [],
     "outputFiles": [
-        "./logs/output.log"
+        "../logs/output.log"
     ],
     "levelMetadata": {
         "0": {
