@@ -14,20 +14,21 @@ interface IDealModel {
     /** A descriptive name for the deal */
     name: string;
 
-    /** The auction type under which the deal is operating */
-    auctionType: string;
+    /** The auction type under which the deal is operating - it's a private property so the interface has the getter's signature */
+// TODO: Figure out how to use private properties in interfaces with getters and setters
+// JH    auctionType(): string;
 
     /** The reserved rate of the deal */
     price: number;
 
     /** The current status of the deal */
-    status: string;
+// JH   _status: string;
 
     /** The first day when the deal will serve */
-    startDate: string;
+// JH   _startDate: string;
 
     /** The last day when the deal will serve */
-    endDate: string;
+// JH   _endDate: string;
 
     /** The external ID the DSP must use when they bid with the deal */
     externalId: string;
@@ -44,7 +45,7 @@ interface IDealModel {
 class DealModel implements IDealModel {
 
     /** The deal's unique internal identifier */
-    public id: string;
+    public id: number;
 
     /** The publisher offering the deal */
     public publisherId: number;
@@ -87,7 +88,7 @@ class DealModel implements IDealModel {
     }
 
     /**
-     * Setter for the private auctionType property - automagically called when trying to assign it 
+     * Setter for the private auctionType property - automagically called when trying to assign it
      * @param at - auction type about to be set
      */
     public set auctionType (at: string) {
@@ -99,7 +100,14 @@ class DealModel implements IDealModel {
     }
 
     /**
-     * Setter for the private status property - automagically called when trying to assign it 
+     * Getter for the private auctionType property - automagically called when trying to access it
+     */
+    public get auctionType(): string {
+        return this._auctionType;
+    }
+
+    /**
+     * Setter for the private status property - automagically called when trying to assign it
      * Ensures that the status is either New, Active, Deleted or Paused and converts it to the right value
      * @param st - status about to be set
      */
@@ -121,7 +129,23 @@ class DealModel implements IDealModel {
     }
 
     /**
-     * Setter for the private startDate property - automagically called when trying to assign it 
+     * Getter for the private status property - automagically called when trying to access it
+     */
+    public get status(): string {
+
+        if ( this._status === 'A' ) {
+            return 'Active';
+        } else if ( this._status === 'N' ) {
+            return 'New';
+        } else if ( this._status === 'P' ) {
+            return 'Paused';
+        } else if ( this._status === 'D' ) {
+            return 'Deleted';
+        }
+    }
+
+    /**
+     * Setter for the private startDate property - automagically called when trying to assign it
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set
      */
@@ -135,7 +159,14 @@ class DealModel implements IDealModel {
     }
 
     /**
-     * Setter for the private endDate property - automagically called when trying to assign it 
+     * Getter for the private startDate property - automagically called when trying to access it
+     */
+    public get startDate(): string {
+        return this._startDate;
+    }
+
+    /**
+     * Setter for the private endDate property - automagically called when trying to assign it
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set
      */
@@ -146,6 +177,13 @@ class DealModel implements IDealModel {
         } else {
             throw new Error('End date must follow format "YYYY-MM-DD"');
         }
+    }
+
+    /**
+     * Getter for the private endDate property - automagically called when trying to access it
+     */
+    public get endDate(): string {
+        return this._endDate;
     }
 
     /**
