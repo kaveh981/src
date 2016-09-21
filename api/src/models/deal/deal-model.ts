@@ -30,7 +30,7 @@ interface IDealModel {
     endDate: string;
 
     /** The external ID the DSP must use when they bid with the deal */
-    externalID : string;
+    externalId: string;
 
     /** The sections where the deal is eligible to serve */
     sections: number[];
@@ -55,11 +55,17 @@ class DealModel implements DealModel {
     /** A descriptive name for the deal */
     public name: string;
 
-    /** The auction type under which the deal is operating - private */
-    private auctionType: string;
-
     /** The reserved rate of the deal */
     public price: number;
+
+    /** The external ID the DSP must use when they bid with the deal */
+    public externalId: string;
+
+    /** The sections where the deal is eligible to serve */
+    public sections: number[];
+
+    /** The auction type under which the deal is operating - private */
+    private auctionType: string;
 
     /** The current status of the deal - private */
     private status: string;
@@ -69,12 +75,6 @@ class DealModel implements DealModel {
 
     /** The last day when the deal will serve - private */
     private endDate: string;
-
-    /** The external ID the DSP must use when they bid with the deal */
-    public externalID : string;
-
-    /** The sections where the deal is eligible to serve */
-    public sections: number[];
 
     /**
      * Constructor
@@ -90,11 +90,10 @@ class DealModel implements DealModel {
      * Setter for the private auctionType property - automagically called when trying to assign it 
      * @param at - auction type about to be set
      */
-    public set auctionType (at) {
+    public set auctionType (at: string): void {
         if ( at === 'second' || at === 'first' || at === 'fixed' ) {
             this.auctionType = at;
-        }
-        else {
+        } else {
             throw new Error('Auction type must be either fixed, first or second');
         }
     }
@@ -116,8 +115,7 @@ class DealModel implements DealModel {
             this.status = 'P';
         } else if ( lowerStatus === 'deleted' ) {
             this.status = 'D';
-        }
-        else {
+        } else {
             throw new Error('Status must be either Active, Deleted, New or Paused');
         }
     }
@@ -131,8 +129,7 @@ class DealModel implements DealModel {
 
         if ( isValidDate(date) ) {
             this.startDate = date;
-        }
-        else {
+        } else {
             throw new Error('Start date must follow format "YYYY-MM-DD"');
         }
     }
@@ -146,8 +143,7 @@ class DealModel implements DealModel {
 
         if ( isValidDate(date) ) {
             this.endDate = date;
-        }
-        else {
+        } else {
             throw new Error('End date must follow format "YYYY-MM-DD"');
         }
     }
@@ -157,7 +153,7 @@ class DealModel implements DealModel {
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set
      */
-    private function isValidDate(date: string): boolean {
+    private isValidDate(date: string): boolean {
         let datePattern  = /^\d\d\d\d-\d\d-\d\d$/;
 
         return datePattern.test(date);
