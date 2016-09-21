@@ -53,3 +53,14 @@ types:
         get:
         put:
         delete:
+
+/users:
+    /{user_id}:
+        get:
+            description: Retrieve contact information for a user by id.
+            response:
+                200: # 200 = OK
+                    body:
+                        application/json:
+                            type: Contact
+                404: # 404 = User not found.
