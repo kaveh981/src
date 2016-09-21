@@ -153,7 +153,7 @@ class DealModel implements DealModel {
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set
      */
-    private isValidDate(date: string): boolean {
+    private function isValidDate(date: string): boolean {
         let datePattern  = /^\d\d\d\d-\d\d-\d\d$/;
 
         return datePattern.test(date);
