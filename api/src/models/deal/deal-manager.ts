@@ -36,8 +36,8 @@ class DealManager {
                 .where('dealID', id)
                 .groupBy('dealID')
             .then((deals: any) => {
-                deal[0].sections = deal[0].sections.split(',');
-                return new DealModel(deal[0]);
+                deals[0].sections = deals[0].sections.split(',');
+                return new DealModel(deals[0]);
             })
             .catch((err: Error) => {
                 Log.error(err);
