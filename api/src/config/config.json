@@ -1,9 +1,4 @@
 {
-    "i18n": {
-        "contentPath": "path:./locales",
-        "fallback": "en-US"
-    },
-    
     "middleware": {
         "session": {
             "enabled": false
