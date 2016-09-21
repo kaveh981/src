@@ -33,17 +33,21 @@ class BuyerManager {
      * @returns A promise for a new buyer model.
      */
     public fetchBuyerFromId(userId: number): Promise<BuyerModel> {
+        let buyerObject: BuyerModel;
+
         return this.getDSPsFromId(userId)
             .then((dsps) => {
-                let dspArray: number[] = dsps.map((dsp) => { return dsp.dspid; });
-                return new BuyerModel({ userId: userId, dspIds: dspArray });
+                buyerObject = new BuyerModel({
+                    userId: userId,
+                    dspIds: dsps.map((dsp) => { return dsp.dspid; })
+                });
+
+                return userId;
             })
-            .then((buyer) => {
-                return this.contactManager.fetchContactInfoById(buyer.userId)
-                    .then((contactInfo) => {
-                        buyer.contactInfo = contactInfo;
-                        return buyer;
-                    });
+            .then(this.contactManager.fetchContactInfoById)
+            .then((contactInfo) => {
+                buyerObject.contactInfo = contactInfo;
+                return buyerObject;
             })
             .catch((err: Error) => {
                 Log.error(err);
