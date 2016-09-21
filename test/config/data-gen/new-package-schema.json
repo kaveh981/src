@@ -1,0 +1,59 @@
+{
+    "type": "object",
+    "properties": {
+        "ownerID": 1,
+        "name": {
+            "faker": "company.bs"
+        },
+        "description": {
+            "faker": "company.catchPhrase"
+        },
+        "status": {
+            "chance": {
+                "pickone": [
+                    [
+                        "active",
+                        "paused",
+                        "deleted"
+                    ]
+                ]
+            }
+        },
+        "public": 1,
+        "startDate": "2016-09-09",
+        "endDate": "2016-10-10",
+        "price": 6.66,
+        "impressions": 4,
+        "budget": 9999999,
+        "auctionType": {
+            "chance": {
+                "pickone": [
+                    [
+                        "first",
+                        "second",
+                        "fixed"
+                    ]
+                ]
+            }
+        },
+        "terms": {
+            "faker": "lorem.paragraph"
+        },
+        "createDate": "1999-09-09 09:09:09"
+    },
+    "required": [
+        "ownerID",
+        "name",
+        "description",
+        "status",
+        "public",
+        "startDate",
+        "endDate",
+        "price",
+        "impressions",
+        "budget",
+        "auctionType",
+        "terms",
+        "createDate"
+    ]
+}

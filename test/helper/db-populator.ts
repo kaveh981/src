@@ -108,6 +108,7 @@ class DatabasePopulator {
             });
     }
 
+
     public newSection (ownerID: number, siteIDs: number[]): Promise<INewSectionData> {
         let section = this.genDataObj<ISection>('new-section-schema');
         section.userID = ownerID;
@@ -132,12 +133,36 @@ class DatabasePopulator {
                         throw e;
                     })
             });
-
     }
 
-    /*public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
-        //TODO newPackage method
-    }*/
+    public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
+        let newPackage = this.genDataObj<INewPackageData>('new-package-schema');
+        newPackage.ownerID = ownerID;
+        return this.dbm
+            .insert(newPackage, "packageID")
+            .into("ixmPackages")
+            .then((packageID: number[]) =>{
+                Log.info(`Created package ID: ${packageID}`);
+                newPackage.sectionIDs = sectionIDs;
+                return Promise.map(sectionIDs, (sectionID) => {
+                    return this.dbm
+                        .insert({packageID: packageID, sectionID: sectionID})
+                        .into("ixmPackageSectionMappings")
+                        .then(() => {
+                            Log.info(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
+                        })
+                        .catch((e) => {
+                            throw e;
+                        });
+                })
+                .then(() => {
+                    return newPackage;
+                });
+            })
+            .catch((e) => {
+                throw e;
+            });
+    }
 
 }
 
