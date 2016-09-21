@@ -9,6 +9,13 @@ const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const errorMessages = config.get('errors');
 
+interface IPagination {
+    /** The limit of the data returned */
+    limit: number;
+    /** The offset of the data returned */
+    offset: number;
+}
+
 /**
  * The standardized response object
  */
@@ -19,6 +26,8 @@ interface IHttpResponse {
     message: string;
     /** Payload data to send. */
     data: any;
+    /** Optional pagination details to send */
+    pagination?: IPagination;
 }
 
 /*
@@ -28,7 +37,7 @@ interface IHttpResponse {
 function augmentResponse(res: express.Response): void {
 
     // Send JSON payload
-    res.sendPayload = (payload: any) => {
+    res.sendPayload = (payload: any, pagination?: IPagination) => {
         // If the payload is undefined or is an empty object, send no content
         if (!payload || Object.keys(payload).length === 0) {
             res.sendNoContent();
@@ -42,6 +51,14 @@ function augmentResponse(res: express.Response): void {
         };
 
         Object.assign(msg.data, payload);
+
+        if (pagination) {
+            msg.pagination = {
+                limit: 0,
+                offset: 0
+            };
+            Object.assign(msg.pagination, pagination);
+        }
 
         res.status(200).send(JSON.stringify(msg));
     };
