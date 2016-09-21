@@ -7,7 +7,7 @@ import { DealModel } from './deal-model';
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 
-const Log = new Logger('mDL');
+const Log = new Logger('mDLS');
 
 /** Deal model manager */
 class DealManager {
