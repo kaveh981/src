@@ -3,7 +3,7 @@
 import * as test from 'tape';
 import * as Promise from 'bluebird';
 
-import { DatabaseManager } from '../../lib/database-manager';
+import { DatabaseManager } from '../../src/lib/database-manager';
 
 test('Database Selection Test', (assert: test.Test) => {
     assert.plan(1);

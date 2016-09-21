@@ -1,9 +1,4 @@
 {
-    "i18n": {
-        "contentPath": "path:./locales",
-        "fallback": "en-US"
-    },
-    
     "middleware": {
         "session": {
             "enabled": false
@@ -34,6 +29,12 @@
                         "directory": "path:./controllers"
                     }
                 ]
+            }
+        },
+        "404Handler": {
+            "priority": 99,
+            "module": {
+                "name": "path:./middleware/404-handler"
             }
         },
         "errorHandler": {
