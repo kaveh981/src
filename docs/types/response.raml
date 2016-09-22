@@ -19,6 +19,11 @@ properties:
         required: true
         displayName: Data
         description: An array of data objects returned from the request. May be empty.
+    pagination:
+        type: object #QueryPaging?
+        required: false
+        displayName: pagination
+        description: An optional object describing the pagination context of the returned data
 example: |
     {
         "code": 200,
@@ -31,5 +36,9 @@ example: |
                 #data object 2
             }
             # ...
-        ]
+        ],
+        "pagination": {
+            limit: 250,
+            offset: 0
+        }
     }

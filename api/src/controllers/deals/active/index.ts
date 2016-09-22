@@ -1,21 +1,55 @@
 'use strict';
 
 import * as express from 'express';
+import * as Promise from 'bluebird';
 
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { Logger } from '../../../lib/logger';
+import { Injector } from '../../../lib/injector';
+import { ConfigLoader } from '../../../lib/config-loader';
+
+import { DealManager } from '../../../models/deal/deal-manager';
+
+const dealManager = Injector.request<DealManager>('DealManager');
+
+const config = Injector.request<ConfigLoader>('ConfigLoader');
+const paginationConfig = config.get('pagination');
+
+const Log: Logger = new Logger('ACTD');
 
 function ActiveDeals(router: express.Router): void {
 
-    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
+    router.get('/', (req: express.Request, res: express.Response) => {
+        // Extract pagination details
+        let limit: number = (Number(req.query.limit) > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
+                ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit);
+        let offset: number = Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET'];
 
-        res.sendPayload({'deals': 'Hi, I\'m Rick Harrison, and this is my pawn shop. I work here with my old man and \
-        my son, "Big Hoss." Everything in here has a story and a price. One thing I\'ve learned after 21 years - you \
-        never know what is gonna come through that door.'});
+        if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
+            res.sendValidationError(["Invalid limit or offset value"]);
+            return;
+        }
 
-        let face: any = {};
-        face.cow();
+        let pagination = {
+            limit: limit,
+            offset: offset
+        };
 
-        throw "cow";
+        // Get all active deals for current buyer
+        // let buyerId = Number(req.ixmBuyerInfo.userId);
+        let buyerId = 123;
+
+        return dealManager.fetchActiveDealsForBuyer(buyerId, pagination)
+            .then((activeDeals) => {
+                    if (activeDeals.length === 0) {
+                        res.sendError(200, '200_NO_DEALS');
+                        return;
+                    }
+                    res.sendPayload(activeDeals, pagination);
+            })
+            .catch((err: Error) => {
+                Log.error(err);
+                throw err;
+            });
 
     });
 
