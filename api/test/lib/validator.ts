@@ -3,12 +3,20 @@
 import * as test from 'tape';
 import * as Promise from 'bluebird';
 
+import { Injector } from '../../src/lib/injector';
+import { ConfigLoader } from '../../src/lib/config-loader';
+
+const config = new ConfigLoader();
+Injector.put(config, 'ConfigLoader');
+
 import { Validator } from '../../src/lib/validator';
+
+const validator = new Validator();
 
 test('Validator Test', (assert: test.Test) => {
     assert.plan(2);
 
-    Validator.initialize()
+    validator.initialize()
             .then(() => {
                 let goodRat: any = {
                     name: 'Meow',
@@ -21,8 +29,8 @@ test('Validator Test', (assert: test.Test) => {
                     attitude: 'bad'
                 };
 
-                assert.equal(Validator.validate(goodRat, 'Rat').success, 1, 'Good rat should pass validation.');
-                assert.equal(Validator.validate(badRat, 'Rat').errors.length, 2,
+                assert.equal(validator.validate(goodRat, 'Rat').success, 1, 'Good rat should pass validation.');
+                assert.equal(validator.validate(badRat, 'Rat').errors.length, 2,
                     'Bad rat should have two failures, bad diet and bad attitude.');
 
             })
