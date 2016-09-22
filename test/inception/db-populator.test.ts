@@ -1,65 +1,95 @@
-// TODO: turn this into db-populator unit tests
-
+/**
+ * DatabasePopulator module test spec
+ */
 import * as test from 'tape';
-import { ConfigLoader }      from '../lib/config-loader';
 import { Injector } from '../lib/injector';
-
-const Config = new ConfigLoader('../../../test/config');
-Injector.put(Config, "ConfigLoader");
-
-import { Logger }      from '../lib/logger';
-const Log = new Logger("TEST");
-
-import { DatabasePopulator } from '../helper/db-populator';
+import { DatabasePopulator } from '../helper/db-populator.helper';
 import { DatabaseManager } from '../lib/database-manager';
+import { Logger }      from '../lib/logger';
+// import { boot, shutdown } from '../helper/loader.helper'
 
-const dbm = new DatabaseManager(Config);
-const dbPopulator = new DatabasePopulator(dbm, Config);
+const Log = new Logger("TEST");
+const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
+const dbManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-test("DB Populator Test Spec", (assert: test.Test) => {
-    let pubData: INewPubData;
-    let sites: INewSiteData[];
-    let sections: INewSectionData[];
+const before = test;
+const after = test;
 
-    
-
-    dbm.initialize()
-        .then(() => {
-            return dbPopulator.newPub();
-        })
-        .then((newPubData) => {
-            pubData = newPubData;
-            return dbPopulator.newSite(pubData.user.userID);
-        })
-        .then((newSiteData) => {
-            sites = [newSiteData];
-            return dbPopulator.newSite(pubData.user.userID);
-        })
-        .then((newSiteData) => {
-            sites.push(newSiteData);
-            let siteIDs = [sites[0].siteID, sites[1].siteID];
-            return dbPopulator.newSection(pubData.user.userID, siteIDs);
-        })
-        .then((newSectionData) => {
-            Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
-            sections = [newSectionData];
-            return dbPopulator.newSection(pubData.user.userID, [sites[0].siteID])
-        })
-        .then((newSectionData) => {
-            sections.push(newSectionData);
-            let sectionIDs: number[] = [];
-            sections.map((section) => {
-                sectionIDs.push(section.section.sectionID);
+export default (suite: test.Test) => {
+    test("Some test inside *.test file", (t: test.Test) => {
+        dbPopulator.newUser()
+            .then((newUserData) => {
+                Log.debug(JSON.stringify(newUserData, undefined, 2));
+                t.pass("User inserted to db");
+                t.end();
             });
-            Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
-            return dbPopulator.newPackage(pubData.user.userID, sectionIDs);
-        })
-        .then((newPackageData) => {
-            Log.info("Created package ID: " + newPackageData.packageID + ", mapped to sectionIDs: " + newPackageData.sectionIDs)
-        })
-        .then(dbm.shutdown.bind(dbm))
-        .catch((err) => {
-            Log.error(err);
-            dbm.shutdown();
-        });
+    });
+
+    test("Wrapping up inside *.test file", (t: test.Test) => {
+        suite.end();
+        t.end();
+    });
+};
+
+
+/*before("Boot Test Framework", (t: test.Test) => {
+    
 });
+
+after("Shutdown Test Framework", (t: test.Test) => {
+    shutdown();
+    Log.debug('Test Framework shutdown..');
+    t.end();
+});*/
+
+/*
+boot()
+    .then(() => {
+        test("DB Populator Test Spec", (assert: test.Test) => {
+            let pubData: INewPubData;
+            let sites: INewSiteData[];
+            let sections: INewSectionData[];
+
+            return dbPopulator.newPub()
+                .then((newPubData) => {
+                    pubData = newPubData;
+                    return dbPopulator.newSite(pubData.user.userID);
+                })
+                .then((newSiteData) => {
+                    sites = [newSiteData];
+                    return dbPopulator.newSite(pubData.user.userID);
+                })
+                .then((newSiteData) => {
+                    sites.push(newSiteData);
+                    let siteIDs = [sites[0].siteID, sites[1].siteID];
+                    return dbPopulator.newSection(pubData.user.userID, siteIDs);
+                })
+                .then((newSectionData) => {
+                    Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
+                    sections = [newSectionData];
+                    return dbPopulator.newSection(pubData.user.userID, [sites[0].siteID])
+                })
+                .then((newSectionData) => {
+                    sections.push(newSectionData);
+                    let sectionIDs: number[] = [];
+                    sections.map((section) => {
+                        sectionIDs.push(section.section.sectionID);
+                    });
+                    Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
+                    return dbPopulator.newPackage(pubData.user.userID, sectionIDs);
+                })
+                .then((newPackageData) => {
+                    Log.info("Created package ID: " + newPackageData.packageID + ", mapped to sectionIDs: " + newPackageData.sectionIDs)
+                })
+                .then(shutdown)
+                .catch((err) => {
+                    Log.error(err);
+                    shutdown();
+                });
+        });
+    })
+    .finally(shutdown)
+    .catch((e) => {
+        Log.error(e);
+        shutdown();
+    });*/
