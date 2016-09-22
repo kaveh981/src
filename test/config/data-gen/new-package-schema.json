@@ -24,7 +24,7 @@
         "endDate": "2016-10-10",
         "price": 6.66,
         "impressions": 4,
-        "budget": 999999999,
+        "budget": 9999999,
         "auctionType": {
             "chance": {
                 "pickone": [
