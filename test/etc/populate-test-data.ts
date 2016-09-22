@@ -1,7 +1,5 @@
 // Script to auto-populate Viper2 with data relevant to IXM Buyer API
 
-
-
 import { ConfigLoader }      from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 
