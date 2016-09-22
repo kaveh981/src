@@ -61,6 +61,23 @@ class DatabasePopulator {
     }
 
     /**
+     * Get the current date in a MySQL datetime format.
+     * @returns string the current formatted date
+     */
+    private currentMySQLDate(): string {
+        let date = new Date();
+
+        let mysql_date = date.getFullYear() + '-' +
+            ('00' + (date.getMonth()+1)).slice(-2) + '-' +
+            ('00' + date.getDate()).slice(-2) + ' ' + 
+            ('00' + date.getHours()).slice(-2) + ':' + 
+            ('00' + date.getMinutes()).slice(-2) + ':' + 
+            ('00' + date.getSeconds()).slice(-2);
+
+        return mysql_date;
+    }
+
+    /**
      * Creates a new user entry in Viper2.users.
      * @param [userFields] {INewUserData} - provided user field values to use
      * @returns {Promise<INewUserData>} A promise that resolves with an object containing the inserted user data.
@@ -193,11 +210,20 @@ class DatabasePopulator {
      * "Viper2.ixmPackageSectionMappings"
      * @param ownerID {int} - the userID of the package owner
      * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new package
+     * @param packageFields {INewPackageData} - Optional: a new package object to override random fields
      * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
      */
-    public newPackage (ownerID: number, sectionIDs: number[]): Promise<INewPackageData> {
+    public newPackage (ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
         let newPackage = this.genDataObj<INewPackageData>('new-package-schema');
+
+        if(packageFields) {
+            this.extendData<INewPackageData>(packageFields, newPackage);
+        }
+
         newPackage.ownerID = ownerID;
+
+        newPackage.createDate = this.currentMySQLDate();
+
         return this.dbm
             .insert(newPackage, "packageID")
             .into("ixmPackages")
