@@ -10,11 +10,6 @@ import * as Promise from 'bluebird';
 /** Lib */
 import { Injector } from './lib/injector';
 import { ConfigLoader } from './lib/config-loader';
-
-// Logger forces us to load the config before importing anything else.
-const config = new ConfigLoader();
-Injector.put(config, 'ConfigLoader');
-
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { Validator } from './lib/validator';
@@ -31,6 +26,9 @@ import { DealManager } from './models/deal/deal-manager';
 import {DataSetup} from '../../../test/helper/dataSetup.helper'
 
 /** Dependency Resolution */
+const config = new ConfigLoader();
+Injector.put(config, 'ConfigLoader');
+
 const validator = new Validator();
 Injector.put(validator, 'Validator');
 

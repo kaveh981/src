@@ -2,6 +2,7 @@
     "200": "Ok.",
     "200_NO_CONTENT": "No content.",
     "200_NO_PACKAGES": "No deals are currently available. Come check again soon!",
+    "200_NO_DEALS": "You don't seem to have any active deals at the moment. Sorry, eh!",
     
     "400": "Malformed request.",
     

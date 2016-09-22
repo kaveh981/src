@@ -4,7 +4,6 @@ import * as express from 'express';
 import * as Promise from 'bluebird';
 
 import { Logger } from '../../lib/logger';
-import { DatabaseManager } from '../../lib/database-manager';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
 
@@ -16,6 +15,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const paginationConfig = config.get('pagination');
+const authConfig = config.get('auth');
 
 const Log: Logger = new Logger('DEAL');
 

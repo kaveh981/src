@@ -3,26 +3,40 @@
 import * as test from 'tape';
 import * as Promise from 'bluebird';
 
-import { DatabaseManager } from '../../src/lib/database-manager';
+import { Injector } from '../../src/lib/injector';
+import { ConfigLoader } from '../../src/lib/config-loader';
 
-test('Database Selection Test', (assert: test.Test) => {
-    assert.plan(1);
+const config = new ConfigLoader();
+Injector.put(config, 'ConfigLoader');
 
-    DatabaseManager.initialize()
+import { Validator } from '../../src/lib/validator';
+
+const validator = new Validator();
+
+test('Validator Test', (assert: test.Test) => {
+    assert.plan(2);
+
+    validator.initialize()
             .then(() => {
-                return DatabaseManager.select().from('users').limit(1)
-                    .then((rows: any) => {
-                        assert.equal(rows.length, 1, 'Selected one user from the users table.');
-                    })
-                    .catch((err: Error) => {
-                        assert.fail('User selection failed ' + err);
-                    });
+                let goodRat: any = {
+                    name: 'Meow',
+                    diet: ['human meat', 'frogs legs']
+                };
+
+                let badRat: any = {
+                    name: 'Woof',
+                    diet: 'rabbits',
+                    attitude: 'bad'
+                };
+
+                assert.equal(validator.validate(goodRat, 'Rat').success, 1, 'Good rat should pass validation.');
+                assert.equal(validator.validate(badRat, 'Rat').errors.length, 2,
+                    'Bad rat should have two failures, bad diet and bad attitude.');
+
             })
             .catch((err: Error) => {
-                assert.fail('Database failed with error: ' + err);
-            })
-            .finally(() => {
-                DatabaseManager.shutdown();
+                assert.fail('Initialization failed with error: ' + err);
+                assert.end();
             });
 
 });
