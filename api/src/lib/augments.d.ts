@@ -31,7 +31,7 @@ declare module 'express' {
          * Send JSON payload with 200 status code.
          * @param payload - JSON object to send in the response.
          */
-        sendPayload(payload: any): void;
+        sendPayload(payload: any, pagination?: any): void;
 
         /**
          * Send a 401 validation error.

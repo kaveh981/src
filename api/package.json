@@ -9,7 +9,7 @@
     "build-docs": "bash ./bin/compile-docs.sh",
     "postinstall": "typings install",
     "tape": "ts-node node_modules/tape/bin/tape",
-    "test": "npm run tape test/unit-tests/*.ts --reporter spec"
+    "test": "ts-node node_modules/tape/bin/tape e2e/deals/get.ts"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
