@@ -1,9 +1,10 @@
-import { DatabaseManager } from '../lib/database-manager';
 import { Logger } from '../lib/logger';
-import dataSetup from './dataSetup.config'
-
+import { Injector } from '../lib/injector';
 const Log = new Logger('mNEG');
+import { DatabaseManager } from '../lib/database-manager';
+import dataSetup from './dataSetup.config'
 class DataSetup {
+
     private dbm:DatabaseManager;
 
     constructor(dbm:DatabaseManager) {
@@ -93,7 +94,6 @@ class DataSetup {
                 return undefined;
             });
     };
-
 
 }
 
