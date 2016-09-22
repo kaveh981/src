@@ -6,7 +6,7 @@ import { Injector } from '../lib/injector';
 import { DatabasePopulator } from '../helper/db-populator.helper';
 import { DatabaseManager } from '../lib/database-manager';
 import { Logger }      from '../lib/logger';
-// import { boot, shutdown } from '../helper/loader.helper'
+import { boot, shutdown } from '../helper/loader.helper'
 
 const Log = new Logger("TEST");
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
@@ -15,32 +15,31 @@ const dbManager = Injector.request<DatabaseManager>('DatabaseManager');
 const before = test;
 const after = test;
 
-export default (suite: test.Test) => {
-    test("Some test inside *.test file", (t: test.Test) => {
-        dbPopulator.newUser()
-            .then((newUserData) => {
-                Log.debug(JSON.stringify(newUserData, undefined, 2));
-                t.pass("User inserted to db");
-                t.end();
-            });
-    });
-
-    test("Wrapping up inside *.test file", (t: test.Test) => {
-        suite.end();
-        t.end();
-    });
-};
-
-
-/*before("Boot Test Framework", (t: test.Test) => {
-    
+before("Test Framework bootstrap", (t: test.Test) => {
+    boot()
+        .then(() => {
+            Log.debug('Test Framework is up..');
+            t.end();
+        })
+        .catch((e) => {
+            shutdown();
+            throw e;
+        });
 });
 
-after("Shutdown Test Framework", (t: test.Test) => {
+test("Some test inside *.test file", (t:test.Test) => {
+    dbPopulator.newUser()
+        .then((newUserData) => {
+            Log.debug(JSON.stringify(newUserData, undefined, 2));
+            t.pass("User inserted to db");
+            t.end();
+        });
+});
+
+after("Wrapping up inside *.test file", (t:test.Test) => {
     shutdown();
-    Log.debug('Test Framework shutdown..');
     t.end();
-});*/
+});
 
 /*
 boot()
