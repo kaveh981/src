@@ -170,15 +170,7 @@ class DatabasePopulator {
             .then((sectionID: number) => {
                 newSectionData.section.sectionID = sectionID;
                 Log.debug(`Created section ID: ${newSectionData.section.sectionID}, ownerID: ${newSectionData.section.userID}`);
-                return Promise.map(newSectionData.siteIDs, (siteID: number) => {
-                        return this.dbm
-                            .insert({siteID: siteID, sectionID: newSectionData.section.sectionID})
-                            .into("rtbSiteSections").
-                            then(() => {
-                                Log.debug('Mapped sectionID: '+ newSectionData.section.sectionID +
-                                    ' to siteID: ' + siteID);
-                            });
-                    });
+                return this.newSiteSectionMapping(sectionID, siteIDs);
             })
             .then(() => {
                 return newSectionData
@@ -187,6 +179,14 @@ class DatabasePopulator {
                 throw e;
             });
     }
+
+    private newSiteSectionMapping = Promise.coroutine(function* (sectionID: number, siteIDs: number[]) {
+        for ( let i = 0; i < siteIDs.length; i += 1 ) {
+            let mapping = { sectionID: sectionID, siteID: siteIDs[i] };
+            yield this.dbm.insert(mapping).into("rtbSiteSections")
+            Log.debug(`Mapped sectionID: ${sectionID}, to siteID: ${siteIDs[i]}`);
+        }
+    }) as (sectionID: number, siteIDs: number[]) => Promise<void>;
 
     /**
      * Creates a new package entity based on "new-package-schema". Inserts into "Viper2.ixmPackages",
@@ -201,7 +201,7 @@ class DatabasePopulator {
         return this.dbm
             .insert(newPackage, "packageID")
             .into("ixmPackages")
-            .then((packageID: number[]) =>{
+            .then((packageID: number[]) => {
                 Log.debug(`Created package ID: ${packageID}`);
                 newPackage.sectionIDs = sectionIDs;
                 return Promise.map(sectionIDs, (sectionID) => {
@@ -210,14 +210,11 @@ class DatabasePopulator {
                         .into("ixmPackageSectionMappings")
                         .then(() => {
                             Log.debug(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
-                        })
-                        .catch((e) => {
-                            throw e;
                         });
-                })
-                .then(() => {
-                    return newPackage;
                 });
+            })
+            .then(() => {
+                return newPackage;
             })
             .catch((e) => {
                 throw e;
