@@ -20,12 +20,12 @@ interface INegotiationModel {
     endDate?: string;
     /** Current negotiated terms - if different from the one in package */
     terms?: string;
-    /** Party who last updated the negotiation */
-    sender?: string;
+    /** Party who last updated the negotiation P - Publisher, B - Buyer */
+    sender?: 'P' | 'B';
     /** Keeps track of the publishers position */
-    pubStatus?: string;
+    pubStatus?: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Keeps track of the buyers position */
-    buyerStatus?: string;
+    buyerStatus?: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Creation date of the negotiation */
     createDate?: string;
     /** Last modify date of the negotiation*/
@@ -53,11 +53,11 @@ class NegotiationModel implements INegotiationModel {
     /** Current negotiated terms - if different from the one in package */
     public terms: string;
     /** Party who last updated the negotiation */
-    public sender: string;
+    public sender: 'P' | 'B';
     /** Keeps track of the publishers position */
-    public pubStatus: string;
+    public pubStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Keeps track of the buyers position */
-    public buyerStatus: string;
+    public buyerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Creation date of the negotiation */
     public createDate: string;
     /** Last modify date of the negotiation*/
@@ -71,6 +71,15 @@ class NegotiationModel implements INegotiationModel {
         if (initParams) {
             Object.assign(this, initParams);
         }
+    }
+
+    /**
+     * TODO: empty function, need to validate date and enum?
+     * validate the negotiation model object, see if all attributes are valid
+     * @returns Returns a string indicate which attributes are incorrect
+     */
+    public validate(): string {
+        return;
     }
 }
 
