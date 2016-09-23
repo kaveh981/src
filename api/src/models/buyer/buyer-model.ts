@@ -39,4 +39,4 @@ class BuyerModel implements IBuyerModel {
 
 }
 
-export { BuyerModel, IBuyerModel }
+export { BuyerModel }
