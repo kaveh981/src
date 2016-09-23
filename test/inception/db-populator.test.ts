@@ -1,23 +1,25 @@
 /**
  * DatabasePopulator module test spec
  */
-
 import * as test from 'tape';
 
-import { app } from '../helper/loader.helper'
-import { Injector } from '../lib/injector';
 import { DatabasePopulator } from '../helper/db-populator.helper';
-import { DatabaseManager } from '../lib/database-manager';
-import { Logger }      from '../lib/logger';
+import { DatabaseManager   } from '../lib/database-manager';
+import { Injector          } from '../lib/injector';
+import { Logger            } from '../lib/logger';
+import { app               } from '../helper/loader.helper';
 
-
-const Log         = new Logger("TEST");
+const Log         = new Logger('TEST');
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const dbManager   = Injector.request<DatabaseManager>('DatabaseManager');
 const before      = test;
 const after       = test;
 
-before("Preparing for db-populator tests..", (t: test.Test) => {
+let pubData: INewPubData;
+let sites: INewSiteData[];
+let sections: INewSectionData[];
+
+before('Preparing for db-populator tests..', (t: test.Test) => {
     app.boot()
         .then(() => {
             t.end();
@@ -28,76 +30,87 @@ before("Preparing for db-populator tests..", (t: test.Test) => {
         });
 });
 
-test("Some test inside *.test file", (t:test.Test) => {
+test('Create a User entity', (t: test.Test) => {
     dbPopulator.newUser()
         .then((newUserData) => {
-            Log.debug(JSON.stringify(newUserData, undefined, 2));
-            t.pass("User inserted to db");
+            t.pass('- User inserted to db');
             t.end();
+        })
+        .catch((e) => {
+            throw e;
         });
 });
 
-test("should extend schema properly", (t: test.Test) => {
+test('Create a Buyer entity', (t: test.Test) => {
     dbPopulator.newBuyer()
         .then((newBuyerData) => {
-            Log.debug(JSON.stringify(newBuyerData, undefined, 4));
+            t.pass('- Buyer inserted to db');
             t.end();
+        })
+        .catch((e) => {
+            throw e;
         });
 });
 
-after("Cleaning up after db-populator test..", (t:test.Test) => {
+test('Create a Publisher entity', (t: test.Test) => {
+    dbPopulator.newPub()
+        .then((newPubData) => {
+            pubData = newPubData;
+            t.pass('- Publisher inserted to db');
+            t.end();
+        })
+        .catch((e) => {
+            throw e;
+        });
+});
+
+test('Create a Site entity', (t: test.Test) => {
+    dbPopulator.newSite(pubData.user.userID)
+        .then((newSiteData) => {
+            sites = [newSiteData];
+            return dbPopulator.newSite(pubData.user.userID);
+        })
+        .then((newSiteData) => {
+            sites.push(newSiteData);
+            t.pass('- 2 Sites inserted to db');
+            t.end();
+        })
+        .catch((e) => {
+            throw e;
+        });
+});
+
+test('Create a Section entity', (t: test.Test) => {
+    let siteIDs = [sites[0].siteID, sites[1].siteID];
+    dbPopulator.newSection(pubData.user.userID, siteIDs)
+        .then((newSectionData) => {
+            sections = [newSectionData];
+            return dbPopulator.newSection(pubData.user.userID, [sites[0].siteID]);
+        })
+        .then((newSectionData) => {
+            sections.push(newSectionData);
+            t.pass('- 2 sections inserted to db');
+            t.end();
+        })
+        .catch((e) => {
+            throw e;
+        });
+});
+
+test('Create a Package entity', (t: test.Test) => {
+    let sectionIDs = [sections[0].sectionID, sections[1].sectionID];
+    dbPopulator.newPackage(pubData.user.userID, sectionIDs)
+        .then((newPackageData) => {
+            t.pass('A Package was inserted to db');
+            t.end();
+        })
+        .catch((e) => {
+            t.end();
+            throw(e);
+        });
+});
+
+after('Cleaning up after db-populator test..', (t: test.Test) => {
     app.shutdown();
     t.end();
 });
-
-/*
-boot()
-    .then(() => {
-        test("DB Populator Test Spec", (assert: test.Test) => {
-            let pubData: INewPubData;
-            let sites: INewSiteData[];
-            let sections: INewSectionData[];
-
-            return dbPopulator.newPub()
-                .then((newPubData) => {
-                    pubData = newPubData;
-                    return dbPopulator.newSite(pubData.user.userID);
-                })
-                .then((newSiteData) => {
-                    sites = [newSiteData];
-                    return dbPopulator.newSite(pubData.user.userID);
-                })
-                .then((newSiteData) => {
-                    sites.push(newSiteData);
-                    let siteIDs = [sites[0].siteID, sites[1].siteID];
-                    return dbPopulator.newSection(pubData.user.userID, siteIDs);
-                })
-                .then((newSectionData) => {
-                    Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
-                    sections = [newSectionData];
-                    return dbPopulator.newSection(pubData.user.userID, [sites[0].siteID])
-                })
-                .then((newSectionData) => {
-                    sections.push(newSectionData);
-                    let sectionIDs: number[] = [];
-                    sections.map((section) => {
-                        sectionIDs.push(section.section.sectionID);
-                    });
-                    Log.info(`Created section ID: ${newSectionData.section.sectionID}, mapped to siteIDs: ${newSectionData.siteIDs}`);
-                    return dbPopulator.newPackage(pubData.user.userID, sectionIDs);
-                })
-                .then((newPackageData) => {
-                    Log.info("Created package ID: " + newPackageData.packageID + ", mapped to sectionIDs: " + newPackageData.sectionIDs)
-                })
-                .then(shutdown)
-                .catch((err) => {
-                    Log.error(err);
-                    shutdown();
-                });
-        });
-    })
-    .finally(shutdown)
-    .catch((e) => {
-        Log.error(e);
-        shutdown();
-    });*/

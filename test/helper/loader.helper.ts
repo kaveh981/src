@@ -23,11 +23,10 @@ const databaseManager = new DatabaseManager(config);
 Injector.put(databaseManager, 'DatabaseManager');
 
 const dataSetup = new DataSetup(databaseManager);
-Injector.put(dataSetup,'DataSetup');
+Injector.put(dataSetup, 'DataSetup');
 
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
-
 
 /**
  * Bootstrap class, the first module you import inside a test file
@@ -40,14 +39,14 @@ class Bootstrap {
      * Boot function that initializes any dependencies that require async initialization
      * @returns {Promise<void>} Promise which resolves when boot has finished
      */
-    public boot():Promise<void> {
+    public boot(): Promise<void> {
         if (this.count > 0) {
             this.count += 1;
-            return Promise.resolve()
+            return Promise.resolve();
         }
         return databaseManager.initialize()
             .then(() => {
-                this.count += 1
+                this.count += 1;
             })
             .catch((e) => {
                 throw e;
@@ -57,7 +56,7 @@ class Bootstrap {
     /**
      * Shutdown function. Calls shutdown on any dependency that requires shutdown action.
      */
-    public shutdown():void {
+    public shutdown(): void {
         if (this.count <= 1) {
             databaseManager.shutdown();
             this.count = 0;

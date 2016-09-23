@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import * as test from 'tape';
 import { Logger }      from '../lib/logger';
-import { app } from '../helper/loader.helper'
+import { app } from '../helper/loader.helper';
 
 const Log = new Logger("TEST");
 
@@ -11,8 +11,6 @@ const after = test;
 before("Test Framework bootstrap", (t: test.Test) => {
     app.boot()
         .then(() => {
-            const Logger = require('../lib/logger').Logger;
-            const Log = new Logger("TEST");
             Log.debug('Test Framework is up.. Beginning Inception Test Suite');
             t.end();
         })
