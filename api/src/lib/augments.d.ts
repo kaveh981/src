@@ -1,8 +1,6 @@
 // Declaration merging goes here.
 import * as Knex from 'knex';
 
-import { IBuyerModel } from '../models/buyer/buyer-model';
-
 declare module './database-manager' {
     // Promise that the dbm will extend knex
     interface DatabaseManager extends Knex {}
