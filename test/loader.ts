@@ -16,10 +16,11 @@ import { DatabaseManager } from './lib/database-manager';
 import { ApiHelper } from "./helper/api-helper";
 
 /** Tests */
-import {DataSetup} from './helper/dataSetup.helper';
+import { DataSetup } from './helper/data-setup';
 
 /** Dependency Resolution */
 
+const  dataHelper = new ApiHelper();
 Injector.put(ApiHelper, 'ApiHelper');
 
 const databaseManager = new DatabaseManager(config);
@@ -29,7 +30,10 @@ const dataSetup = new DataSetup(databaseManager);
 Injector.put(dataSetup, 'DataSetup');
 
 function boot(): Promise<{}> {
-    return databaseManager.initialize();
+    return databaseManager.initialize()
+        .catch((err: Error) => {
+            databaseManager.shutdown();
+        });
 }
 
-export {boot};
+export { boot };
