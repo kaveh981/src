@@ -1,7 +1,7 @@
 interface IJsfSchema {
-    type?: string,
-    properties?: string,
-    required?: string,
+    properties?: {},
+    required?: string[],
+    __ref__?: string
 }
 
 interface INewUserData {
@@ -14,11 +14,17 @@ interface INewUserData {
     lastName?: string,
     companyName?: string,
     address1?: string,
+    address2?: string,
     city?: string,
     state?: string,
     zipCode?: string,
     country?: string,
-    phone?: string
+    phone?: string,
+    fax?: string,
+    version?: number,
+    createDate?: string,
+    modifyDate?: string,
+    lastLogin?: string
 }
 
 interface INewBuyerData {

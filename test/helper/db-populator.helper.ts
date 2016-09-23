@@ -45,19 +45,48 @@ class DatabasePopulator {
      * @returns {T} An object generated as configured in the given schema
      */
     private genDataObj<T> (schemaName: string): T {
-        let schema = this.config.get('data-gen/' + schemaName);
+        let schema: IJsfSchema = this.config.get('data-gen/' + schemaName);
+        schema = this.extendSchemaObj(schema);
+
         return <T>jsf(schema);
     }
 
     /**
-     * Extends the given generated data object with specified data values.
-     * @param data {any}- the object containing the key/value pairs
-     * @param generatedData {T}- the generated data object that is to be extended
-     * @returns {T} the extended data object
+     * Extends a JSF schema by looping through its properties and loading any referenced schemas
+     * @param schema {IJsfSchema} - the schema to extend
+     * @returns {IJsfSchema} - the resolved schema object fully loaded from all referenced files
      */
-    private extendData<T> (data: any, generatedData: T): T {
-        Object.assign(generatedData, data);
-        return generatedData;
+    private extendSchemaObj (schema: IJsfSchema): IJsfSchema {
+
+        // If has a reference to other schema *.json file,
+        // load it and return the extended version of it
+        if (schema.hasOwnProperty("__ref__")) {
+            let refSchema = this.config.get(`data-gen/${schema.__ref__}`);
+
+            if (schema.hasOwnProperty("properties")) {
+                Object.assign(refSchema.properties, schema.properties);
+            }
+            
+            return this.extendSchemaObj(refSchema);
+        }
+
+        // if schema has some properties, let's loop through them and see if they contain other schemas
+        // in which case it is extended recursively
+        if (schema.hasOwnProperty("properties")) {
+            for (let key in schema.properties) {
+                let value = schema.properties[key];
+
+                if (typeof value === 'object') {
+
+                    if (value.hasOwnProperty("__ref__") || value.hasOwnProperty("properties")) {
+                        schema.properties[key] = this.extendSchemaObj(value);
+                    }
+
+                }
+            }
+        }
+
+        return schema;
     }
 
     /**
@@ -69,13 +98,13 @@ class DatabasePopulator {
         let newUserData: INewUserData = this.genDataObj<INewUserData>('new-user-schema');
 
         if (userFields) {
-            newUserData = this.extendData<INewUserData>(userFields, newUserData);
+            Object.assign(newUserData, userFields);
         }
 
         return this.dbm.insert(newUserData, "userID")
             .into("users")
-            .then((newBuyerID: number) => {
-                newUserData.userID = newBuyerID;
+            .then((newUserID: number[]) => {
+                newUserData.userID = newUserID[0];
                 Log.debug(`Created new user ID: ${newUserData.userID} , userType: ${newUserData.userType}`);
                 return newUserData;
             })
@@ -89,7 +118,8 @@ class DatabasePopulator {
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */
     public newBuyer (): Promise<INewBuyerData> {
-        let newBuyerData: INewBuyerData = this.genDataObj<INewBuyerData>('new-buyer-schema');
+        let newBuyerData = this.genDataObj<INewBuyerData>('new-buyer-schema');
+
         return this.newUser(newBuyerData.user)
             .then((newUserData: INewUserData) => {
                 newBuyerData.user.userID = newUserData.userID;
@@ -141,8 +171,8 @@ class DatabasePopulator {
         return this.dbm
             .insert(newSiteData, "siteID")
             .into("sites")
-            .then((siteID: number) => {
-                newSiteData.siteID = siteID;
+            .then((siteID: number[]) => {
+                newSiteData.siteID = siteID[0];
                 Log.debug(`Created site ownerID: ${newSiteData.userID}, siteID: ${siteID[0]}`);
                 return newSiteData;
             })
@@ -167,10 +197,11 @@ class DatabasePopulator {
         return this.dbm
             .insert(newSectionData.section, "sectionID")
             .into("rtbSections")
-            .then((sectionID: number) => {
-                newSectionData.section.sectionID = sectionID;
-                Log.debug(`Created section ID: ${newSectionData.section.sectionID}, ownerID: ${newSectionData.section.userID}`);
-                return this.newSiteSectionMapping(sectionID, siteIDs);
+            .then((sectionID: number[]) => {
+                newSectionData.section.sectionID = sectionID[0];
+                Log.debug(`Created section ID: ${newSectionData.section.sectionID}, `+
+                    `ownerID: ${newSectionData.section.userID}`);
+                return this.newSiteSectionMapping(newSectionData.section.sectionID, siteIDs);
             })
             .then(() => {
                 return newSectionData
@@ -180,6 +211,12 @@ class DatabasePopulator {
             });
     }
 
+    /**
+     * Creates mapping entry in "Viper2.rtbSiteSections"
+     * @arg sectionID {number} - the sectionID of the section to map
+     * @arg siteIDs {number[]} - an array of siteIDs to map to sectionID
+     * @returns {Promise<void>} Resolves when all mapping entries have been successful
+     */
     private newSiteSectionMapping = Promise.coroutine(function* (sectionID: number, siteIDs: number[]) {
         for ( let i = 0; i < siteIDs.length; i += 1 ) {
             let mapping = { sectionID: sectionID, siteID: siteIDs[i] };
@@ -202,14 +239,14 @@ class DatabasePopulator {
             .insert(newPackage, "packageID")
             .into("ixmPackages")
             .then((packageID: number[]) => {
-                Log.debug(`Created package ID: ${packageID}`);
+                Log.debug(`Created package ID: ${packageID[0]}`);
                 newPackage.sectionIDs = sectionIDs;
                 return Promise.map(sectionIDs, (sectionID) => {
                     return this.dbm
-                        .insert({packageID: packageID, sectionID: sectionID})
+                        .insert({packageID: packageID[0], sectionID: sectionID})
                         .into("ixmPackageSectionMappings")
                         .then(() => {
-                            Log.debug(`Mapped packageID ${packageID} to sectionID ${sectionID}`);
+                            Log.debug(`Mapped packageID ${packageID[0]} to sectionID ${sectionID}`);
                         });
                 });
             })

@@ -7,7 +7,6 @@ import * as Promise from 'bluebird';
 import { Injector } from '../lib/injector';
 import { ConfigLoader } from '../lib/config-loader';
 
-// Logger forces us to load the config before importing anything else.
 const config = new ConfigLoader('../../../test/config');
 Injector.put(config, 'ConfigLoader');
 
@@ -29,28 +28,45 @@ Injector.put(dataSetup,'DataSetup');
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
 
-/** Ready Flag */
-let ready:boolean = false;
-
-function setReady ():void { ready = true }
-function setNotReady ():void {ready = false }
 
 /**
- * Boot function that initializes any dependencies that require async initialization
- * @returns {Promise<void>} Promise which resolves when boot has finished
+ * Bootstrap class, the first module you import inside a test file
  */
-function boot(): Promise<void> {
-    if (ready) { return Promise.resolve() }
-    return databaseManager.initialize().then(setReady);
+class Bootstrap {
+    /** Ready Flag */
+    private count: number = 0;
+
+    /**
+     * Boot function that initializes any dependencies that require async initialization
+     * @returns {Promise<void>} Promise which resolves when boot has finished
+     */
+    public boot():Promise<void> {
+        if (this.count > 0) {
+            this.count += 1;
+            return Promise.resolve()
+        }
+        return databaseManager.initialize()
+            .then(() => {
+                this.count += 1
+            })
+            .catch((e) => {
+                throw e;
+            });
+    }
+
+    /**
+     * Shutdown function. Calls shutdown on any dependency that requires shutdown action.
+     */
+    public shutdown():void {
+        if (this.count == 1) {
+            databaseManager.shutdown();
+            this.count -= 1;
+        }
+        this.count -= 1;
+    }
+
 }
 
-/**
- * Shutdown function. Calls shutdown on any dependency that requires shutdown action.
- */
-function shutdown(): void {
-    if (!ready) { return }
-    setNotReady();
-    return databaseManager.shutdown();
-}
+const app = new Bootstrap();
 
-export { boot, shutdown }
+export { app }
