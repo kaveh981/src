@@ -13,7 +13,7 @@ interface IPackageModel {
     /** Description of the package */
     description?: string;
     /** Status of the packge, which could only be active, paused or deleted */
-    status?: string;
+    status?: 'active' | 'paused' | 'deleted';
     /** Flag to define is the package viewable to public */
     isPublic: number;
     /** Start date of the package */
@@ -27,7 +27,7 @@ interface IPackageModel {
     /** Project amount to be spend by the buyer */
     budget: number;
     /** Auction type of the deal, which could only be first, second or fixed */
-    auctionType?: string;
+    auctionType?: 'first' | 'second' | 'fixed';
     /** Free text that both parties can edit to convene of specific deal conditions */
     terms?: string;
     /** Created date of the package */
@@ -48,7 +48,7 @@ class PackageModel implements IPackageModel {
     /** Description of the package */
     public description: string;
     /** Status of the packge, which could only be active, paused or deleted */
-    public status: string;
+    public status: 'active' | 'paused' | 'deleted';
     /** Flag to define is the package viewable to public */
     public isPublic: number;
     /** Start date of the package */
@@ -62,7 +62,7 @@ class PackageModel implements IPackageModel {
     /** Project amount to be spend by the buyer */
     public budget: number;
     /** Auction type of the deal, which could only be first, second or fixed */
-    public auctionType: string;
+    public auctionType: 'first' | 'second' | 'fixed';
     /** Free text that both parties can edit to convene of specific deal conditions */
     public terms: string;
     /** Created date of the package */
@@ -80,6 +80,15 @@ class PackageModel implements IPackageModel {
         if (initParams) {
             Object.assign(this, initParams);
         }
+    }
+
+    /**
+     * TODO: empty function, need to validate date and enum?
+     * validate the package model object, see if all attributes are valid
+     * @returns Returns a string indicate which attributes are incorrect
+     */
+    public validate(): string {
+        return;
     }
 }
 
