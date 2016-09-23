@@ -43,6 +43,30 @@ class DealManager {
                 Log.error(err);
             });
     }
+
+    /**
+     * Returns all active deals for a certain buyer 
+     * @param buyerId - The id of the buyer we need to find active deals for
+     * @param pagination - Pagination details for the request
+     */
+    public fetchActiveDealsForBuyer(buyerId: number, pagination: any): Promise<any> {
+        /* TODO: This select statement will need to obtain information that was accepted by both the pub and buyer (i.e. latest
+            terms, impressions, start and end dates, etc.). Therefore, it will have to interact with the DealNegotiations table 
+            to get that info (i.e. get the info from the row that indicates a pubStatus=accepted and buyerStatus=accepted and 
+            which has the latest modified date).*/
+        return this.dbm.select('rtbDeals.dealID')
+            .from('rtbDeals')
+            .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
+            .join('ixmPackages', 'ixmPackageDealMappings.packageID', 'ixmPackages.packageID')
+            .where('rtbDeals.status', 'A')
+            .andWhere('dspID', buyerId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+            .catch((err: Error) => {
+                Log.error(err);
+                throw err;
+            });
+    }
 }
 
 export { DealManager };

@@ -1,0 +1,101 @@
+#%RAML 1.0 DataType
+
+type: object
+description: An object describing an active deal in the system
+properties:
+    id:
+        type: integer
+        required: true
+        displayName: Deal ID
+        description: A unique identifier for the deal
+    publisher_id:
+        type: integer
+        required: true
+        displayName: Publisher ID
+        description: ID of the publisher involved in the deal
+    dsp_id:
+        type: integer
+        required: true
+        displayName: DSP ID
+        description: ID of the DSP involved in the deal
+    name:
+        type: string
+        required: true
+        displayName: Name
+        description: Name of the deal
+    price:
+        type: number
+        required: true
+        displayName: Price
+        description: Price of the deal
+    impressions:
+        type: number
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package
+    budget:
+        type: number
+        required: false
+        displayName: Budget
+        description: The projected amount to be spent by the buyer
+    terms:
+        type: string
+        required: false
+        displayName: Terms & Conditions
+        description: The terms & conditions for the deal - extra information describing the deal.
+    currency:
+        type: string
+        required: true
+        displayName: Currency
+        description: Three-letter currency code for the deal.
+        example: USD
+    external_id:
+        type: string
+        required: false
+        displayName: External Deal ID
+        description: The external ID the DSP must use when they bid with the deal
+    sections:
+        type: integer[]
+        required: true
+        displayName: Deal Section IDs
+        description: The sections where the deal is eligible to serve
+    auction_type:
+        type: integer
+        required: true
+        displayName: Auction Type,
+        description: The auction type - 1 = First Price, 2 = Second Price, 3 = Fixed Rate
+        enum: [1,2,3]
+    status:
+        type: string
+        required: true
+        displayName: Status
+        description: The current status of the deal
+        enum: ['active', 'new', 'paused', 'deleted']
+    start_date:
+        type: date-only
+        required: false
+        displayName: Start Date
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format.
+    end_date:
+        type: date-only
+        required: false
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format.
+example: |
+    {
+        "id":
+        "publisher_id":
+        "dsp_id":
+        "name":
+        "price":
+        "impressions":
+        "budget":
+        "terms":
+        "currency":
+        "external_id":
+        "sections":
+        "auction_type":
+        "status":
+        "start_date":
+        "end_date":
+    }

@@ -4,7 +4,6 @@ import * as express from 'express';
 import * as Promise from 'bluebird';
 
 import { Logger } from '../../lib/logger';
-import { DatabaseManager } from '../../lib/database-manager';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
 
@@ -16,6 +15,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const paginationConfig = config.get('pagination');
+const authConfig = config.get('auth');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -25,17 +25,37 @@ const Log: Logger = new Logger('DEAL');
 function Deals(router: express.Router): void {
 
     /**
-     * GET request to get all available Deals
+     * GET request to get all available packages. The function first validates pagination query parameters. It then retrieves all
+     * packages from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
     router.get('/', (req: express.Request, res: express.Response) => {
         // Extract pagination details
+        if (typeof req.query.limit === 'undefined') {
+            Log.trace('Pagination limit not provided');
+        }
+
+        if (typeof req.query.offset === 'undefined') {
+            Log.trace('Pagination offset not provided');
+        }
+
         let limit: number = (Number(req.query.limit) > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
                 ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit);
         let offset: number = Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET'];
 
-        if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
-            res.sendValidationError(["Invalid limit or offset value"]);
+        if (limit <= 0 || offset < 0) {
+            res.sendValidationError(['Pagination parameters must be positive integers']);
+            Log.debug('Negative pagination details');
             return;
+        } else if (isNaN(limit) || isNaN(offset)) {
+            res.sendValidationError(['Pagination parameters must be numbers']);
+            Log.debug('NaN pagination details');
+            return;
+        } else if (limit > 4294967295 || offset > 4294967295) {
+            res.sendValidationError(['Pagination parameters cannot exceed 2^32']);
+            Log.debug('2^32 pagination details');
+            return;
+        } else if (limit > paginationConfig['RESULTS_LIMIT']) {
+            Log.debug('Pagination limit capped to RESULTS_LIMIT');
         }
 
         let pagination = {
