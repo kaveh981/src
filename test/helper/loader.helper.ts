@@ -21,9 +21,6 @@ Injector.put(ApiHelper, 'ApiHelper');
 const databaseManager = new DatabaseManager(config);
 Injector.put(databaseManager, 'DatabaseManager');
 
-const dataSetup = new DataSetup(databaseManager);
-Injector.put(dataSetup, 'DataSetup');
-
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
 
