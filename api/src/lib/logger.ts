@@ -7,11 +7,8 @@ import * as chalk from 'chalk';
 import { Injector } from './injector';
 import { ConfigLoader } from './config-loader';
 
-/** Get config */
-const config = Injector.request<ConfigLoader>('ConfigLoader');
-
 /** Configuration from ./config/logger.json */
-const loggerConfig: any = config.get('logger');
+let loggerConfig: any;
 
 /** The list of write streams, these must be accessible to all loggers. */
 let writeStreams: fs.WriteStream[];
@@ -42,21 +39,12 @@ class Logger {
     /** Logger name to use as origin */
     private name: string;
 
-    /** Level of console to display. */
-    private consoleLevel: number = loggerConfig['consoleLevel'];
-
     /**
      * Create a new logger object to log with.
      * @param [name='CNSL'] - The name of the logger, should be 4 upper case letters. 
      */
     constructor (name: string = 'CNSL') {
         this.name = name;
-
-        if (!writeStreams) {
-            writeStreams = loggerConfig['outputFiles'].map((file: string) => {
-                return this.createLogWriteStream(file);
-            });
-        }
     }
 
     /**
@@ -134,6 +122,11 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public log(text: string, level: number = 2): IMessage {
+        // We only need to configure the logger once we log, this prevents annoying dependencies.
+        if (!loggerConfig) {
+            this.configureLoggers();
+        }
+
         let message: IMessage = this.createMessage(this.name, level, text);
         this.outputLog(message);
         return message;
@@ -144,7 +137,7 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= this.consoleLevel && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+        if (message.LEVEL >= loggerConfig['consoleLevel'] && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
             let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
@@ -172,6 +165,17 @@ class Logger {
             ORIGIN: origin,
             MESSAGE: message
         };
+    }
+
+    /**
+     * Set up configuration for all the loggers.
+     */
+    private configureLoggers(): void {
+        loggerConfig = Injector.request<ConfigLoader>('ConfigLoader').get('logger');
+
+        writeStreams = loggerConfig['outputFiles'].map((file: string) => {
+            return this.createLogWriteStream(file);
+        });
     }
 
     /** 

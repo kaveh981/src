@@ -20,13 +20,32 @@ function ActiveDeals(router: express.Router): void {
 
     router.get('/', (req: express.Request, res: express.Response) => {
         // Extract pagination details
+        if (typeof req.query.limit === 'undefined') {
+            Log.trace('Pagination limit not provided');
+        }
+
+        if (typeof req.query.offset === 'undefined') {
+            Log.trace('Pagination offset not provided');
+        }
+
         let limit: number = (Number(req.query.limit) > paginationConfig['RESULTS_LIMIT'] || typeof req.query.limit === 'undefined')
                 ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit);
         let offset: number = Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET'];
 
-        if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
-            res.sendValidationError(["Invalid limit or offset value"]);
+        if (limit <= 0 || offset < 0) {
+            res.sendValidationError(['Pagination parameters must be positive integers']);
+            Log.debug('Negative pagination details');
             return;
+        } else if (isNaN(limit) || isNaN(offset)) {
+            res.sendValidationError(['Pagination parameters must be numbers']);
+            Log.debug('NaN pagination details');
+            return;
+        } else if (limit > 4294967295 || offset > 4294967295) {
+            res.sendValidationError(['Pagination parameters cannot exceed 2^32']);
+            Log.debug('2^32 pagination details');
+            return;
+        } else if (limit > paginationConfig['RESULTS_LIMIT']) {
+            Log.debug('Pagination limit capped to RESULTS_LIMIT');
         }
 
         let pagination = {
