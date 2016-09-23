@@ -14,15 +14,21 @@ Injector.put(config, 'ConfigLoader');
 import { DatabaseManager   } from '../lib/database-manager';
 import { ApiHelper         } from "./api-helper";
 import { DatabasePopulator } from "./database-populator";
+import { DataSetup         } from "./data-setup";
 
 /** Dependency Resolution */
-Injector.put(ApiHelper, 'ApiHelper');
+
+const apiHelper = new ApiHelper();
+Injector.put(apiHelper, 'ApiHelper');
 
 const databaseManager = new DatabaseManager(config);
 Injector.put(databaseManager, 'DatabaseManager');
 
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
+
+const dataSetup = new DataSetup(databaseManager);
+Injector.put(dataSetup, 'DataSetup');
 
 /**
  * Bootstrap class, the first module you import inside a test file
