@@ -27,7 +27,7 @@ class PackageManager {
      * @param packageID - the ID of the package
      * @returns Returns a package object includes associated section IDs
      */
-    public fetchPackageFromID (packageID: number): Promise<PackageModel> {
+    public fetchPackageFromId (packageID: number): Promise<PackageModel> {
         return this.getPackageInfo(packageID)
             .then((packageInfo: any) => {
                 return this.getPackageSections(packageID)
@@ -47,7 +47,7 @@ class PackageManager {
             .from('ixmPackages')
             .where('name', packageName)
             .then((packageIDs: any) => {
-                return this.fetchPackageFromID(packageIDs[0].packageID);
+                return this.fetchPackageFromId(packageIDs[0].packageID);
             })
             .catch((err: Error) => {
                 Log.error(err.toString());
@@ -69,7 +69,7 @@ class PackageManager {
             .offset(pagination.offset)
             .then((idObjects: any) => {
                 return Promise.each(idObjects, (idObject: any) => {
-                    return this.fetchPackageFromID(idObject.packageID)
+                    return this.fetchPackageFromId(idObject.packageID)
                         .then((packageObject: PackageModel) => {
                             return listOfPackages.push(packageObject);
                         });
@@ -98,7 +98,7 @@ class PackageManager {
             .offset(pagination.offset)
             .then((idObjects: any) => {
                 return Promise.each(idObjects, (idObject: any) => {
-                    return this.fetchPackageFromID(idObject.packageID)
+                    return this.fetchPackageFromId(idObject.packageID)
                         .then((packageObject: PackageModel) => {
                             return listOfPackages.push(packageObject);
                         });
