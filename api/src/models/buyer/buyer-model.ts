@@ -4,10 +4,10 @@ import { ContactModel } from '../contact-info/contact-model';
 
 interface IBuyerModel {
     /** The buyer's userID */
-    userId: number;
+    userID: number;
 
     /** An array of dspID's associated with this buyer */
-    dspIds: number[];
+    dspIDs: number[];
 
     /** The buyer's contact info */
     contactInfo?: ContactModel;
@@ -19,10 +19,10 @@ interface IBuyerModel {
 class BuyerModel implements IBuyerModel {
 
     /** The buyer's userID */
-    public userId: number;
+    public userID: number;
 
     /** An array of dspID's associated with this buyer */
-    public dspIds: number[];
+    public dspIDs: number[];
 
     /** The buyer's contact info */
     public contactInfo: ContactModel;

@@ -2,7 +2,7 @@
 
 interface IContactModel {
     /** UserId of the contact */
-    userId: number;
+    userID: number;
 
     /** The contact person's title */
     title?: string;
@@ -20,7 +20,7 @@ interface IContactModel {
 /** Contact Model */
 class ContactModel implements IContactModel {
     /** User Id of the model */
-    public userId: number;
+    public userID: number;
 
     /** The contact person's title */
     public title: string = 'Warlord';
