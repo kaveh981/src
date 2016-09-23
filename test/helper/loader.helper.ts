@@ -13,7 +13,6 @@ Injector.put(config, 'ConfigLoader');
 /** Helper modules */
 import { DatabaseManager   } from '../lib/database-manager';
 import { ApiHelper         } from "./api.helper";
-import { DataSetup         } from "./data-setup.helper";
 import { DatabasePopulator } from "./db-populator.helper";
 
 /** Dependency Resolution */
