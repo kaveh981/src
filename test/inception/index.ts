@@ -1,37 +1,33 @@
 import * as Promise from 'bluebird';
 import * as test from 'tape';
-import { boot, shutdown } from '../helper/loader.helper'
+import { Logger }      from '../lib/logger';
+import { app } from '../helper/loader.helper'
 
-const Logger: any;
+const Log = new Logger("TEST");
 
-test("Test Framework bootstrap", (t: test.Test) => {
-    boot()
+const before = test;
+const after = test;
+
+before("Test Framework bootstrap", (t: test.Test) => {
+    app.boot()
         .then(() => {
             const Logger = require('../lib/logger').Logger;
             const Log = new Logger("TEST");
-            Log.debug('Test Framework is up..');
+            Log.debug('Test Framework is up.. Beginning Inception Test Suite');
             t.end();
         })
         .catch((e) => {
-            shutdown()
+            app.shutdown();
             throw e;
         });
 });
 
-test("Inception Test Suite", (t: test.Test) => {
-    // t.plan(1);
-    // require('./db-populator.test')(t);
-    test("Some test inside *.test file", (t: test.Test) => {
-        dbPopulator.newUser()
-            .then((newUserData) => {
-                Log.debug(JSON.stringify(newUserData, undefined, 2));
-                t.pass("User inserted to db");
-                t.end();
-            });
-    });
-});
+/**
+ * Using require, we run each of the files in the suite.
+ */
+require("./db-populator.test");
 
-test("Test Framework shutdown..", (t: test.Test) => {
-    shutdown();
+after("Test Framework shutdown..", (t: test.Test) => {
+    app.shutdown();
     t.end();
 });
