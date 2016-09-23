@@ -12,7 +12,7 @@
         }
       }
     },
-    "status": "N",
+    "status": "A",
     "password": "ratpoint.jpeg",
     "firstName": {
       "faker": "name.lastName"
@@ -26,6 +26,7 @@
     "address1": {
       "faker": "address.streetAddress"
     },
+    "address2": "-",
     "city": {
       "faker": "address.city"
     },
@@ -40,8 +41,11 @@
     },
     "phone": {
       "faker": "phone.phoneNumber"
-    }
+    },
+    "fax": "",
+    "version": 1,
+    "lastLogin": "0000-00-00"
   },
   "required": ["emailAddress", "password", "firstName", "lastName", "companyName", "address1", "city", "state",
-    "zipCode", "country", "phone", "userType", "status", "userType"]
+    "zipCode", "country", "phone", "userType", "status", "userType", "version", "address2", "fax", "lastLogin"]
 }

@@ -4,7 +4,7 @@ import * as test from 'tape';
 import * as express from 'express';
 
 import { Test } from "tape";
-import { ApiHelper } from './helper/api-helper';
+import { ApiHelper } from '../helper/api-helper';
 
 let api: ApiHelper = new ApiHelper();
 
