@@ -21,6 +21,12 @@
                 "name": "path:./middleware/auth-handler"
             }
         },
+        "publicHandler": {
+            "priority": 31,
+            "module": {
+                "name": "path:./middleware/public-access-handler"
+            }
+        },
         "router": {
             "priority": 50,
             "module": {

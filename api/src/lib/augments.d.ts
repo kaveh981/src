@@ -12,8 +12,7 @@ declare module 'express' {
     interface Request {
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
         ixmBuyerInfo: {
-            /** The user's userId */
-            userId: string
+            userID: string
         };
     }
 
