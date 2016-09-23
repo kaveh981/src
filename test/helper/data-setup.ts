@@ -1,10 +1,11 @@
 'use strict';
 import * as Promise from 'bluebird';
+
 import { Logger } from '../lib/logger';
 import { Injector } from '../lib/injector';
 import { DatabaseManager } from '../lib/database-manager';
 
-const Log = new Logger('dSTP');
+const Log = new Logger('DSTP');
 
 class DataSetup {
 
@@ -118,4 +119,4 @@ class DataSetup {
 
 }
 
-export {DataSetup};
+export { DataSetup };
