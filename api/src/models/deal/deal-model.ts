@@ -3,35 +3,34 @@
 interface IDealModel {
 
     /** The deal's unique internal identifier */
-    id: number;
+    dealID: number;
 
     /** The publisher offering the deal */
-    publisherId: number;
+    publisherID: number;
 
     /** The DSP buying the deal */
-    dspId: number;
+    dspID: number;
 
     /** A descriptive name for the deal */
     name: string;
 
     /** The auction type under which the deal is operating - it's a private property so the interface has the getter's signature */
-// TODO: Figure out how to use private properties in interfaces with getters and setters
-// JH    auctionType(): string;
+    auctionType?: 'first' | 'second' | 'fixed';
 
     /** The reserved rate of the deal */
     price: number;
 
     /** The current status of the deal */
-// JH   _status: string;
+    status?: 'N' | 'A' | 'D' | 'P';
 
     /** The first day when the deal will serve */
-// JH   _startDate: string;
+    startDate?: string;
 
     /** The last day when the deal will serve */
-// JH   _endDate: string;
+    endDate?: string;
 
     /** The external ID the DSP must use when they bid with the deal */
-    externalId: string;
+    externalID: string;
 
     /** The sections where the deal is eligible to serve */
     sections: number[];
@@ -45,13 +44,13 @@ interface IDealModel {
 class DealModel implements IDealModel {
 
     /** The deal's unique internal identifier */
-    public id: number;
+    public dealID: number;
 
     /** The publisher offering the deal */
-    public publisherId: number;
+    public publisherID: number;
 
     /** The DSP buying the deal */
-    public dspId: number;
+    public dspID: number;
 
     /** A descriptive name for the deal */
     public name: string;
@@ -60,22 +59,22 @@ class DealModel implements IDealModel {
     public price: number;
 
     /** The external ID the DSP must use when they bid with the deal */
-    public externalId: string;
+    public externalID: string;
 
     /** The sections where the deal is eligible to serve */
     public sections: number[];
 
     /** The auction type under which the deal is operating - private */
-    private _auctionType: string;
+    public auctionType: 'first' | 'second' | 'fixed';
 
     /** The current status of the deal - private */
-    private _status: string;
+    public status: 'N' | 'A' | 'D' | 'P';
 
     /** The first day when the deal will serve - private */
-    private _startDate: string;
+    public startDate: string;
 
     /** The last day when the deal will serve - private */
-    private _endDate: string;
+    public endDate: string;
 
     /**
      * Constructor
@@ -88,102 +87,12 @@ class DealModel implements IDealModel {
     }
 
     /**
-     * Setter for the private auctionType property - automagically called when trying to assign it
-     * @param at - auction type about to be set
+     * TODO: empty function, need to validate date and enum?
+     * validate the deal model object, see if all attributes are valid
+     * @returns Returns a string indicate which attributes are incorrect
      */
-    public set auctionType (at: string) {
-        if ( at === 'second' || at === 'first' || at === 'fixed' ) {
-            this._auctionType = at;
-        } else {
-            throw new Error('Auction type must be either fixed, first or second');
-        }
-    }
-
-    /**
-     * Getter for the private auctionType property - automagically called when trying to access it
-     */
-    public get auctionType(): string {
-        return this._auctionType;
-    }
-
-    /**
-     * Setter for the private status property - automagically called when trying to assign it
-     * Ensures that the status is either New, Active, Deleted or Paused and converts it to the right value
-     * @param st - status about to be set
-     */
-    public set status (st: string) {
-
-        let lowerStatus: string = st.toLowerCase();
-
-        if ( lowerStatus === 'active' ) {
-            this._status = 'A';
-        } else if ( lowerStatus === 'new' ) {
-            this._status = 'N';
-        } else if ( lowerStatus === 'paused' ) {
-            this._status = 'P';
-        } else if ( lowerStatus === 'deleted' ) {
-            this._status = 'D';
-        } else {
-            throw new Error('Status must be either Active, Deleted, New or Paused');
-        }
-    }
-
-    /**
-     * Getter for the private status property - automagically called when trying to access it
-     */
-    public get status(): string {
-
-        if ( this._status === 'A' ) {
-            return 'Active';
-        } else if ( this._status === 'N' ) {
-            return 'New';
-        } else if ( this._status === 'P' ) {
-            return 'Paused';
-        } else if ( this._status === 'D' ) {
-            return 'Deleted';
-        }
-    }
-
-    /**
-     * Setter for the private startDate property - automagically called when trying to assign it
-     * Ensures that the date provided follows the format 'YYYY-MM-DD'
-     * @param date - date about to be set
-     */
-    public set startDate (date: string) {
-
-        if ( this.isValidDate(date) ) {
-            this._startDate = date;
-        } else {
-            throw new Error('Start date must follow format "YYYY-MM-DD"');
-        }
-    }
-
-    /**
-     * Getter for the private startDate property - automagically called when trying to access it
-     */
-    public get startDate(): string {
-        return this._startDate;
-    }
-
-    /**
-     * Setter for the private endDate property - automagically called when trying to assign it
-     * Ensures that the date provided follows the format 'YYYY-MM-DD'
-     * @param date - date about to be set
-     */
-    public set endDate (date: string) {
-
-        if ( this.isValidDate(date) ) {
-            this._endDate = date;
-        } else {
-            throw new Error('End date must follow format "YYYY-MM-DD"');
-        }
-    }
-
-    /**
-     * Getter for the private endDate property - automagically called when trying to access it
-     */
-    public get endDate(): string {
-        return this._endDate;
+    public validate(): string {
+        return;
     }
 
     /**
