@@ -3,11 +3,11 @@
  */
 import * as test from 'tape';
 
-import { DatabasePopulator } from '../helper/db-populator.helper';
+import { DatabasePopulator } from '../helper/database-populator';
 import { DatabaseManager   } from '../lib/database-manager';
 import { Injector          } from '../lib/injector';
 import { Logger            } from '../lib/logger';
-import { app               } from '../helper/loader.helper';
+import { app               } from '../helper/bootstrap';
 
 const Log         = new Logger('TEST');
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');

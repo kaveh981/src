@@ -12,8 +12,8 @@ Injector.put(config, 'ConfigLoader');
 
 /** Helper modules */
 import { DatabaseManager   } from '../lib/database-manager';
-import { ApiHelper         } from "./api.helper";
-import { DatabasePopulator } from "./db-populator.helper";
+import { ApiHelper         } from "./api-helper";
+import { DatabasePopulator } from "./database-populator";
 
 /** Dependency Resolution */
 Injector.put(ApiHelper, 'ApiHelper');

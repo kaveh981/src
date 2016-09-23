@@ -1,7 +1,8 @@
+'use strict';
 import * as Promise from 'bluebird';
 import * as test from 'tape';
 import { Logger }      from '../lib/logger';
-import { app } from '../helper/loader.helper';
+import { app } from '../helper/bootstrap';
 
 const Log = new Logger("TEST");
 

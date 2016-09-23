@@ -26,16 +26,15 @@ class DatabasePopulator {
      * @arg sectionIDs {int[]} - an array of sectionIDs to map to the given packageID
      * @returns {Promise<void>} Promise that resolves when all mappings done
      */
-    public mapPackage2Sections: (packageID: number, sectionIDs: number[]) => Promise<void> =
-        Promise.coroutine(function* (packageID: number, sectionIDs: number[]): any {
-            for (let i = 0; i < sectionIDs.length; i += 1) {
-                let mapping = {packageID: packageID, sectionID: sectionIDs[i]};
-                yield this.dbm.insert(mapping).into('ixmPackageSectionMappings')
-                    .then(() => {
-                        Log.debug(`Mapped packageID ${packageID} to sectionID ${sectionIDs[i]}`);
-                    });
-            }
-        }) as (packageID: number, sectionIDs: number[]) => Promise<void>;
+    public mapPackage2Sections = Promise.coroutine(function* (packageID: number, sectionIDs: number[]): any {
+        for (let i = 0; i < sectionIDs.length; i += 1) {
+            let mapping = {packageID: packageID, sectionID: sectionIDs[i]};
+            yield this.dbm.insert(mapping).into('ixmPackageSectionMappings')
+                .then(() => {
+                    Log.debug(`Mapped packageID ${packageID} to sectionID ${sectionIDs[i]}`);
+                });
+        }
+    }) as (packageID: number, sectionIDs: number[]) => Promise<void>;
 
     /**
      * Creates mapping entry in "Viper2.rtbSiteSections"
@@ -43,14 +42,13 @@ class DatabasePopulator {
      * @arg siteIDs {number[]} - an array of siteIDs to map to sectionID
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
-    public mapSection2Sites: (sectionID: number, siteIDs: number[]) => Promise<void> =
-        Promise.coroutine(function* (sectionID: number, siteIDs: number[]): any {
-            for (let i = 0; i < siteIDs.length; i += 1) {
-                let mapping = { sectionID: sectionID, siteID: siteIDs[i] };
-                yield this.dbm.insert(mapping).into('rtbSiteSections');
-                Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
-            }
-        }) as (sectionID: number, siteIDs: number[]) => Promise<void>;
+    public mapSection2Sites = Promise.coroutine(function* (sectionID: number, siteIDs: number[]): any {
+        for (let i = 0; i < siteIDs.length; i += 1) {
+            let mapping = {sectionID: sectionID, siteID: siteIDs[i]};
+            yield this.dbm.insert(mapping).into('rtbSiteSections');
+            Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
+        }
+    }) as (sectionID: number, siteIDs: number[]) => Promise<void>;
 
     private dbm: DatabaseManager;
     private config: ConfigLoader;
@@ -60,10 +58,7 @@ class DatabasePopulator {
      * @param databaseManager - The DB manager used to communicate with the db(s)
      * @param configLoader - The config loader to use. Should point to test config folder
      */
-    constructor (
-        databaseManager: DatabaseManager,
-        configLoader: ConfigLoader
-    ) {
+    constructor(databaseManager: DatabaseManager, configLoader: ConfigLoader) {
         this.config = configLoader;
         this.dbm = databaseManager;
         faker.locale = 'es_MX';
@@ -74,8 +69,8 @@ class DatabasePopulator {
      * @param [userFields] {INewUserData} - provided user field values to use
      * @returns {Promise<INewUserData>} A promise that resolves with an object containing the inserted user data.
      */
-    public newUser (userFields?: INewUserData): Promise<INewUserData> {
-        let newUserData: INewUserData = this.genDataObj<INewUserData>('new-user-schema');
+    public newUser(userFields?: INewUserData): Promise<INewUserData> {
+        let newUserData: INewUserData = this.generateDataObject<INewUserData>('new-user-schema');
         newUserData.createDate = this.currentMySQLDate();
 
         if (userFields) {
@@ -98,8 +93,8 @@ class DatabasePopulator {
      * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmBuyers"
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */
-    public newBuyer (): Promise<INewBuyerData> {
-        let newBuyerData = this.genDataObj<INewBuyerData>('new-buyer-schema');
+    public newBuyer(): Promise<INewBuyerData> {
+        let newBuyerData = this.generateDataObject<INewBuyerData>('new-buyer-schema');
         newBuyerData.user.createDate = this.currentMySQLDate();
 
         return this.newUser(newBuyerData.user)
@@ -122,8 +117,8 @@ class DatabasePopulator {
      * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers".
      * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
      */
-    public newPub (): Promise<INewPubData> {
-        let newPubData = this.genDataObj<INewPubData>('new-pub-schema');
+    public newPub(): Promise<INewPubData> {
+        let newPubData = this.generateDataObject<INewPubData>('new-pub-schema');
         newPubData.user.createDate = this.currentMySQLDate();
 
         return this.newUser(newPubData.user)
@@ -149,8 +144,8 @@ class DatabasePopulator {
      * @param ownerID {int} - the userID of the site owner
      * @returns {Promise<INewSiteData>} - Promise which resolves with object of new site data
      */
-    public newSite (ownerID: number): Promise<INewSiteData> {
-        let newSiteData = this.genDataObj<INewSiteData>('new-site-schema');
+    public newSite(ownerID: number): Promise<INewSiteData> {
+        let newSiteData = this.generateDataObject<INewSiteData>('new-site-schema');
         newSiteData.userID = ownerID;
         newSiteData.createDate = this.currentMySQLDate();
 
@@ -176,14 +171,14 @@ class DatabasePopulator {
      * @param siteIDs {int[]} - An array of siteIDs to map to the new section
      * @returns {Promise<INewSectionData>} - Promise which resolves with object of new section data
      */
-    public newSection (ownerID: number, siteIDs: number[]): Promise<INewSectionData> {
+    public newSection(ownerID: number, siteIDs: number[]): Promise<INewSectionData> {
 
         if (siteIDs.length < 1) {
             Log.error(`1 or more siteIDs are required to create a section you provided ${siteIDs}`);
             return;
         }
 
-        let newSectionData = this.genDataObj<INewSectionData>('new-section-schema');
+        let newSectionData = this.generateDataObject<INewSectionData>('new-section-schema');
         newSectionData.userID = ownerID;
 
         return this.dbm
@@ -212,8 +207,8 @@ class DatabasePopulator {
      * @param packageFields {INewPackageData} - Optional: a new package object to override random fields
      * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
      */
-    public newPackage (ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
-        let newPackage = this.genDataObj<INewPackageData>('new-package-schema');
+    public newPackage(ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
+        let newPackage = this.generateDataObject<INewPackageData>('new-package-schema');
 
         if (packageFields) {
             Object.assign(newPackage, packageFields);
@@ -241,15 +236,15 @@ class DatabasePopulator {
     }
 
     /**
-     * Generates an entity based on a jsf schema, e.g. "genDataObj<INewUserData>('new-user-schema')" returns a
+     * Generates an entity based on a jsf schema, e.g. "generateDataObject<INewUserData>('new-user-schema')" returns a
      * newUserData object.
      * @param schemaName - The name of the schema to use. Use same name of the schema .json file located in
      * config/data-gen/ without the extension.
      * @returns {T} An object generated as configured in the given schema
      */
-    private genDataObj<T> (schemaName: string): T {
+    private generateDataObject<T>(schemaName: string): T {
         let schema: IJsfSchema = this.config.get(`data-gen/${schemaName}`);
-        schema = this.extendSchemaObj(schema);
+        schema = this.extendSchemaObject(schema);
 
         return <T>jsf(schema);
     }
@@ -259,7 +254,7 @@ class DatabasePopulator {
      * @param schema {IJsfSchema} - the schema to extend
      * @returns {IJsfSchema} - the resolved schema object fully loaded from all referenced files
      */
-    private extendSchemaObj (schema: IJsfSchema): IJsfSchema {
+    private extendSchemaObject(schema: IJsfSchema): IJsfSchema {
 
         // If has a reference to other schema *.json file,
         // load it and return the extended version of it
@@ -270,7 +265,7 @@ class DatabasePopulator {
                 Object.assign(refSchema.properties, schema.properties);
             }
 
-            return this.extendSchemaObj(refSchema);
+            return this.extendSchemaObject(refSchema);
         }
 
         // if schema has some properties, let's loop through them and see if they contain other schemas
@@ -283,7 +278,7 @@ class DatabasePopulator {
                 if (typeof value === 'object') {
 
                     if (value.hasOwnProperty('__ref__') || value.hasOwnProperty('properties')) {
-                        schema.properties[key] = this.extendSchemaObj(value);
+                        schema.properties[key] = this.extendSchemaObject(value);
                     }
 
                 }
