@@ -50,7 +50,11 @@ class DealManager {
      * @param pagination - Pagination details for the request
      */
     public fetchActiveDealsForBuyer(buyerId: number, pagination: any): Promise<any> {
-        return this.dbm.select('rtbDeals.dealID') // TODO: What to select here?
+        /* TODO: This select statement will need to obtain information that was accepted by both the pub and buyer (i.e. latest
+            terms, impressions, start and end dates, etc.). Therefore, it will have to interact with the DealNegotiations table 
+            to get that info (i.e. get the info from the row that indicates a pubStatus=accepted and buyerStatus=accepted and 
+            which has the latest modified date).*/
+        return this.dbm.select('rtbDeals.dealID')
             .from('rtbDeals')
             .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
             .join('ixmPackages', 'ixmPackageDealMappings.packageID', 'ixmPackages.packageID')
