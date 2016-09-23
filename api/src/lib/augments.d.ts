@@ -15,7 +15,7 @@ declare module 'express' {
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
         ixmBuyerInfo: {
             userID: string
-        }
+        };
     }
 
     // Augment the express response object.

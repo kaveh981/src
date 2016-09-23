@@ -1,9 +1,7 @@
 'use strict';
 
 import * as Promise from 'bluebird';
-import * as http from 'http';
 import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
 
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
