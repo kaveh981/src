@@ -1,4 +1,3 @@
-import {Injector} from "./node_modules/raml-typesystem/dist/src/nominal-types";
 'use strict';
 
 /** Resolve any dependencies in this file and pass it to the injector for safe keeping. */
@@ -21,9 +20,6 @@ import { PackageManager } from './models/package/package-manager';
 import { NegotiationManager } from './models/deal-negotiation/negotiation-manager';
 import { ContactManager } from './models/contact-info/contact-manager';
 import { DealManager } from './models/deal/deal-manager';
-
-/** Tests */
-import {DataSetup} from '../../../test/helper/dataSetup.helper'
 
 /** Dependency Resolution */
 const config = new ConfigLoader();
@@ -56,5 +52,3 @@ Injector.put(negotiationManager, 'NegotiationManager');
 const dealManager = new DealManager(databaseManager);
 Injector.put(dealManager, 'DealManager');
 
-const dataSetup = new DataSetup(databaseManager);
-Injector.put(dataSetup, 'DataSetup');
