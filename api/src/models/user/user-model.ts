@@ -3,7 +3,7 @@
 interface IUserModel {
 
     /** The user's userId */
-    userId: string;
+    userID: string;
 
     /** The current status of the user */
     userStatus: string;
@@ -21,7 +21,7 @@ interface IUserModel {
 class UserModel implements IUserModel {
 
     /** The user's userId */
-    public userId: string;
+    public userID: string;
 
     /** The current status of the user */
     public userStatus: string;

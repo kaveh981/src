@@ -38,8 +38,8 @@ class BuyerManager {
         return this.getDSPsFromId(userId)
             .then((dsps) => {
                 buyerObject = new BuyerModel({
-                    userId: userId,
-                    dspIds: dsps.map((dsp) => { return dsp.dspid; })
+                    userID: userId,
+                    dspIDs: dsps.map((dsp) => { return dsp.dspid; })
                 });
 
                 return userId;
