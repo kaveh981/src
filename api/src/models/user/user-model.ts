@@ -1,8 +1,6 @@
 'use strict';
 
-/**
- * Generic IX user model.
- */
+
 class UserModel implements IUserModel {
     /** The user's userId */
     public userID: string;

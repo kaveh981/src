@@ -1,8 +1,5 @@
 'use strict';
 
-/**
- * Interface for package which represents a potential deal
- */
 class PackageModel implements IPackageModel {
     /** ID of the package */
     public packageID: number;
