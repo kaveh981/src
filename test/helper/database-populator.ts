@@ -71,16 +71,22 @@ class DatabasePopulator {
      */
     public newUser(userFields?: INewUserData): Promise<INewUserData> {
         let newUserData: INewUserData = this.generateDataObject<INewUserData>('new-user-schema');
-        newUserData.createDate = this.currentMySQLDate();
+        newUserData.createDate = this.currentMidnightDate();
 
         if (userFields) {
             Object.assign(newUserData, userFields);
         }
 
-        return this.dbm.insert(newUserData, 'userID')
+        return this.dbm.insert(newUserData, ['userID', 'modifyDate'])
             .into('users')
-            .then((newUserID: number[]) => {
-                newUserData.userID = newUserID[0];
+            .then((newUser: any[]) => {
+                newUserData.userID = newUser[0];
+                return this.dbm.select('modifyDate')
+                    .from('users')
+                    .where('userID', newUserData.userID);
+            })
+            .then((modifyDate: any[]) => {
+                newUserData.modifyDate = modifyDate[0].modifyDate;
                 Log.debug(`Created new user ID: ${newUserData.userID} , userType: ${newUserData.userType}`);
                 return newUserData;
             })
@@ -301,6 +307,13 @@ class DatabasePopulator {
             ('00' + date.getHours()).slice(-2) + ':' +
             ('00' + date.getMinutes()).slice(-2) + ':' +
             ('00' + date.getSeconds()).slice(-2);
+    }
+    
+    private currentMidnightDate(): Date {
+        let date = new Date();
+        date.setHours(0,0,0,0);
+        
+        return date;
     }
 
 }

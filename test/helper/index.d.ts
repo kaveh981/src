@@ -22,7 +22,7 @@ interface INewUserData {
     phone?: string;
     fax?: string;
     version?: number;
-    createDate?: string;
+    createDate?: string | Date;
     modifyDate?: string;
     lastLogin?: string;
 }
