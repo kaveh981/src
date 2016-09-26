@@ -1,31 +1,12 @@
 'use strict';
 
-import { ContactModel } from '../contact-info/contact-model';
-
-interface IBuyerModel {
-    /** The buyer's userID */
-    userId: number;
-
-    /** An array of dspID's associated with this buyer */
-    dspIds: number[];
-
-    /** The buyer's contact info */
-    contactInfo?: ContactModel;
-}
-
-/**
- * IXM Buyer Model
- */
 class BuyerModel implements IBuyerModel {
-
     /** The buyer's userID */
-    public userId: number;
-
+    public userID: number;
     /** An array of dspID's associated with this buyer */
-    public dspIds: number[];
-
+    public dspIDs: number[];
     /** The buyer's contact info */
-    public contactInfo: ContactModel;
+    public contactInfo: IContactModel;
 
     /**
      * Constructor

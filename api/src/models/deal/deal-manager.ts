@@ -69,16 +69,12 @@ class DealManager {
             .limit(pagination.limit)
             .offset(pagination.offset)
             .then((deals: any) => {
-                let activeDeals = [];
-                return Promise.each(deals, (deal: any) => {
-                    return this.packageManager.fetchPackageFromID(deal.packageID)
+                return Promise.map(deals, (deal: any) => {
+                    return this.packageManager.fetchPackageFromId(deal.packageID)
                         .then((fetchedPackage) => {
-                            activeDeals.push(Object.assign(deal, {sections: fetchedPackage.sections}));
+                            return Object.assign(deal, {sections: fetchedPackage.sections});
                         });
                 })
-                .then(() => {
-                    return activeDeals;
-                });
             })
             .catch((err: Error) => {
                 Log.error(err);
