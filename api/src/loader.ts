@@ -49,5 +49,5 @@ Injector.put(packageManager, 'PackageManager');
 const negotiationManager = new NegotiationManager(databaseManager);
 Injector.put(negotiationManager, 'NegotiationManager');
 
-const dealManager = new DealManager(databaseManager);
+const dealManager = new DealManager(databaseManager, packageManager);
 Injector.put(dealManager, 'DealManager');
