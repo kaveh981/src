@@ -2,6 +2,21 @@
 
 import * as Promise from 'bluebird';
 import * as http from 'request';
+import * as https from 'https';
+
+/**
+ * Interface for agent options with request.js requests
+ */
+interface IAgentOptions {
+    host: string,
+    port: string,
+    path: string,
+    /**
+     * This parameter, when set to false, allows us to send requests to
+     * the API without sending a proper key and certificate in the request
+     */
+    rejectUnauthorized: boolean
+}
 
 class ApiHelper {
 
@@ -23,6 +38,15 @@ class ApiHelper {
             method: opts.method || '',
             headers: opts.headers || {}
         };
+    }
+
+    /**
+     * Initialize the agent options, which allows us to perform insecure API calls for testing.
+     * @param options {IAgentOptions} - Set of options for the agent being passed in the request
+     * @returns Nothing.
+     */
+    public setAgentOptions(options: IAgentOptions): void {
+        this.options.agent = new https.Agent(options);
     }
 
     public sendRequest(requestBody: any): Promise<any> {
