@@ -1,7 +1,5 @@
 'use strict';
 
-import { ContactModel } from '../contact-info/contact-model';
-
 /**
  * Interface for package which represents a potential deal
  */
@@ -11,7 +9,7 @@ class PackageModel implements IPackageModel {
     /** ID of the package's owner, corresponding to users in database */
     public ownerID: number;
     /** Contact information for the owner */
-    public ownerContactInfo: ContactModel;
+    public ownerContactInfo: IContactModel;
     /** Name of the package, unique value */
     public name: string;
     /** Description of the package */
