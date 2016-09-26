@@ -102,16 +102,24 @@ class DataSetup {
      * @param table - The name of the table that we want to clear.
      * @returns A promise.
      */
-    public clearTable(table: string): Promise<any> {
+    public clearTable(table: string, suffix: string = '_bckp'): Promise<any> {
 
-        return this.dbm.raw('SET foreign_key_checks=0')
+        let backup: string = table + suffix;
+
+        return this.dbm.raw('SHOW TABLES LIKE ?', [backup])
+            .then((res) => {
+                if (res[0].length === 0) {
+                    throw 'Backup table ' + backup + ' is not found. It is not safe to clear the table.';
+                }
+                return this.dbm.raw('SET foreign_key_checks=0');
+            })
             .then(() => {
                 return this.dbm.raw('DELETE FROM ' + table);
             })
             .then(() => {
                 return this.dbm.raw('SET foreign_key_checks=1');
             })
-           .catch((err: Error) => {
+            .catch((err: Error) => {
                 Log.error(err);
                 throw err;
             });
