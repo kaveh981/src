@@ -38,8 +38,8 @@ class BuyerManager {
         return this.getDSPsFromId(userId)
             .then((dsps) => {
                 buyerObject = new BuyerModel({
-                    userId: userId,
-                    dspIds: dsps.map((dsp) => { return dsp.dspid; })
+                    userID: userId,
+                    dspIDs: dsps.map((dsp) => { return dsp.dspid; })
                 });
 
                 return userId;
@@ -61,22 +61,10 @@ class BuyerManager {
      */
     public getIdsFromDSP(dspId: number, pagination: any): Promise<any> {
         return this.dbm.select('userid')
-            .from('ixmBuyers')
-            .where('dspid', dspId)
-            .limit(pagination.limit)
-            .offset(pagination.offset)
-            .catch((err: Error) => {
-                Log.error(err);
-                throw err;
-            });
-    }
-
-    /**
-     * Adds a new buyer to the ixmBuyers table (Until we design ContactInfo, this function just takes two ID params)
-     */
-    public saveBuyer(userId: number, dspId: number): Promise<any> {
-        return this.dbm.insert({userId: userId, dspId: dspId})
-            .into('ixmBuyers')
+                .from('ixmBuyers')
+                .where('dspid', dspId)
+                .limit(pagination.limit)
+                .offset(pagination.offset)
             .catch((err: Error) => {
                 Log.error(err);
                 throw err;
@@ -88,13 +76,25 @@ class BuyerManager {
      */
     private getDSPsFromId(userId: number): Promise<any> {
         return this.dbm.select('dspid')
-            .from('ixmBuyers')
-            .where('userid', userId)
+                .from('ixmBuyers')
+                .where('userid', userId)
             .catch((err: Error) => {
                 Log.error(err);
                 throw err;
             });
     }
+
+    // /**
+    //  * Adds a new buyer to the ixmBuyers table (Until we design ContactInfo, this function just takes two ID params)
+    //  */
+    // public saveBuyer(userId: number, dspId: number): Promise<any> {
+    //     return this.dbm.insert({userId: userId, dspId: dspId})
+    //         .into('ixmBuyers')
+    //         .catch((err: Error) => {
+    //             Log.error(err);
+    //             throw err;
+    //         });
+    // }
 
 }
 
