@@ -1,5 +1,7 @@
 'use strict';
 
+import { UserModel } from '../user/user-model';
+
 /**
  * Interface for package which represents a potential deal
  */
@@ -80,6 +82,21 @@ class PackageModel implements IPackageModel {
         if (initParams) {
             Object.assign(this, initParams);
         }
+    }
+
+    public isValidAvailablePackage(user: UserModel): boolean {
+        let startDate: Date = new Date(this.startDate);
+        let endDate: Date = new Date(this.endDate);
+        let today: Date = new Date(Date.now());
+        let zeroDate: string = '0000-00-00';
+        // Set all date "hours" to be 0 to be able to just compare the dates alone
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        return user.userStatus === 'A'
+            && (startDate <= today || this.startDate === zeroDate)
+            && (endDate >= today || this.endDate === zeroDate)
+            && this.sections.length > 0;
     }
 }
 

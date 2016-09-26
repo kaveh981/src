@@ -6,16 +6,19 @@ import * as Promise from 'bluebird';
 import { Logger } from '../../lib/logger';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
+import { Validator } from '../../lib/validator';
 
 import { PackageManager } from '../../models/package/package-manager';
 import { UserManager } from '../../models/user/user-manager';
 
+import { PackageModel } from '../../models/package/package-model';
+
 const packageManager = Injector.request<PackageManager>('PackageManager');
 const userManager = Injector.request<UserManager>('UserManager');
-
 const config = Injector.request<ConfigLoader>('ConfigLoader');
+const validator = Injector.request<Validator>('Validator');
+
 const paginationConfig = config.get('pagination');
-const authConfig = config.get('auth');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -42,47 +45,27 @@ function Deals(router: express.Router): void {
                 ? paginationConfig['RESULTS_LIMIT'] : Number(req.query.limit);
         let offset: number = Number(req.query.offset) || paginationConfig['DEFAULT_OFFSET'];
 
-        if (limit <= 0 || offset < 0) {
-            res.sendValidationError(['Pagination parameters must be positive integers']);
-            Log.debug('Negative pagination details');
-            return;
-        } else if (isNaN(limit) || isNaN(offset)) {
-            res.sendValidationError(['Pagination parameters must be numbers']);
-            Log.debug('NaN pagination details');
-            return;
-        } else if (limit > 4294967295 || offset > 4294967295) {
-            res.sendValidationError(['Pagination parameters cannot exceed 2^32']);
-            Log.debug('2^32 pagination details');
-            return;
-        } else if (limit > paginationConfig['RESULTS_LIMIT']) {
-            Log.debug('Pagination limit capped to RESULTS_LIMIT');
-        }
-
         let pagination = {
             limit: limit,
             offset: offset
         };
 
+        let validation: any = validator.validate(pagination, 'Pagination');
+        if (validation.success === 0) {
+            res.sendValidationError(['Some pagination parameters are invalid']);
+            Log.error(validation.errors);
+            return;
+        }
+
         // Get all packages with an 'active' status
         let availablePackages = [];
         return packageManager.fetchPackagesFromStatus('active', pagination)
-            .then((activePackages: any) => {
-                return Promise.each(activePackages, (activePackage: any) => {
-                    let startDate: Date = new Date(activePackage.startDate);
-                    let endDate: Date = new Date(activePackage.endDate);
-                    let today: Date = new Date(Date.now());
-                    let zeroDate: string = '0000-00-00';
-                    // Set all date "hours" to be 0 to be able to just compare the dates alone
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate.setHours(0, 0, 0, 0);
-                    today.setHours(0, 0, 0, 0);
+            .then((activePackages: PackageModel[]) => {
+                return Promise.each(activePackages, (activePackage: PackageModel) => {
                     // Make sure a package is owned by an active user, has valid dates, and has at least one associated deal section
-                     return userManager.fetchUserFromId(activePackage.ownerID)
+                     return userManager.fetchUserFromId(String(activePackage.ownerID))
                         .then((user) => {
-                            if (user.userStatus === 'A'
-                                && (startDate <= today || activePackage.startDate === zeroDate)
-                                && (endDate >= today || activePackage.endDate === zeroDate)
-                                && activePackage.sections.length > 0) {
+                            if (activePackage.isValidAvailablePackage(user)) {
                                      availablePackages.push(activePackage);
                             }
                         });

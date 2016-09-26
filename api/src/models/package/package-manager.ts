@@ -170,7 +170,7 @@ class PackageManager {
      * @param packageID - the ID of the package
      * @returns Returns an array of section IDs
      */
-    private getPackageSections (packageID: number): Promise<number []> {
+    private getPackageSections (packageID: number): Promise<number[]> {
         return this.dbm.select('sectionID')
             .from('ixmPackageSectionMappings')
             .where('packageID', packageID)
