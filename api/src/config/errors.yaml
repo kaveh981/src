@@ -1,0 +1,30 @@
+# Standardized Error Messages
+
+# US English
+en-US:
+
+    # 200 Status Code Messages
+    200: Ok.
+    200_NO_CONTENT: No content.
+    200_NO_PACKAGES: No deals are currently available. Come check again soon!
+    200_NO_DEALS: You don't seem to have any active deals at the moment. Sorry, eh!
+    
+    # 400 Status Code Messages
+    400: Malformed request.
+    
+    # 401 Status Code Messages
+    401: Unauthorized.
+    401_INVALID_HEADER: Authentication header is invalid.
+    401_NO_HEADER: Authentication header not provided.
+    401_NOT_IXMBUYER: 'Provided user ID is not an Index Market Buyer. If you would like access, please contact your.mom@indexexchange.com'
+    401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
+    401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
+
+    # 403 Status Code Messages
+    403: Forbidden.
+
+    # 404 Status Code Messages
+    404: Not found.
+
+    # 500 Status Code Messages
+    500: Internal server error.
