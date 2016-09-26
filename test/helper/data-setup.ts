@@ -9,9 +9,9 @@ const Log = new Logger('DSTP');
 
 class DataSetup {
 
-    private dbm:DatabaseManager;
+    private dbm: DatabaseManager;
 
-    constructor(dbm:DatabaseManager) {
+    constructor(dbm: DatabaseManager) {
         this.dbm = dbm;
     }
 
@@ -21,9 +21,9 @@ class DataSetup {
      * @param suffix - The backup table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
-    public backupTable(table:string, suffix:string = '_bckp'):Promise<any> {
+    public backupTable(table: string, suffix: string = '_bckp'): Promise<any> {
 
-        let newtable:string = table + suffix;
+        let newtable: string = table + suffix;
 
         return this.dbm.raw('SHOW TABLES LIKE ?', [table])
             .then((res1) => {
@@ -46,7 +46,7 @@ class DataSetup {
             .then(() => {
                 return this.dbm.raw(' SET foreign_key_checks=1');
             })
-            .catch((err:Error) => {
+            .catch((err: Error) => {
                 Log.error(err);
                 throw err;
             });
@@ -58,9 +58,9 @@ class DataSetup {
      * @param suffix - The backup table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
-    public restoreTable(table:string, suffix:string = '_bckp'):Promise<any> {
+    public restoreTable(table: string, suffix: string = '_bckp'): Promise<any> {
 
-        let backup:string = table + suffix;
+        let backup: string = table + suffix;
 
         return this.dbm.raw('SHOW TABLES LIKE ?', [backup])
             .then((res) => {
@@ -91,7 +91,7 @@ class DataSetup {
             .then(() => {
                 return this.dbm.raw('SET foreign_key_checks=1');
             })
-            .catch((err:Error) => {
+            .catch((err: Error) => {
                 Log.error(err);
                 throw err;
             });
@@ -102,9 +102,9 @@ class DataSetup {
      * @param table - The name of the table that we want to clear.
      * @returns A promise.
      */
-    public clearTable(table:string, suffix:string = '_bckp'):Promise<any> {
+    public clearTable(table: string, suffix: string = '_bckp'): Promise<any> {
 
-        let backup:string = table + suffix;
+        let backup: string = table + suffix;
         return this.dbm.raw('SHOW TABLES LIKE ?', [backup])
             .then((res) => {
                 if (res[0].length === 0) {
@@ -112,7 +112,7 @@ class DataSetup {
                 }
             })
             .then(() => {
-                this.dbm.raw('SET foreign_key_checks=0')
+                this.dbm.raw('SET foreign_key_checks=0');
             })
             .then(() => {
                 return this.dbm.raw('DELETE FROM ' + table);
@@ -120,7 +120,7 @@ class DataSetup {
             .then(() => {
                 return this.dbm.raw('SET foreign_key_checks=1');
             })
-            .catch((err:Error) => {
+            .catch((err: Error) => {
                 Log.error(err);
                 throw err;
             });
