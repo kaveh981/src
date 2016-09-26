@@ -19,11 +19,11 @@ import * as commander from 'commander';
  * Make Typescript happy.
  */
 interface InterfaceCLI extends commander.ICommand {
-		file?: string;
+        file?: string;
         pub?: string;
-		site?: string;
-		section?: string;
-		package?: string;
+        site?: string;
+        section?: string;
+        package?: string;
 }
 
 /** 
@@ -31,202 +31,214 @@ interface InterfaceCLI extends commander.ICommand {
  */
 class DataGenCLI {
 
-	protected cmd:InterfaceCLI;
+    protected cmd: InterfaceCLI;
 
-	/**
-	 * Constructor: set up Commander to parse the input options
-	 * @return {void}
-	 */
-	constructor() {
-		this.cmd = commander.version('6.6.6')
-			.description('Generate IXM related data. Call with no arguments for generating a standard set.')
-			.option('-f --file <string>', 'A json file containing data objects')
-			.option('-p --pub [string]', 'Generate a publisher, use -p <n> to generate n publishers.')
-			.option('-s --site <string>', 'Generate a site, pub ID required, append a number with a comma: -s <id>,<n> to generate n sites.')
-			.option('-S --section <string>', 'Generate a site section, pub ID, site ID required. Append a number to generate multiple: -S <pid>,<sid>,<n>')
-			.option('-P --package <string>', 'Generate a package. Owner ID, section [ID]s required: -P <pid>,<sid0>:...:<sidN>,n')
-			.parse(process.argv);
-	}
+    /**
+     * Constructor: set up Commander to parse the input options
+     * @return {void}
+     */
+    constructor() {
+        let file_desc = 'A json file containing data objects';
+        let pub_desc = 'Generate a publisher, use -p <n> to generate n publishers.';
+        let site_desc = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
+                      + ' -s <id>,<n> .';
+        let section_desc = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
+                      + ' -S <pid>,<sid>,<n>';
+        let package_desc = 'Generate a package. Owner ID, section [ID]s required:'
+                      + ' -P <pid>,<sid0>:...:<sidN>,n';
 
- 	/**
- 	 * Run the command according to input options.
- 	 * @return {void}
-	 */
-	public run():void {
+        this.cmd = commander.version('6.6.6')
+            .description('Generate IXM related data. Call with no arguments for generating a standard set.')
+            .option('-f --file <string>', file_desc)
+            .option('-p --pub [string]', pub_desc)
+            .option('-s --site <string>', site_desc)
+            .option('-S --section <string>', section_desc)
+            .option('-P --package <string>', package_desc)
+            .parse(process.argv);
+    }
 
-		app.boot()
-			.then(() => {
-				return this.runHandlers();
-			})
-			.then((results) => {
+    /**
+     * Run the command according to input options.
+     * @return {void}
+     */
+    public run(): void {
 
-				console.log("Here's what you got:");
-				console.log(results);
-				app.shutdown();
+        app.boot()
+            .then(() => {
+                return this.runHandlers();
+            })
+            .then((results) => {
 
-				console.log("All done");
-			});
-	}
+                console.log("Here's what you got:");
+                console.log(results);
+                app.shutdown();
 
-	private runHandlers() {
-		
-		let cocorico =  Promise.coroutine(function* () {
-			let cmd = this.cmd;
-			console.log("cocorico");
-			console.log(cmd.site);
-			let res = {
-				file: null,
-				pub: null,
-				site: null,
-				section: null,
-				package: null
-			};
-			if(cmd.file) {
-				res.file = yield this.handleFile(cmd.file);
-			} else {
-				// if(!cmd.pub && !cmd.site && !cmd.section && !cmd.package) {
-				// 	this.handleAll();
-				// 	return;
-				// }
+                console.log("All done");
+            });
+    }
 
-				if(cmd.pub) {
-					res.pub = yield this.handlePublisher(cmd.pub);
-				}
+    /**
+     * Generate a coroutine to run each specified handler
+     * @return {Object} results The generated data
+     */
+    private runHandlers(): Object {
+        let cocorico =  Promise.coroutine(function* (): Object {
+            let cmd = this.cmd;
+            console.log("cocorico");
+            console.log(cmd.site);
+            let res = {
+                file: null,
+                pub: null,
+                site: null,
+                section: null,
+                package: null
+            };
+            if (cmd.file) {
+                res.file = yield this.handleFile(cmd.file);
+            } else {
+                // if(!cmd.pub && !cmd.site && !cmd.section && !cmd.package) {
+                //  this.handleAll();
+                //  return;
+                // }
 
-				if(cmd.site) {
-					res.site = yield this.handleSite(cmd.site);
-				}
+                if (cmd.pub) {
+                    res.pub = yield this.handlePublisher(cmd.pub);
+                }
 
-				if(cmd.section) {
-					res.section = yield this.handleSection(cmd.section);
-				}
+                if (cmd.site) {
+                    res.site = yield this.handleSite(cmd.site);
+                }
 
-				if(cmd.package) {
-					res.package = yield this.handlePackage(cmd.package);
-				}
-			}
+                if (cmd.section) {
+                    res.section = yield this.handleSection(cmd.section);
+                }
 
-			return res;
-		}.bind(this));
+                if (cmd.package) {
+                    res.package = yield this.handlePackage(cmd.package);
+                }
+            }
 
-		return cocorico();
-	}
+            return res;
+        }.bind(this));
 
-	/**
-	 * Parse file input and trigger creation functions
-	 * @param {string} fileArgs The file arguments from the command line
-	 * @return {void}
-	 */
-	private handleFile(fileArgs:string):void {
-		console.log("ratpoint.jpg?");
-		console.log("Here's what you wrote though:");
-		console.log(fileArgs);
-	}
+        return cocorico();
+    }
 
-	/**
-	 * Parse publisher input and trigger creation functions
-	 * @param {string | boolean} pubArgs The publisher arguments from the command line
-	 * @return {Promise<INewPubData>}
-	 */
-	private handlePublisher(pubArgs:string | boolean):Promise<INewPubData> {
-		console.log("Sure would be nice to have some pubs");
-		console.log("Here's what you wrote though:");
-		console.log(pubArgs);
+    /**
+     * Parse file input and trigger creation functions
+     * @param {string} fileArgs The file arguments from the command line
+     * @return {void}
+     */
+    private handleFile(fileArgs: string): void {
+        console.log("ratpoint.jpg?");
+        console.log("Here's what you wrote though:");
+        console.log(fileArgs);
+    }
 
-		return dbPopulator.newPub();
-	}
+    /**
+     * Parse publisher input and trigger creation functions
+     * @param {string | boolean} pubArgs The publisher arguments from the command line
+     * @return {Promise<INewPubData>}
+     */
+    private handlePublisher(pubArgs: string | boolean): Promise<INewPubData> {
+        console.log("Sure would be nice to have some pubs");
+        console.log("Here's what you wrote though:");
+        console.log(pubArgs);
 
-	/**
-	 * Parse site input and trigger creation functions
-	 * @param {string} siteArgs The site arguments from the command line
-	 * @return {Promise<INewSiteData>}
-	 */
-	private handleSite(siteArgs:string):Promise<INewSiteData> {
-		console.log("Maybe for your birthday");
-		console.log("Here's what you wrote though:");
-		console.log(siteArgs);
+        return dbPopulator.newPub();
+    }
 
-		let parts = siteArgs.split(',');
-		let ownerID = parseInt(parts[0]);
+    /**
+     * Parse site input and trigger creation functions
+     * @param {string} siteArgs The site arguments from the command line
+     * @return {Promise<INewSiteData>}
+     */
+    private handleSite(siteArgs: string): Promise<INewSiteData> {
+        console.log("Maybe for your birthday");
+        console.log("Here's what you wrote though:");
+        console.log(siteArgs);
 
-		return dbPopulator.newSite(ownerID);
-	}
+        let parts = siteArgs.split(',');
+        let ownerID = parseInt(parts[0], 10);
 
-	/**
-	 * Parse section input and trigger creation functions
-	 * @param {string} sectionArgs The section arguments from the command line
-	 * @return {Promise<INewSectionData>}
-	 */
-	private handleSection(sectionArgs:string):Promise<INewSectionData> {
-		console.log("Sections too?");
-		console.log("Here's what you wrote though:");
-		console.log(sectionArgs);
+        return dbPopulator.newSite(ownerID);
+    }
 
-		let parts = sectionArgs.split(',');
-		let ownerID = parseInt(parts[0]);
-		let siteIDs = this.getIDsFromArgs(parts[1]);
+    /**
+     * Parse section input and trigger creation functions
+     * @param {string} sectionArgs The section arguments from the command line
+     * @return {Promise<INewSectionData>}
+     */
+    private handleSection(sectionArgs: string): Promise<INewSectionData> {
+        console.log("Sections too?");
+        console.log("Here's what you wrote though:");
+        console.log(sectionArgs);
 
-		return dbPopulator.newSection(ownerID, siteIDs);
-	}
+        let parts = sectionArgs.split(',');
+        let ownerID = parseInt(parts[0], 10);
+        let siteIDs = this.getIDsFromArgs(parts[1]);
 
-	/**
-	 * Parse package input and trigger creation functions
-	 * @param {string} packageArgs The package arguments from the command line
-	 * @return {Promise<INewPackageData>}
-	 */
-	private handlePackage(packageArgs:string):Promise<INewPackageData> {
-		console.log("Pretend this is a new package");
-		console.log("Here's what you wrote though:");
-		console.log(packageArgs);
+        return dbPopulator.newSection(ownerID, siteIDs);
+    }
 
-		let parts = packageArgs.split(',');
-		let ownerID = parseInt(parts[0]);
-		let sectionIDs = this.getIDsFromArgs(parts[1]);
+    /**
+     * Parse package input and trigger creation functions
+     * @param {string} packageArgs The package arguments from the command line
+     * @return {Promise<INewPackageData>}
+     */
+    private handlePackage(packageArgs: string): Promise<INewPackageData> {
+        console.log("Pretend this is a new package");
+        console.log("Here's what you wrote though:");
+        console.log(packageArgs);
 
-		return dbPopulator.newPackage(ownerID, sectionIDs);
-	}
+        let parts = packageArgs.split(',');
+        let ownerID = parseInt(parts[0], 10);
+        let sectionIDs = this.getIDsFromArgs(parts[1]);
 
-	/**
-	 * Create each object type in sequence
-	 * @return {void}
-	 */
-	private handleAll():void {
-		console.log("Pretending to look real busy now");
-		// let pub:INewPubData;
-		// let sites:INewSiteData[];
+        return dbPopulator.newPackage(ownerID, sectionIDs);
+    }
 
-		// this.handlePublisher(true)
-		// .then((newPub:INewPubData) => {
-		// 	pub = newPub;
-		// 	return this.handleSite(pub.user.userID.toString());
-		// })
-		// .then(() => {
+    /**
+     * Create each object type in sequence
+     * @return {void}
+     */
+    private handleAll(): void {
+        console.log("Pretending to look real busy now");
+        // let pub:INewPubData;
+        // let sites:INewSiteData[];
 
-		// })
+        // this.handlePublisher(true)
+        // .then((newPub:INewPubData) => {
+        //  pub = newPub;
+        //  return this.handleSite(pub.user.userID.toString());
+        // })
+        // .then(() => {
 
-		// dbPopulator.newPub()
-		// .then((newPub:INewPubData)=>{
-		// 	pub = newPub;
-		// 	return dbPopulator.newSite(pub.user.userID);
-		// })
-		// .then((newSite) => {
-		// 	sites= [newSite];
-		// 	return 
-		// })
-	}
+        // })
 
-	/**
-	 * Parse an array of integer ID values from a CLI string
-	 * @param {string} args The passed list of IDs
-	 * @return {number[]} The parsed array of numeric IDs
-	 */
-	private getIDsFromArgs(args:string):number[] {
-		return args.split(':').map((val:string) => {
-			return parseInt(val);
-		});
-	}
+        // dbPopulator.newPub()
+        // .then((newPub:INewPubData)=>{
+        //  pub = newPub;
+        //  return dbPopulator.newSite(pub.user.userID);
+        // })
+        // .then((newSite) => {
+        //  sites= [newSite];
+        //  return 
+        // })
+    }
+
+    /**
+     * Parse an array of integer ID values from a CLI string
+     * @param {string} args The passed list of IDs
+     * @return {number[]} The parsed array of numeric IDs
+     */
+    private getIDsFromArgs(args: string): number[] {
+        return args.split(':').map((val: string) => {
+            return parseInt(val, 10);
+        });
+    }
 
 }
 
-const dgc:DataGenCLI = new DataGenCLI();
+const dgc: DataGenCLI = new DataGenCLI();
 dgc.run();
