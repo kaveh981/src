@@ -43,7 +43,7 @@ Injector.put(contactManager, 'ContactManager');
 const buyerManager = new BuyerManager(databaseManager, contactManager);
 Injector.put(buyerManager, 'BuyerManager');
 
-const packageManager = new PackageManager(databaseManager);
+const packageManager = new PackageManager(databaseManager, contactManager);
 Injector.put(packageManager, 'PackageManager');
 
 const negotiationManager = new NegotiationManager(databaseManager);
