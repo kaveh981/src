@@ -1,6 +1,7 @@
 {
   "globalDependencies": {
     "bluebird": "registry:dt/bluebird#3.0.0+20160811111256",
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
     "express": "registry:dt/express#4.0.0+20160708185218",
     "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160829034835",
     "faker": "registry:dt/faker#0.0.0+20160406111603",
