@@ -4,13 +4,14 @@ import * as express from 'express';
 import * as http from 'http';
 import * as Promise from 'bluebird';
 import * as path from 'path';
+const handlers = require('shortstop-handlers');
+const shortstop = require('shortstop');
+const kraken = require('kraken-js');
 
 import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
 
 const Log: Logger = new Logger('SRVR');
-
-const kraken: Function = require('kraken-js');
 
 /**
  * A server class which spins up an express server and uses kraken configuration.
@@ -19,6 +20,9 @@ class Server {
 
     /** Internal config loader */
     private config: ConfigLoader;
+
+    /** Kraken base directory */
+    private baseDir = '../';
 
     /**
      * Constructor
@@ -33,14 +37,40 @@ class Server {
      * @returns Promise which resolves on connection, rejects on error.
      */
     public initialize(): Promise<void> {
-        return new Promise((resolve: Function, reject: Function) => {
-            let basedir: string = path.join(__dirname, '../');
+        return this.createHandlers(this.config.get('kraken'))
+            .then((krakenConfig) => {
+                return this.startServer(krakenConfig);
+            })
+            .then((port) => {
+                Log.info(`Server has started successfully, listening on port ${port}.`);
+            })
+            .catch((err: Error) => {
+                Log.error(err);
+                throw err;
+            });
+    }
+
+    /** Start the server 
+     * @param - Kraken configuration object.
+     * @returns Resolves if the server starts correctly, and returns the port number.
+     */
+    private startServer(krakenConfig: any): Promise<any> {
+        return new Promise((resolve, reject) => {
             let app: any = express();
             let port: string = this.config.getVar('SERVER_PORT');
+
             let krakenOptions: any = {
-                basedir: basedir,
+                // Kraken needs this or else it complains, but it's not necessary.
+                basedir: path.join(__dirname, this.baseDir),
+
+                // Uncaught exception handler
                 uncaughtException: (err) => {
                     Log.error(err);
+                },
+                // Kraken parses short-stop before onconfig is called... WAI?
+                onconfig: (config, callback) => {
+                    config.use(krakenConfig);
+                    callback(null, config);
                 }
             };
 
@@ -70,13 +100,27 @@ class Server {
             });
 
             server.listen(port);
-        })
-        .then((port: string) => {
-           Log.info(`Server has started successfully, listening on port ${port}.`);
-        })
-        .catch((err: Error) => {
-            Log.error(err);
-            throw err;
+        });
+    }
+
+    /** Resolve the shortstop notation for config. Currently only supports 'path:'
+     * @param config - The config object to resolve shortstop.
+     * @returns A promise for the kraken config with shortstops resolved.
+    */
+    private createHandlers(config: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let resolver = shortstop.create();
+
+            resolver.use('path', handlers.path(path.join(__dirname, this.baseDir)));
+
+            resolver.resolve(config, (err, data) => {
+                if (err) {
+                    Log.error(err);
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
         });
     }
 

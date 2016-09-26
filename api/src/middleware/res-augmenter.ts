@@ -7,7 +7,7 @@ import { Injector } from '../lib/injector';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
-const errorMessages = config.get('errors');
+const errorMessages = config.get('errors')['en-US'];
 
 interface IPagination {
     /** The limit of the data returned */
