@@ -1,6 +1,5 @@
 'use strict';
 
-
 class UserModel implements IUserModel {
     /** The user's userId */
     public userID: string;
