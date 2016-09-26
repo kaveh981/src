@@ -1,8 +1,5 @@
 'use strict';
 
-/**
- * Generic IX deal model.
- */
 class DealModel implements IDealModel {
     /** The deal's unique internal identifier */
     public dealID: number;

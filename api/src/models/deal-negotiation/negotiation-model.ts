@@ -1,8 +1,5 @@
 'use strict';
 
-/**
- * Interface of deal negotiation which is an offer made on a package
- */
 class NegotiationModel implements INegotiationModel {
     /** ID of the negotiation */
     public neogotiationID: number;

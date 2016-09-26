@@ -1,5 +1,8 @@
 /** Model interface definitions */
 
+/** 
+ * Contact Model
+ */
 interface IContactModel {
     /** UserId of the contact */
     userID: number;
@@ -13,6 +16,9 @@ interface IContactModel {
     phone: string;
 }
 
+/**
+ * IXM Buyer Model
+ */
 interface IBuyerModel {
     /** The buyer's userID */
     userID: number;
@@ -22,6 +28,9 @@ interface IBuyerModel {
     contactInfo?: IContactModel;
 }
 
+/**
+ * Generic IX user model.
+ */
 interface IUserModel {
     /** The user's userId */
     userID: string;
@@ -33,6 +42,9 @@ interface IUserModel {
     userGroup: string;
 }
 
+/**
+ * Interface for package which represents a potential deal
+ */
 interface IPackageModel {
     /** ID of the package */
     packageID?: number;
@@ -70,6 +82,9 @@ interface IPackageModel {
     sections: number[];
 }
 
+/**
+ * Interface of deal negotiation which is an offer made on a package
+ */
 interface INegotiationModel {
     /** ID of the negotiation */
     neogotiationID?: number;
@@ -99,6 +114,9 @@ interface INegotiationModel {
     modifyDate?: string;
 }
 
+/**
+ * Generic IX deal model.
+ */
 interface IDealModel {
     /** The deal's unique internal identifier */
     dealID: number;

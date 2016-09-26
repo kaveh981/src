@@ -1,6 +1,5 @@
 'use strict';
 
-/** Contact Model */
 class ContactModel implements IContactModel {
     /** User Id of the model */
     public userID: number;

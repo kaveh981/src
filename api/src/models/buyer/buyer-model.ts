@@ -1,8 +1,5 @@
 'use strict';
 
-/**
- * IXM Buyer Model
- */
 class BuyerModel implements IBuyerModel {
     /** The buyer's userID */
     public userID: number;
