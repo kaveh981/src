@@ -1,78 +1,29 @@
 'use strict';
 
-interface IDealModel {
-
-    /** The deal's unique internal identifier */
-    dealID: number;
-
-    /** The publisher offering the deal */
-    publisherID: number;
-
-    /** The DSP buying the deal */
-    dspID: number;
-
-    /** A descriptive name for the deal */
-    name: string;
-
-    /** The auction type under which the deal is operating - it's a private property so the interface has the getter's signature */
-    auctionType?: 'first' | 'second' | 'fixed';
-
-    /** The reserved rate of the deal */
-    price: number;
-
-    /** The current status of the deal */
-    status?: 'N' | 'A' | 'D' | 'P';
-
-    /** The first day when the deal will serve */
-    startDate?: string;
-
-    /** The last day when the deal will serve */
-    endDate?: string;
-
-    /** The external ID the DSP must use when they bid with the deal */
-    externalID: string;
-
-    /** The sections where the deal is eligible to serve */
-    sections: number[];
-
-}
-
 /**
  * Generic IX deal model.
  */
-
 class DealModel implements IDealModel {
-
     /** The deal's unique internal identifier */
     public dealID: number;
-
     /** The publisher offering the deal */
     public publisherID: number;
-
     /** The DSP buying the deal */
     public dspID: number;
-
     /** A descriptive name for the deal */
     public name: string;
-
     /** The reserved rate of the deal */
     public price: number;
-
     /** The external ID the DSP must use when they bid with the deal */
     public externalID: string;
-
     /** The sections where the deal is eligible to serve */
     public sections: number[];
-
     /** The auction type under which the deal is operating - private */
     public auctionType: 'first' | 'second' | 'fixed';
-
     /** The current status of the deal - private */
     public status: 'N' | 'A' | 'D' | 'P';
-
     /** The first day when the deal will serve - private */
     public startDate: string;
-
     /** The last day when the deal will serve - private */
     public endDate: string;
 
@@ -80,7 +31,7 @@ class DealModel implements IDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal model.
      */
-    public constructor(initParams?: IDealModel) {
+    constructor(initParams?: IDealModel) {
         if (initParams) {
             Object.assign(this, initParams);
         }

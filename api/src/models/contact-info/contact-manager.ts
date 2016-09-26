@@ -31,9 +31,9 @@ class ContactManager {
      */
     public fetchContactInfoById(id: number): Promise<ContactModel> {
         return this.dbm.select('firstName', 'lastName', 'emailAddress', 'phone')
-            .from('users')
-            .where('userID', id)
-            .limit(1)
+                .from('users')
+                .where('userID', id)
+                .limit(1)
             .then((rows) => {
                 let contactInfo = rows[0];
 

@@ -3,38 +3,6 @@
 /**
  * Interface of deal negotiation which is an offer made on a package
  */
-interface INegotiationModel {
-    /** ID of the negotiation */
-    neogotiationID?: number;
-    /** Parent package of the negotiation */
-    packageID: number;
-    /** ID of the publisher involved in this negotiation */
-    publisherID: number;
-    /** ID of the buyer involved in this negotiation */
-    buyerID: number;
-    /** Current negotiated price - if different from the one in package  */
-    price?: number;
-    /** Current negotiated start date - if different from the one in package */
-    startDate?: string;
-    /** Current negotiated end date - if different from the one in package */
-    endDate?: string;
-    /** Current negotiated terms - if different from the one in package */
-    terms?: string;
-    /** Party who last updated the negotiation P - Publisher, B - Buyer */
-    sender?: 'P' | 'B';
-    /** Keeps track of the publishers position */
-    pubStatus?: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
-    /** Keeps track of the buyers position */
-    buyerStatus?: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
-    /** Creation date of the negotiation */
-    createDate?: string;
-    /** Last modify date of the negotiation*/
-    modifyDate?: string;
-}
-
-/**
- * Generic deal negotiation model
- */
 class NegotiationModel implements INegotiationModel {
     /** ID of the negotiation */
     public neogotiationID: number;
