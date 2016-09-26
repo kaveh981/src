@@ -74,7 +74,7 @@ class DealManager {
                         .then((fetchedPackage) => {
                             return Object.assign(deal, {sections: fetchedPackage.sections});
                         });
-                })
+                });
             })
             .catch((err: Error) => {
                 Log.error(err);
