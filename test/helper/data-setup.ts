@@ -105,14 +105,13 @@ class DataSetup {
     public clearTable(table: string, suffix: string = '_bckp'): Promise<any> {
 
         let backup: string = table + suffix;
+
         return this.dbm.raw('SHOW TABLES LIKE ?', [backup])
             .then((res) => {
                 if (res[0].length === 0) {
-                    throw 'Backup table ' + backup + ' is not found.It is not safe to clear the table.';
+                    throw 'Backup table ' + backup + ' is not found. It is not safe to clear the table.';
                 }
-            })
-            .then(() => {
-                this.dbm.raw('SET foreign_key_checks=0');
+                return this.dbm.raw('SET foreign_key_checks=0');
             })
             .then(() => {
                 return this.dbm.raw('DELETE FROM ' + table);
