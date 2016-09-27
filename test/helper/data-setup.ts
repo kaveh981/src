@@ -29,16 +29,13 @@ class DataSetup {
             .then((res1) => {
                 if (res1[0].length === 0) {
                     throw 'Target table: ' + table + ' is not found.';
-                } else {
-                    return this.dbm.raw('SHOW TABLES LIKE ?', [newtable]);
                 }
             })
-            .then((res2) => {
-                if (res2[0].length !== 0) {
-                    throw 'Backup table: ' + newtable + ' already exists.';
-                } else {
-                    return this.dbm.raw('SET foreign_key_checks=0');
-                }
+            .then(() => {
+                return this.dbm.raw('DROP TABLE IF EXISTS ' + newtable );
+            })
+            .then(() => {
+                return this.dbm.raw('SET foreign_key_checks=0');
             })
             .then(() => {
                 return this.dbm.raw('CREATE TABLE IF NOT EXISTS ' + newtable + ' SELECT * FROM ' + table);
