@@ -4,25 +4,23 @@ import * as test from 'tape';
 import * as express from 'express';
 import * as Promise from 'bluebird';
 
-import { app } from '../../helper/bootstrap';
+import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
-import { Test } from "tape";
+import { Test     } from 'tape';
 
 import { ApiHelper } from '../../helper/api-helper';
-const apiHelper = Injector.request<ApiHelper>("ApiHelper");
+const apiHelper = Injector.request<ApiHelper>('ApiHelper');
 
 import { DataSetup } from '../../helper/data-setup';
-const dataSetup = Injector.request<DataSetup>("DataSetup");
+const dataSetup = Injector.request<DataSetup>('DataSetup');
 
 import { DatabasePopulator } from '../../helper/database-populator';
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 
-import { DatabaseManager   } from '../../lib/database-manager';
+import { DatabaseManager } from '../../lib/database-manager';
 const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
 apiHelper.setOptions({
-    hostname: 'localhost',
-    port: 8000,
     method: 'GET',
     uri: '/deals',
     headers: {
@@ -30,7 +28,7 @@ apiHelper.setOptions({
     }
 });
 
-test("When every thing supplied correctly", (t: Test) => {
+test('When every thing supplied correctly', (t: Test) => {
     const tables: string[] = ['ixmPackageSectionMappings', 'ixmPackages', 'rtbSiteSections', 'rtbSections', 'sites', 'publishers', 'users'];
     let ixmPackage: any;
     t.test('setup', (assert: test.Test) => {
@@ -52,10 +50,10 @@ test("When every thing supplied correctly", (t: Test) => {
         });
     });
 
-    t.test('esting response code', (assert: Test) => {
+    t.test('Testing response code', (assert: Test) => {
         apiHelper.sendRequest({'limit': 20})
             .then((res: any) => {
-                assert.equal(res.httpStatusCode, 200, "It should return status code 200");
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
                 assert.end();
             });
     });

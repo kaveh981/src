@@ -1,13 +1,18 @@
-
 'use strict';
 
 import * as Promise from 'bluebird';
 import * as http from 'http';
+import { ConfigLoader } from '../lib/config-loader';
 
 class ApiHelper {
 
+    private config: ConfigLoader;
     private queryString: boolean = false;
     private options: any = {};
+
+    constructor(config: ConfigLoader) {
+        this.config = config;
+    }
 
     public setOptions(opts: any): void {
         if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
@@ -20,8 +25,8 @@ class ApiHelper {
         }
 
         this.options = {
-            hostname: opts.hostname || '',
-            port: opts.port || '',
+            hostname: this.config.get('api-helper').hostName,
+            port: this.config.get('api-helper').port,
             path: opts.uri || '',
             method: opts.method || '',
             headers: opts.headers || {}
@@ -62,7 +67,7 @@ class ApiHelper {
                         'body': JSON.parse(body),
                         'trailers': res.trailers
                     };
-                            resolve(result);
+                    resolve(result);
                 });
             });
             request.end();
