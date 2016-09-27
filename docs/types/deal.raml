@@ -8,11 +8,6 @@ properties:
         required: true
         displayName: Deal ID
         description: The unique identifier for the deal
-    external_id:
-        type: string
-        required: false
-        displayName: External Deal ID
-        description: An external deal reference.
     publisher_id:
         type: integer[]
         required: true
@@ -111,7 +106,6 @@ properties:
 example: |
     {
         "id": 999,
-        "external_id": "DEAL-4-U-BB",
         "publisher_id": [123],
         "publisher_name": ["Jimdex Exchange, Inc."],
         "site_id": [111,222],
