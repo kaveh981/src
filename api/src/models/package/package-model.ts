@@ -54,17 +54,18 @@ class PackageModel implements IPackageModel {
      * @param owner - owner of the package
      * @returns a boolean indicating whether the package is available to buy or not
      */
-    public isValidAvailablePackage(owner: UserModel): boolean {
+    public isValidAvailablePackage(): boolean {
         let startDate: Date = new Date(this.startDate);
         let endDate: Date = new Date(this.endDate);
         let today: Date = new Date(Date.now());
         let zeroDate: string = '0000-00-00';
+
         // Set all date "hours" to be 0 to be able to just compare the dates alone
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
-        return owner.userStatus === 'A'
-            && (startDate <= today || this.startDate === zeroDate)
+
+        return (startDate <= today || this.startDate === zeroDate)
             && (endDate >= today || this.endDate === zeroDate)
             && this.sections.length > 0;
     }
