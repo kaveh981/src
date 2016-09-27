@@ -24,6 +24,7 @@ function ContactUser(router: express.Router): void {
             .then((contactInfo) => {
                 if (!contactInfo.emailAddress) {
                     res.sendNotFoundError();
+                    return;
                 }
 
                 res.sendPayload({
