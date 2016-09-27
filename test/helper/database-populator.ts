@@ -101,11 +101,10 @@ class DatabasePopulator {
      */
     public newBuyer(): Promise<INewBuyerData> {
         let newBuyerData = this.generateDataObject<INewBuyerData>('new-buyer-schema');
-        newBuyerData.user.createDate = this.currentMySQLDate();
 
         return this.newUser(newBuyerData.user)
             .then((newUserData: INewUserData) => {
-                newBuyerData.user.userID = newUserData.userID;
+                newBuyerData.user = newUserData;
                 return this.dbm
                     .insert({ userID: newBuyerData.user.userID, dspID: newBuyerData.dspID })
                     .into('ixmBuyers');
