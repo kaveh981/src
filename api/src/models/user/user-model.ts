@@ -1,34 +1,12 @@
 'use strict';
 
-interface IUserModel {
-
-    /** The user's userId */
-    userID: string;
-
-    /** The current status of the user */
-    userStatus: string;
-
-    /** The abbreviated name of the user type. */
-    userType: string;
-
-    /** The usergroup to which this user belongs. */
-    userGroup: string;
-}
-
-/**
- * Generic IX user model.
- */
 class UserModel implements IUserModel {
-
     /** The user's userId */
     public userID: string;
-
     /** The current status of the user */
     public userStatus: string;
-
     /** The abbreviated name of the user type. */
     public userType: string;
-
     /** The usergroup to which this user belongs. */
     public userGroup: string;
 

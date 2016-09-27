@@ -28,6 +28,9 @@ class Validator {
     /** An internal list of all parsed schemas */
     private schemas: ramlValidator.IParsedTypeCollection;
 
+    /** An internal list of JSON schemas */
+    private jsonSchemas = {};
+
     /**
      * Initialize the validator by loading and validating all schemas in the provided folder.
      * @param schemaDirectory - The directory containing all RAML schemas, relative to root directory.
@@ -59,6 +62,8 @@ class Validator {
             });
 
             let schemaList: ramlValidator.IParsedTypeCollection = ramlValidator.loadTypeCollection(typeCollection);
+
+            this.jsonSchemas = typeCollection.types;
 
             // Check that all types loaded are valid.
             typeNames.forEach((name: string) => {
@@ -129,7 +134,25 @@ class Validator {
             success: 1,
             errors: []
         };
+    }
 
+    /** 
+     * Get an object containing all defaults for the given type. Only goes one level deep.
+     * @param type - The type to get defaults from.
+     */
+    public getDefaults(type: string): any {
+        let schemaProperties = this.jsonSchemas[type]['properties'];
+        let defaultsObject = {};
+
+        for (let key in schemaProperties) {
+            let property = schemaProperties[key];
+
+            if (typeof property['default'] !== 'undefined') {
+                defaultsObject[key] = property['default'];
+            }
+        }
+
+        return defaultsObject;
     }
 
 }

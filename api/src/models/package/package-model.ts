@@ -1,48 +1,14 @@
 'use strict';
 
-/**
- * Interface for package which represents a potential deal
- */
-interface IPackageModel {
-    /** ID of the package */
-    packageID?: number;
-    /** ID of the package's owner, corresponding to users in database */
-    ownerID: number;
-    /** Name of the package, unique value */
-    name: string;
-    /** Description of the package */
-    description?: string;
-    /** Status of the packge, which could only be active, paused or deleted */
-    status?: 'active' | 'paused' | 'deleted';
-    /** Flag to define is the package viewable to public */
-    isPublic: number;
-    /** Start date of the package */
-    startDate?: string;
-    /** End date of the package */
-    endDate?: string;
-    /** Price of the package */
-    price?: number;
-    /** Projected amout of impressions for the package */
-    impressions: number;
-    /** Project amount to be spend by the buyer */
-    budget: number;
-    /** Auction type of the deal, which could only be first, second or fixed */
-    auctionType?: 'first' | 'second' | 'fixed';
-    /** Free text that both parties can edit to convene of specific deal conditions */
-    terms?: string;
-    /** Created date of the package */
-    createDate?: string;
-    /** Modified date of the package */
-    modifiyDate?: string;
-    /** Array of sectionsID associated with the package*/
-    sections: number[];
-}
+import { UserModel } from '../user/user-model';
 
 class PackageModel implements IPackageModel {
     /** ID of the package */
     public packageID: number;
     /** ID of the package's owner, corresponding to users in database */
     public ownerID: number;
+    /** Contact information for the owner */
+    public ownerContactInfo: IContactModel;
     /** Name of the package, unique value */
     public name: string;
     /** Description of the package */
@@ -80,6 +46,28 @@ class PackageModel implements IPackageModel {
         if (initParams) {
             Object.assign(this, initParams);
         }
+    }
+
+    /**
+     * Checks that a package is currently available to buy by checking its start and end dates,
+     * as well as its owner's current status
+     * @param owner - owner of the package
+     * @returns a boolean indicating whether the package is available to buy or not
+     */
+    public isValidAvailablePackage(): boolean {
+        let startDate: Date = new Date(this.startDate);
+        let endDate: Date = new Date(this.endDate);
+        let today: Date = new Date(Date.now());
+        let zeroDate: string = '0000-00-00';
+
+        // Set all date "hours" to be 0 to be able to just compare the dates alone
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        return (startDate <= today || this.startDate === zeroDate)
+            && (endDate >= today || this.endDate === zeroDate)
+            && this.sections.length > 0;
     }
 
     /**
