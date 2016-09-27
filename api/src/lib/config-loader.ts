@@ -2,6 +2,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 import * as Promise from 'bluebird';
 
 require('dotenv').config();
@@ -45,7 +46,7 @@ class ConfigLoader {
      */
     public get(config: string): any {
         if (!this.configMap[config]) {
-            this.loadConfig(config + '.json');
+            this.loadConfig(config + '.yaml');
         }
 
         return this.configMap[config];
@@ -56,11 +57,11 @@ class ConfigLoader {
      * @param filename - The name of the file to load from the file system.
      */
     private loadConfig(filename: string): void {
-        let filepath: string = path.join(this.configFolder, filename);
-        let fileContent: string = fs.readFileSync(filepath).toString();
-        let configContent: any = JSON.parse(fileContent);
+        let filepath = path.join(this.configFolder, filename);
+        let fileContent = fs.readFileSync(filepath).toString();
+        let configContent = yaml.safeLoad(fileContent);
 
-        this.configMap[filename.split('.json')[0]] = configContent;
+        this.configMap[filename.split('.yaml')[0]] = configContent;
     }
 
 }
