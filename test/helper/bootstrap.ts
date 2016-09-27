@@ -18,7 +18,7 @@ import { DataSetup         } from "./data-setup";
 
 /** Dependency Resolution */
 
-const apiHelper = new ApiHelper();
+const apiHelper = new ApiHelper(config);
 Injector.put(apiHelper, 'ApiHelper');
 
 const databaseManager = new DatabaseManager(config);

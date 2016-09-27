@@ -1,34 +1,47 @@
 'use strict';
 
+import { app } from '../../../helper/bootstrap';
+
 import * as test from 'tape';
 
 import { Test } from 'tape';
+import { Injector } from '../../../lib/injector';
 import { ApiHelper } from '../../../helper/api-helper';
 
-let api: ApiHelper = new ApiHelper();
+const before = test;
+const after = test;
 
-api.setOptions({
-    method: 'GET',
-    uri: 'https://localhost:4430/deals/active',
-    headers: {
-        'content-type': 'application/json'
-    }
-});
+let api: ApiHelper;
 
-api.setAgentOptions({
-    host: 'localhost',
-    port: '4430',
-    path: '/',
-    rejectUnauthorized: false
+before('App boot', (t: Test) => {
+    app.boot()
+        .then(() => {
+            api = Injector.request<ApiHelper>('ApiHelper');
+            return t.end();
+        });
 });
 
 test('Test index route', (t: Test) => {
-    t.plan(2);
+    api.setOptions({
+        method: 'GET',
+        uri: 'https://localhost:4430/deals/active',
+        headers: {
+            'content-type': 'application/json'
+        }
+    });
+
+    api.setBuyerUserID(100000);
+
     api.sendRequest(undefined)
         .then((res: any) => {
             t.equal(res.httpStatusCode, 401, 'It should return status code 401 (no buyer being provided yet)');
-            //t.equal(res.httpStatusCode, 200, 'It should return status code 200');
             t.equal(res.body, '{"status":401,"message":"Unauthorized.","data":{}}', 'Body content shows unauthorized (for the time being)');
-            //t.equal(res.body, '{"status":200,"message":"No deals are currently available. Come check again soon!","data":{}}', 'Body content shows no deals available');
-        });
+            return app.shutdown();
+        })
+        .then(t.end);
+});
+
+after('App shutdown', (t: Test) => {
+    app.shutdown();
+    t.end();
 });
