@@ -22,7 +22,7 @@ interface INewUserData {
     phone?: string;
     fax?: string;
     version?: number;
-    createDate?: string;
+    createDate?: string | Date;
     modifyDate?: string;
     lastLogin?: string;
 }
@@ -35,6 +35,7 @@ interface INewBuyerData {
 interface INewPubData {
     user: INewUserData;
     publisher: {
+        userID?: number;
         payeeName: string;
         minimumPayment: number;
         creditTerms: number;
@@ -45,6 +46,13 @@ interface INewPubData {
         language: string;
         paymentGroupID: number;
         monthlyAdvRevenue: string;
+        networks: string;
+        approvalDate: Date;
+        rtbNetwork: string;
+        reportingEmail: string;
+        isSFRP: number;
+        notificationEnabled: number;
+        autoInvoice: number;
     };
 }
 
@@ -55,12 +63,15 @@ interface INewSiteData {
     name: string;
     mainDomain: string;
     description: string;
-    createDate?: string;
-    modifyDate?: string;
+    createDate?: Date;
+    modifyDate?: Date;
+    autoApprove?: number;
+    prmPause?: number;
+    siteAliasCheck?: number;
+    semiTransparentURL?: string;
 }
 
-interface INewSectionData {
-    siteIDs?: number[];
+interface ISection {
     sectionID?: number;
     userID?: number;
     status: string;
@@ -69,21 +80,30 @@ interface INewSectionData {
     entireSite: number;
 }
 
-interface INewPackageData {
+interface INewSectionData {
+    siteIDs: number[];
+    section: ISection;
+}
+
+interface IPackage {
     packageID?: number;
     ownerID: number;
-    sectionIDs?: number[];
     name: string;
     description: string;
     status: string;
     public: number;
-    startDate: string;
-    endDate: string;
+    startDate: Date;
+    endDate: Date;
     price: number;
     impressions: number;
     budget: number;
     auctionType: string;
     terms: string;
-    createDate: string;
-    modifyDate?: string;
+    createDate: Date;
+    modifyDate?: Date;
+}
+
+interface INewPackageData {
+    sectionIDs: number[];
+    package: IPackage;
 }
