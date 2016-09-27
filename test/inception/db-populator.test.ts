@@ -1,6 +1,7 @@
 /**
  * DatabasePopulator module test spec
  */
+'use strict';
 import * as Promise from 'bluebird';
 import * as test from 'tape';
 
