@@ -2,85 +2,59 @@
     "type": "object",
     "properties": {
         "user": {
-            "type": "object",
+            "__ref__": "new-user-schema",
             "properties": {
                 "userType": 18,
                 "emailAddress": {
                     "chance": {
                         "email": {
-                            "domain": "atw-test-pub.com"
+                            "domain": "atw-test-publisher.com"
                         }
                     }
                 },
-                "status": "A",
-                "password": "ratpoint.jpeg",
-                "firstName": {
-                    "faker": "name.lastName"
-                },
-                "lastName": {
-                    "faker": "name.firstName"
-                },
-                "companyName": "uBuyiSell",
-                "address1": {
-                    "faker": "address.streetAddress"
-                },
-                "city": {
-                    "faker": "address.city"
-                },
-                "state": {
-                    "faker": "address.state"
-                },
-                "zipCode": {
-                    "faker": "address.zipCode"
-                },
-                "country": {
-                    "faker": "address.countryCode"
-                },
-                "phone": {
-                    "faker": "phone.phoneNumber"
-                }
-            },
-            "required": [
-                "emailAddress",
-                "password",
-                "firstName",
-                "lastName",
-                "companyName",
-                "address1",
-                "city",
-                "state",
-                "zipCode",
-                "country",
-                "phone",
-                "userType",
-                "status",
-                "userType"
-            ]
+                "companyName": "iSellAdSpace"
+            }
         },
         "publisher": {
             "properties": {
                 "payeeName": "Atwater Test",
                 "minimumPayment": 25,
-                "creditTerms": 0,
-                "payPalAccount": "",
-                "allowInvoiceType": 0,
+                "creditTerms": "0",
+                "payPalAccount": "-",
+                "allowInvoiceTax": "0",
                 "payout": 70,
                 "ip": "1.0.0.127",
                 "language": "English-GB,English-US,English",
                 "paymentGroupID": 1,
-                "monthlyAdvRevenue": "10k-50k"
+                "monthlyAdvRevenue": "10k-50k",
+                "networks": "-",
+                "approvalDate": "0000-00-00",
+                "rtbNetwork": "-",
+                "reportingEmail": {
+                    "faker": "internet.email"
+                },
+                "isSFRP": "0",
+                "notificationEnabled": "0",
+                "autoInvoice": "0"
             },
             "required": [
                 "payeeName",
                 "minimumPayment",
                 "creditTerms",
                 "payPalAccount",
-                "allowInvoiceType",
+                "allowInvoiceTax",
                 "payout",
                 "ip",
                 "language",
                 "paymentGroupID",
-                "monthlyAdvRevenue"
+                "monthlyAdvRevenue",
+                "networks",
+                "approvalDate",
+                "rtbNetwork",
+                "reportingEmail",
+                "isSFRP",
+                "notificationEnabled",
+                "autoInvoice"
             ]
         }
     },

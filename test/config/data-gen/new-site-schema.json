@@ -8,9 +8,16 @@
         },
         "description": {
             "faker": "company.catchPhrase"
-        }
+        },
+        "monthlyUniques": 70,
+        "autoApprove": 1,
+        "createDate": "0000-00-00",
+        "prmPause": "0",
+        "siteAliasCheck": "0",
+        "semiTransparentURL": "null"
     },
     "required": [
-        "status", "name", "mainDomain", "description"
+        "status", "name", "mainDomain", "description", "monthlyUniques", "autoApprove", "createDate", "prmPause",
+        "siteAliasCheck", "semiTransparentURL"
     ]
 }

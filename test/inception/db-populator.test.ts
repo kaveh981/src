@@ -118,7 +118,7 @@ test('ATW_TF_DBPOP_2', (t: test.Test) => {
             let res = yield dbManager.from('users').count() as any;
             let previousCount: number = res[0]['count(*)'];
             
-            res = yield dbManager.from('users').count() as any;
+            res = yield dbManager.from('ixmBuyers').count() as any;
             let buyerCount: number = res[0]['count(*)'];
             
             t.equal(buyerCount, 0, 'ixmBuyers count is 0');
@@ -182,6 +182,49 @@ test('ATW_TF_DBPOP_3', (t: test.Test) => {
             });
     });
 
+    t.test('Call newPub()', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let res = yield dbManager.from('users').count() as any;
+            let previousCount: number = res[0]['count(*)'];
+
+            res = yield dbManager.from('publishers').count() as any;
+            let publisherCount: number = res[0]['count(*)'];
+
+            t.equal(publisherCount, 0, '`publishers` count is 0');
+
+            let newPublisher = yield dbPopulator.newPub();
+
+            res = yield dbManager.from('users').count() as any;
+            let newCount: number = res[0]['count(*)'];
+
+            t.equal(newCount, previousCount + 1, '`users` count increased by 1');
+
+            res = yield dbManager.from('publishers').count() as any;
+            publisherCount = res[0]['count(*)'];
+
+            t.equal(publisherCount, 1, '`publishers` count is 1');
+
+            let newUserSelect = yield dbManager.select().from('users').orderBy('modifyDate', 'desc');
+            let actualUser = newUserSelect[0];
+
+            let newPublisherSelect = yield dbManager.select().from('publishers');
+            let actualPublisher = newPublisherSelect[0];
+
+            let newPublisherActual = {
+                user: actualUser,
+                publisher: actualPublisher
+            };
+
+            t.equal(newPublisher.user.userID, actualPublisher.userID, 'Mapped correct userID');
+            t.deepEqual(newPublisherActual, newPublisher, 'Returned NewPubData is equal to inserted data');
+            t.end();
+        })()
+            .catch((e) => {
+                t.end();
+                throw e;
+            });
+    });
+
     after('Restore `users`, `publishers`', (a: test.Test) => {
         restoreTables(tables)
             .then(() => { a.end() })
@@ -193,7 +236,7 @@ test('ATW_TF_DBPOP_3', (t: test.Test) => {
     t.end();
 });
 
-/*test('ATW_TF_DBPOP_4', (t: test.Test) => {
+test('ATW_TF_DBPOP_4', (t: test.Test) => {
     const before = t.test;
     const after = t.test;
     const tables = ['users', 'publishers', 'sites'];
@@ -205,6 +248,34 @@ test('ATW_TF_DBPOP_3', (t: test.Test) => {
             .catch((e) => {
                 Log.error(e);
                 b.end();
+            });
+    });
+    
+    t.test('Call newSite(someValidPublisherUserID))', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let newPublisher = yield dbPopulator.newPub();
+
+            let res = yield dbManager.from('sites').count() as any;
+            let count: number = res[0]['count(*)'];
+
+            t.equal(count, 0, '`sites` count is 0');
+
+            let newSite = yield dbPopulator.newSite(newPublisher.user.userID);
+
+            res = yield dbManager.from('sites').count() as any;
+            count = res[0]['count(*)'];
+
+            t.equal(count, 1, '`sites` count is 1');
+
+            let newSiteSelect = yield dbManager.select().from('sites').orderBy('modifyDate', 'desc');
+            let actualSite = newSiteSelect[0];
+
+            t.deepEqual(actualSite, newSite, 'Returned NewPubData is equal to inserted data');
+            t.end();
+        })()
+            .catch((e) => {
+                t.end();
+                throw e;
             });
     });
 
@@ -219,7 +290,7 @@ test('ATW_TF_DBPOP_3', (t: test.Test) => {
     t.end();
 });
 
-test('ATW_TF_DBPOP_5', (t: test.Test) => {
+/*test('ATW_TF_DBPOP_5', (t: test.Test) => {
     const before = t.test;
     const after = t.test;
     const tables = ['users', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections'];

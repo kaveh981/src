@@ -35,6 +35,7 @@ interface INewBuyerData {
 interface INewPubData {
     user: INewUserData;
     publisher: {
+        userID?: number;
         payeeName: string;
         minimumPayment: number;
         creditTerms: number;
@@ -45,6 +46,13 @@ interface INewPubData {
         language: string;
         paymentGroupID: number;
         monthlyAdvRevenue: string;
+        networks: string;
+        approvalDate: Date;
+        rtbNetwork: string;
+        reportingEmail: string;
+        isSFRP: number;
+        notificationEnabled: number;
+        autoInvoice: number;
     };
 }
 
@@ -55,8 +63,12 @@ interface INewSiteData {
     name: string;
     mainDomain: string;
     description: string;
-    createDate?: string;
-    modifyDate?: string;
+    createDate?: Date;
+    modifyDate?: Date;
+    autoApprove?: number;
+    prmPause?: number;
+    siteAliasCheck?: number;
+    semiTransparentURL?: string;
 }
 
 interface INewSectionData {

@@ -124,13 +124,13 @@ class DatabasePopulator {
      */
     public newPub(): Promise<INewPubData> {
         let newPubData = this.generateDataObject<INewPubData>('new-pub-schema');
-        newPubData.user.createDate = this.currentMySQLDate();
+        newPubData.publisher.approvalDate = this.currentMidnightDate();
 
         return this.newUser(newPubData.user)
             .then((newUserData: INewUserData) => {
                 let publisherData = <any>newPubData.publisher;
                 publisherData.userID = newUserData.userID;
-                newPubData.user.userID = newUserData.userID;
+                newPubData.user = newUserData;
 
                 return this.dbm
                     .insert(publisherData)
@@ -152,16 +152,23 @@ class DatabasePopulator {
     public newSite(ownerID: number): Promise<INewSiteData> {
         let newSiteData = this.generateDataObject<INewSiteData>('new-site-schema');
         newSiteData.userID = ownerID;
-        newSiteData.createDate = this.currentMySQLDate();
+        newSiteData.createDate = this.currentMidnightDate();
 
         return this.dbm
-            .insert(newSiteData, 'siteID')
+            .insert(newSiteData, ['siteID'])
             .into('sites')
             .then((siteID: number[]) => {
                 newSiteData.siteID = siteID[0];
                 Log.debug(`Created site ownerID: ${newSiteData.userID}, siteID: ${siteID[0]}`);
 
-                return newSiteData;
+                return this.dbm
+                    .select('modifyDate')
+                    .from('sites')
+                    .where('siteID', newSiteData.siteID);
+            })
+            .then((modifyDate: INewSiteData[]) => {
+                newSiteData.modifyDate = modifyDate[0].modifyDate;
+                return newSiteData 
             })
             .catch((e) => {
                 Log.error(e);
@@ -251,7 +258,34 @@ class DatabasePopulator {
         let schema: IJsfSchema = this.config.get(`data-gen/${schemaName}`);
         schema = this.extendSchemaObject(schema);
 
-        return <T>jsf(schema);
+        let data = <T>jsf(schema);
+        data = this.extendDataObject(data);
+ 
+        return data;
+    }
+
+    /**
+     * Changes '0' to 0; string to number. This is a problem with jsf because it doesn't generate properties with value
+     * 0. Instead, use '0' (string) in the schema file and call this method to change all '0' to 0.
+     * @param data {any} - Generated data from jsf
+     */
+    private extendDataObject(data: any): any {
+        for (let key in data) {
+
+            if (data.hasOwnProperty(key)) {
+                let value = data[key];
+
+                if (typeof value === 'object') { 
+                    data[key] = this.extendDataObject(value) 
+                }
+
+                if (value === '0') { 
+                    data[key] = 0 
+                }
+            }
+            
+        }
+        return data;
     }
 
     /**
