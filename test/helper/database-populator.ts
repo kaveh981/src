@@ -191,17 +191,17 @@ class DatabasePopulator {
         }
 
         let newSectionData = this.generateDataObject<INewSectionData>('new-section-schema');
-        newSectionData.userID = ownerID;
+        newSectionData.section.userID = ownerID;
 
         return this.dbm
-            .insert(newSectionData, 'sectionID')
+            .insert(newSectionData.section, 'sectionID')
             .into('rtbSections')
             .then((sectionID: number[]) => {
-                newSectionData.sectionID = sectionID[0];
-                Log.debug(`Created section ID: ${newSectionData.sectionID}, ownerID: ${newSectionData.userID}`);
+                newSectionData.section.sectionID = sectionID[0];
+                Log.debug(`Created section ID: ${sectionID[0]}, ownerID: ${ownerID}`);
                 newSectionData.siteIDs = siteIDs;
 
-                return this.mapSection2Sites(newSectionData.sectionID, siteIDs);
+                return this.mapSection2Sites(newSectionData.section.sectionID, siteIDs);
             })
             .then(() => {
                 return newSectionData;
@@ -220,24 +220,30 @@ class DatabasePopulator {
      * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
      */
     public newPackage(ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
-        let newPackage = this.generateDataObject<INewPackageData>('new-package-schema');
+        let newPackageObj = this.generateDataObject<IPackage>('new-package-schema');
+        let newPackage: INewPackageData = { package: newPackageObj, sectionIDs: sectionIDs };
 
         if (packageFields) {
             Object.assign(newPackage, packageFields);
         }
 
-        newPackage.ownerID = ownerID;
-        newPackage.createDate = this.currentMySQLDate();
+        newPackage.package.ownerID = ownerID;
+        newPackage.package.createDate = this.currentMidnightDate();
+        newPackage.package.startDate.setHours(0, 0, 0, 0);
+        newPackage.package.endDate.setHours(0, 0, 0, 0);
 
         return this.dbm
-            .insert(newPackage, 'packageID')
+            .insert(newPackage.package, 'packageID')
             .into('ixmPackages')
             .then((packageID: number[]) => {
                 Log.debug(`Created package ID: ${packageID[0]}`);
-                newPackage.sectionIDs = sectionIDs;
-                newPackage.packageID = packageID[0];
+                newPackage.package.packageID = packageID[0];
 
-                return this.mapPackage2Sections(newPackage.packageID, newPackage.sectionIDs);
+                return this.dbm.select('modifyDate').from('ixmPackages').where('packageID', packageID[0]);
+            })
+            .then((res: any[]) => {
+                newPackage.package.modifyDate = res[0].modifyDate;
+                return this.mapPackage2Sections(newPackage.package.packageID, newPackage.sectionIDs);
             })
             .then(() => {
                 return newPackage;

@@ -15,6 +15,8 @@ const Log         = new Logger('TEST');
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const dbManager   = Injector.request<DatabaseManager>('DatabaseManager');
 const dbSetup     = Injector.request<DataSetup>('DataSetup');
+const tables      = ['users', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections', 'ixmPackages',
+    'ixmPackageSectionMappings'];
 const before      = test;
 const after       = test;
 
@@ -40,7 +42,9 @@ const restoreTables = Promise.coroutine(function* (tables: string[], t: test.Tes
 
 before('Preparing for db-populator tests..', (b: test.Test) => {
     app.boot()
+        .then(() => { backupTables(tables) })
         .then(() => {
+            Log.info(`Backed up tables: ${tables}`);
             b.end();
         })
         .catch((e) => {
@@ -51,12 +55,10 @@ before('Preparing for db-populator tests..', (b: test.Test) => {
 
 test('ATW_TF_DBPOP_1', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables: string[] = ['users'];
 
     before('Backing up `users`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -86,26 +88,16 @@ test('ATW_TF_DBPOP_1', (t: test.Test) => {
                 throw e;
             });
     });
-
-    after('Restore `users` table', (a: test.Test) => {
-        restoreTables(['users'])
-            .then(() => { a.end() })
-            .catch((e) => {
-                Log.error(e);
-                a.end();
-            });
-    });
+    
     t.end();
 });
 
 test('ATW_TF_DBPOP_2', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables: string[] = ['users', 'ixmBuyers'];
 
     before('Backup and clean `users`, `ixmBuyers`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -155,26 +147,16 @@ test('ATW_TF_DBPOP_2', (t: test.Test) => {
                 throw e;
             });
     });
-
-    after('Restore `users`, `ixmBuyers`', (a: test.Test) => {
-        restoreTables(['users', 'ixmBuyers'])
-            .then(() => { a.end() })
-            .catch((e) => {
-                Log.error(e);
-                a.end();
-            });
-    });
+    
     t.end();
 });
 
 test('ATW_TF_DBPOP_3', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables: string[] = ['users', 'publishers'];
 
     before('Backup and clean `users`, `publishers`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -224,26 +206,16 @@ test('ATW_TF_DBPOP_3', (t: test.Test) => {
                 throw e;
             });
     });
-
-    after('Restore `users`, `publishers`', (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
-            .catch((e) => {
-                Log.error(e);
-                a.end();
-            });
-    });
+    
     t.end();
 });
 
 test('ATW_TF_DBPOP_4', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables = ['users', 'publishers', 'sites'];
 
     before('Backup and clean `users`, `publishers`, `sites`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -270,7 +242,7 @@ test('ATW_TF_DBPOP_4', (t: test.Test) => {
             let newSiteSelect = yield dbManager.select().from('sites').orderBy('modifyDate', 'desc');
             let actualSite = newSiteSelect[0];
 
-            t.deepEqual(actualSite, newSite, 'Returned NewPubData is equal to inserted data');
+            t.deepEqual(actualSite, newSite, 'Returned NewSiteData is equal to inserted data');
             t.end();
         })()
             .catch((e) => {
@@ -278,26 +250,16 @@ test('ATW_TF_DBPOP_4', (t: test.Test) => {
                 throw e;
             });
     });
-
-    after('Restore `users`, `publishers`, `sites`', (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
-            .catch((e) => {
-                Log.error(e);
-                a.end();
-            });
-    });
+    
     t.end();
 });
 
-/*test('ATW_TF_DBPOP_5', (t: test.Test) => {
+test('ATW_TF_DBPOP_5', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables = ['users', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections'];
 
     before('Backup and clean `users`, `publishers`, `sites`, `rtbSections, `rtbSiteSections`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -305,14 +267,46 @@ test('ATW_TF_DBPOP_4', (t: test.Test) => {
             });
     });
 
-    after('Restore `users`, `publishers`, `sites`, `rtbSections`, `rtbSiteSections`', (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
+    t.test('Call newSection(someValidPublisherUserID, someSiteIDOwnedBySaidPublisher))', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let newPublisher = yield dbPopulator.newPub();
+            let newSite = yield dbPopulator.newSite(newPublisher.user.userID);
+
+            let res = yield dbManager.from('rtbSections').count() as any;
+            let count: number = res[0]['count(*)'];
+
+            t.equal(count, 0, '`rtbSections` count is 0');
+
+            let newSection = yield dbPopulator.newSection(newPublisher.user.userID, [newSite.siteID]);
+
+            res = yield dbManager.from('rtbSections').count() as any;
+            count = res[0]['count(*)'];
+
+            t.equal(count, 1, '`rtbSections` count is 1');
+
+            res = yield dbManager.from('rtbSiteSections').count() as any;
+            count = res[0]['count(*)'];
+
+            t.equal(count, 1, '`rtbSiteSections` count is 1');
+
+            let actualMapping: any[] = yield dbManager.select().from('rtbSiteSections');
+            let newMapping = [{ sectionID: newSection.section.sectionID, siteID: newSection.siteIDs[0] }];
+
+            t.deepEqual(actualMapping, newMapping, 'Mapped correct siteID to new section in `rtbSiteSections`');
+            
+            let newSectionSelect: INewSectionData = yield dbManager.select().from('rtbSections');
+            let actualSection = newSectionSelect[0];
+            
+            t.deepEqual(actualSection, newSection.section, 'Returned NewSectionData is equal to inserted data');
+
+            t.end();
+        })()
             .catch((e) => {
-                Log.error(e);
-                a.end();
+                t.end();
+                throw e;
             });
     });
+    
     t.end();
 });
 
@@ -322,8 +316,7 @@ test('ATW_TF_DBPOP_6', (t: test.Test) => {
     const tables = ['users', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections'];
 
     before('Backup and clean `users`, `publishers`, `sites`, `rtbSections`, `rtbSiteSections`', (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -331,14 +324,40 @@ test('ATW_TF_DBPOP_6', (t: test.Test) => {
             });
     });
 
-    after('Restore `users`, `publishers`, `sites`, `rtbSections`, `rtbSiteSections`', (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
+    t.test('Call mapSection2Sites(someValidPublisherUserID, someSiteIDOwnedBySaidPublisher))', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let newPublisher = yield dbPopulator.newPub() as any;
+            let newSite = yield dbPopulator.newSite(newPublisher.user.userID);
+            let newSection = yield dbPopulator.newSection(newPublisher.user.userID, [newSite.siteID]);
+            let newSite2 = yield dbPopulator.newSite(newPublisher.user.userID);
+            let res = yield dbManager.from('rtbSiteSections').count() as any;
+            let count = res[0]['count(*)'];
+
+            t.equal(count, 1, '`rtbSiteSections` count is 1');
+
+            yield dbPopulator.mapSection2Sites(newSection.section.sectionID, [newSite2.siteID]);
+
+            res = yield dbManager.from('rtbSiteSections').count() as any;
+            count = res[0]['count(*)'];
+
+            t.equal(count, 2, '`rtbSiteSections` count is 2');
+
+            let actualMapping = yield dbManager.select().from('rtbSiteSections');
+            let newMapping = [
+                { sectionID: newSection.section.sectionID, siteID: newSection.siteIDs[0] },
+                { sectionID: newSection.section.sectionID, siteID: newSite2.siteID }
+            ];
+
+            t.deepEqual(actualMapping, newMapping, 'Mapped an extra siteID to new section in `rtbSiteSections`');
+
+            t.end();
+        })()
             .catch((e) => {
-                Log.error(e);
-                a.end();
+                t.end();
+                throw e;
             });
     });
+    
     t.end();
 });
 
@@ -349,8 +368,7 @@ test('ATW_TF_DBPOP_7', (t: test.Test) => {
     'ixmPackages', 'ixmPackageSectionMappings'];
 
     before('Backup and clean' + tables.toString(), (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -358,26 +376,51 @@ test('ATW_TF_DBPOP_7', (t: test.Test) => {
             });
     });
 
-    after('Restore ' + tables.toString(), (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
+    t.test('Call newPackage(someValidPublisherUserID, someSectionIDOwnedBySaidPublisher))', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let newPublisher = yield dbPopulator.newPub() as any;
+            let newSite      = yield dbPopulator.newSite(newPublisher.user.userID);
+            let newSection   = yield dbPopulator.newSection(newPublisher.user.userID, [newSite.siteID]);
+            let res          = yield dbManager.from('ixmPackages').count();
+            let count        = res[0]['count(*)'];
+
+            t.equal(count, 0, '`ixmPackages` count is 0');
+
+            let newPackage = yield dbPopulator.newPackage(newPublisher.user.userID, [newSection.section.sectionID]);
+
+            res = yield dbManager.from('ixmPackages').count();
+            count = res[0]['count(*)'];
+
+            t.equal(count, 1, 'ixmPackages` count is 1');
+
+            let actualMapping: any[] = yield dbManager.select().from('ixmPackageSectionMappings');
+            let newMapping = [{ sectionID: newPackage.sectionIDs[0], packageID: newPackage.package.packageID }];
+
+            t.deepEqual(actualMapping, newMapping, 'Correct sectionID to new package in `ixmPackageSectionMappings`');
+
+            let newSelectPackage = yield dbManager.select().from('ixmPackages').orderBy('modifyDate', 'desc');
+            let newPackageActual = newSelectPackage[0];
+
+            t.deepEqual(newPackageActual, newPackage.package, 'Returned NewSectionData is equal to inserted data');
+
+            t.end();
+        })()
             .catch((e) => {
-                Log.error(e);
-                a.end();
+                t.end();
+                throw e;
             });
     });
+    
     t.end();
 });
 
 test('ATW_TF_DBPOP_8', (t: test.Test) => {
     const before = t.test;
-    const after = t.test;
     const tables = ['users', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections',
         'ixmPackages', 'ixmPackageSectionMappings'];
 
     before('Backup and clean' + tables.toString(), (b: test.Test) => {
-        backupTables(tables)
-            .then(() => { return clearTables(tables) })
+        clearTables(tables)
             .then(() => { b.end() })
             .catch((e) => {
                 Log.error(e);
@@ -385,18 +428,50 @@ test('ATW_TF_DBPOP_8', (t: test.Test) => {
             });
     });
 
-    after('Restore ' + tables.toString(), (a: test.Test) => {
-        restoreTables(tables)
-            .then(() => { a.end() })
+    t.test('Call mapPackage2Section(publisherUserID, sectionID))', (t: test.Test) => {
+        Promise.coroutine(function* () {
+            let newPublisher = yield dbPopulator.newPub() as any;
+            let newSite      = yield dbPopulator.newSite(newPublisher.user.userID);
+            let newSection   = yield dbPopulator.newSection(newPublisher.user.userID, [newSite.siteID]);
+            let newSite2     = yield dbPopulator.newSite(newPublisher.user.userID);
+            let newSection2  = yield dbPopulator.newSection(newPublisher.user.userID, [newSite2.siteID]);
+            let newPackage   = yield dbPopulator.newPackage(newPublisher.user.userID, [newSection.section.sectionID]);
+            let res          = yield dbManager.from('ixmPackageSectionMappings').count() as any;
+            let count        = res[0]['count(*)'];
+
+            t.equal(count, 1, '`ixmPackageSectionMappings` count is 1');
+            
+            yield dbPopulator.mapPackage2Sections(newPackage.package.packageID, [newSection2.section.sectionID]);
+
+            res = yield dbManager.from('ixmPackageSectionMappings').count() as any;
+            count = res[0]['count(*)'];
+
+            t.equal(count, 2, '`ixmPackageSectionMappings` count is 2');
+
+            let actualMapping = yield dbManager.select().from('ixmPackageSectionMappings');
+            let newMapping = [
+                { packageID: newPackage.package.packageID, sectionID: newSection.section.sectionID },
+                { packageID: newPackage.package.packageID, sectionID: newSection2.section.sectionID }
+            ];
+
+            t.deepEqual(actualMapping, newMapping, 'Mapped sectionID to new package in `rtbPackageSectionMappings`');
+
+            t.end();
+        })()
             .catch((e) => {
-                Log.error(e);
-                a.end();
+                t.end();
+                throw e;
             });
     });
+    
     t.end();
-});*/
+});
 
 after('Cleaning up after db-populator test..', (t: test.Test) => {
-    app.shutdown();
-    t.end();
+    restoreTables(tables)
+        .then(() => {
+            Log.info(`Restored tables: ${tables}`);
+            app.shutdown();
+            t.end();
+        });
 });

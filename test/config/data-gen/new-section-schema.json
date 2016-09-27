@@ -1,12 +1,19 @@
 {
     "type": "object",
     "properties": {
-        "name": "Atwater Test Section",
-        "status": "A",
-        "percent": 100,
-        "entireSite": 1
+        "section": {
+            "properties": {
+                "name": "Atwater Test Section",
+                "status": "A",
+                "percent": 100,
+                "entireSite": 1
+            },
+            "required": [
+                "name", "status", "percent", "entireSite"
+            ]
+        }
     },
     "required": [
-        "name", "status", "percent", "entireSite"
+        "section"
     ]
 }

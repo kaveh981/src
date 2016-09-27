@@ -71,8 +71,7 @@ interface INewSiteData {
     semiTransparentURL?: string;
 }
 
-interface INewSectionData {
-    siteIDs?: number[];
+interface ISection {
     sectionID?: number;
     userID?: number;
     status: string;
@@ -81,21 +80,30 @@ interface INewSectionData {
     entireSite: number;
 }
 
-interface INewPackageData {
+interface INewSectionData {
+    siteIDs: number[];
+    section: ISection;
+}
+
+interface IPackage {
     packageID?: number;
     ownerID: number;
-    sectionIDs?: number[];
     name: string;
     description: string;
     status: string;
     public: number;
-    startDate: string;
-    endDate: string;
+    startDate: Date;
+    endDate: Date;
     price: number;
     impressions: number;
     budget: number;
     auctionType: string;
     terms: string;
-    createDate: string;
-    modifyDate?: string;
+    createDate: Date;
+    modifyDate?: Date;
+}
+
+interface INewPackageData {
+    sectionIDs: number[];
+    package: IPackage;
 }
