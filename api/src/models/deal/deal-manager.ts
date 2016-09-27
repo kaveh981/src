@@ -59,15 +59,15 @@ class DealManager {
             to get that info (i.e. get the info from the row that indicates a pubStatus=accepted and buyerStatus=accepted and 
             which has the latest modified date).*/
         return this.dbm.select('rtbDeals.dealID', 'ixmPackages.packageID', 'ixmPackages.ownerID', 'rtbDeals.externalDealID',
-            'rtbDeals.name', 'ixmPackages.description', 'rtbDeals.startDate', 'rtbDeals.endDate', 'ixmPackages.price',
-            'ixmPackages.impressions', 'ixmPackages.budget', 'rtbDeals.auctionType', 'ixmPackages.terms', 'rtbDeals.modifiedDate')
-            .from('rtbDeals')
-            .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
-            .join('ixmPackages', 'ixmPackageDealMappings.packageID', 'ixmPackages.packageID')
-            .where('rtbDeals.status', 'A')
-            .andWhere('dspID', buyerId)
-            .limit(pagination.limit)
-            .offset(pagination.offset)
+                    'rtbDeals.name', 'ixmPackages.description', 'rtbDeals.startDate', 'rtbDeals.endDate', 'ixmPackages.price',
+                    'ixmPackages.impressions', 'ixmPackages.budget', 'rtbDeals.auctionType', 'ixmPackages.terms', 'rtbDeals.modifiedDate')
+                .from('rtbDeals')
+                .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
+                .join('ixmPackages', 'ixmPackageDealMappings.packageID', 'ixmPackages.packageID')
+                .where('rtbDeals.status', 'A')
+                .andWhere('dspID', buyerId)
+                .limit(pagination.limit)
+                .offset(pagination.offset)
             .then((deals: any) => {
                 return Promise.map(deals, (deal: any) => {
                     return this.packageManager.fetchPackageFromId(deal.packageID)
