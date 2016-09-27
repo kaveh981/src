@@ -168,7 +168,7 @@ class DatabasePopulator {
             })
             .then((modifyDate: INewSiteData[]) => {
                 newSiteData.modifyDate = modifyDate[0].modifyDate;
-                return newSiteData 
+                return newSiteData;
             })
             .catch((e) => {
                 Log.error(e);
@@ -266,7 +266,7 @@ class DatabasePopulator {
 
         let data = <T>jsf(schema);
         data = this.extendDataObject(data);
- 
+
         return data;
     }
 
@@ -281,15 +281,15 @@ class DatabasePopulator {
             if (data.hasOwnProperty(key)) {
                 let value = data[key];
 
-                if (typeof value === 'object') { 
-                    data[key] = this.extendDataObject(value) 
+                if (typeof value === 'object') {
+                    data[key] = this.extendDataObject(value);
                 }
 
-                if (value === '0') { 
-                    data[key] = 0 
+                if (value === '0') {
+                    data[key] = 0;
                 }
             }
-            
+
         }
         return data;
     }
@@ -347,11 +347,11 @@ class DatabasePopulator {
             ('00' + date.getMinutes()).slice(-2) + ':' +
             ('00' + date.getSeconds()).slice(-2);
     }
-    
+
     private currentMidnightDate(): Date {
         let date = new Date();
-        date.setHours(0,0,0,0);
-        
+        date.setHours(0, 0, 0, 0);
+
         return date;
     }
 
