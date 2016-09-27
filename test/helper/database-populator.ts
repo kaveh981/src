@@ -71,16 +71,22 @@ class DatabasePopulator {
      */
     public newUser(userFields?: INewUserData): Promise<INewUserData> {
         let newUserData: INewUserData = this.generateDataObject<INewUserData>('new-user-schema');
-        newUserData.createDate = this.currentMySQLDate();
+        newUserData.createDate = this.currentMidnightDate();
 
         if (userFields) {
             Object.assign(newUserData, userFields);
         }
 
-        return this.dbm.insert(newUserData, 'userID')
+        return this.dbm.insert(newUserData, ['userID', 'modifyDate'])
             .into('users')
-            .then((newUserID: number[]) => {
-                newUserData.userID = newUserID[0];
+            .then((newUser: any[]) => {
+                newUserData.userID = newUser[0];
+                return this.dbm.select('modifyDate')
+                    .from('users')
+                    .where('userID', newUserData.userID);
+            })
+            .then((modifyDate: any[]) => {
+                newUserData.modifyDate = modifyDate[0].modifyDate;
                 Log.debug(`Created new user ID: ${newUserData.userID} , userType: ${newUserData.userType}`);
                 return newUserData;
             })
@@ -95,11 +101,10 @@ class DatabasePopulator {
      */
     public newBuyer(): Promise<INewBuyerData> {
         let newBuyerData = this.generateDataObject<INewBuyerData>('new-buyer-schema');
-        newBuyerData.user.createDate = this.currentMySQLDate();
 
         return this.newUser(newBuyerData.user)
             .then((newUserData: INewUserData) => {
-                newBuyerData.user.userID = newUserData.userID;
+                newBuyerData.user = newUserData;
                 return this.dbm
                     .insert({ userID: newBuyerData.user.userID, dspID: newBuyerData.dspID })
                     .into('ixmBuyers');
@@ -119,13 +124,13 @@ class DatabasePopulator {
      */
     public newPub(): Promise<INewPubData> {
         let newPubData = this.generateDataObject<INewPubData>('new-pub-schema');
-        newPubData.user.createDate = this.currentMySQLDate();
+        newPubData.publisher.approvalDate = this.currentMidnightDate();
 
         return this.newUser(newPubData.user)
             .then((newUserData: INewUserData) => {
                 let publisherData = <any>newPubData.publisher;
                 publisherData.userID = newUserData.userID;
-                newPubData.user.userID = newUserData.userID;
+                newPubData.user = newUserData;
 
                 return this.dbm
                     .insert(publisherData)
@@ -147,15 +152,22 @@ class DatabasePopulator {
     public newSite(ownerID: number): Promise<INewSiteData> {
         let newSiteData = this.generateDataObject<INewSiteData>('new-site-schema');
         newSiteData.userID = ownerID;
-        newSiteData.createDate = this.currentMySQLDate();
+        newSiteData.createDate = this.currentMidnightDate();
 
         return this.dbm
-            .insert(newSiteData, 'siteID')
+            .insert(newSiteData, ['siteID'])
             .into('sites')
             .then((siteID: number[]) => {
                 newSiteData.siteID = siteID[0];
                 Log.debug(`Created site ownerID: ${newSiteData.userID}, siteID: ${siteID[0]}`);
 
+                return this.dbm
+                    .select('modifyDate')
+                    .from('sites')
+                    .where('siteID', newSiteData.siteID);
+            })
+            .then((modifyDate: INewSiteData[]) => {
+                newSiteData.modifyDate = modifyDate[0].modifyDate;
                 return newSiteData;
             })
             .catch((e) => {
@@ -179,17 +191,17 @@ class DatabasePopulator {
         }
 
         let newSectionData = this.generateDataObject<INewSectionData>('new-section-schema');
-        newSectionData.userID = ownerID;
+        newSectionData.section.userID = ownerID;
 
         return this.dbm
-            .insert(newSectionData, 'sectionID')
+            .insert(newSectionData.section, 'sectionID')
             .into('rtbSections')
             .then((sectionID: number[]) => {
-                newSectionData.sectionID = sectionID[0];
-                Log.debug(`Created section ID: ${newSectionData.sectionID}, ownerID: ${newSectionData.userID}`);
+                newSectionData.section.sectionID = sectionID[0];
+                Log.debug(`Created section ID: ${sectionID[0]}, ownerID: ${ownerID}`);
                 newSectionData.siteIDs = siteIDs;
 
-                return this.mapSection2Sites(newSectionData.sectionID, siteIDs);
+                return this.mapSection2Sites(newSectionData.section.sectionID, siteIDs);
             })
             .then(() => {
                 return newSectionData;
@@ -208,24 +220,30 @@ class DatabasePopulator {
      * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
      */
     public newPackage(ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
-        let newPackage = this.generateDataObject<INewPackageData>('new-package-schema');
+        let newPackageObj = this.generateDataObject<IPackage>('new-package-schema');
+        let newPackage: INewPackageData = { package: newPackageObj, sectionIDs: sectionIDs };
 
         if (packageFields) {
             Object.assign(newPackage, packageFields);
         }
 
-        newPackage.ownerID = ownerID;
-        newPackage.createDate = this.currentMySQLDate();
+        newPackage.package.ownerID = ownerID;
+        newPackage.package.createDate = this.currentMidnightDate();
+        newPackage.package.startDate.setHours(0, 0, 0, 0);
+        newPackage.package.endDate.setHours(0, 0, 0, 0);
 
         return this.dbm
-            .insert(newPackage, 'packageID')
+            .insert(newPackage.package, 'packageID')
             .into('ixmPackages')
             .then((packageID: number[]) => {
                 Log.debug(`Created package ID: ${packageID[0]}`);
-                newPackage.sectionIDs = sectionIDs;
-                newPackage.packageID = packageID[0];
+                newPackage.package.packageID = packageID[0];
 
-                return this.mapPackage2Sections(newPackage.packageID, newPackage.sectionIDs);
+                return this.dbm.select('modifyDate').from('ixmPackages').where('packageID', packageID[0]);
+            })
+            .then((res: any[]) => {
+                newPackage.package.modifyDate = res[0].modifyDate;
+                return this.mapPackage2Sections(newPackage.package.packageID, newPackage.sectionIDs);
             })
             .then(() => {
                 return newPackage;
@@ -246,7 +264,34 @@ class DatabasePopulator {
         let schema: IJsfSchema = this.config.get(`data-gen/${schemaName}`);
         schema = this.extendSchemaObject(schema);
 
-        return <T>jsf(schema);
+        let data = <T>jsf(schema);
+        data = this.extendDataObject(data);
+
+        return data;
+    }
+
+    /**
+     * Changes '0' to 0; string to number. This is a problem with jsf because it doesn't generate properties with value
+     * 0. Instead, use '0' (string) in the schema file and call this method to change all '0' to 0.
+     * @param data {any} - Generated data from jsf
+     */
+    private extendDataObject(data: any): any {
+        for (let key in data) {
+
+            if (data.hasOwnProperty(key)) {
+                let value = data[key];
+
+                if (typeof value === 'object') {
+                    data[key] = this.extendDataObject(value);
+                }
+
+                if (value === '0') {
+                    data[key] = 0;
+                }
+            }
+
+        }
+        return data;
     }
 
     /**
@@ -301,6 +346,13 @@ class DatabasePopulator {
             ('00' + date.getHours()).slice(-2) + ':' +
             ('00' + date.getMinutes()).slice(-2) + ':' +
             ('00' + date.getSeconds()).slice(-2);
+    }
+
+    private currentMidnightDate(): Date {
+        let date = new Date();
+        date.setHours(0, 0, 0, 0);
+
+        return date;
     }
 
 }

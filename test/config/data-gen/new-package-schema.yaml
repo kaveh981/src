@@ -20,8 +20,12 @@
             }
         },
         "public": 1,
-        "startDate": "2016-09-09",
-        "endDate": "2016-10-10",
+        "startDate": {
+            "faker": "date.recent"
+        },
+        "endDate": {
+            "faker": "date.future"
+        },
         "price": 6.66,
         "impressions": 4,
         "budget": 9999999,

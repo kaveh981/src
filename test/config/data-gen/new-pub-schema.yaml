@@ -1,0 +1,65 @@
+{
+    "type": "object",
+    "properties": {
+        "user": {
+            "__ref__": "new-user-schema",
+            "properties": {
+                "userType": 18,
+                "emailAddress": {
+                    "chance": {
+                        "email": {
+                            "domain": "atw-test-publisher.com"
+                        }
+                    }
+                },
+                "companyName": "iSellAdSpace"
+            }
+        },
+        "publisher": {
+            "properties": {
+                "payeeName": "Atwater Test",
+                "minimumPayment": 25,
+                "creditTerms": "0",
+                "payPalAccount": "-",
+                "allowInvoiceTax": "0",
+                "payout": 70,
+                "ip": "1.0.0.127",
+                "language": "English-GB,English-US,English",
+                "paymentGroupID": 1,
+                "monthlyAdvRevenue": "10k-50k",
+                "networks": "-",
+                "approvalDate": "0000-00-00",
+                "rtbNetwork": "-",
+                "reportingEmail": {
+                    "faker": "internet.email"
+                },
+                "isSFRP": "0",
+                "notificationEnabled": "0",
+                "autoInvoice": "0"
+            },
+            "required": [
+                "payeeName",
+                "minimumPayment",
+                "creditTerms",
+                "payPalAccount",
+                "allowInvoiceTax",
+                "payout",
+                "ip",
+                "language",
+                "paymentGroupID",
+                "monthlyAdvRevenue",
+                "networks",
+                "approvalDate",
+                "rtbNetwork",
+                "reportingEmail",
+                "isSFRP",
+                "notificationEnabled",
+                "autoInvoice"
+            ]
+        }
+    },
+    "required": [
+        "user",
+        "publisher"
+    ]
+}

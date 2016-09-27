@@ -42,7 +42,7 @@
     "phone": {
       "faker": "phone.phoneNumber"
     },
-    "fax": "",
+    "fax": "-",
     "version": 1,
     "lastLogin": "0000-00-00"
   },
