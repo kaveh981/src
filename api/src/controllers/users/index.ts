@@ -4,7 +4,6 @@ import * as express from 'express';
 import * as Promise from 'bluebird';
 
 import { Injector } from '../../lib/injector';
-
 import { ContactManager } from '../../models/contact-info/contact-manager';
 
 const contactManager = Injector.request<ContactManager>('ContactManager');
@@ -12,30 +11,25 @@ const contactManager = Injector.request<ContactManager>('ContactManager');
 /**
  * Function that takes care of user information
  */
-function ContactUser(router: express.Router): void {
+function Users(router: express.Router): void {
 
     /**
      * GET request to get contact info for a user
      */
     router.get('/:id', (req: express.Request, res: express.Response) => {
-        let userId = req.params['id'];
+        let userID = req.params['id'];
 
-        contactManager.fetchContactInfoById(userId)
+        contactManager.fetchContactInfoFromId(userID)
             .then((contactInfo) => {
                 if (!contactInfo.emailAddress) {
                     res.sendNotFoundError();
                     return;
                 }
 
-                res.sendPayload({
-                    title: contactInfo.title,
-                    name: contactInfo.name,
-                    email: contactInfo.emailAddress,
-                    phone: contactInfo.phone
-                });
+                res.sendPayload({ contact: contactInfo.toPayload() });
             });
     });
 
 };
 
-module.exports = ContactUser;
+module.exports = Users;

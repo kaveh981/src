@@ -1,14 +1,15 @@
 'use strict';
 
-import { UserModel } from '../user/user-model';
+import { ContactModel } from '../contact-info/contact-model';
 
-class PackageModel implements IPackageModel {
+class PackageModel {
+
     /** ID of the package */
     public packageID: number;
     /** ID of the package's owner, corresponding to users in database */
     public ownerID: number;
     /** Contact information for the owner */
-    public ownerContactInfo: IContactModel;
+    public ownerContactInfo: ContactModel;
     /** Name of the package, unique value */
     public name: string;
     /** Description of the package */
@@ -34,7 +35,7 @@ class PackageModel implements IPackageModel {
     /** Created date of the package */
     public createDate: string;
     /** Modified date of the package */
-    public modifiyDate: string;
+    public modifyDate: string;
     /** Array of sectionsID associated with the package*/
     public sections: number[];
 
@@ -42,7 +43,7 @@ class PackageModel implements IPackageModel {
      * Constructor
      * @param initParams - Initial parameters to populate the package model.
      */
-    constructor(initParams?: IPackageModel) {
+    constructor(initParams?: any) {
         if (initParams) {
             Object.assign(this, initParams);
         }
@@ -55,10 +56,10 @@ class PackageModel implements IPackageModel {
      * @returns a boolean indicating whether the package is available to buy or not
      */
     public isValidAvailablePackage(): boolean {
-        let startDate: Date = new Date(this.startDate);
-        let endDate: Date = new Date(this.endDate);
-        let today: Date = new Date(Date.now());
-        let zeroDate: string = '0000-00-00';
+        let startDate = new Date(this.startDate);
+        let endDate = new Date(this.endDate);
+        let today = new Date(Date.now());
+        let zeroDate = '0000-00-00';
 
         // Set all date "hours" to be 0 to be able to just compare the dates alone
         startDate.setHours(0, 0, 0, 0);
@@ -71,13 +72,34 @@ class PackageModel implements IPackageModel {
     }
 
     /**
-     * TODO: empty function, need to validate date and enum?
-     * validate the package model object, see if all attributes are valid
-     * @returns Returns a string indicate which attributes are incorrect
+     * Return the model as a ready-to-send JSON object.
+     * @returns - The model as specified in the API.
      */
-    public validate(): string {
-        return;
+    public toPayload(): any {
+        return {
+            id: this.packageID,
+            publisher_id: this.ownerID,
+            contact: {
+                title: this.ownerContactInfo.title,
+                name: this.ownerContactInfo.name,
+                email: this.ownerContactInfo.emailAddress,
+                phone: this.ownerContactInfo.phone
+            },
+            name: this.name,
+            description: this.description,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            price: this.price,
+            impressions: this.impressions,
+            budget: this.budget,
+            auction_type: this.auctionType,
+            terms: this.terms,
+            created_at: this.createDate,
+            modified_at: this.modifyDate,
+            deal_section_id: this.sections
+        };
     }
+
 }
 
 export { PackageModel }
