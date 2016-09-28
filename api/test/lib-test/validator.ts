@@ -13,10 +13,13 @@ import { Validator } from '../../src/lib/validator';
 
 const validator = new Validator();
 
+/**
+ * Unit test of validator Initialization
+ */
 test('Validator Test', (assert: test.Test) => {
     assert.plan(2);
 
-    validator.initialize()
+    validator.initialize('../../test/schemas')
             .then(() => {
                 let goodRat: any = {
                     name: 'Meow',
