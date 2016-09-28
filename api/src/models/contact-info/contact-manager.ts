@@ -13,15 +13,15 @@ const Log = new Logger('mCON');
  */
 class ContactManager {
 
-    /** Internal dbm  */
-    private dbm: DatabaseManager;
+    /** Internal databaseManager  */
+    private databaseManager: DatabaseManager;
 
     /**
      * Constructor
      * @param database - An instance of the database manager.
      */
-    constructor(database: DatabaseManager) {
-        this.dbm = database;
+    constructor(databaseManager: DatabaseManager) {
+        this.databaseManager = databaseManager;
     }
 
     /**
@@ -29,8 +29,8 @@ class ContactManager {
      * @params id - The user id of the user to get contact information from.
      * @returns A contact model with relevant fields populated.
      */
-    public fetchContactInfoById(id: number): Promise<ContactModel> {
-        return this.dbm.select('firstName', 'lastName', 'emailAddress', 'phone')
+    public fetchContactInfoFromId(id: number): Promise<ContactModel> {
+        return this.databaseManager.select('firstName', 'lastName', 'emailAddress', 'phone')
                 .from('users')
                 .where('userID', id)
                 .limit(1)

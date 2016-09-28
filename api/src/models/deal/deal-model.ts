@@ -1,6 +1,7 @@
 'use strict';
 
-class DealModel implements IDealModel {
+class DealModel {
+
     /** The deal's unique internal identifier */
     public dealID: number;
     /** The publisher offering the deal */
@@ -28,19 +29,30 @@ class DealModel implements IDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal model.
      */
-    constructor(initParams?: IDealModel) {
+    constructor(initParams?: any) {
         if (initParams) {
             Object.assign(this, initParams);
         }
     }
 
     /**
-     * TODO: empty function, need to validate date and enum?
-     * validate the deal model object, see if all attributes are valid
-     * @returns Returns a string indicate which attributes are incorrect
+     * Return the model as a ready-to-send JSON object.
+     * @returns - The model as specified in the API.
      */
-    public validate(): string {
-        return;
+    public toPayload(): any {
+        return {
+            id: this.dealID,
+            publisher_id: this.publisherID,
+            dsp_id: this.dspID,
+            name: this.name,
+            deal_section_id: this.sections,
+            status: this.status,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            auction_type: this.auctionType,
+            external_deal_id: this.externalID,
+            price: this.price
+        };
     }
 
     /**
