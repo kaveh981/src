@@ -15,19 +15,19 @@ const server = Injector.request<Server>('Server');
 
 /** Initialize the libraries. */
 Promise.resolve()
-        .then(() => {
-            return validator.initialize();
-        })
-        .then(() => {
-            return databaseManager.initialize();
-        })
-        .then(() => {
-            return server.initialize();
-        })
-        .catch((err: Error) => {
-            // Clean up.
-            databaseManager.shutdown();
-        });
+    .then(() => {
+        return validator.initialize();
+    })
+    .then(() => {
+        return databaseManager.initialize();
+    })
+    .then(() => {
+        return server.initialize();
+    })
+    .catch((err: Error) => {
+        // Clean up.
+        databaseManager.shutdown();
+    });
 
 process.on('SIGTERM', () => {
     console.log('Shutting down gracefully...');

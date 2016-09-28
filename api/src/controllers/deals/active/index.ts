@@ -8,11 +8,9 @@ import { Injector } from '../../../lib/injector';
 import { ConfigLoader } from '../../../lib/config-loader';
 import { Validator } from '../../../lib/validator';
 import { ProtectedRoute } from '../../../middleware/protected-route';
-
 import { DealManager } from '../../../models/deal/deal-manager';
 
 const dealManager = Injector.request<DealManager>('DealManager');
-const config = Injector.request<ConfigLoader>('ConfigLoader');
 const validator = Injector.request<Validator>('Validator');
 
 const Log: Logger = new Logger('ACTD');
@@ -51,13 +49,13 @@ function ActiveDeals(router: express.Router): void {
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmBuyerInfo.userID);
 
-        return dealManager.fetchActiveDealsForBuyer(buyerId, pagination)
+        return dealManager.fetchActiveDealsFromBuyerId(buyerId, pagination)
             .then((activeDeals) => {
                 if (activeDeals.length === 0) {
                     res.sendError(200, '200_NO_DEALS');
                     return;
                 }
-                res.sendPayload(activeDeals, pagination);
+                res.sendPayload({ deals: activeDeals }, pagination);
             })
             .catch((err: Error) => {
                 Log.error(err);

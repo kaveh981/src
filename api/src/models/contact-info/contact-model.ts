@@ -1,6 +1,7 @@
 'use strict';
 
-class ContactModel implements IContactModel {
+class ContactModel {
+
     /** User Id of the model */
     public userID: number;
     /** The contact person's title */
@@ -12,11 +13,15 @@ class ContactModel implements IContactModel {
     /** The contact person's phone number */
     public phone: string;
 
-    constructor(initParams?: IContactModel) {
+    /**
+     * Constructor
+     * @param initParams - Initial parameters to populate the contact model.
+     */
+    constructor(initParams?: any) {
         if (initParams) {
             Object.assign(this, initParams);
         }
     }
 }
 
-export { ContactModel };
+export { ContactModel }

@@ -1,8 +1,9 @@
 'use strict';
 
-class NegotiationModel implements INegotiationModel {
+class NegotiationModel {
+
     /** ID of the negotiation */
-    public neogotiationID: number;
+    public negotiationID: number;
     /** Parent package of the negotiation */
     public packageID: number;
     /** ID of the publisher involved in this negotiation */
@@ -32,20 +33,18 @@ class NegotiationModel implements INegotiationModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal negotiation model.
      */
-    constructor(initParams?: INegotiationModel) {
-        if (initParams) {
-            Object.assign(this, initParams);
+    constructor(initParams?: any) {
+        if (typeof initParams === 'object') {
+            for (let key in initParams) {
+                if (this.hasOwnProperty(key)) {
+                    this[key] = initParams[key];
+                } else {
+                    throw new Error(`Unknown initial parameter ${key}`);
+                }
+            }
         }
     }
 
-    /**
-     * TODO: empty function, need to validate date and enum?
-     * validate the negotiation model object, see if all attributes are valid
-     * @returns Returns a string indicate which attributes are incorrect
-     */
-    public validate(): string {
-        return;
-    }
 }
 
 export { NegotiationModel }
