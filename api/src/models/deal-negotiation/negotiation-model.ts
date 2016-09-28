@@ -34,14 +34,8 @@ class NegotiationModel {
      * @param initParams - Initial parameters to populate the deal negotiation model.
      */
     constructor(initParams?: any) {
-        if (typeof initParams === 'object') {
-            for (let key in initParams) {
-                if (this.hasOwnProperty(key)) {
-                    this[key] = initParams[key];
-                } else {
-                    throw new Error(`Unknown initial parameter ${key}`);
-                }
-            }
+        if (initParams) {
+            Object.assign(this, initParams);
         }
     }
 
