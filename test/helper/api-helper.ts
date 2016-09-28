@@ -2,18 +2,17 @@
 
 import * as Promise from 'bluebird';
 import * as http from 'http';
+import * as https from 'https';
 import { ConfigLoader } from '../lib/config-loader';
-
-/**
- * In the auth config, we expect a header name defined
- */
-interface IAuthConfig {
-    header: string;
-}
 
 class ApiHelper {
 
     private config: ConfigLoader;
+    private protocol: string;
+    private hostname: string;
+    private port: string;
+    private headerName: string;
+    private userID: number;
     private queryString: boolean = false;
     private options: any = {};
 
@@ -23,6 +22,10 @@ class ApiHelper {
      */
     constructor(config: ConfigLoader) {
         this.config = config;
+        this.protocol = this.config.get('api-helper').protocol;
+        this.hostname = this.config.get('api-helper').hostname;
+        this.port = this.config.get('api-helper').port;
+        this.headerName = this.config.get('auth').header;
     }
 
     public setOptions(opts: any): void {
@@ -36,8 +39,8 @@ class ApiHelper {
         }
 
         this.options = {
-            hostname: this.config.get('api-helper').hostName,
-            port: this.config.get('api-helper').port,
+            hostname: this.hostname,
+            port: this.port,
             path: opts.uri || '',
             method: opts.method || '',
             headers: opts.headers || {}
@@ -45,26 +48,26 @@ class ApiHelper {
     }
 
     /**
-     * Configure the request header with the buyer's userID
+     * Add the buyer's userID to the request
      * @param userID {number} - userID of the target buyer
      * @returns Nothing
      */
     public setBuyerUserID(userID: number): void {
-        let authConfig: IAuthConfig = this.config.get('auth');
-
-        if (!authConfig.hasOwnProperty('header') || typeof authConfig['header'] !== 'string') {
-            throw 'Unable to find header name in auth config';
-        }
-
-        if (typeof this.options.headers === 'undefined') {
-            this.options.headers = {};
-        }
-        this.options.headers[authConfig['header']] = userID;
+        this.userID = userID;
     }
 
     public sendRequest(requestBody?: any): Promise<any> {
+        // Combine buyer's userID with options (if userID present)
+        if (typeof this.userID !== 'undefined') {
+            if (typeof this.options.headers === 'undefined') {
+                this.options.headers = {};
+            }
+            this.options.headers[this.headerName] = this.userID;
+        }
+
+        // Process query string or attach request body
         let reqOpts: any = this.options;
-        if (this.queryString) {
+        if (this.queryString === true) {
             reqOpts.path  += '?';
             for (let param in requestBody) {
                 if (requestBody.hasOwnProperty(param)) {
@@ -78,8 +81,14 @@ class ApiHelper {
             reqOpts.json = requestBody;
         }
 
+        /**
+         * With a given protocol, must explicitly choose between http and https implementation.
+         * http://stackoverflow.com/questions/34147372/node-js-error-protocol-https-not-supported-expected-http
+         */
+        let requestCall = (this.protocol === 'https') ? https.request : http.request;
+
         return new Promise((resolve: Function, reject: Function) => {
-            let request: any = http.request(reqOpts, (res: any) => {
+            let request: any = requestCall(reqOpts, (res: any) => {
                 if (res.statusCode !== 200) {
                     reject();
                 }
