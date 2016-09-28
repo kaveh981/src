@@ -36,6 +36,26 @@ class DealModel {
     }
 
     /**
+     * Return the model as a ready-to-send JSON object.
+     * @returns - The model as specified in the API.
+     */
+    public toPayload(): any {
+        return {
+            id: this.dealID,
+            publisher_id: this.publisherID,
+            dsp_id: this.dspID,
+            name: this.name,
+            deal_section_id: this.sections,
+            status: this.status,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            auction_type: this.auctionType,
+            external_deal_id: this.externalID,
+            price: this.price
+        };
+    }
+
+    /**
      * Helper function that makes sure that a stringhas the format 'YYYY-MM-DD'
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set

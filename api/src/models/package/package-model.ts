@@ -35,7 +35,7 @@ class PackageModel {
     /** Created date of the package */
     public createDate: string;
     /** Modified date of the package */
-    public modifiyDate: string;
+    public modifyDate: string;
     /** Array of sectionsID associated with the package*/
     public sections: number[];
 
@@ -69,6 +69,35 @@ class PackageModel {
         return (startDate <= today || this.startDate === zeroDate)
             && (endDate >= today || this.endDate === zeroDate)
             && this.sections.length > 0;
+    }
+
+    /**
+     * Return the model as a ready-to-send JSON object.
+     * @returns - The model as specified in the API.
+     */
+    public toPayload(): any {
+        return {
+            id: this.packageID,
+            publisher_id: this.ownerID,
+            contact: {
+                title: this.ownerContactInfo.title,
+                name: this.ownerContactInfo.name,
+                email: this.ownerContactInfo.emailAddress,
+                phone: this.ownerContactInfo.phone
+            },
+            name: this.name,
+            description: this.description,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            price: this.price,
+            impressions: this.impressions,
+            budget: this.budget,
+            auction_type: this.auctionType,
+            terms: this.terms,
+            created_at: this.createDate,
+            modified_at: this.modifyDate,
+            deal_section_id: this.sections
+        }
     }
 
 }

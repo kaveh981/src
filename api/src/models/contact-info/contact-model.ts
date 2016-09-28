@@ -22,6 +22,19 @@ class ContactModel {
             Object.assign(this, initParams);
         }
     }
+
+    /**
+     * Return the model as a ready-to-send JSON object.
+     * @returns - The model as specified in the API.
+     */
+    public toPayload(): any {
+        return {
+            title: this.title,
+            name: this.name,
+            email: this.emailAddress,
+            phone: this.phone
+        }
+    }
 }
 
 export { ContactModel }
