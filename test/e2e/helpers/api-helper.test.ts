@@ -51,7 +51,11 @@ test('No userID in the request, accessing public route', (t: Test) => {
     apiHelper.sendRequest()
         .then((res: any) => {
             t.equal(res.httpStatusCode, 200, 'It should return status code 200 (no buyer being provided yet)');
-            t.equal(res.body, { data: {}, message: 'No deals are currently available. Come check again soon!', status: 200 }, 'Body content shows unauthorized (for the time being)');
+            t.equal(
+                res.body,
+                { data: {}, message: 'No deals are currently available. Come check again soon!', status: 200 },
+                'Body content shows unauthorized (for the time being)'
+            );
             return app.shutdown();
         })
         .then(t.end);
@@ -92,7 +96,11 @@ test('userID in the request, accessing public route', (t: Test) => {
     apiHelper.sendRequest()
         .then((res: any) => {
             t.equal(res.httpStatusCode, 200, 'It should return status code 200 (no buyer being provided yet)');
-            t.equal(res.body, { data: {}, message: 'No deals are currently available. Come check again soon!', status: 200 }, 'Body content shows unauthorized (for the time being)');
+            t.equal(
+                res.body,
+                { data: {}, message: 'No deals are currently available. Come check again soon!', status: 200 },
+                'Body content shows unauthorized (for the time being)'
+            );
             return app.shutdown();
         })
         .then(t.end);
