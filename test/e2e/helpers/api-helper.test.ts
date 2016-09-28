@@ -80,7 +80,11 @@ test.skip('No userID in the request, accessing protected route', (t: Test) => {
     apiHelper.sendRequest({limit: 10})
         .then((res: any) => {
             t.equal(res.httpStatusCode, 401, 'It should return status code 401 (no buyer being provided yet)');
-            t.deepEqual(res.body, { status: 401, message: "Unauthorized.", data: {} }, 'Body content shows unauthorized (for the time being)');
+            t.deepEqual(
+                res.body,
+                { status: 401, message: "Unauthorized.", data: {} },
+                'Body content shows unauthorized (for the time being)'
+            );
             return app.shutdown();
         })
         .then(t.end);
