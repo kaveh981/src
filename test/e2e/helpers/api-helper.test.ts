@@ -3,10 +3,10 @@
 import * as test from 'tape';
 
 import { Test } from 'tape';
-import { app } from '../../../helper/bootstrap';
-import { Injector } from '../../../lib/injector';
+import { app } from '../../helper/bootstrap';
+import { Injector } from '../../lib/injector';
 
-import { ApiHelper } from '../../../helper/api-helper';
+import { ApiHelper } from '../../helper/api-helper';
 const apiHelper = Injector.request<ApiHelper>('ApiHelper');
 
 const before = test;
@@ -57,6 +57,7 @@ test('No userID in the request, accessing public route', (t: Test) => {
         .then(t.end);
 });
 
+// Failure disrupts test suite
 test.skip('No userID in the request, accessing protected route', (t: Test) => {
     apiHelper.setOptions({
         method: 'GET',
