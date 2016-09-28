@@ -60,10 +60,9 @@ class ApiHelper {
             this.options.headers = {};
         }
         this.options.headers[authConfig['header']] = userID;
-        console.log(JSON.stringify(this.options));
     }
 
-    public sendRequest(requestBody: any): Promise<any> {
+    public sendRequest(requestBody?: any): Promise<any> {
         let reqOpts: any = this.options;
         if (this.queryString) {
             reqOpts.path  += '?';
