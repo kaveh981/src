@@ -1,7 +1,7 @@
 'use strict';
 
 import * as Promise from 'bluebird';
-import * as faker   from 'faker';
+import * as faker   from 'faker/locale/es_MX';
 const jsf = require('json-schema-faker');
 
 import { DatabaseManager } from '../lib/database-manager';
@@ -54,14 +54,13 @@ class DatabasePopulator {
     private config: ConfigLoader;
 
     /**
-     * Constructs a database populator. Sets the region of faker to Mexico.
+     * Constructs a database populator.
      * @param databaseManager - The DB manager used to communicate with the db(s)
      * @param configLoader - The config loader to use. Should point to test config folder
      */
     constructor(databaseManager: DatabaseManager, configLoader: ConfigLoader) {
         this.config = configLoader;
         this.dbm = databaseManager;
-        faker.locale = 'es_MX';
     }
 
     /**
