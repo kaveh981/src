@@ -97,7 +97,7 @@ class PackageModel {
             created_at: this.createDate,
             modified_at: this.modifyDate,
             deal_section_id: this.sections
-        }
+        };
     }
 
 }

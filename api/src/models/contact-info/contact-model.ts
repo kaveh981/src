@@ -33,7 +33,7 @@ class ContactModel {
             name: this.name,
             email: this.emailAddress,
             phone: this.phone
-        }
+        };
     }
 }
 
