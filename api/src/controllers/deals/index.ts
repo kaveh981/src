@@ -47,6 +47,10 @@ function Deals(router: express.Router): void {
         // Set defaults
         let defaultPagination = validator.getDefaults('Pagination');
 
+        if (pagination.limit > defaultPagination.limit) {
+            pagination.limit = defaultPagination.limit;
+        }
+
         pagination = {
             limit: pagination.limit || defaultPagination.limit,
             offset: pagination.offset || defaultPagination.offset
