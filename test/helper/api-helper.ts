@@ -8,7 +8,7 @@ import { ConfigLoader } from '../lib/config-loader';
  * In the auth config, we expect a header name defined
  */
 interface IAuthConfig {
-    header: string
+    header: string;
 }
 
 class ApiHelper {
@@ -52,11 +52,11 @@ class ApiHelper {
     public setBuyerUserID(userID: number): void {
         let authConfig: IAuthConfig = this.config.get('auth');
 
-        if (!authConfig.hasOwnProperty('header') || typeof authConfig['header'] != 'string') {
+        if (!authConfig.hasOwnProperty('header') || typeof authConfig['header'] !== 'string') {
             throw 'Unable to find header name in auth config';
         }
 
-        if (typeof this.options.headers == 'undefined') {
+        if (typeof this.options.headers === 'undefined') {
             this.options.headers = {};
         }
         this.options.headers[authConfig['header']] = userID;
