@@ -56,6 +56,9 @@ class ApiHelper {
         this.userID = _userID;
     }
 
+    /**
+     * Clear buyer userID from the request header
+     */
     public clearBuyerUserID() {
         this.userID = undefined;
     }
