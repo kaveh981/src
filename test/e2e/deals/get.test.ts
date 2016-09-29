@@ -22,15 +22,21 @@ const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
 apiHelper.setOptions({
     method: 'GET',
-    uri: '/deals',
-    headers: {
-        'content-type': 'application/json'
-    }
+    path: '/deals'
 });
 
-test('When every thing supplied correctly', (t: Test) => {
-    const tables: string[] = ['ixmPackageSectionMappings', 'ixmPackages', 'rtbSiteSections', 'rtbSections', 'sites', 'publishers', 'users'];
-    let ixmPackage: any;
+test('/deals GET', (t: Test) => {
+    const tables: string[] = ['ixmPackageSectionMappings',
+        'ixmPackages',
+        'rtbSiteSections',
+        'rtbSections',
+        'sites',
+        'publishers',
+        'users',
+        'ixmBuyers'];
+    let ixmPackage: INewPackageData;
+    let newBuyer: INewBuyerData;
+    let newPub: INewPubData;
     t.test('setup', (assert: test.Test) => {
         Promise.coroutine(function* (): any {
             yield app.boot();
@@ -39,23 +45,112 @@ test('When every thing supplied correctly', (t: Test) => {
                 yield dataSetup.backupTable(table);
                 yield dataSetup.clearTable(table);
             }
-            let newPub = yield databasePopulator.newPub();
-            let newSite = yield databasePopulator.newSite(newPub.user.userID);
-            let newSection = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
-            ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.sectionID]);
-            assert.end();
-        })().catch((e) => {
-            assert.end();
-            throw e;
-        });
-    });
-
-    t.test('Testing response code', (assert: Test) => {
-        apiHelper.sendRequest({'limit': 20})
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
+            newBuyer = yield databasePopulator.newBuyer();
+            newPub = yield databasePopulator.newPub();
+            let newSite: INewSiteData = yield databasePopulator.newSite(newPub.user.userID);
+            let newSection: INewSectionData = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
+            ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID]);
+        })()
+            .finally(() => {
                 assert.end();
             });
+    });
+
+    t.test('ATW_D_GET_V1 when limit is a non int', (assert: Test) => {
+        apiHelper.sendRequest({'limit': `'10'`})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+
+    t.test('ATW_D_GET_V2 when limit is int but less than 1', (assert: Test) => {
+        apiHelper.sendRequest({'limit': -5})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+    t.test('ATW_D_GET_V3 when limit is greater than 250 it has to be auto adjusted to 250', (assert: Test) => {
+        apiHelper.sendRequest({'limit': 500})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
+                assert.equal(res.body.pagination.limit, 250, 'Limit should be equal to 250');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+    t.test('ATW_D_GET_V4 when offset is a non int', (assert: Test) => {
+        apiHelper.sendRequest({'offset': `'0'`})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+
+    t.test('ATW_D_GET_V5 when offset is less than 0', (assert: Test) => {
+        apiHelper.sendRequest({'offset': -1})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+
+    t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
+        apiHelper.setBuyerUserID( newBuyer.user.userID.toString());
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+            })
+            .finally(() => {
+                assert.end();
+            });
+        apiHelper.clearBuyerUserID();
+    });
+
+    t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
+             //   assert.equal(res.body.data.packages[0], ixmPackage.package, 'It should return status code 200');
+            })
+            .finally(() => {
+                assert.end();
+            });
+    });
+
+    t.test('ATW_D_GET_V7 when buyerID is not a know IXM-buyer', (assert: Test) => {
+        apiHelper.setBuyerUserID(newPub.user.userID + 5);
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+            })
+            .finally(() => {
+                    assert.end();
+            });
+        apiHelper.clearBuyerUserID();
+    });
+
+    t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
+        (assert: Test) => {
+        apiHelper.setBuyerUserID(newPub.user.userID);
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+            })
+            .finally(() => {
+                assert.end();
+            });
+        apiHelper.clearBuyerUserID();
     });
 
     t.test('teardown', (assert: test.Test) => {
@@ -65,11 +160,10 @@ test('When every thing supplied correctly', (t: Test) => {
                 yield dataSetup.restoreTable(table);
             }
             app.shutdown();
-            assert.end();
 
-        })().catch((e) => {
-            assert.end();
-            throw e;
-        });
+        })()
+            .finally(() => {
+                assert.end();
+            });
     });
 });

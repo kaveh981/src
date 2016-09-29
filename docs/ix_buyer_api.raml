@@ -55,20 +55,20 @@ types:
             queryString: 
                 type: [QueryPaging]
             responses:
-            200: # 200 = "OK"
-                body:
-                    application/json:
-                        type: Response
-            400: # 400 = "Bad Request" use for malformed requests
-            401: # 401 = "Unauthorized" authentication has failed or was not provided
-            403: # 403 = "Forbidden" authentication successful but insufficient permissions
-            500: # 500 = "Internal Server Error" something done broke
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
 
 /users:
     /{user_id}:
         get:
             description: Retrieve contact information for a user by id.
-            response:
+            responses:
                 200: # 200 = OK
                     body:
                         application/json:
