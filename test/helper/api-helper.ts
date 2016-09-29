@@ -31,7 +31,7 @@ class ApiHelper {
      * Pass in valid options permitted by the node http/https modules.
      * @param opts {any} - The provided options in the form of an object containing key-value pairs
      */
-    public setOptions(opts: any): void {
+    set options(opts: any){
         if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
             this.queryString = true;
             if (opts.method === 'DELETE_QS') {
@@ -48,7 +48,7 @@ class ApiHelper {
         opts.port = opts.port || this.port;
         opts.method = opts.method || '';
         opts.headers = opts.headers || {};
-        this.nodeOptions = opts;
+        this.nodeOptions = JSON.parse(JSON.stringify(opts));
     }
 
     /**

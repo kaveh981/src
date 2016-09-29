@@ -20,16 +20,23 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 import { DatabaseManager } from '../../lib/database-manager';
 const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
-apiHelper.setOptions({
+apiHelper.options = {
     method: 'GET',
     uri: '/deals',
     headers: {
         'content-type': 'application/json',
     }
-});
+};
 
 test('Before test', (t: Test) => {
-    const tables: string[] = ['ixmPackageSectionMappings', 'ixmPackages', 'rtbSiteSections', 'rtbSections', 'sites', 'publishers', 'users', 'ixmBuyers'];
+    const tables: string[] = ['ixmPackageSectionMappings',
+        'ixmPackages',
+        'rtbSiteSections',
+        'rtbSections',
+        'sites',
+        'publishers',
+        'users',
+        'ixmBuyers'];
     let ixmPackage: INewPackageData;
     let newBuyer: INewBuyerData;
     let newPub: INewPubData;
@@ -155,7 +162,8 @@ test('Before test', (t: Test) => {
         apiHelper.buyerID = undefined;
     });
 
-    t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type', (assert: Test) => {
+    t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
+        (assert: Test) => {
         apiHelper.buyerID = newPub.user.userID;
         apiHelper.sendRequest()
             .then((res: any) => {
