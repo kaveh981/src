@@ -26,7 +26,7 @@ function Users(router: express.Router): void {
                     return;
                 }
 
-                res.sendPayload({ contact: contactInfo.toPayload() });
+                res.sendPayload(contactInfo.toPayload());
             });
     });
 

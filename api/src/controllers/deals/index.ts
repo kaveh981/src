@@ -71,7 +71,7 @@ function Deals(router: express.Router): void {
                     res.sendError(200, '200_NO_PACKAGES');
                     return;
                 }
-                res.sendPayload({ packages: availablePackages.map((pack) => { return pack.toPayload(); }) }, pagination);
+                res.sendPayload(availablePackages.map((pack) => { return pack.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
                 Log.error(err);
