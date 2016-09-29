@@ -25,7 +25,7 @@ interface IHttpResponse {
     /** Message to send in the response about the status code. */
     message: string;
     /** Payload data to send. */
-    data: any;
+    data: any[];
     /** Optional pagination details to send */
     pagination?: IPagination;
 }
@@ -39,7 +39,7 @@ function augmentResponse(res: express.Response): void {
     // Send JSON payload
     res.sendPayload = (payload: any, pagination?: IPagination) => {
         // If the payload is undefined or is an empty object, send no content
-        if (!payload || Object.keys(payload).length === 0) {
+        if (!payload) {
             res.sendNoContent();
             return;
         }
@@ -47,17 +47,20 @@ function augmentResponse(res: express.Response): void {
         let msg: IHttpResponse = {
             status: 200,
             message: errorMessages['200'],
-            data: {}
+            data: []
         };
 
-        Object.assign(msg.data, payload);
+        if (Array.isArray(payload)) {
+            msg.data = payload;
+        } else {
+            msg.data = [payload];
+        }
 
         if (pagination) {
             msg.pagination = {
-                limit: 0,
-                offset: 0
+                limit: pagination.limit,
+                offset: pagination.offset
             };
-            Object.assign(msg.pagination, pagination);
         }
 
         res.status(200).send(JSON.stringify(msg));
@@ -68,13 +71,11 @@ function augmentResponse(res: express.Response): void {
         let msg: IHttpResponse = {
             status: status,
             message: errorMessages[error] || errorMessages[status] || '',
-            data: {}
+            data: []
         };
 
         if (details) {
-            msg.data = {
-                errors: details
-            };
+            msg.data = details;
         }
 
         res.status(status).send(JSON.stringify(msg));
@@ -85,7 +86,7 @@ function augmentResponse(res: express.Response): void {
         let msg: IHttpResponse = {
             status: 200,
             message: errorMessages['200_NO_CONTENT'],
-            data: {}
+            data: []
         };
 
         res.status(200).send(JSON.stringify(msg));

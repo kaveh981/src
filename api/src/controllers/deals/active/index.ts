@@ -59,7 +59,7 @@ function ActiveDeals(router: express.Router): void {
                     res.sendError(200, '200_NO_DEALS');
                     return;
                 }
-                res.sendPayload({ deals: activeDeals.map((deal) => { return deal.toPayload(); }) }, pagination);
+                res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
                 Log.error(err);
