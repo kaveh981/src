@@ -45,7 +45,6 @@ class ApiHelper {
         opts.port = opts.port || this.port;
         opts.method = opts.method || '';
         opts.headers = opts.headers || {};
-        this.nodeOptions.headers =  JSON.parse(JSON.stringify(opts.headers))
         this.nodeOptions = JSON.parse(JSON.stringify(opts));
     }
 
