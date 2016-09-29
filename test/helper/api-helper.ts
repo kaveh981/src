@@ -15,7 +15,6 @@ class ApiHelper {
     private userID: number;
     private queryString: boolean = false;
     private nodeOptions: any = {};
-
     /**
      * Constructs an API helper.
      * @param config {ConfigLoader} - The config loader to use. Should point to test config folder
@@ -32,7 +31,7 @@ class ApiHelper {
      * Pass in valid options permitted by the node http/https modules.
      * @param opts {any} - The provided options in the form of an object containing key-value pairs
      */
-    public setOptions(opts: any): void {
+    public setOptions(opts: any) {
         if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
             this.queryString = true;
             if (opts.method === 'DELETE_QS') {
@@ -42,24 +41,36 @@ class ApiHelper {
             this.queryString = false;
         }
 
-        opts.path = opts.uri || '';
-        delete opts.uri;
-
         opts.hostname = opts.hostname || this.hostname;
         opts.port = opts.port || this.port;
         opts.method = opts.method || '';
         opts.headers = opts.headers || {};
-        this.nodeOptions = opts;
+        this.nodeOptions = JSON.parse(JSON.stringify(opts));
     }
 
     /**
      * Add the buyer's userID to the request
-     * @param userID {number} - userID of the target buyer
+     * @param _userID {number} - userID of the target buyer
      */
-    public setBuyerUserID(userID: number): void {
-        this.userID = userID;
+    public setBuyerUserID(_userID: any) {
+        this.userID = _userID;
     }
 
+    /**
+     * Clear buyer userID from the request header
+     */
+    public clearBuyerUserID() {
+        this.userID = undefined;
+    }
+
+    /**
+     * Clear the header and set it with the new value
+     * @param header {} - request header
+     */
+    public setRequestHeader(header: {}) {
+        this.userID = undefined;
+        this.nodeOptions.header = JSON.parse(JSON.stringify(header));
+    }
     /**
      * Using the provided request body, send request
      * @param [requestBody] {any} - request body in object form
@@ -99,10 +110,8 @@ class ApiHelper {
         let requestCall = (this.protocol === 'https') ? https.request : http.request;
 
         return new Promise((resolve: Function, reject: Function) => {
+
             let request: any = requestCall(reqOpts, (res: any) => {
-                if (res.statusCode !== 200) {
-                    reject();
-                }
 
                 let body: string = '';
                 res.on('data', (chunk) => {
