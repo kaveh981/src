@@ -24,13 +24,15 @@ apiHelper.setOptions({
     method: 'GET',
     uri: '/deals',
     headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
     }
 });
 
 test('When every thing supplied correctly', (t: Test) => {
-    const tables: string[] = ['ixmPackageSectionMappings', 'ixmPackages', 'rtbSiteSections', 'rtbSections', 'sites', 'publishers', 'users'];
-    let ixmPackage: any;
+    const tables: string[] = ['ixmPackageSectionMappings', 'ixmPackages', 'rtbSiteSections', 'rtbSections', 'sites', 'publishers', 'users', 'ixmBuyers'];
+    let ixmPackage: INewPackageData;
+    let newBuyer: INewBuyerData;
+    let newPub: INewPubData;
     t.test('setup', (assert: test.Test) => {
         Promise.coroutine(function* (): any {
             yield app.boot();
@@ -39,10 +41,11 @@ test('When every thing supplied correctly', (t: Test) => {
                 yield dataSetup.backupTable(table);
                 yield dataSetup.clearTable(table);
             }
-            let newPub = yield databasePopulator.newPub();
-            let newSite = yield databasePopulator.newSite(newPub.user.userID);
-            let newSection = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
-            ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.sectionID]);
+            newBuyer = yield databasePopulator.newBuyer();
+            newPub = yield databasePopulator.newPub();
+            let newSite: INewSiteData = yield databasePopulator.newSite(newPub.user.userID);
+            let newSection: INewSectionData = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
+            ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID]);
             assert.end();
         })().catch((e) => {
             assert.end();
@@ -50,12 +53,133 @@ test('When every thing supplied correctly', (t: Test) => {
         });
     });
 
-    t.test('Testing response code', (assert: Test) => {
-        apiHelper.sendRequest({'limit': 20})
+    t.test('ATW_D_GET_V1 when limit is a non int', (assert: Test) => {
+        apiHelper.sendRequest({'limit': 'ten'})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+    });
+
+    t.test('ATW_D_GET_V2 when limit is int but less than 1', (assert: Test) => {
+        apiHelper.sendRequest({'limit': '-5'})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+    });
+    t.test('ATW_D_GET_V3 when limit is greater than 250 it has to be auto adjusted to 250', (assert: Test) => {
+        apiHelper.sendRequest({'limit': 500})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
+                assert.equal(res.body.pagination.limit, 250, 'Limit should be equal to 250');
                 assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
             });
+    });
+    t.test('ATW_D_GET_V4 when offset is a non int', (assert: Test) => {
+        apiHelper.sendRequest({'offset': 'abc'})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+    });
+
+    t.test('ATW_D_GET_V5 when offset is less than 0', (assert: Test) => {
+        apiHelper.sendRequest({'offset': '-1'})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+    });
+
+    t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
+        apiHelper.header = {
+            'content-type': 'application/json',
+            'X-IXM-BuyerID': 'aaa'
+        };
+        apiHelper.sendRequest({})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+        apiHelper.header = {
+            'content-type': 'application/json'
+        };
+    });
+
+    t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
+        apiHelper.sendRequest({})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
+                assert.equal(res.body.data['0'], ixmPackage, 'It should return status code 200');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+    });
+
+    t.test('ATW_D_GET_V7 when buyerID is not a know IXM-buyer', (assert: Test) => {
+        apiHelper.header = {
+            'content-type': 'application/json',
+            'X-IXM-BuyerID': newBuyer.user.userID + 5
+        };
+        apiHelper.sendRequest({})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+        apiHelper.header = {
+            'content-type': 'application/json'
+        };
+    });
+
+    t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist int users table for another user type', (assert: Test) => {
+        apiHelper.header = {
+            'content-type': 'application/json',
+            'X-IXM-BuyerID': newPub.user.userID
+        };
+        apiHelper.sendRequest({})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
+                assert.end();
+            })
+            .catch((e) => {
+                assert.end();
+                throw e;
+            });
+        apiHelper.header = {
+            'content-type': 'application/json'
+        };
     });
 
     t.test('teardown', (assert: test.Test) => {
