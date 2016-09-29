@@ -31,7 +31,7 @@ class ApiHelper {
      * Pass in valid options permitted by the node http/https modules.
      * @param opts {any} - The provided options in the form of an object containing key-value pairs
      */
-    public setOptions(opts: any){
+    public setOptions(opts: any) {
         if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
             this.queryString = true;
             if (opts.method === 'DELETE_QS') {
@@ -45,6 +45,7 @@ class ApiHelper {
         opts.port = opts.port || this.port;
         opts.method = opts.method || '';
         opts.headers = opts.headers || {};
+        this.nodeOptions.headers =  JSON.parse(JSON.stringify(opts.headers))
         this.nodeOptions = JSON.parse(JSON.stringify(opts));
     }
 
@@ -110,7 +111,7 @@ class ApiHelper {
         let requestCall = (this.protocol === 'https') ? https.request : http.request;
 
         return new Promise((resolve: Function, reject: Function) => {
-            console.log(JSON.stringify(reqOpts));
+
             let request: any = requestCall(reqOpts, (res: any) => {
 
                 let body: string = '';
