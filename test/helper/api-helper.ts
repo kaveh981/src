@@ -15,7 +15,6 @@ class ApiHelper {
     private userID: number;
     private queryString: boolean = false;
     private nodeOptions: any = {};
-
     /**
      * Constructs an API helper.
      * @param config {ConfigLoader} - The config loader to use. Should point to test config folder
@@ -54,12 +53,20 @@ class ApiHelper {
 
     /**
      * Add the buyer's userID to the request
-     * @param userID {number} - userID of the target buyer
+     * @param _userID {number} - userID of the target buyer
      */
-    public setBuyerUserID(userID: number): void {
-        this.userID = userID;
+    set buyerID(_userID: any) {
+        this.userID = _userID;
     }
 
+    /**
+     * Clear the header and set it with the new value
+     * @param header {} - request header
+     */
+    set header(header: {}) {
+        this.userID = undefined;
+        this.nodeOptions.header = header;
+    }
     /**
      * Using the provided request body, send request
      * @param [requestBody] {any} - request body in object form
@@ -99,10 +106,8 @@ class ApiHelper {
         let requestCall = (this.protocol === 'https') ? https.request : http.request;
 
         return new Promise((resolve: Function, reject: Function) => {
+            console.log(JSON.stringify(reqOpts));
             let request: any = requestCall(reqOpts, (res: any) => {
-                if (res.statusCode !== 200) {
-                    reject();
-                }
 
                 let body: string = '';
                 res.on('data', (chunk) => {
