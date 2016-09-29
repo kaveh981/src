@@ -8,6 +8,11 @@ properties:
         required: true
         displayName: Deal ID
         description: The unique identifier for the deal
+    external_id:
+        type: string
+        required: false
+        displayName: External Deal ID
+        description: A string that can be used to identify the deal in external systems
     publisher_id:
         type: integer[]
         required: true
@@ -28,6 +33,11 @@ properties:
         required: true
         displayName: Site ID(s)
         description: An array of unique website IDs involved in the deal
+    dsp_id:
+        type: integer[]
+        required: true
+        displayName: DSP ID(s)
+        description: An array of DSP IDs involved in the deal
     deal_section_id: # ? Provide API paths to access ?
         type: integer[]
         required: true
@@ -113,16 +123,16 @@ example: |
         "deal_section_id": [4321, 9876],
         "dsp_id": [66],
         "name": "Is good deal, yes? You don't like good deals?",
-        "description: "Juch lorbe' nitebha' sen siq 'iqnah qad aubrie giovana liz marti abalam leyak ɐɹɔn pıɔʇnɯsʇ dǝllǝuʇǝsbnǝ. Jorneb mu'qad ves nga'chuq pivchem qevas ros 'orghenya'ngan aimee anya claudie evelia hilaire jennifer jolie kandy leslie lisa lorie lucile nikki olivia pixie akoman allu azi dahaka ɯɐnɹıs dɐɹʇnɹıǝuʇ."
+        "description": "Juch lorbe' nitebha' sen siq 'iqnah qad aubrie giovana liz marti abalam leyak ɐɹɔn pıɔʇnɯsʇ dǝllǝuʇǝsbnǝ. Jorneb mu'qad ves nga'chuq pivchem qevas ros 'orghenya'ngan aimee anya claudie evelia hilaire jennifer jolie kandy leslie lisa lorie lucile nikki olivia pixie akoman allu azi dahaka ɯɐnɹıs dɐɹʇnɹıǝuʇ.",
         "price": 6.66,
         "impressions": 9999,
-        "budget": 66,600.66,
+        "budget": 66600.66,
         "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
         "currency": "ZAR",
         "auction_type": 2,
         "status": "active",
-        "start_date": 1999-12-31,
-        "end_date": 2026-06-06,
+        "start_date": "1999-12-31",
+        "end_date": "2026-06-06",
         "contact": {
             "title": "Lord",
             "name": "Humungus",
