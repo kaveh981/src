@@ -20,13 +20,10 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 import { DatabaseManager } from '../../lib/database-manager';
 const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
-apiHelper.options = {
+apiHelper.setOptions({
     method: 'GET',
-    uri: '/deals',
-    headers: {
-        'content-type': 'application/json',
-    }
-};
+    path: '/deals',
+});
 
 test('Before test', (t: Test) => {
     const tables: string[] = ['ixmPackageSectionMappings',
@@ -120,7 +117,7 @@ test('Before test', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
-        apiHelper.buyerID = newBuyer.user.userID.toString();
+        apiHelper.setBuyerUserID( newBuyer.user.userID.toString());
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -130,16 +127,14 @@ test('Before test', (t: Test) => {
                 assert.end();
                 throw e;
             });
-        apiHelper.header = {
-            'content-type': 'application/json'
-        };
+        apiHelper.clearBuyerUserID();
     });
 
     t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
-               // assert.equal(res.body.data['0'], ixmPackage, 'It should return status code 200');
+                assert.equal(res.body.data.packages[0], ixmPackage.package, 'It should return status code 200');
                 assert.end();
             })
             .catch((e) => {
@@ -149,7 +144,7 @@ test('Before test', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V7 when buyerID is not a know IXM-buyer', (assert: Test) => {
-        apiHelper.buyerID = newPub.user.userID + 5;
+        apiHelper.setBuyerUserID(newPub.user.userID + 5);
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -159,12 +154,12 @@ test('Before test', (t: Test) => {
                 assert.end();
                 throw e;
             });
-        apiHelper.buyerID = undefined;
+        apiHelper.clearBuyerUserID();
     });
 
     t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
         (assert: Test) => {
-        apiHelper.buyerID = newPub.user.userID;
+        apiHelper.setBuyerUserID(newPub.user.userID);
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -174,7 +169,7 @@ test('Before test', (t: Test) => {
                 assert.end();
                 throw e;
             });
-        apiHelper.buyerID = undefined;
+        apiHelper.clearBuyerUserID();
     });
 
     t.test('teardown', (assert: test.Test) => {

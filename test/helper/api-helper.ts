@@ -31,7 +31,7 @@ class ApiHelper {
      * Pass in valid options permitted by the node http/https modules.
      * @param opts {any} - The provided options in the form of an object containing key-value pairs
      */
-    set options(opts: any){
+    public setOptions(opts: any){
         if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
             this.queryString = true;
             if (opts.method === 'DELETE_QS') {
@@ -40,9 +40,6 @@ class ApiHelper {
         } else {
             this.queryString = false;
         }
-
-        opts.path = opts.uri || '';
-        delete opts.uri;
 
         opts.hostname = opts.hostname || this.hostname;
         opts.port = opts.port || this.port;
@@ -55,17 +52,21 @@ class ApiHelper {
      * Add the buyer's userID to the request
      * @param _userID {number} - userID of the target buyer
      */
-    set buyerID(_userID: any) {
+    public setBuyerUserID(_userID: any) {
         this.userID = _userID;
+    }
+
+    public clearBuyerUserID() {
+        this.userID = undefined;
     }
 
     /**
      * Clear the header and set it with the new value
      * @param header {} - request header
      */
-    set header(header: {}) {
+    public setRequestHeader(header: {}) {
         this.userID = undefined;
-        this.nodeOptions.header = header;
+        this.nodeOptions.header = JSON.parse(JSON.stringify(header));
     }
     /**
      * Using the provided request body, send request
