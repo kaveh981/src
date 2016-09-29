@@ -50,9 +50,7 @@ test('/deals GET', (t: Test) => {
             let newSite: INewSiteData = yield databasePopulator.newSite(newPub.user.userID);
             let newSection: INewSectionData = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
             ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID]);
-        })().catch((e) => {
-                throw e;
-            })
+        })()
             .finally(() => {
                 assert.end();
             });
@@ -62,9 +60,6 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest({'limit': `'10'`})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
-            })
-            .catch((e) => {
-                throw e;
             })
             .finally(() => {
                 assert.end();
@@ -76,9 +71,6 @@ test('/deals GET', (t: Test) => {
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
             })
-            .catch((e) => {
-                throw e;
-            })
             .finally(() => {
                 assert.end();
             });
@@ -89,9 +81,6 @@ test('/deals GET', (t: Test) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
                 assert.equal(res.body.pagination.limit, 250, 'Limit should be equal to 250');
             })
-            .catch((e) => {
-                throw e;
-            })
             .finally(() => {
                 assert.end();
             });
@@ -100,9 +89,6 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest({'offset': `'0'`})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
-            })
-            .catch((e) => {
-                throw e;
             })
             .finally(() => {
                 assert.end();
@@ -114,9 +100,6 @@ test('/deals GET', (t: Test) => {
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400');
             })
-            .catch((e) => {
-                throw e;
-            })
             .finally(() => {
                 assert.end();
             });
@@ -127,9 +110,6 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
-            })
-            .catch((e) => {
-                throw e;
             })
             .finally(() => {
                 assert.end();
@@ -143,9 +123,6 @@ test('/deals GET', (t: Test) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200');
              //   assert.equal(res.body.data.packages[0], ixmPackage.package, 'It should return status code 200');
             })
-            .catch((e) => {
-                throw e;
-            })
             .finally(() => {
                 assert.end();
             });
@@ -156,9 +133,6 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
-            })
-            .catch((e) => {
-                throw e;
             })
             .finally(() => {
                     assert.end();
@@ -172,9 +146,6 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
-            })
-            .catch((e) => {
-                throw e;
             })
             .finally(() => {
                 assert.end();
@@ -190,9 +161,7 @@ test('/deals GET', (t: Test) => {
             }
             app.shutdown();
 
-        })().catch((e) => {
-                throw e;
-            })
+        })()
             .finally(() => {
                 assert.end();
             });
