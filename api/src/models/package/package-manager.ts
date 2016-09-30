@@ -43,6 +43,9 @@ class PackageManager {
             .then((sections) => {
                 packageObject.sections = sections;
                 return packageObject;
+            })
+            .catch((err: Error) => {
+                throw err;
             });
     }
 
@@ -59,7 +62,6 @@ class PackageManager {
                 return this.fetchPackageFromId(packageIDs[0].packageID);
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -81,7 +83,6 @@ class PackageManager {
                 });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -103,7 +104,6 @@ class PackageManager {
                 });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -129,7 +129,6 @@ class PackageManager {
                 return packageInfo;
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -147,7 +146,6 @@ class PackageManager {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }

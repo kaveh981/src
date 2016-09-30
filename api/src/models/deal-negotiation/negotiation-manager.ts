@@ -34,6 +34,9 @@ class NegotiationManager {
                 .limit(1)
             .then((rows: any) => {
                 return new NegotiationModel(rows[0]);
+            })
+            .catch((err: Error) => {
+                throw err;
             });
     }
 

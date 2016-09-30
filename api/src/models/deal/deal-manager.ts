@@ -45,7 +45,7 @@ class DealManager {
                 return new DealModel(deals[0]);
             })
             .catch((err: Error) => {
-                Log.error(err);
+                throw err;
             });
     }
 
@@ -78,7 +78,6 @@ class DealManager {
                 });
             })
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }

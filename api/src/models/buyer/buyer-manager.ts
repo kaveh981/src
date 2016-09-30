@@ -50,7 +50,6 @@ class BuyerManager {
                 return buyerObject;
             })
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
@@ -66,7 +65,6 @@ class BuyerManager {
                 .limit(pagination.limit)
                 .offset(pagination.offset)
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
@@ -79,7 +77,6 @@ class BuyerManager {
                 .from('ixmBuyers')
                 .where('userid', userID)
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
