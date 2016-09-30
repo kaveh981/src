@@ -38,7 +38,7 @@ class UserManager {
                 return new UserModel(rows[0]);
             })
             .catch((err: Error) => {
-                Log.error(err);
+                throw err;
             });
     }
 }

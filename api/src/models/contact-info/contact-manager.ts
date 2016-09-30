@@ -49,7 +49,6 @@ class ContactManager {
                 });
             })
             .catch((err) => {
-                Log.error(err);
                 throw err;
             });
     }
