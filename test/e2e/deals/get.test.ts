@@ -20,10 +20,10 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 import { DatabaseManager } from '../../lib/database-manager';
 const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
-apiHelper.setOptions({
+apiHelper.reqOpts = {
     method: 'GET',
     path: '/deals'
-});
+};
 
 test('/deals GET', (t: Test) => {
     const tables: string[] = ['ixmPackageSectionMappings',
@@ -106,7 +106,7 @@ test('/deals GET', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
-        apiHelper.setBuyerUserID( newBuyer.user.userID.toString());
+        apiHelper.reqOpts = {headers: {'X-IXM-BuyerID': newBuyer.user.userID.toString() }} ;
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -114,7 +114,7 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.clearBuyerUserID();
+        apiHelper.reqOpts = {};
     });
 
     t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
@@ -129,7 +129,7 @@ test('/deals GET', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V7 when buyerID is not a know IXM-buyer', (assert: Test) => {
-        apiHelper.setBuyerUserID(newPub.user.userID + 5);
+        apiHelper.reqOpts = {headers: {'X-IXM-BuyerID': newPub.user.userID + 5 }};
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -137,12 +137,12 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                     assert.end();
             });
-        apiHelper.clearBuyerUserID();
+        apiHelper.reqOpts = {};
     });
 
     t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
         (assert: Test) => {
-        apiHelper.setBuyerUserID(newPub.user.userID);
+            apiHelper.reqOpts = {headers: {'X-IXM-BuyerID': newPub.user.userID}};
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401');
@@ -150,7 +150,7 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.clearBuyerUserID();
+        apiHelper.reqOpts = {};
     });
 
     t.test('teardown', (assert: test.Test) => {
