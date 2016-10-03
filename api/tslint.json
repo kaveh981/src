@@ -73,11 +73,6 @@
             "check-separator",
             "check-type"
         ],
-        "typedef": [
-            true,
-            "parameter",
-            "property-declaration"
-        ],
         "typedef-whitespace": [
             true,
             {
