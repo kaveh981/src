@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+Pet:
+    type: object
+    properties:
+        hp:
+            required: true
+            type: integer
+            maximum: 100
+            minimum: 1
+            default: 30
+        edible:
+            required: false
+            type: boolean
+            default: true
+        name:
+            required: false
+            type: string
+        birthday:
+            required: false
+            type: date-only

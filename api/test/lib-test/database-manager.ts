@@ -9,31 +9,34 @@ import { ConfigLoader } from '../../src/lib/config-loader';
 const config = new ConfigLoader();
 Injector.put(config, 'ConfigLoader');
 
-import { DatabaseManager } from '../../src/lib/database-manager';
+import { Validator } from '../../src/lib/validator';
 
-const databaseManager = new DatabaseManager(config);
+const validator = new Validator();
 
-/**
- * Unit test of database manager initialization
- */
-test('Database Selection Test', (assert: test.Test) => {
-    assert.plan(1);
+test('Validator Test', (assert: test.Test) => {
+    assert.plan(2);
 
-    databaseManager.initialize()
+    validator.initialize()
             .then(() => {
-                return databaseManager.select().from('users').limit(1)
-                    .then((rows: any) => {
-                        assert.equal(rows.length, 1, 'Selected one user from the users table.');
-                    })
-                    .catch((err: Error) => {
-                        assert.fail('User selection failed ' + err);
-                    });
+                let goodRat: any = {
+                    name: 'Meow',
+                    diet: ['human meat', 'frogs legs']
+                };
+
+                let badRat: any = {
+                    name: 'Woof',
+                    diet: 'rabbits',
+                    attitude: 'bad'
+                };
+
+                assert.equal(validator.validate(goodRat, 'Rat').success, 1, 'Good rat should pass validation.');
+                assert.equal(validator.validate(badRat, 'Rat').errors.length, 2,
+                    'Bad rat should have two failures, bad diet and bad attitude.');
+
             })
             .catch((err: Error) => {
-                assert.fail('Database failed with error: ' + err);
-            })
-            .finally(() => {
-                databaseManager.shutdown();
+                assert.fail('Initialization failed with error: ' + err);
+                assert.end();
             });
 
 });

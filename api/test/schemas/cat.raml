@@ -1,0 +1,17 @@
+#%RAML 1.0 DataType
+Cat:
+    type: object
+    properties:
+        attack:
+            type: string
+            default: meow
+            required: false
+        defense:
+            type: string
+            default: scratch
+            required: true
+        health:
+            type: integer
+            default: 80
+            maximum: 100
+            minimum: 1
