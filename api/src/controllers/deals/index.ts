@@ -27,7 +27,7 @@ function Deals(router: express.Router): void {
      * GET request to get all available packages. The function first validates pagination query parameters. It then retrieves all
      * packages from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
-    router.get('/', (req: express.Request, res: express.Response) => {
+    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
 
         // Validate pagination parameters
         let pagination = {
