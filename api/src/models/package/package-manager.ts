@@ -75,8 +75,8 @@ class PackageManager {
         return this.databaseManager.select('packageID')
                 .from('ixmPackages')
                 .where('status', packageStatus)
-                .limit(pagination.limit)
-                .offset(pagination.offset)
+                .limit(Number(pagination.limit))
+                .offset(Number(pagination.offset))
             .then((idObjects: any) => {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
