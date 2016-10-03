@@ -101,7 +101,6 @@ class RamlTypeValidator {
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
                 this.types = ramlObj['types'];
-                console.log(JSON.stringify(this.types, null, 4));
                 Log.trace('Loaded types: ' + Object.keys(this.types).join(', '));
             })
             .catch((err) => {
