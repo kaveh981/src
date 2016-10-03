@@ -1,0 +1,36 @@
+version: '2'
+
+networks:
+  atwater:
+    external: true
+  internal:
+    external: true
+
+services:
+  atw-api:
+    container_name: "atw-api"
+    restart: "always"
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+    image: atw-api:dev
+    networks:
+      - atwater
+    entrypoint: "sh /src/atwater.git/api/docker/scripts/entrypoint.sh development"
+    volumes:
+      - "$SRC_DIR:/src/:rw"
+  atw-nginx:
+    container_name: "atw-nginx"
+    restart: "always"
+    build:
+      context: ./nginx
+      dockerfile: ./docker/Dockerfile
+    image: atw-nginx:dev
+    networks:
+      - atwater
+      - internal
+    entrypoint: "sh /src/atwater.git/nginx/docker/scripts/entrypoint.sh development"
+    volumes:
+      - "$SRC_DIR:/src"
+    ports:
+      - "443:443"

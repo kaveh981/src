@@ -5,5 +5,4 @@ ARG DATE
 
 LABEL  SERVICE_NAME=atw-nginx \
        GIT_COMMIT=${GIT_COMMIT} \
-       DATE=${DATE} \
-       IMAGE_TYPE=core
+       DATE=${DATE}
