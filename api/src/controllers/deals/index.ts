@@ -7,21 +7,19 @@ import { Logger } from '../../lib/logger';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
 import { Validator } from '../../lib/validator';
-
+import { ProtectedRoute } from '../../middleware/protected-route';
 import { PackageManager } from '../../models/package/package-manager';
 import { UserManager } from '../../models/user/user-manager';
-
 import { PackageModel } from '../../models/package/package-model';
 
 const packageManager = Injector.request<PackageManager>('PackageManager');
 const userManager = Injector.request<UserManager>('UserManager');
-const config = Injector.request<ConfigLoader>('ConfigLoader');
 const validator = Injector.request<Validator>('Validator');
 
 const Log: Logger = new Logger('DEAL');
 
 /**
- * Function that takes care of all /deals routes
+ * Function that takes care of /deals route
  */
 function Deals(router: express.Router): void {
 
@@ -29,7 +27,7 @@ function Deals(router: express.Router): void {
      * GET request to get all available packages. The function first validates pagination query parameters. It then retrieves all
      * packages from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
-    router.get('/', (req: express.Request, res: express.Response) => {
+    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
 
         // Validate pagination parameters
         let pagination = {
@@ -74,7 +72,7 @@ function Deals(router: express.Router): void {
                     res.sendError(200, '200_NO_PACKAGES');
                     return;
                 }
-                res.sendPayload(availablePackages, pagination);
+                res.sendPayload(availablePackages.map((pack) => { return pack.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
                 Log.error(err);

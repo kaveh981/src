@@ -12,8 +12,8 @@ const Log = new Logger('mPKG');
 /** Package model manager */
 class PackageManager {
 
-    /** Internal dbm  */
-    private dbm: DatabaseManager;
+    /** Internal databaseManager  */
+    private databaseManager: DatabaseManager;
 
     /** To populate the contact info */
     private contactManager: ContactManager;
@@ -22,8 +22,8 @@ class PackageManager {
      * Constructor
      * @param database - An instance of the database manager.
      */
-    constructor(database: DatabaseManager, contactManager: ContactManager) {
-        this.dbm = database;
+    constructor(databaseManager: DatabaseManager, contactManager: ContactManager) {
+        this.databaseManager = databaseManager;
         this.contactManager = contactManager;
     }
 
@@ -43,6 +43,9 @@ class PackageManager {
             .then((sections) => {
                 packageObject.sections = sections;
                 return packageObject;
+            })
+            .catch((err: Error) => {
+                throw err;
             });
     }
 
@@ -52,14 +55,13 @@ class PackageManager {
      * @returns Returns a package object includes associated section IDs
      */
     public fetchPackageFromName(packageName: string): Promise<PackageModel> {
-        return this.dbm.select('packageID')
+        return this.databaseManager.select('packageID')
                 .from('ixmPackages')
                 .where('name', packageName)
             .then((packageIDs: any) => {
                 return this.fetchPackageFromId(packageIDs[0].packageID);
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -70,7 +72,7 @@ class PackageManager {
      * @returns Returns an array of package objects by the given status
      */
     public fetchPackagesFromStatus(packageStatus: string, pagination: any): Promise<any> {
-        return this.dbm.select('packageID')
+        return this.databaseManager.select('packageID')
                 .from('ixmPackages')
                 .where('status', packageStatus)
                 .limit(pagination.limit)
@@ -81,7 +83,6 @@ class PackageManager {
                 });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -92,7 +93,7 @@ class PackageManager {
      * @returns Returns an array of package objects by the given owner
      */
     public fetchPackagesFromOwner(packageOwner: number, pagination: any): Promise<any> {
-        return this.dbm.select('packageID')
+        return this.databaseManager.select('packageID')
                 .from('ixmPackages')
                 .where('ownerID', packageOwner)
                 .limit(pagination.limit)
@@ -103,7 +104,6 @@ class PackageManager {
                 });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -114,22 +114,21 @@ class PackageManager {
      * @returns Returns an object include all the information of the package 
      */
     private getPackageInfo(packageID: number): Promise<any> {
-        let packageInfo: IPackageModel;
+        let packageInfo: PackageModel;
 
-        return this.dbm.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+        return this.databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
                     'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
                 .from('ixmPackages')
                 .where('packageID', packageID)
             .then((info: any) => {
                 packageInfo = info[0];
-                return this.contactManager.fetchContactInfoById(packageInfo.ownerID);
+                return this.contactManager.fetchContactInfoFromId(packageInfo.ownerID);
             })
             .then((contact) => {
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
@@ -140,68 +139,16 @@ class PackageManager {
      * @returns Returns an array of section IDs
      */
     private getPackageSections (packageID: number): Promise<number[]> {
-        return this.dbm.select('sectionID')
+        return this.databaseManager.select('sectionID')
                 .from('ixmPackageSectionMappings')
                 .where('packageID', packageID)
             .then((sectionObjects: any) => {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
             })
             .catch((err: Error) => {
-                Log.error(err.toString());
                 throw err;
             });
     }
-
-    // /**
-    //  * Insert package and section mappings into database
-    //  * @param packageID - the ID of the package
-    //  * @param sectionID - the ID of the section
-    //  * @returns Returns a array with number 0 inside
-    //  */
-    // private insertPackageSectionMappings (packageID: number, sectionID: number): Promise<any> {
-    //      return this.dbm.insert({
-    //            packageID: packageID,
-    //            sectionID: sectionID
-    //         })
-    //         .into('ixmPackageSectionMappings')
-    //         .catch((err: Error) => {
-    //             Log.error(err.toString());
-    //             throw err;
-    //         });
-    // }
-
-        // /**
-    //  * Add a package and related mappings to database
-    //  * @param newPackage - package object includes corresponding sections
-    //  * @returns undefined
-    //  */
-    // public savePackage (newPackage: any): Promise<any> {
-    //     return this.dbm.insert({
-    //             ownerID: newPackage.ownerID,
-    //             name: newPackage.name,
-    //             description: newPackage.description,
-    //             status: newPackage.status,
-    //             public: newPackage.isPublic,
-    //             startDate: newPackage.startDate,
-    //             endDate: newPackage.endDate,
-    //             price: newPackage.price,
-    //             impressions: newPackage.impressions,
-    //             budget: newPackage.budget,
-    //             auctionType: newPackage.auctionType,
-    //             terms: newPackage.terms,
-    //             createDate: newPackage.createDate
-    //         })
-    //         .into('ixmPackages')
-    //         .then((newPackageID: any) => {
-    //             return Promise.each(newPackage.sections, (sectionID: number) => {
-    //                 this.insertPackageSectionMappings(newPackageID[0], sectionID);
-    //             });
-    //         })
-    //         .catch((err: Error) => {
-    //             Log.error(err.toString());
-    //             throw err;
-    //         });
-    // }
 
 }
 

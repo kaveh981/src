@@ -12,8 +12,8 @@ const Log: Logger = new Logger('mBYR');
 /** Buyer model manager */
 class BuyerManager {
 
-    /** Internal dbm  */
-    private dbm: DatabaseManager;
+    /** Internal databaseManager  */
+    private databaseManager: DatabaseManager;
 
     /** Internal contact manager */
     private contactManager: ContactManager;
@@ -22,8 +22,8 @@ class BuyerManager {
      * Constructor
      * @param database - An instance of the database manager.
      */
-    constructor(database: DatabaseManager, contactManager: ContactManager) {
-        this.dbm = database;
+    constructor(databaseManager: DatabaseManager, contactManager: ContactManager) {
+        this.databaseManager = databaseManager;
         this.contactManager = contactManager;
     }
 
@@ -44,13 +44,12 @@ class BuyerManager {
 
                 return userId;
             })
-            .then(this.contactManager.fetchContactInfoById)
+            .then(this.contactManager.fetchContactInfoFromId)
             .then((contactInfo) => {
                 buyerObject.contactInfo = contactInfo;
                 return buyerObject;
             })
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
@@ -59,14 +58,13 @@ class BuyerManager {
      * Returns all userIDs associated with a given DSP
      * @param dspId - The ID of the DSP we want to obtain users for.
      */
-    public getIdsFromDSP(dspId: number, pagination: any): Promise<any> {
-        return this.dbm.select('userid')
+    public getIdsFromDSP(dspID: number, pagination: any): Promise<any> {
+        return this.databaseManager.select('userID')
                 .from('ixmBuyers')
-                .where('dspid', dspId)
+                .where('dspid', dspID)
                 .limit(pagination.limit)
                 .offset(pagination.offset)
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
@@ -74,27 +72,14 @@ class BuyerManager {
     /** 
      * Helper function for getting all dspIDs associated with a given userID 
      */
-    private getDSPsFromId(userId: number): Promise<any> {
-        return this.dbm.select('dspid')
+    private getDSPsFromId(userID: number): Promise<any> {
+        return this.databaseManager.select('dspid')
                 .from('ixmBuyers')
-                .where('userid', userId)
+                .where('userid', userID)
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
     }
-
-    // /**
-    //  * Adds a new buyer to the ixmBuyers table (Until we design ContactInfo, this function just takes two ID params)
-    //  */
-    // public saveBuyer(userId: number, dspId: number): Promise<any> {
-    //     return this.dbm.insert({userId: userId, dspId: dspId})
-    //         .into('ixmBuyers')
-    //         .catch((err: Error) => {
-    //             Log.error(err);
-    //             throw err;
-    //         });
-    // }
 
 }
 

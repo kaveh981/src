@@ -11,7 +11,7 @@ const authConfig = config.get('auth');
 /**
  * Public access switch, if the configuration is set to private we block any unauthorized access.
  */
-function publicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
+function PublicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
     if (!authConfig['public'] && (!req.ixmBuyerInfo || !req.ixmBuyerInfo.userID)) {
         res.sendError(401, '401_PRIVATE');
     } else {
@@ -19,4 +19,4 @@ function publicAccessHandler(req: express.Request, res: express.Response, next: 
     }
 };
 
-module.exports = () => { return publicAccessHandler; };
+module.exports = () => { return PublicAccessHandler; };

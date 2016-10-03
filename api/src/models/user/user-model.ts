@@ -1,6 +1,7 @@
 'use strict';
 
-class UserModel implements IUserModel {
+class UserModel {
+
     /** The user's userId */
     public userID: string;
     /** The current status of the user */
@@ -14,7 +15,7 @@ class UserModel implements IUserModel {
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
      */
-    constructor(initParams?: IUserModel) {
+    constructor(initParams?: any) {
         if (initParams) {
             Object.assign(this, initParams);
         }
