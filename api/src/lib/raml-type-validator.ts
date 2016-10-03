@@ -448,4 +448,4 @@ class RamlTypeValidator {
 
 }
 
-export { RamlTypeValidator };
+export { RamlTypeValidator }
