@@ -13,6 +13,18 @@ documentation:
         content: |
             Lipsum generator - panipsum.com/generate/?submit=1&p=5&w=None&pl=3&q=&wl17=Klingon&wl58=Stripper+Names&wl62=Theological+Demons&wl102=Upside+Down+Lipsum
 
+################################
+# Traits
+#   These are reusable traits that can be applied in multiple nodes
+################################
+
+traits:
+    auth_required:
+        headers:
+            X-IXM-BuyerId:
+                type: integer
+                description: The current user's ID, used as an authentication token.
+
 
 ################################
 # Object Definitions
@@ -31,6 +43,7 @@ types:
 
 /deals:
     get:
+        is: [ auth_required]
         description: Retrieve packages from Index Market. A package describes terms available to purchase as a deal.
         queryString: 
             type: [QueryPaging]
@@ -51,6 +64,7 @@ types:
             201: #201 = "Created"
     /active:
         get:
+            is: [ auth_required ]
             description: Retrieve deals that are currently active in the system for the current user.
             queryString: 
                 type: [QueryPaging]
@@ -68,6 +82,7 @@ types:
 /users:
     /{user_id}:
         get:
+            is: [ auth_required ]
             description: Retrieve contact information for a user by id.
             responses:
                 200: # 200 = OK
