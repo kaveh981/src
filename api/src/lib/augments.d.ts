@@ -36,7 +36,7 @@ declare module 'express' {
          * Send a 401 validation error.
          * @param details - The details of the validation error.
          */
-        sendValidationError(details: string[]): void;
+        sendValidationError(details: any[]): void;
 
         /** Send a generic 404 not found.*/
         sendNotFoundError(): void;

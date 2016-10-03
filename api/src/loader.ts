@@ -11,7 +11,7 @@ import { Injector } from './lib/injector';
 import { ConfigLoader } from './lib/config-loader';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
-import { Validator } from './lib/validator';
+import { RamlTypeValidator } from './lib/raml-type-validator';
 
 /** Models */
 import { UserManager } from './models/user/user-manager';
@@ -25,7 +25,7 @@ import { DealManager } from './models/deal/deal-manager';
 const config = new ConfigLoader();
 Injector.put(config, 'ConfigLoader');
 
-const validator = new Validator();
+const validator = new RamlTypeValidator(config);
 Injector.put(validator, 'Validator');
 
 const databaseManager = new DatabaseManager(config);

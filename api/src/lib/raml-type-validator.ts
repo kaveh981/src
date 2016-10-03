@@ -252,7 +252,7 @@ class RamlTypeValidator {
                  * Verify numbers
                  */
                 case 'number':
-                    if (!Number(valueString)) {
+                    if (isNaN(Number(valueString))) {
                         errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
                     } else {
                         // Verify number facets
