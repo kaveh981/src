@@ -31,7 +31,7 @@ types:
 
 /deals:
     get:
-        description: Retrieve packages from Index Market
+        description: Retrieve packages from Index Market. A package describes terms available to purchase as a deal.
         queryString: 
             type: [QueryPaging]
         responses:
@@ -51,7 +51,7 @@ types:
             201: #201 = "Created"
     /active:
         get:
-            description: Retrieve deals that are currently active in the system
+            description: Retrieve deals that are currently active in the system for the current user.
             queryString: 
                 type: [QueryPaging]
             responses:
@@ -61,6 +61,7 @@ types:
                             type: Response
                 400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
+                404: # 404 = "Not found" there are no active deals for the current user
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
 
