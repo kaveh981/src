@@ -264,12 +264,12 @@ validator.initialize('../../test/schemas')
             let cat2: any = {
                 defense: 'ploof',
                 health: 130
-            }
+            };
 
             let cat3: any = {
                 defense: ['charizard'],
                 health: 'pistachio'
-            }
+            };
 
             let res1 = validator.validateType(cat1, 'Cat', { fillDefaults: true, forceDefaults: true });
 
@@ -334,9 +334,9 @@ validator.initialize('../../test/schemas')
                 attack: 'woof',
                 defense: 'ploof',
                 health: 130
-            }
+            };
 
-            let cat3: any = {}
+            let cat3: any = {};
 
             let res1 = validator.validateType(cat1, 'Cat', { fillDefaults: true });
             let res2 = validator.validateType(cat2, 'Cat', { fillDefaults: true });
