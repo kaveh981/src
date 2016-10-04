@@ -1,14 +1,15 @@
 {
   "globalDependencies": {
-    "bluebird": "registry:dt/bluebird#3.0.0+20160811111256",
+    "bluebird": "registry:dt/bluebird#3.0.0+20160928162057",
     "commander": "registry:dt/commander#2.3.0+20160317120654",
     "express": "registry:dt/express#4.0.0+20160708185218",
-    "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160829034835",
-    "faker": "registry:dt/faker#0.0.0+20160406111603",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#4.0.0+20160928124223",
+    "faker": "registry:dt/faker#3.1.0+20161003184239",
+    "handlebars": "registry:dt/handlebars#4.0.5+20160804082238",
     "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
-    "knex": "registry:dt/knex#0.0.0+20160819212955",
+    "knex": "registry:dt/knex#0.0.0+20160923124117",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
-    "node": "registry:dt/node#6.0.0+20160830141956",
+    "node": "registry:dt/node#6.0.0+20160928143418",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
   },
