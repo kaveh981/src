@@ -22,7 +22,7 @@ import { ContactManager } from './models/contact-info/contact-manager';
 import { DealManager } from './models/deal/deal-manager';
 
 /** Dependency Resolution */
-const config = new ConfigLoader();
+const config = new ConfigLoader('../../config');
 Injector.put(config, 'ConfigLoader');
 
 const validator = new RamlTypeValidator(config);
