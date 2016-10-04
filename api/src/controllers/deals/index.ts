@@ -27,7 +27,7 @@ function Deals(router: express.Router): void {
      * GET request to get all available packages. The function first validates pagination query parameters. It then retrieves all
      * packages from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
-    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
+    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
 
         // Validate pagination parameters
         let pagination = {
@@ -39,14 +39,15 @@ function Deals(router: express.Router): void {
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
-            res.sendValidationError(validationErrors);
-            return;
+            let err = new Error(JSON.stringify(validationErrors));
+            err.name = 'BadRequest';
+            return next(err);
         }
 
         // Get all packages with an 'active' status
         return packageManager.fetchPackagesFromStatus('active', pagination)
             .then((activePackages: PackageModel[]) => {
-                return Promise.map(activePackages, (activePackage: PackageModel) => {
+                return Promise.filter(activePackages, (activePackage: PackageModel) => {
                     // Make sure a package is owned by an active user, has valid dates, and has at least one associated deal section
                      return userManager.fetchUserFromId(activePackage.ownerID.toString())
                         .then((user) => {
@@ -64,8 +65,7 @@ function Deals(router: express.Router): void {
                 res.sendPayload(availablePackages.map((pack) => { return pack.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
-                Log.error(err);
-                throw err;
+                next(err);
             });
 
     });

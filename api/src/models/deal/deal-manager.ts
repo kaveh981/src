@@ -6,6 +6,7 @@ import { DealModel } from './deal-model';
 
 import { DatabaseManager } from '../../lib/database-manager';
 import { PackageManager } from '../../models/package/package-manager';
+import { ContactManager } from '../../models/contact-info/contact-manager';
 import { Logger } from '../../lib/logger';
 
 const Log = new Logger('mDLS');
@@ -19,13 +20,17 @@ class DealManager {
     /** Internal package manager */
     private packageManager: PackageManager;
 
+    /** Internal contact manager */
+    private contactManager: ContactManager;
+
     /**
      * Constructor
      * @param database - An instance of the database manager.
      */
-    constructor(databaseManager: DatabaseManager, packageManager: PackageManager) {
+    constructor(databaseManager: DatabaseManager, packageManager: PackageManager, contactManager: ContactManager) {
         this.databaseManager = databaseManager;
         this.packageManager = packageManager;
+        this.contactManager = contactManager;
     }
 
     /**
@@ -33,6 +38,8 @@ class DealManager {
      * @param id - The id of the deal we want information from.
      */
     public fetchDealFromId(id: number): Promise<DealModel> {
+        let deal: DealModel;
+
         return this.databaseManager.select('dealID as id', 'userID as publisherID', 'dspID as dspId',
                     'name', 'auctionType', 'status', 'startDate', 'endDate', 'externalDealID as externalId',
                     this.databaseManager.raw('GROUP_CONCAT(sectionID) as sections') )
@@ -42,7 +49,13 @@ class DealManager {
                 .groupBy('dealID')
             .then((deals: any) => {
                 deals[0].sections = deals[0].sections.split(',');
-                return new DealModel(deals[0]);
+                deal = new DealModel(deals[0]);
+                return deal.publisherID;
+            })
+            .then(this.contactManager.fetchContactInfoFromId)
+            .then((contactInfo) => {
+                deal.publisherContact = contactInfo;
+                return deal;
             })
             .catch((err: Error) => {
                 throw err;
