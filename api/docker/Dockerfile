@@ -1,5 +1,8 @@
 FROM centos:centos7
 
+# Install git, needed by npm install
+RUN yum install -y git
+
 # Install NodeJS v6.7.0
 RUN set -ex \
     && for key in \
