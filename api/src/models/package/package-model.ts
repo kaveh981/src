@@ -68,8 +68,7 @@ class PackageModel {
         endDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        return (this.startDate === zeroDate || startDate <= endDate)
-            && (endDate >= today || this.endDate === zeroDate)
+        return (((startDate < endDate || this.startDate === this.endDate) && endDate >= today) || (this.endDate === zeroDate))
             && this.sections.length > 0;
     }
 
