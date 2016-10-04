@@ -65,7 +65,6 @@ function Deals(router: express.Router): void {
                 res.sendPayload(availablePackages.map((pack) => { return pack.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
-                Log.error(err);
                 next(err);
             });
 
