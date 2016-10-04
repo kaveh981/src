@@ -21,6 +21,18 @@ traits:
                 type: integer
                 description: The current user's ID, used as an authentication token.
 
+################################
+# Traits
+#   These are reusable traits that can be applied in multiple nodes
+################################
+
+traits:
+    auth_required:
+        headers:
+            X-IXM-BuyerId:
+                type: integer
+                description: The current user's ID, used as an authentication token.
+
 
 ################################
 # Object Definitions
