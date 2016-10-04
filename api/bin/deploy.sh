@@ -27,5 +27,5 @@ cp -rf $SRC/package.json $DEST
 # Remove files from /tmp
 rm -rf /tmp/*
 
-# Deploy starth.sh to /bin
+# Copy starth.sh to /bin
 cp $HERE/start.sh /bin/

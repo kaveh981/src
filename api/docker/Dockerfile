@@ -27,9 +27,20 @@ RUN \
   rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
   ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+RUN mkdir /src
+COPY . /src/
+
+ARG env=development
+ENV env $env
+
+RUN sh /src/bin/deploy.sh $env
+RUN rm -rf /src
+
+ENTRYPOINT ["sh", "/bin/start.sh", "$env"]
+
 # Label img with Commit hash and date at build time
-ARG GIT_COMMIT
-ARG DATE
+ARG GIT_COMMIT=dev
+ARG DATE=dev
 
 LABEL  SERVICE_NAME=atw-api \
     GIT_COMMIT=$GIT_COMMIT \
