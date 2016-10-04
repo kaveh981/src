@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENV=${ENV:-production}
+ENV=${1:-development}
 
 HERE=$(readlink -f $(dirname $0))
 DEST=/etc/nginx

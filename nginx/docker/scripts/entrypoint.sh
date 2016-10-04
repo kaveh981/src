@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENV=${ENV:-development}
+ENV=${1:-development}
 
-ENV=$ENV sh /src/atwater.git/nginx/etc/deploy.sh
+sh /src/etc/deploy.sh $ENV
 exec sh /bin/start.sh

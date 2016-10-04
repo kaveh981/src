@@ -3,7 +3,9 @@
 pid=0
 export NODE_ENV=${1:-production}
 
-cd /opt/atwater/
+echo "Starting Atwater Api in $NODE_ENV environment"
+
+cd /opt/atw-api/
 
 # SIGTERM-handler
 sigterm_handler() {
@@ -20,7 +22,7 @@ sigterm_handler() {
 trap 'sigterm_handler' SIGTERM
 
 # start api
-node index.js &
+node src/index.js &
 pid="$!"
 
 # wait for the node process to exit
