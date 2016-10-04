@@ -7,6 +7,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "build-docs": "bash ./bin/compile-docs.sh",
+    "postinstall": "typings install",
     "tape": "ts-node node_modules/tape/bin/tape",
     "test": "npm run tape e2e/deals/get.ts",
     "tslint": "tslint -e./typings/** -e./node_modules/** ./**/*.ts",
