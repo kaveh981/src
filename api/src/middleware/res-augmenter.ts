@@ -93,7 +93,7 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Validation error.
-    res.sendValidationError = (details: string[]) => {
+    res.sendValidationError = (details: any[]) => {
         res.sendError(400, '400', details);
     };
 

@@ -1,0 +1,15 @@
+#%RAML 1.0 DataType
+Goose:
+    type: object
+    properties:
+        attack: 
+            type: integer
+            default: 3
+        defense:
+            type: string
+        equipable:
+            type: boolean
+            default: true
+        pets:
+            type: Turtle[]
+            maxItems: 3

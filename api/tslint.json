@@ -20,7 +20,6 @@
         "no-eval": true,
         "no-invalid-this": true,
         "no-shadowed-variable": true,
-        "no-switch-case-fall-through": true,
         "no-unreachable": true,
         "no-unused-expression": true,
         "no-use-before-declare": true,
@@ -72,11 +71,6 @@
             "check-module",
             "check-separator",
             "check-type"
-        ],
-        "typedef": [
-            true,
-            "parameter",
-            "property-declaration"
         ],
         "typedef-whitespace": [
             true,

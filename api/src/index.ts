@@ -7,9 +7,9 @@ import { Injector } from './lib/injector';
 
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
-import { Validator } from './lib/validator';
+import { RamlTypeValidator } from './lib/raml-type-validator';
 
-const validator = Injector.request<Validator>('Validator');
+const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const server = Injector.request<Server>('Server');
 
