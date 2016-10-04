@@ -36,5 +36,5 @@ Thumbs.db
 ######################
 .env
 entrypoint_local.sh
-docker-compose.override.yml
+*override.yaml
 .rsyncignore
