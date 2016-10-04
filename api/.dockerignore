@@ -1,5 +1,4 @@
-typings/
 node_modules/
+typings/
 logs/
-test/
 *.log

@@ -18,7 +18,6 @@ RUN set -ex \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
     done
 
-ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.7.0
 
 RUN \
@@ -30,8 +29,8 @@ RUN \
   rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
   ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-RUN mkdir /src
-COPY . /src/
+RUN mkdir /src && mkdir -p /opt/atw-api
+COPY . /src
 
 ARG env=development
 ENV env $env
@@ -39,7 +38,7 @@ ENV env $env
 RUN sh /src/bin/deploy.sh $env
 RUN rm -rf /src
 
-ENTRYPOINT ["sh", "/bin/start.sh", "$env"]
+ENTRYPOINT ["sh", "-c", "/bin/start.sh $env"]
 
 # Label img with Commit hash and date at build time
 ARG GIT_COMMIT=dev
