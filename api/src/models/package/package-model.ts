@@ -38,6 +38,8 @@ class PackageModel {
     public modifyDate: string;
     /** Array of sectionsID associated with the package*/
     public sections: number[];
+    /** The currency the package is in */
+    public currency: string = 'USD';
 
      /**
      * Constructor
@@ -66,9 +68,7 @@ class PackageModel {
         endDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        return (startDate.toDateString() !== 'Invalid Date' && endDate.toDateString() !== 'Invalid Date')
-            && (startDate < endDate || startDate.toDateString() === endDate.toDateString())
-            && (endDate >= today || this.endDate === zeroDate)
+        return (((startDate < endDate || this.startDate === this.endDate) && endDate >= today) || (this.endDate === zeroDate))
             && this.sections.length > 0;
     }
 
@@ -87,6 +87,8 @@ class PackageModel {
                 phone: this.ownerContactInfo.phone
             },
             name: this.name,
+            status: this.status,
+            currency: this.currency,
             description: this.description,
             start_date: this.startDate,
             end_date: this.endDate,

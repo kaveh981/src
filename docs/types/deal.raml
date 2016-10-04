@@ -13,21 +13,16 @@ properties:
         required: true
         displayName: Publisher ID(s)
         description: The IDs of the publishers involved in the deal
-    publisher_name:
-        type: string[]
-        required: false
-        displayName: Publisher name(s)
-        description: The names of publishers involved in the deal
+    # publisher_name:
+    #     type: string[]
+    #     required: false
+    #     displayName: Publisher name(s)
+    #     description: The names of publishers involved in the deal
     name:
         type: string
         required: true
         displayName: Name
         description: Name of the deal
-    site_id:
-        type: integer[]
-        required: true
-        displayName: Site ID(s)
-        description: An array of unique website IDs involved in the deal
     deal_section_id: # ? Provide API paths to access ?
         type: integer[]
         required: true
@@ -107,7 +102,6 @@ example: |
     {
         "id": 999,
         "publisher_id": [123],
-        "publisher_name": ["Jimdex Exchange, Inc."],
         "site_id": [111,222],
         "deal_section_id": [4321, 9876],
         "name": "Superfab Ultradeal",
