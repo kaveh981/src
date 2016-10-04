@@ -18,7 +18,7 @@ rm -rf /opt/*
 mkdir -p $DEST
 
 cp -rf $TMP/build/src/* $DEST
-cp -rf $SRC/src/config $DEST
+cp -rf $SRC/config $DEST
 cp -rf $SRC/src/schemas $DEST
 cp -rf $TMP/node_modules $DEST
 cp -rf $SRC/.env $DEST
