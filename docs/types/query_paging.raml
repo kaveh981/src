@@ -1,7 +1,7 @@
 #%RAML 1.0 DataType
 
 type: object
-description: An object describing optional paging paramters included in route queries
+description: An object describing optional paging parameters included in route queries.
 properties:
     limit:
         type: integer
@@ -15,6 +15,6 @@ properties:
         type: integer
         required: false
         displayName: Offset
-        description: For paging, the page offset. This will be multiplied by `limit` to determine the set of results to return
+        description: For paging, the page offset. This will be multiplied by `limit` to determine the set of results to return.
         minimum: 1
         default: 1
