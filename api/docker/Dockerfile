@@ -1,5 +1,9 @@
 FROM centos:centos7
 
+# Install git, needed by npm install
+RUN yum install -y git
+
+# Install NodeJS v6.7.0
 RUN set -ex \
     && for key in \
         9554F04D7259F04124DE6B476D5A82AC7E37093B \
@@ -14,8 +18,6 @@ RUN set -ex \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
     done
 
-# Install NodeJS v6.5.0
-ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 6.7.0
 
 RUN \
@@ -27,11 +29,21 @@ RUN \
   rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
   ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+RUN mkdir /src && mkdir -p /opt/atw-api
+COPY . /src
+
+ARG env=development
+ENV env $env
+
+RUN sh /src/bin/deploy.sh $env
+RUN rm -rf /src
+
+ENTRYPOINT ["sh", "-c", "/bin/start.sh $env"]
+
 # Label img with Commit hash and date at build time
-ARG GIT_COMMIT
-ARG DATE
+ARG GIT_COMMIT=dev
+ARG DATE=dev
 
 LABEL  SERVICE_NAME=atw-api \
     GIT_COMMIT=$GIT_COMMIT \
-    DATE=$DATE \
-    IMAGE_TYPE=core
+    DATE=$DATE
