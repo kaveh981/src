@@ -6,7 +6,7 @@ import * as Promise from 'bluebird';
 import { Logger } from '../../lib/logger';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
-import { Validator } from '../../lib/validator';
+import { RamlTypeValidator } from '../../lib/raml-type-validator';
 import { ProtectedRoute } from '../../middleware/protected-route';
 import { PackageManager } from '../../models/package/package-manager';
 import { UserManager } from '../../models/user/user-manager';
@@ -14,7 +14,7 @@ import { PackageModel } from '../../models/package/package-model';
 
 const packageManager = Injector.request<PackageManager>('PackageManager');
 const userManager = Injector.request<UserManager>('UserManager');
-const validator = Injector.request<Validator>('Validator');
+const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -31,28 +31,17 @@ function Deals(router: express.Router): void {
 
         // Validate pagination parameters
         let pagination = {
-            limit: req.query.limit && Number(req.query.limit),
-            offset: req.query.offset && Number(req.query.offset)
+            limit: req.query.limit,
+            offset: req.query.offset
         };
 
-        let validation = validator.validate(pagination, 'Pagination');
+        let validationErrors = validator.validateType(pagination, 'Pagination',
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
-        if (validation.success === 0) {
-            res.sendValidationError(validation.errors);
+        if (validationErrors.length > 0) {
+            res.sendValidationError(validationErrors);
             return;
         }
-
-        // Set defaults
-        let defaultPagination = validator.getDefaults('Pagination');
-
-        if (pagination.limit > defaultPagination.limit) {
-            pagination.limit = defaultPagination.limit;
-        }
-
-        pagination = {
-            limit: pagination.limit || defaultPagination.limit,
-            offset: pagination.offset || defaultPagination.offset
-        };
 
         // Get all packages with an 'active' status
         return packageManager.fetchPackagesFromStatus('active', pagination)

@@ -3,73 +3,45 @@
 import * as Promise from 'bluebird';
 import * as http from 'http';
 import * as https from 'https';
+
 import { ConfigLoader } from '../lib/config-loader';
+import {IApiHelper, IReqOptions} from "./interfaces/IapiHelper";
 
-class ApiHelper {
+class ApiHelper implements IApiHelper {
 
-    private config: ConfigLoader;
-    private protocol: string;
-    private hostname: string;
-    private port: string;
-    private buyerIDHeaderName: string;
-    private userID: number;
-    private queryString: boolean = false;
-    private nodeOptions: any = {};
-    /**
-     * Constructs an API helper.
-     * @param config {ConfigLoader} - The config loader to use. Should point to test config folder
-     */
+    public reqOptions: IReqOptions = {};
+    public config: ConfigLoader;
+    public _queryString: Boolean = true;
+    public _protocol: string;
+
     constructor(config: ConfigLoader) {
         this.config = config;
-        this.protocol = this.config.get('api-helper').protocol;
-        this.hostname = this.config.get('api-helper').hostname;
-        this.port = this.config.get('api-helper').port;
-        this.buyerIDHeaderName = this.config.get('auth').header;
+        this._protocol = this.config.get('api-helper').protocol;
     }
 
-    /**
-     * Pass in valid options permitted by the node http/https modules.
-     * @param opts {any} - The provided options in the form of an object containing key-value pairs
-     */
-    public setOptions(opts: any) {
-        if (opts.method === 'GET' || opts.method === 'DELETE_QS') {
-            this.queryString = true;
-            if (opts.method === 'DELETE_QS') {
-                opts.method = 'DELETE';
-            }
-        } else {
-            this.queryString = false;
-        }
-
-        opts.hostname = opts.hostname || this.hostname;
-        opts.port = opts.port || this.port;
-        opts.method = opts.method || '';
-        opts.headers = opts.headers || {};
-        this.nodeOptions = JSON.parse(JSON.stringify(opts));
+     set reqOpts(options: IReqOptions) {
+        this.reqOptions.headers = options.headers || this.reqOptions.headers || {};
+        this.reqOptions.hostname = options.hostname || this.reqOptions.hostname || this.config.get('api-helper').hostname;
+        this.reqOptions.method = options.method || this.reqOptions.method || '';
+        this.reqOptions.port = options.port || this.reqOptions.port || this.config.get('api-helper').port;
+        this.reqOptions.path =  options.path || this.reqOptions.path || '';
+        this.reqOptions.json = options.json || this.reqOptions.json || {};
     }
 
-    /**
-     * Add the buyer's userID to the request
-     * @param _userID {number} - userID of the target buyer
-     */
-    public setBuyerUserID(_userID: any) {
-        this.userID = _userID;
+    set queryString(qs: Boolean){
+        this._queryString = qs;
     }
 
-    /**
-     * Clear buyer userID from the request header
-     */
-    public clearBuyerUserID() {
-        this.userID = undefined;
+    get queryString(){
+        return this._queryString;
     }
 
-    /**
-     * Clear the header and set it with the new value
-     * @param header {} - request header
-     */
-    public setRequestHeader(header: {}) {
-        this.userID = undefined;
-        this.nodeOptions.header = JSON.parse(JSON.stringify(header));
+    set protocol(protocol: string){
+        this._protocol = protocol;
+    }
+
+    get protocol(){
+        return this._protocol;
     }
     /**
      * Using the provided request body, send request
@@ -78,27 +50,22 @@ class ApiHelper {
      */
     public sendRequest(requestBody?: any): Promise<any> {
         // Start with a copy of the initially configured node options
-        let reqOpts: any = JSON.parse(JSON.stringify(this.nodeOptions));
-
-        // Combine buyer's userID with options (if userID present)
-        if (typeof this.userID !== 'undefined') {
-            if (typeof reqOpts.headers === 'undefined') {
-                reqOpts.headers = {};
-            }
-            reqOpts.headers[this.buyerIDHeaderName] = this.userID;
-        }
+        let reqOpts: IReqOptions = JSON.parse(JSON.stringify(this.reqOptions));
 
         // Process query string or attach request body
-        if (this.queryString) {
-            reqOpts.path  += '?';
+        if (requestBody && this._queryString ) {
+
+            let qs: string = '?';
+
             for (let param in requestBody) {
                 if (requestBody.hasOwnProperty(param)) {
-                    reqOpts.path  += (param + '=' + requestBody[param] + '&');
+                    qs += (param + '=' + requestBody[param] + '&');
                 }
             }
-            if (reqOpts.path.charAt(reqOpts.path.length - 1) === '&') {
-                reqOpts.path  = reqOpts.path.slice(0, -1);
+            if (qs.charAt(qs.length - 1) === '&') {
+                qs = qs.slice(0, -1);
             }
+            reqOpts.path += qs;
         } else {
             reqOpts.json = requestBody;
         }
@@ -127,8 +94,7 @@ class ApiHelper {
                         'httpVersion': res.httpVersion,
                         'httpStatusCode': res.statusCode,
                         'headers': res.headers,
-                        'body': JSON.parse(body),
-                        'trailers': res.trailers
+                        'body': JSON.parse(body)
                     };
                     resolve(result);
                 });
@@ -136,6 +102,6 @@ class ApiHelper {
             request.end();
         });
     }
-}
 
-export { ApiHelper }
+}
+export  {ApiHelper}
