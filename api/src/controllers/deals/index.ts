@@ -47,7 +47,7 @@ function Deals(router: express.Router): void {
         // Get all packages with an 'active' status
         return packageManager.fetchPackagesFromStatus('active', pagination)
             .then((activePackages: PackageModel[]) => {
-                return Promise.map(activePackages, (activePackage: PackageModel) => {
+                return Promise.filter(activePackages, (activePackage: PackageModel) => {
                     // Make sure a package is owned by an active user, has valid dates, and has at least one associated deal section
                      return userManager.fetchUserFromId(activePackage.ownerID.toString())
                         .then((user) => {

@@ -1,11 +1,15 @@
 'use strict';
 
+import { ContactModel } from '../contact-info/contact-model';
+
 class DealModel {
 
     /** The deal's unique internal identifier */
     public dealID: number;
     /** The publisher offering the deal */
     public publisherID: number;
+    /** Publisher information */
+    public publisherContact: ContactModel;
     /** The DSP buying the deal */
     public dspID: number;
     /** A descriptive name for the deal */
@@ -24,6 +28,8 @@ class DealModel {
     public startDate: string;
     /** The last day when the deal will serve - private */
     public endDate: string;
+    /** Currency of the deal */
+    public currency: string = 'USD';
 
     /**
      * Constructor
@@ -43,6 +49,13 @@ class DealModel {
         return {
             id: this.dealID,
             publisher_id: this.publisherID,
+            contact: {
+                title: this.publisherContact.title,
+                name: this.publisherContact.name,
+                email: this.publisherContact.emailAddress,
+                phone: this.publisherContact.phone
+            },
+            currency: this.currency,
             dsp_id: this.dspID,
             name: this.name,
             deal_section_id: this.sections,
@@ -50,7 +63,7 @@ class DealModel {
             start_date: this.startDate,
             end_date: this.endDate,
             auction_type: this.auctionType,
-            external_deal_id: this.externalID,
+            external_id: this.externalID,
             price: this.price
         };
     }
