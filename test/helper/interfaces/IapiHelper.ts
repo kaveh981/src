@@ -1,8 +1,6 @@
 import * as Promise from 'bluebird';
 import { ConfigLoader } from '../../lib/config-loader';
 
-export { IReqOptions }
-
 interface IApiHelper {
 
     config: ConfigLoader;

@@ -31,6 +31,10 @@ class ApiHelper implements IApiHelper {
         this.reqOptions.json = options.json || this.reqOptions.json || {};
     }
 
+    get reqOpts(){
+        return this.reqOptions;
+    }
+
     set queryString(qs: Boolean){
         this._queryString = qs;
     }
