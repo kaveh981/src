@@ -18,7 +18,7 @@ services:
       - atwater
     entrypoint: "sh /src/docker/scripts/entrypoint.sh"
     volumes:
-      - "/src/atwater.git/api/:/src/:rw"
+      - "/src/atwater.git/api/:/src/:ro"
   atw-nginx:
     container_name: "atw-nginx"
     restart: "no"
@@ -30,6 +30,6 @@ services:
       - atwater
       - internal
     volumes:
-      - "/src/atwater.git/nginx/:/src"
+      - "/src/atwater.git/nginx/:/src/:ro"
     ports:
       - "443:443"

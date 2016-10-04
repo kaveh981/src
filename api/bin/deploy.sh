@@ -39,3 +39,4 @@ rm -rf /tmp/*
 # Copy starth.sh to /bin
 echo "Copying start.sh to /bin"
 cp $HERE/start.sh /bin/
+chmod +x /bin/start.sh
