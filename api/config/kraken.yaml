@@ -36,7 +36,7 @@ middleware:
         priority: 50
         module:
             arguments:
-                - directory: path:./controllers 
+                - directory: path:./controllers
 
     # Handle Not Founds
     404Handler:
