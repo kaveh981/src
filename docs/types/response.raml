@@ -1,7 +1,7 @@
 #%RAML 1.0 DataType
 
 type: object
-description: The standard response object.
+description: The standard response object. All responses from the API will be wrapped in this response. Includes metadata on the status of the request, and the data payload, if any, in the "data" field. If an error has occured, error details will be included in the "message" field.
 properties:
     code:
         type: integer
@@ -23,7 +23,7 @@ properties:
         type: object #QueryPaging?
         required: false
         displayName: pagination
-        description: An optional object describing the pagination context of the returned data
+        description: An optional object describing the pagination context of the returned data.
 example: |
     {
         "code": 200,
