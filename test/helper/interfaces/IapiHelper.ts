@@ -1,14 +1,6 @@
 import * as Promise from 'bluebird';
 import { ConfigLoader } from '../../lib/config-loader';
 
-interface IReqOptions {
-    hostname?: string;
-    port?: number;
-    method?: string;
-    path?: string;
-    headers?: {};
-    json?: {};
-}
 export { IReqOptions }
 
 interface IApiHelper {
@@ -21,4 +13,4 @@ interface IApiHelper {
     sendRequest(requestBody?: any): Promise<any>;
 
 }
-export  {IApiHelper}
+export  { IApiHelper }
