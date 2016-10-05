@@ -9,6 +9,7 @@ declare module 'testFramework' {
     import { DatabaseManager } from '../../lib/database-manager';
 
     namespace testFramework {
+
         interface IApiHelper {
 
             config: ConfigLoader;

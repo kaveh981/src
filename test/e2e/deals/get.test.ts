@@ -3,17 +3,15 @@
 import * as test from 'tape';
 import * as express from 'express';
 import * as Promise from 'bluebird';
-import * as  testFramework  from 'testFramework';
+import * as testFramework  from 'testFramework';
 
 import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../api/src/models/package/package-model';
 
-import { ApiHelper } from '../../helper/api-helper';
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 
-import { HelperMethods } from '../../helper/helper-methods';
 const helperMethods = Injector.request<testFramework.IHelperMethods>('HelperMethods');
 
 const dataSetup = Injector.request<testFramework.IDataSetup>('DataSetup');
