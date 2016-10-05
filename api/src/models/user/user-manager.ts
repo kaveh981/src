@@ -28,7 +28,7 @@ class UserManager {
      * @param id - The id of the user we want information from.
      */
     public fetchUserFromId(userID: string): Promise<UserModel> {
-        return this.databaseManager.select('userID', 'status as userStatus', 'userTypes.name as userType', 'ug.name as userGroup')
+        return this.databaseManager.select('userID', 'status', 'userTypes.name as userType', 'ug.name as userGroup')
                 .from('users')
                 .innerJoin('userTypes', 'userType', '=', 'userTypeID')
                 .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
