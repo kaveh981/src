@@ -1,14 +1,14 @@
 'use strict';
 import * as Promise from 'bluebird';
+import * as testFramework from 'testFramework';
 
 import { Logger } from '../lib/logger';
 import { Injector } from '../lib/injector';
 import { DatabaseManager } from '../lib/database-manager';
-import { IDataSetup } from './interfaces/Idata-setup';
 
 const Log = new Logger('DSTP');
 
-class DataSetup implements IDataSetup {
+class DataSetup implements testFramework.IDataSetup {
 
     public dbm: DatabaseManager;
 

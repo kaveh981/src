@@ -5,9 +5,9 @@ import * as http from 'http';
 import * as https from 'https';
 
 import { ConfigLoader } from '../lib/config-loader';
-import { IApiHelper } from "./interfaces/Iapi-helper";
+import * as testFramework from 'testFramework';
 
-class ApiHelper implements IApiHelper {
+class ApiHelper implements testFramework.IApiHelper {
 
     public reqOptions: IReqOptions = {};
     public config: ConfigLoader;
@@ -22,7 +22,7 @@ class ApiHelper implements IApiHelper {
         }
     }
 
-     set reqOpts(options: IReqOptions) {
+     public setReqOpts(options: IReqOptions) {
         this.reqOptions.headers = options.headers || this.reqOptions.headers || {};
         this.reqOptions.hostname = options.hostname || this.reqOptions.hostname || this.config.get('api-helper').hostname;
         this.reqOptions.method = options.method || this.reqOptions.method || '';
@@ -31,7 +31,7 @@ class ApiHelper implements IApiHelper {
         this.reqOptions.json = options.json || this.reqOptions.json || {};
     }
 
-    get reqOpts(){
+    public getReqOpts() {
         return this.reqOptions;
     }
 
