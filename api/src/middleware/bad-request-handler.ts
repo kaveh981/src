@@ -21,4 +21,3 @@ function BadRequestHandler(err: Error, req: express.Request, res: express.Respon
 };
 
 module.exports = () => { return BadRequestHandler; };
-

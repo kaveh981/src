@@ -108,7 +108,6 @@ interface INewPackageData {
     package: IPackage;
 }
 
-
 interface IReqOptions {
     hostname?: string;
     port?: number;
@@ -117,4 +116,3 @@ interface IReqOptions {
     headers?: {};
     json?: {};
 }
-

@@ -19,7 +19,7 @@ class NegotiationModel {
     /** Current negotiated terms - if different from the one in package */
     public terms: string;
     /** Party who last updated the negotiation */
-    public sender: 'P' | 'B';
+    public sender: 'publisher' | 'buyer';
     /** Keeps track of the publishers position */
     public pubStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Keeps track of the buyers position */
