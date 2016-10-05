@@ -15,13 +15,13 @@ import { DatabaseManager   } from '../lib/database-manager';
 import { ApiHelper         } from "./api-helper";
 import { DatabasePopulator } from "./database-populator";
 import { DataSetup         } from "./data-setup";
-import { IDataSetup        } from "./interfaces/IdataSetup";
-import { IApiHelper        } from "./interfaces/IapiHelper";
-import { HelperMethods     } from "./helperMethods";
-import { IHelperMethods    } from "./interfaces/IhelperMethods";
+import { IDataSetup        } from "./interfaces/Idata-setup";
+import { IApiHelper        } from "./interfaces/Iapi-helper";
+import { HelperMethods     } from "./helper-methods";
+import { IHelperMethods    } from "./interfaces/Ihelper-methods";
 /** Dependency Resolution */
 
-const apiHelper:IApiHelper = new ApiHelper(config);
+const apiHelper: IApiHelper = new ApiHelper(config);
 Injector.put(apiHelper, 'ApiHelper');
 
 const databaseManager = new DatabaseManager(config);
@@ -30,10 +30,10 @@ Injector.put(databaseManager, 'DatabaseManager');
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
 
-const dataSetup:IDataSetup = new DataSetup(databaseManager);
+const dataSetup: IDataSetup = new DataSetup(databaseManager);
 Injector.put(dataSetup, 'DataSetup');
 
-const helperMethods:IHelperMethods = new HelperMethods();
+const helperMethods: IHelperMethods = new HelperMethods();
 Injector.put(helperMethods, 'HelperMethods');
 /**
  * Bootstrap class, the first module you import inside a test file

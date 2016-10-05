@@ -12,7 +12,7 @@ import { PackageModel } from '../../../api/src/models/package/package-model';
 import { ApiHelper } from '../../helper/api-helper';
 const apiHelper = Injector.request<ApiHelper>('ApiHelper');
 
-import { HelperMethods } from '../../helper/helperMethods';
+import { HelperMethods } from '../../helper/helper-methods';
 const helperMethods = Injector.request<HelperMethods>('HelperMethods');
 
 import { DataSetup } from '../../helper/data-setup';

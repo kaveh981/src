@@ -1,6 +1,6 @@
 'use strict';
 
-import { IHelperMethods } from "./interfaces/IhelperMethods";
+import { IHelperMethods } from "./interfaces/Ihelper-methods";
 
 class HelperMethods implements IHelperMethods {
 

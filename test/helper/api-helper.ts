@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as https from 'https';
 
 import { ConfigLoader } from '../lib/config-loader';
-import { IApiHelper } from "./interfaces/IapiHelper";
+import { IApiHelper } from "./interfaces/Iapi-helper";
 
 class ApiHelper implements IApiHelper {
 

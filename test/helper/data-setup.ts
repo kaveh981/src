@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { Logger } from '../lib/logger';
 import { Injector } from '../lib/injector';
 import { DatabaseManager } from '../lib/database-manager';
-import { IDataSetup } from './interfaces/IdataSetup';
+import { IDataSetup } from './interfaces/Idata-setup';
 
 const Log = new Logger('DSTP');
 
