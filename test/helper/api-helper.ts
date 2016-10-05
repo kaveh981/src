@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as https from 'https';
 
 import { ConfigLoader } from '../lib/config-loader';
-import {IApiHelper, IReqOptions} from "./interfaces/IapiHelper";
+import { IApiHelper } from "./interfaces/Iapi-helper";
 
 class ApiHelper implements IApiHelper {
 
@@ -17,6 +17,9 @@ class ApiHelper implements IApiHelper {
     constructor(config: ConfigLoader) {
         this.config = config;
         this._protocol = this.config.get('api-helper').protocol;
+        if (this._protocol === 'https') {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        }
     }
 
      set reqOpts(options: IReqOptions) {
@@ -26,6 +29,10 @@ class ApiHelper implements IApiHelper {
         this.reqOptions.port = options.port || this.reqOptions.port || this.config.get('api-helper').port;
         this.reqOptions.path =  options.path || this.reqOptions.path || '';
         this.reqOptions.json = options.json || this.reqOptions.json || {};
+    }
+
+    get reqOpts(){
+        return this.reqOptions;
     }
 
     set queryString(qs: Boolean){
@@ -104,4 +111,4 @@ class ApiHelper implements IApiHelper {
     }
 
 }
-export  {ApiHelper}
+export  { ApiHelper }
