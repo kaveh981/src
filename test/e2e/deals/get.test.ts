@@ -3,20 +3,18 @@
 import * as test from 'tape';
 import * as express from 'express';
 import * as Promise from 'bluebird';
+import * as testFramework  from 'testFramework';
 
 import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../api/src/models/package/package-model';
 
-import { ApiHelper } from '../../helper/api-helper';
-const apiHelper = Injector.request<ApiHelper>('ApiHelper');
+const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 
-import { HelperMethods } from '../../helper/helper-methods';
-const helperMethods = Injector.request<HelperMethods>('HelperMethods');
+const helperMethods = Injector.request<testFramework.IHelperMethods>('HelperMethods');
 
-import { DataSetup } from '../../helper/data-setup';
-const dataSetup = Injector.request<DataSetup>('DataSetup');
+const dataSetup = Injector.request<testFramework.IDataSetup>('DataSetup');
 
 import { DatabasePopulator } from '../../helper/database-populator';
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
@@ -27,10 +25,10 @@ const config = Injector.request<ConfigLoader>('ConfigLoader');
 import { DatabaseManager } from '../../lib/database-manager';
 const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
-apiHelper.reqOpts = {
+apiHelper.setReqOpts({
     method: 'GET',
     path: '/deals'
-};
+});
 
 test('/deals GET', (t: Test) => {
     const tables: string[] = ['ixmPackageSectionMappings',
@@ -67,7 +65,7 @@ test('/deals GET', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V1 when limit is a non int', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'limit': `'10'`})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: ' + res.body.message);
@@ -75,11 +73,11 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V2 when limit is int but less than 1', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'limit': -5})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: ' + res.body.message);
@@ -87,10 +85,10 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
     t.test('ATW_D_GET_V3 when limit is greater than 250 it has to be auto adjusted to 250', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'limit': 500})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
@@ -99,10 +97,10 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
     t.test('ATW_D_GET_V4 when offset is a non int', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'offset': `'0'`})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: ' + res.body.message);
@@ -110,11 +108,11 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V5 when offset is less than 0', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'offset': -1})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: ' + res.body.message);
@@ -122,7 +120,7 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V6 when buyerID not exists on the header', (assert: Test) => {
@@ -136,7 +134,7 @@ test('/deals GET', (t: Test) => {
     });
 
     t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] =  '`' + newBuyer.user.userID + '`';
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: '`' + newBuyer.user.userID + '`'}});
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
@@ -144,11 +142,11 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
@@ -158,11 +156,11 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V9 when buyerID is not a know IXM-buyer', (assert: Test) => {
-        apiHelper.reqOpts.headers[buyerIDKey] = newBuyer.user.userID + 5;
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID + 5}});
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
@@ -170,20 +168,20 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                     assert.end();
             });
-        apiHelper.reqOpts.headers = {};
+        apiHelper.setReqOpts({headers: {}});
     });
 
     t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
         (assert: Test) => {
-            apiHelper.reqOpts.headers[buyerIDKey] = newPub.user.userID;
-        apiHelper.sendRequest()
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
-            })
-            .finally(() => {
-                assert.end();
-            });
-            apiHelper.reqOpts.headers = {};
+            apiHelper.setReqOpts({headers: {[buyerIDKey]: newPub.user.userID}});
+            apiHelper.sendRequest()
+                .then((res: any) => {
+                    assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
+                })
+                .finally(() => {
+                    assert.end();
+                });
+            apiHelper.setReqOpts({headers: {}});
         });
 
     t.test('teardown', (assert: test.Test) => {

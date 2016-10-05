@@ -1,8 +1,8 @@
 'use strict';
 
-import { IHelperMethods } from "./interfaces/Ihelper-methods";
+import * as testFramework from 'testFramework';
 
-class HelperMethods implements IHelperMethods {
+class HelperMethods implements testFramework.IHelperMethods {
 
     /**
      * Changes the date format to yyyy-mm-dd
