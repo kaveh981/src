@@ -12,6 +12,9 @@ import { PackageModel } from '../../../api/src/models/package/package-model';
 import { ApiHelper } from '../../helper/api-helper';
 const apiHelper = Injector.request<ApiHelper>('ApiHelper');
 
+import { HelperMethods } from '../../helper/helperMethods';
+const helperMethods = Injector.request<HelperMethods>('HelperMethods');
+
 import { DataSetup } from '../../helper/data-setup';
 const dataSetup = Injector.request<DataSetup>('DataSetup');
 
@@ -217,8 +220,8 @@ test('/deals GET', (t: Test) => {
                 },
                 name: pack.name,
                 description: pack.description,
-                start_date: dateToYMD(pack.startDate.toISOString()),
-                end_date: dateToYMD(pack.endDate.toISOString()),
+                start_date: helperMethods.dateToYMD(pack.startDate.toISOString()),
+                end_date: helperMethods.dateToYMD(pack.endDate.toISOString()),
                 price: pack.price,
                 impressions: pack.impressions,
                 budget: pack.budget,
@@ -229,19 +232,6 @@ test('/deals GET', (t: Test) => {
                 deal_section_id: [createdSection.section.sectionID]
             };
         })[0];
-    }
-
-    /**
-     * Changes the date format to yyyy-mm-dd
-     * @param date any - date in ISO format
-     * @returns date in the format of yyyy-mm-dd
-     */
-    function dateToYMD(date: any) {
-        date = new Date(date);
-        let d: number = date.getDate();
-        let m: number = date.getMonth() + 1;
-        let y: number = date.getFullYear();
-        return '' + y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
     }
 
 });
