@@ -36,6 +36,16 @@ interface IHttpResponse {
  */
 function augmentResponse(res: express.Response): void {
 
+    // Send JSON and set content type
+    res.sendJSON = (statusCode: number, message: any) => {
+        let msg = JSON.stringify(message);
+        res.set({
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(msg)
+        });
+        res.status(statusCode).send(msg);
+    };
+
     // Send JSON payload
     res.sendPayload = (payload: any, pagination?: IPagination) => {
         // If the payload is undefined or is an empty object, send no content
@@ -63,7 +73,7 @@ function augmentResponse(res: express.Response): void {
             };
         }
 
-        res.status(200).send(JSON.stringify(msg));
+        res.sendJSON(200, msg);
     };
 
     // Send an error message.
@@ -78,7 +88,7 @@ function augmentResponse(res: express.Response): void {
             msg.data = details;
         }
 
-        res.status(status).send(JSON.stringify(msg));
+        res.sendJSON(status, msg);
     };
 
     // 204 no content
@@ -89,7 +99,7 @@ function augmentResponse(res: express.Response): void {
             data: []
         };
 
-        res.status(200).send(JSON.stringify(msg));
+        res.sendJSON(200, msg);
     };
 
     // Validation error.
