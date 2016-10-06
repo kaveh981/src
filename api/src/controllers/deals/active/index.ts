@@ -106,8 +106,8 @@ function ActiveDeals(router: express.Router): void {
 
         })()
         .catch((err: Error) => {
-                Log.error(err);
-                throw err;
+            Log.error(err);
+            throw err;
         });
     });
 
