@@ -118,34 +118,6 @@ function ActiveDeals(router: express.Router): void {
                 Log.error(err);
                 throw err;
         });
-
-        // return packageManager.fetchPackageFromId(packageID)
-        //     .then((thePackage) => {
-        //         // Check that package exists
-        //         if (!thePackage) {
-        //             res.sendNotFoundError();
-        //             return;
-        //         }
-        //         // Check that the package is available for purchase
-        //         return userManager.fetchUserFromId(thePackage.ownerID.toString())
-        //             .then((user) => {
-        //                 if (!thePackage.isValidAvailablePackage() || !(user.userStatus === 'A')) {
-        //                     res.sendError(403, '403');
-        //                     return;
-        //                 }
-        //             })
-        //             .then(() => {
-        //                 // Check that package has not been bought yet by this buyer
-        //                 return packageManager.isDealAcceptedByBuyer(packageID, buyerID)
-        //                     .then((accepted) => {
-        //                         if (accepted) {
-        //                             res.sendError(403, '403');
-        //                             return;
-        //                         }
-        //                         return thePackage;
-        //                     });
-        //             });
-        //     })
     });
 
 };
