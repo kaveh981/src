@@ -49,5 +49,8 @@ declare module 'express' {
 
         /** Send a generic 500 internal server error. */
         sendInternalError(): void;
+
+        /** Send a message as JSON */
+        sendJSON(status: number, json: any): void;
     }
 }
