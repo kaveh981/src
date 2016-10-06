@@ -85,14 +85,14 @@ function ActiveDeals(router: express.Router): void {
             // Check that the package is available for purchase
             let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
 
-            if (!thePackage.isValidAvailablePackage() || !(owner.userStatus === 'A')) {
+            if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
                 Log.debug('Package is not available for purchase');
                 res.sendError(403, '403');
                 return;
             }
 
             // Check that package has not been bought yet by this buyer
-            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID);
+            let accepted = yield packageManager.isPackageMappedToBuyer(packageID, buyerID);
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
@@ -101,8 +101,20 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check if the package already has a deal associated with this buyer's DSP
+            let existingDeal = yield dealManager.fetchExistingDealWithBuyerDSP(packageID, buyerID);
 
-            // res.sendPayload(newDeal);
+            if (existingDeal) {
+                // If buyer's DSP already accepted this deal, just add a mapping between this buyer and the existing deal
+                // and return this deal
+                Log.info("Deal for this package already exists with buyer's DSP");
+                yield dealManager.saveBuyerDealMapping(buyerID, existingDeal.id);
+                res.sendPayload(existingDeal.toPayload());
+            } else {
+                // If not, create a new deal in the database
+                Log.info("New deal will be created");
+                let newDeal = yield dealManager.saveDealForBuyer(buyerID, thePackage);
+                res.sendPayload(newDeal);
+            }
 
         })()
         .catch((err: Error) => {
