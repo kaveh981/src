@@ -26,7 +26,7 @@ function verifyToken(token: string): Promise<string> {
                 if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
                     resolve('401_NOT_IXMBUYER');
                     return;
-                } else if (userInfo.userStatus !== 'A') {
+                } else if (userInfo.status !== 'A') {
                     resolve('401_NOT_ACTIVE');
                     return;
                 }

@@ -2,7 +2,7 @@
 
 /** Resolve any dependencies in this file and pass it to the injector for safe keeping. */
 import * as Promise from 'bluebird';
-
+import * as testFramework from 'testFramework';
 /** Lib */
 import { Injector     } from '../lib/injector';
 import { ConfigLoader } from '../lib/config-loader';
@@ -15,10 +15,11 @@ import { DatabaseManager   } from '../lib/database-manager';
 import { ApiHelper         } from "./api-helper";
 import { DatabasePopulator } from "./database-populator";
 import { DataSetup         } from "./data-setup";
+import { HelperMethods     } from "./helper-methods";
 
 /** Dependency Resolution */
 
-const apiHelper = new ApiHelper(config);
+const apiHelper: testFramework.IApiHelper = new ApiHelper(config);
 Injector.put(apiHelper, 'ApiHelper');
 
 const databaseManager = new DatabaseManager(config);
@@ -27,9 +28,11 @@ Injector.put(databaseManager, 'DatabaseManager');
 const dbPopulator = new DatabasePopulator(databaseManager, config);
 Injector.put(dbPopulator, "DatabasePopulator");
 
-const dataSetup = new DataSetup(databaseManager);
+const dataSetup: testFramework.IDataSetup = new DataSetup(databaseManager);
 Injector.put(dataSetup, 'DataSetup');
 
+const helperMethods: testFramework.IHelperMethods = new HelperMethods();
+Injector.put(helperMethods, 'HelperMethods');
 /**
  * Bootstrap class, the first module you import inside a test file
  */
@@ -42,6 +45,7 @@ class Bootstrap {
      * @returns {Promise<void>} Promise which resolves when boot has finished
      */
     public boot(): Promise<void> {
+
         if (this.count > 0) {
             this.count += 1;
             return Promise.resolve();
