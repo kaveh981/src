@@ -1,5 +1,6 @@
 'use strict';
 import * as Promise from 'bluebird';
+import * as testFramework from 'testFramework';
 
 import { Logger } from '../lib/logger';
 import { Injector } from '../lib/injector';
@@ -7,9 +8,9 @@ import { DatabaseManager } from '../lib/database-manager';
 
 const Log = new Logger('DSTP');
 
-class DataSetup {
+class DataSetup implements testFramework.IDataSetup {
 
-    private dbm: DatabaseManager;
+    public dbm: DatabaseManager;
 
     constructor(dbm: DatabaseManager) {
         this.dbm = dbm;
@@ -97,6 +98,7 @@ class DataSetup {
     /**
      * Clear a table.
      * @param table - The name of the table that we want to clear.
+     * @param suffix - The clear table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
     public clearTable(table: string, suffix: string = '_bckp'): Promise<any> {

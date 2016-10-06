@@ -107,3 +107,12 @@ interface INewPackageData {
     sectionIDs: number[];
     package: IPackage;
 }
+
+interface IReqOptions {
+    hostname?: string;
+    port?: number;
+    method?: string;
+    path?: string;
+    headers?: {};
+    json?: {};
+}
