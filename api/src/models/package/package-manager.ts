@@ -37,10 +37,12 @@ class PackageManager {
 
         return this.getPackageInfo(packageID)
             .then((info) => {
+                if (!info) { return; }
                 packageObject = new PackageModel(info);
                 return this.getPackageSections(packageID);
             })
             .then((sections) => {
+                if (!sections) { return; }
                 packageObject.sections = sections;
                 return packageObject;
             })
@@ -108,6 +110,20 @@ class PackageManager {
             });
     }
 
+    public isDealAcceptedByBuyer(packageID: number, buyerID: number): Promise<any> {
+        return this.databaseManager.select()
+                .from('ixmBuyerDealMappings')
+                .join('ixmPackageDealMappings', 'ixmBuyerDealMappings.dealID', 'ixmPackageDealMappings.dealID')
+                .where('userID', buyerID)
+                .andWhere('packageID', packageID)
+            .then((result) => {
+                return result.length > 0;
+            })
+            .catch((err: Error) => {
+                throw err;
+            });
+    }
+
     /**
      * Get package information by package ID
      * @param packageID - the ID of the package
@@ -122,9 +138,11 @@ class PackageManager {
                 .where('packageID', packageID)
             .then((info: any) => {
                 packageInfo = info[0];
+                if (!packageInfo) { return; }
                 return this.contactManager.fetchContactInfoFromId(packageInfo.ownerID);
             })
             .then((contact) => {
+                if (!contact) { return; }
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
             })

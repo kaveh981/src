@@ -33,7 +33,7 @@ middleware:
     
     # Controller routes
     router:
-        priority: 50
+        priority: 70
         module:
             arguments:
                 - directory: path:./controllers

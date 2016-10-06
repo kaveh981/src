@@ -9,8 +9,13 @@ import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 import { DealManager } from '../../../models/deal/deal-manager';
+import { PackageManager } from '../../../models/package/package-manager';
+import { PackageModel } from '../../../models/package/package-model';
+import { UserManager } from '../../../models/user/user-manager';
 
 const dealManager = Injector.request<DealManager>('DealManager');
+const packageManager = Injector.request<PackageManager>('PackageManager');
+const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ACTD');
@@ -55,6 +60,92 @@ function ActiveDeals(router: express.Router): void {
                 throw err;
             });
 
+    })
+    .put('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
+        let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
+
+        if (validationErrors.length > 0) {
+            res.sendValidationError(validationErrors);
+            return;
+        }
+
+        let packageID: number = req.body.packageID;
+        let buyerID = Number(req.ixmBuyerInfo.userID);
+
+        Promise.coroutine(function* (): any {
+            // Check that package exists
+            let thePackage = yield packageManager.fetchPackageFromId(packageID)
+                .then((result) => {
+                    return result;
+                });
+
+            if (!thePackage) {
+                Log.debug('Package does not exist');
+                res.sendNotFoundError();
+                return;
+            }
+
+            // Check that the package is available for purchase
+            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString())
+                .then((result) => {
+                    return result;
+                });
+
+            if (!thePackage.isValidAvailablePackage() || !(owner.userStatus === 'A')) {
+                Log.debug('Package is not available for purchase');
+                res.sendError(403, '403');
+                return;
+            }
+
+            // Check that package has not been bought yet by this buyer
+            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID)
+                .then((result) => {
+                    return result;
+                });
+
+            if (accepted) {
+                Log.debug('Package has already been accepted');
+                res.sendError(403, '403');
+                return;
+            }
+
+            // Check if the package already has a deal associated with this buyer's DSP
+
+            // res.sendPayload(newDeal);
+
+        })()
+        .catch((err: Error) => {
+                Log.error(err);
+                throw err;
+        });
+
+        // return packageManager.fetchPackageFromId(packageID)
+        //     .then((thePackage) => {
+        //         // Check that package exists
+        //         if (!thePackage) {
+        //             res.sendNotFoundError();
+        //             return;
+        //         }
+        //         // Check that the package is available for purchase
+        //         return userManager.fetchUserFromId(thePackage.ownerID.toString())
+        //             .then((user) => {
+        //                 if (!thePackage.isValidAvailablePackage() || !(user.userStatus === 'A')) {
+        //                     res.sendError(403, '403');
+        //                     return;
+        //                 }
+        //             })
+        //             .then(() => {
+        //                 // Check that package has not been bought yet by this buyer
+        //                 return packageManager.isDealAcceptedByBuyer(packageID, buyerID)
+        //                     .then((accepted) => {
+        //                         if (accepted) {
+        //                             res.sendError(403, '403');
+        //                             return;
+        //                         }
+        //                         return thePackage;
+        //                     });
+        //             });
+        //     })
     });
 
 };
