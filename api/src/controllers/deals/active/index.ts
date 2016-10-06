@@ -74,10 +74,7 @@ function ActiveDeals(router: express.Router): void {
 
         Promise.coroutine(function* (): any {
             // Check that package exists
-            let thePackage = yield packageManager.fetchPackageFromId(packageID)
-                .then((result) => {
-                    return result;
-                });
+            let thePackage = yield packageManager.fetchPackageFromId(packageID);
 
             if (!thePackage) {
                 Log.debug('Package does not exist');
@@ -86,10 +83,7 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check that the package is available for purchase
-            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString())
-                .then((result) => {
-                    return result;
-                });
+            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
 
             if (!thePackage.isValidAvailablePackage() || !(owner.userStatus === 'A')) {
                 Log.debug('Package is not available for purchase');
@@ -98,10 +92,7 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check that package has not been bought yet by this buyer
-            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID)
-                .then((result) => {
-                    return result;
-                });
+            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID);
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
