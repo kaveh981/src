@@ -2,5 +2,5 @@
 
 ENV=${1:-development}
 
-sh /src/etc/deploy.sh $ENV
-exec sh /bin/start.sh
+sh /src/bin/deploy.sh $ENV
+exec nginx -g "daemon off;"
