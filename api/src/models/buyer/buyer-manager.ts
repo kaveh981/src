@@ -48,37 +48,31 @@ class BuyerManager {
             .then((contactInfo) => {
                 buyerObject.contactInfo = contactInfo;
                 return buyerObject;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
     /**
      * Returns all userIDs associated with a given DSP
-     * @param dspId - The ID of the DSP we want to obtain users for.
+     * @param dspID - The ID of the DSP we want to obtain users for.
+     * @returns a list of objects containing the IDs
      */
     public getIdsFromDSP(dspID: number, pagination: any): Promise<any> {
         return this.databaseManager.select('userID')
                 .from('ixmBuyers')
                 .where('dspid', dspID)
                 .limit(pagination.limit)
-                .offset(pagination.offset)
-            .catch((err: Error) => {
-                throw err;
-            });
+                .offset(pagination.offset);
     }
 
     /** 
-     * Helper function for getting all dspIDs associated with a given userID 
+     * Returns the dspIDs associated with a given user
+     * @param userID - the ID of the user in question
+     * @returns a list of objects containing the IDs
      */
-    private getDSPsFromId(userID: number): Promise<any> {
+    public getDSPsFromId(userID: number): Promise<any> {
         return this.databaseManager.select('dspid')
                 .from('ixmBuyers')
-                .where('userid', userID)
-            .catch((err: Error) => {
-                throw err;
-            });
+                .where('userid', userID);
     }
 
 }
