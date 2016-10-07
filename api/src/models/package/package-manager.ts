@@ -128,7 +128,7 @@ class PackageManager {
     private getPackageInfo(packageID: number): Promise<any> {
         let packageInfo: PackageModel;
 
-        return this.databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+        return this.databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'accessMode', 'startDate',
                     'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
                 .from('ixmPackages')
                 .where('packageID', packageID)
