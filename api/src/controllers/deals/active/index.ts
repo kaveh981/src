@@ -74,10 +74,7 @@ function ActiveDeals(router: express.Router): void {
 
         Promise.coroutine(function* (): any {
             // Check that package exists
-            let thePackage = yield packageManager.fetchPackageFromId(packageID)
-                .then((result) => {
-                    return result;
-                });
+            let thePackage = yield packageManager.fetchPackageFromId(packageID);
 
             if (!thePackage) {
                 Log.debug('Package does not exist');
@@ -86,10 +83,7 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check that the package is available for purchase
-            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString())
-                .then((result) => {
-                    return result;
-                });
+            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
 
             if (!thePackage.isValidAvailablePackage() || !(owner.userStatus === 'A')) {
                 Log.debug('Package is not available for purchase');
@@ -98,10 +92,7 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check that package has not been bought yet by this buyer
-            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID)
-                .then((result) => {
-                    return result;
-                });
+            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID);
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
@@ -115,37 +106,9 @@ function ActiveDeals(router: express.Router): void {
 
         })()
         .catch((err: Error) => {
-                Log.error(err);
-                throw err;
+            Log.error(err);
+            throw err;
         });
-
-        // return packageManager.fetchPackageFromId(packageID)
-        //     .then((thePackage) => {
-        //         // Check that package exists
-        //         if (!thePackage) {
-        //             res.sendNotFoundError();
-        //             return;
-        //         }
-        //         // Check that the package is available for purchase
-        //         return userManager.fetchUserFromId(thePackage.ownerID.toString())
-        //             .then((user) => {
-        //                 if (!thePackage.isValidAvailablePackage() || !(user.userStatus === 'A')) {
-        //                     res.sendError(403, '403');
-        //                     return;
-        //                 }
-        //             })
-        //             .then(() => {
-        //                 // Check that package has not been bought yet by this buyer
-        //                 return packageManager.isDealAcceptedByBuyer(packageID, buyerID)
-        //                     .then((accepted) => {
-        //                         if (accepted) {
-        //                             res.sendError(403, '403');
-        //                             return;
-        //                         }
-        //                         return thePackage;
-        //                     });
-        //             });
-        //     })
     });
 
 };

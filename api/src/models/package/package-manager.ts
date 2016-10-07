@@ -37,12 +37,16 @@ class PackageManager {
 
         return this.getPackageInfo(packageID)
             .then((info) => {
-                if (!info) { return; }
+                if (!info) {
+                    return;
+                }
                 packageObject = new PackageModel(info);
                 return this.getPackageSections(packageID);
             })
             .then((sections) => {
-                if (!sections) { return; }
+                if (!sections) {
+                    return;
+                }
                 packageObject.sections = sections;
                 return packageObject;
             })
@@ -138,11 +142,15 @@ class PackageManager {
                 .where('packageID', packageID)
             .then((info: any) => {
                 packageInfo = info[0];
-                if (!packageInfo) { return; }
+                if (!packageInfo) {
+                    return;
+                }
                 return this.contactManager.fetchContactInfoFromId(packageInfo.ownerID);
             })
             .then((contact) => {
-                if (!contact) { return; }
+                if (!contact) {
+                    return;
+                }
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
             })
