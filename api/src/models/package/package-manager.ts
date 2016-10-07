@@ -6,6 +6,7 @@ import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 import { PackageModel } from './package-model';
 import { ContactManager } from '../contact-info/contact-manager';
+import { BuyerManager } from '../buyer/buyer-manager';
 
 const Log = new Logger('mPKG');
 
@@ -114,7 +115,13 @@ class PackageManager {
             });
     }
 
-    public isDealAcceptedByBuyer(packageID: number, buyerID: number): Promise<any> {
+    /**
+     * Checks if a package has already been purchased by a specific buyer
+     * @param packageID - the ID of the package in question
+     * @param buyerID - the ID of the buyer in question
+     * @returns true if the package was already bought, false otherwise
+     */
+    public isPackageMappedToBuyer(packageID: number, buyerID: number): Promise<any> {
         return this.databaseManager.select()
                 .from('ixmBuyerDealMappings')
                 .join('ixmPackageDealMappings', 'ixmBuyerDealMappings.dealID', 'ixmPackageDealMappings.dealID')
