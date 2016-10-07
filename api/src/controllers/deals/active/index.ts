@@ -25,8 +25,7 @@ const Log: Logger = new Logger('ACTD');
  */
 function ActiveDeals(router: express.Router): void {
     /**
-     * GET request to get all active deals. The function first validates pagination query parameters. It then retrieves all
-     * active deals from the database and returns them.
+     * GET request to get all active deals.
      */
     router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
 
@@ -40,6 +39,7 @@ function ActiveDeals(router: express.Router): void {
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
+            Log.debug('Request is invalid');
             res.sendValidationError(validationErrors);
             return;
         }
@@ -61,10 +61,14 @@ function ActiveDeals(router: express.Router): void {
             });
 
     })
+    /**
+     * PUT request to accept a deal and insert it into the database to activate it.
+     */
     .put('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
         let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
 
         if (validationErrors.length > 0) {
+            Log.debug('Request is invalid');
             res.sendValidationError(validationErrors);
             return;
         }
@@ -113,7 +117,7 @@ function ActiveDeals(router: express.Router): void {
                 // If not, create a new deal in the database
                 Log.info("New deal will be created");
                 let newDeal = yield dealManager.saveDealForBuyer(buyerID, thePackage);
-                res.sendPayload(newDeal);
+                res.sendPayload(newDeal.toPayload());
             }
 
         })()

@@ -46,8 +46,8 @@ class DealManager {
     public fetchDealFromId(id: number): Promise<DealModel> {
         let deal: DealModel;
 
-        return this.databaseManager.select('rtbDeals.dealID as id', 'userID as publisherID', 'dspID as dspId',
-                    'name', 'auctionType', 'status', 'startDate', 'endDate', 'externalDealID as externalId',
+        return this.databaseManager.select('rtbDeals.dealID as dealID', 'userID as publisherID', 'dspID',
+                    'name', 'auctionType', 'status', 'startDate', 'endDate', 'externalDealID as externalID',
                     this.databaseManager.raw('GROUP_CONCAT(sectionID) as sections') )
                 .from('rtbDeals')
                 .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
@@ -58,8 +58,8 @@ class DealManager {
                 deal = new DealModel(deals[0]);
                 return deal.publisherID;
             })
-            .then((id) => {
-                return this.contactManager.fetchContactInfoFromId(id);
+            .then((theId) => {
+                return this.contactManager.fetchContactInfoFromId(theId);
             })
             .then((contactInfo) => {
                 deal.publisherContact = contactInfo;
@@ -138,6 +138,8 @@ class DealManager {
         return Promise.coroutine(function* (): any {
             // Get buyer's dspID
             let buyerDsp: number = (yield dealManager.buyerManager.getDSPsFromId(buyerID))[0].dspid;
+            // Generate external deal ID
+            let externalDealID = 'ixm-' + acceptedPackage.packageID + '-' + buyerDsp;
             // Insert new deal into rtbDeals
             yield dealManager.databaseManager.insert({
                 userID: acceptedPackage.ownerID,
@@ -148,32 +150,40 @@ class DealManager {
                 status: 'A',
                 startDate: acceptedPackage.startDate,
                 endDate: acceptedPackage.endDate,
-                externalDealID: 147,
+                externalDealID: externalDealID,
                 priority: 0,
                 openMarket: 0,
                 noPayoutMode: 0,
                 manualApproval: 1
             })
             .into('rtbDeals');
-            // TODO: How do I get the new Deal ID?
-            // Get the new deal ID manually because Knex doesn't return what it inserted
-            // let newDealID = (yield dealManager.databaseManager.select('rtbDeals.dealID')
-            //     .from('rtbDeals')
-            //     .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
-            //     .where('dspID', buyerDsp)
-            //     .andWhere('packageID', acceptedPackage.packageID)
-            //     .limit(1))[0].dealID;
-            // // Insert deal section mappings
-            // for (let i = 0; i < acceptedPackage.sections.length; i++) {
-            //     yield dealManager.databaseManager.insert({
-            //         dealID: newDealID,
-            //         sectionID: acceptedPackage.sections[i]
-            //     })
-            //     .into('rtbDealSections');
-            // }
-            // // Return inserted deal
-            // let newDeal = yield dealManager.fetchDealFromId(newDealID);
-            // return newDeal;
+            // Get the new deal ID using the externalDealID because Knex doesn't return what it inserted for MySQL
+            let newDealID = (yield dealManager.databaseManager.select('dealID')
+                .from('rtbDeals')
+                .where('externalDealID', externalDealID))[0].dealID;
+            // Insert deal section mappings
+            for (let i = 0; i < acceptedPackage.sections.length; i++) {
+                yield dealManager.databaseManager.insert({
+                    dealID: newDealID,
+                    sectionID: acceptedPackage.sections[i]
+                })
+                .into('rtbDealSections');
+            }
+            // Insert package deal mapping
+            yield dealManager.databaseManager.insert({
+                packageID: acceptedPackage.packageID,
+                dealID: newDealID
+            })
+            .into('ixmPackageDealMappings');
+            // Insert buyer deal mapping
+            yield dealManager.databaseManager.insert({
+                userID: buyerID,
+                dealID: newDealID
+            })
+            .into('ixmBuyerDealMappings');
+            // Return inserted deal
+            let newDeal = yield dealManager.fetchDealFromId(newDealID);
+            return newDeal;
         })()
         .catch((err: Error) => {
             throw err;
