@@ -82,7 +82,7 @@ function ActiveDeals(router: express.Router): void {
 
             if (!thePackage) {
                 Log.debug('Package does not exist');
-                res.sendNotFoundError();
+                res.sendError(404, '404_NONEXISTANT_PACKAGE');
                 return;
             }
 
@@ -91,7 +91,7 @@ function ActiveDeals(router: express.Router): void {
 
             if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
                 Log.debug('Package is not available for purchase');
-                res.sendError(403, '403');
+                res.sendError(403, '403_NOT_FORSALE');
                 return;
             }
 
@@ -100,7 +100,7 @@ function ActiveDeals(router: express.Router): void {
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
-                res.sendError(403, '403');
+                res.sendError(403, '403_PACKAGE_BOUGHT');
                 return;
             }
 
