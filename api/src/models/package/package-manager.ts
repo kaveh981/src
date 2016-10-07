@@ -6,6 +6,7 @@ import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 import { PackageModel } from './package-model';
 import { ContactManager } from '../contact-info/contact-manager';
+import { BuyerManager } from '../buyer/buyer-manager';
 
 const Log = new Logger('mPKG');
 
@@ -49,9 +50,6 @@ class PackageManager {
                 }
                 packageObject.sections = sections;
                 return packageObject;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -66,9 +64,6 @@ class PackageManager {
                 .where('name', packageName)
             .then((packageIDs: any) => {
                 return this.fetchPackageFromId(packageIDs[0].packageID);
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -87,9 +82,6 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -108,13 +100,16 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
-    public isDealAcceptedByBuyer(packageID: number, buyerID: number): Promise<any> {
+    /**
+     * Checks if a package has already been purchased by a specific buyer
+     * @param packageID - the ID of the package in question
+     * @param buyerID - the ID of the buyer in question
+     * @returns true if the package was already bought, false otherwise
+     */
+    public isPackageMappedToBuyer(packageID: number, buyerID: number): Promise<any> {
         return this.databaseManager.select()
                 .from('ixmBuyerDealMappings')
                 .join('ixmPackageDealMappings', 'ixmBuyerDealMappings.dealID', 'ixmPackageDealMappings.dealID')
@@ -122,9 +117,6 @@ class PackageManager {
                 .andWhere('packageID', packageID)
             .then((result) => {
                 return result.length > 0;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -153,9 +145,6 @@ class PackageManager {
                 }
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -170,9 +159,6 @@ class PackageManager {
                 .where('packageID', packageID)
             .then((sectionObjects: any) => {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 

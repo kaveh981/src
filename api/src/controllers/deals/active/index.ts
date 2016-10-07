@@ -25,8 +25,7 @@ const Log: Logger = new Logger('ACTD');
  */
 function ActiveDeals(router: express.Router): void {
     /**
-     * GET request to get all active deals. The function first validates pagination query parameters. It then retrieves all
-     * active deals from the database and returns them.
+     * GET request to get all active deals.
      */
     router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
 
@@ -40,6 +39,7 @@ function ActiveDeals(router: express.Router): void {
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
+            Log.debug('Request is invalid');
             res.sendValidationError(validationErrors);
             return;
         }
@@ -61,10 +61,14 @@ function ActiveDeals(router: express.Router): void {
             });
 
     })
+    /**
+     * PUT request to accept a deal and insert it into the database to activate it.
+     */
     .put('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
         let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
 
         if (validationErrors.length > 0) {
+            Log.debug('Request is invalid');
             res.sendValidationError(validationErrors);
             return;
         }
@@ -85,14 +89,14 @@ function ActiveDeals(router: express.Router): void {
             // Check that the package is available for purchase
             let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
 
-            if (!thePackage.isValidAvailablePackage() || !(owner.userStatus === 'A')) {
+            if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
                 Log.debug('Package is not available for purchase');
                 res.sendError(403, '403');
                 return;
             }
 
             // Check that package has not been bought yet by this buyer
-            let accepted = yield packageManager.isDealAcceptedByBuyer(packageID, buyerID);
+            let accepted = yield packageManager.isPackageMappedToBuyer(packageID, buyerID);
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
@@ -101,8 +105,20 @@ function ActiveDeals(router: express.Router): void {
             }
 
             // Check if the package already has a deal associated with this buyer's DSP
+            let existingDeal = yield dealManager.fetchExistingDealWithBuyerDSP(packageID, buyerID);
 
-            // res.sendPayload(newDeal);
+            if (existingDeal) {
+                // If buyer's DSP already accepted this deal, just add a mapping between this buyer and the existing deal
+                // and return this deal
+                Log.info("Deal for this package already exists with buyer's DSP");
+                yield dealManager.insertBuyerDealMapping(buyerID, existingDeal.dealID);
+                res.sendPayload(existingDeal.toPayload());
+            } else {
+                // If not, create a new deal in the database
+                Log.info("New deal will be created");
+                let newDeal = yield dealManager.saveDealForBuyer(buyerID, thePackage);
+                res.sendPayload(newDeal.toPayload());
+            }
 
         })()
         .catch((err: Error) => {
