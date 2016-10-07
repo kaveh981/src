@@ -111,7 +111,7 @@ function ActiveDeals(router: express.Router): void {
                 // If buyer's DSP already accepted this deal, just add a mapping between this buyer and the existing deal
                 // and return this deal
                 Log.info("Deal for this package already exists with buyer's DSP");
-                yield dealManager.saveBuyerDealMapping(buyerID, existingDeal.id);
+                yield dealManager.insertBuyerDealMapping(buyerID, existingDeal.id);
                 res.sendPayload(existingDeal.toPayload());
             } else {
                 // If not, create a new deal in the database
