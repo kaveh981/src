@@ -64,9 +64,6 @@ class DealManager {
             .then((contactInfo) => {
                 deal.publisherContact = contactInfo;
                 return deal;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -97,9 +94,6 @@ class DealManager {
                             return Object.assign(deal, {sections: fetchedPackage.sections});
                         });
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -126,9 +120,6 @@ class DealManager {
                             return null;
                         }
                     });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -202,10 +193,7 @@ class DealManager {
             userID: buyerID,
             dealID: dealID
         })
-        .into('ixmBuyerDealMappings')
-        .catch((err: Error) => {
-            throw err;
-        });
+        .into('ixmBuyerDealMappings');
     }
 }
 
