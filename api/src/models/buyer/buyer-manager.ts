@@ -48,9 +48,6 @@ class BuyerManager {
             .then((contactInfo) => {
                 buyerObject.contactInfo = contactInfo;
                 return buyerObject;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -64,10 +61,7 @@ class BuyerManager {
                 .from('ixmBuyers')
                 .where('dspid', dspID)
                 .limit(pagination.limit)
-                .offset(pagination.offset)
-            .catch((err: Error) => {
-                throw err;
-            });
+                .offset(pagination.offset);
     }
 
     /** 
@@ -78,10 +72,7 @@ class BuyerManager {
     public getDSPsFromId(userID: number): Promise<any> {
         return this.databaseManager.select('dspid')
                 .from('ixmBuyers')
-                .where('userid', userID)
-            .catch((err: Error) => {
-                throw err;
-            });
+                .where('userid', userID);
     }
 
 }

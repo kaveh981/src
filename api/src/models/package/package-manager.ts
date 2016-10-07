@@ -50,9 +50,6 @@ class PackageManager {
                 }
                 packageObject.sections = sections;
                 return packageObject;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -67,9 +64,6 @@ class PackageManager {
                 .where('name', packageName)
             .then((packageIDs: any) => {
                 return this.fetchPackageFromId(packageIDs[0].packageID);
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -88,9 +82,6 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -109,9 +100,6 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -129,9 +117,6 @@ class PackageManager {
                 .andWhere('packageID', packageID)
             .then((result) => {
                 return result.length > 0;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -160,9 +145,6 @@ class PackageManager {
                 }
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -177,9 +159,6 @@ class PackageManager {
                 .where('packageID', packageID)
             .then((sectionObjects: any) => {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
