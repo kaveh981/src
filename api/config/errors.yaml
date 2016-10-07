@@ -22,9 +22,12 @@ en-US:
 
     # 403 Status Code Messages
     403: Forbidden.
+    403_NOT_FORSALE: Package is not available for purchase.
+    403_PACKAGE_BOUGHT: Package has already been accepted.
 
     # 404 Status Code Messages
     404: Not found.
+    404_NONEXISTANT_PACKAGE: Package does not exist.
 
     # 500 Status Code Messages
     500: Internal server error.
