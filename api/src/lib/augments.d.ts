@@ -33,7 +33,7 @@ declare module 'express' {
         sendPayload(payload: any, pagination?: any): void;
 
         /**
-         * Send a 401 validation error.
+         * Send a 400 validation error.
          * @param details - The details of the validation error.
          */
         sendValidationError(details: any[]): void;
