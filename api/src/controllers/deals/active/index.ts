@@ -27,7 +27,7 @@ function ActiveDeals(router: express.Router): void {
     /**
      * GET request to get all active deals.
      */
-    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
+    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
 
         // Validate pagination parameters
         let pagination = {
@@ -40,8 +40,9 @@ function ActiveDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            res.sendValidationError(validationErrors);
-            return;
+            let err = new Error(JSON.stringify(validationErrors));
+            err.name = 'BadRequest';
+            return next(err);
         }
 
         // Get all active deals for current buyer
@@ -64,13 +65,14 @@ function ActiveDeals(router: express.Router): void {
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */
-    .put('/', ProtectedRoute, (req: express.Request, res: express.Response) => {
+    .put('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
         let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            res.sendValidationError(validationErrors);
-            return;
+            let err = new Error(JSON.stringify(validationErrors));
+            err.name = 'BadRequest';
+            return next(err);
         }
 
         let packageID: number = req.body.packageID;
