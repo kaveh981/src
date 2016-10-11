@@ -9,6 +9,7 @@ import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../api/src/models/package/package-model';
+import { authTest } from '../auth/auth.test.ts';
 
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 
@@ -62,6 +63,11 @@ test('/deals GET', (t: Test) => {
             .finally(() => {
                 assert.end();
             });
+    });
+
+    t.test('ATW_D_GET_AUTH', (assert: Test) => {
+        authTest(assert, apiHelper, newBuyer.user.userID);
+        assert.end();
     });
 
     t.test('ATW_D_GET_V1 when limit is a non int', (assert: Test) => {
@@ -122,67 +128,6 @@ test('/deals GET', (t: Test) => {
             });
         apiHelper.setReqOpts({headers: {}});
     });
-
-    t.test('ATW_D_GET_V6 when buyerID not exists on the header', (assert: Test) => {
-        apiHelper.sendRequest()
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
-            })
-            .finally(() => {
-                assert.end();
-            });
-    });
-
-    t.test('ATW_D_GET_V7 when buyerID in the header is a non int', (assert: Test) => {
-        apiHelper.setReqOpts({headers: {[buyerIDKey]: '`' + newBuyer.user.userID + '`'}});
-        apiHelper.sendRequest()
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
-            })
-            .finally(() => {
-                assert.end();
-            });
-        apiHelper.setReqOpts({headers: {}});
-    });
-
-    t.test('ATW_D_GET_V8 when valid parameters passed in', (assert: Test) => {
-        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest()
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
-                assert.deepEquals(res.body.data[0], toPayload([ixmPackage.package], newPub, newSection),
-                    'The response object should match mock response object');
-            })
-            .finally(() => {
-                assert.end();
-            });
-        apiHelper.setReqOpts({headers: {}});
-    });
-
-    t.test('ATW_D_GET_V9 when buyerID is not a know IXM-buyer', (assert: Test) => {
-        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID + 5}});
-        apiHelper.sendRequest()
-            .then((res: any) => {
-                assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
-            })
-            .finally(() => {
-                    assert.end();
-            });
-        apiHelper.setReqOpts({headers: {}});
-    });
-
-    t.test('ATW_D_GET_V10 when buyerID is not a know IXM-buyer but the userID exist in the users table for another user type',
-        (assert: Test) => {
-            apiHelper.setReqOpts({headers: {[buyerIDKey]: newPub.user.userID}});
-            apiHelper.sendRequest()
-                .then((res: any) => {
-                    assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
-                })
-                .finally(() => {
-                    assert.end();
-                });
-            apiHelper.setReqOpts({headers: {}});
-        });
 
     t.test('teardown', (assert: test.Test) => {
         Promise.coroutine(function* (): any {
