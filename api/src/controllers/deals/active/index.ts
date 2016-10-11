@@ -41,7 +41,7 @@ function ActiveDeals(router: express.Router): void {
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
             let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BadRequest';
+            err.name = 'BAD_REQUEST';
             return next(err);
         }
 
@@ -57,7 +57,6 @@ function ActiveDeals(router: express.Router): void {
                 res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(); }), pagination);
             })
             .catch((err: Error) => {
-                Log.error(err);
                 throw err;
             });
 
@@ -71,7 +70,7 @@ function ActiveDeals(router: express.Router): void {
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
             let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BadRequest';
+            err.name = 'BAD_REQUEST';
             return next(err);
         }
 
@@ -84,8 +83,7 @@ function ActiveDeals(router: express.Router): void {
 
             if (!thePackage) {
                 Log.debug('Package does not exist');
-                res.sendError(404, '404_NONEXISTANT_PACKAGE');
-                return;
+                return next();
             }
 
             // Check that the package is available for purchase
@@ -93,8 +91,9 @@ function ActiveDeals(router: express.Router): void {
 
             if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
                 Log.debug('Package is not available for purchase');
-                res.sendError(403, '403_NOT_FORSALE');
-                return;
+                let err = new Error('403_NOT_FORSALE');
+                err.name = 'FORBIDDEN';
+                return next(err);
             }
 
             // Check that package has not been bought yet by this buyer
@@ -102,8 +101,9 @@ function ActiveDeals(router: express.Router): void {
 
             if (accepted) {
                 Log.debug('Package has already been accepted');
-                res.sendError(403, '403_PACKAGE_BOUGHT');
-                return;
+                let err = new Error('403_PACKAGE_BOUGHT');
+                err.name = 'FORBIDDEN';
+                return next(err);
             }
 
             // Check if the package already has a deal associated with this buyer's DSP
@@ -124,7 +124,6 @@ function ActiveDeals(router: express.Router): void {
 
         })()
         .catch((err: Error) => {
-            Log.error(err);
             throw err;
         });
     });
