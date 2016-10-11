@@ -57,7 +57,7 @@ function authTest(t: Test, apiHelper: testFramework.IApiHelper, newBuyerID: numb
     });
     t.test('ATW_AUTH_V2 when buyerID in the header is not ixmBuyerID', (assert: Test) => {
 
-        apiHelper.setReqOpts({headers: {[buyerIDKey]: '`' + newPub }});
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: + newPub.user.userID }});
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 401, 'It should return status code 401, returned message is: ' + res.body.message);
