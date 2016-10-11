@@ -47,9 +47,6 @@ class ContactManager {
                     emailAddress: contactInfo.emailAddress,
                     phone: contactInfo.phone
                 });
-            })
-            .catch((err) => {
-                throw err;
             });
     }
 

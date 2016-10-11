@@ -6,6 +6,7 @@ import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 import { PackageModel } from './package-model';
 import { ContactManager } from '../contact-info/contact-manager';
+import { BuyerManager } from '../buyer/buyer-manager';
 
 const Log = new Logger('mPKG');
 
@@ -37,15 +38,18 @@ class PackageManager {
 
         return this.getPackageInfo(packageID)
             .then((info) => {
+                if (!info) {
+                    return;
+                }
                 packageObject = new PackageModel(info);
                 return this.getPackageSections(packageID);
             })
             .then((sections) => {
+                if (!sections) {
+                    return;
+                }
                 packageObject.sections = sections;
                 return packageObject;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -60,9 +64,6 @@ class PackageManager {
                 .where('name', packageName)
             .then((packageIDs: any) => {
                 return this.fetchPackageFromId(packageIDs[0].packageID);
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -81,9 +82,6 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -102,9 +100,23 @@ class PackageManager {
                 return Promise.map(idObjects, (idObject: any) => {
                     return this.fetchPackageFromId(idObject.packageID);
                 });
-            })
-            .catch((err: Error) => {
-                throw err;
+            });
+    }
+
+    /**
+     * Checks if a package has already been purchased by a specific buyer
+     * @param packageID - the ID of the package in question
+     * @param buyerID - the ID of the buyer in question
+     * @returns true if the package was already bought, false otherwise
+     */
+    public isPackageMappedToBuyer(packageID: number, buyerID: number): Promise<any> {
+        return this.databaseManager.select()
+                .from('ixmBuyerDealMappings')
+                .join('ixmPackageDealMappings', 'ixmBuyerDealMappings.dealID', 'ixmPackageDealMappings.dealID')
+                .where('userID', buyerID)
+                .andWhere('packageID', packageID)
+            .then((result) => {
+                return result.length > 0;
             });
     }
 
@@ -116,20 +128,23 @@ class PackageManager {
     private getPackageInfo(packageID: number): Promise<any> {
         let packageInfo: PackageModel;
 
-        return this.databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'public', 'startDate',
+        return this.databaseManager.select('packageID', 'ownerID', 'name', 'description', 'status', 'accessMode', 'startDate',
                     'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
                 .from('ixmPackages')
                 .where('packageID', packageID)
             .then((info: any) => {
                 packageInfo = info[0];
+                if (!packageInfo) {
+                    return;
+                }
                 return this.contactManager.fetchContactInfoFromId(packageInfo.ownerID);
             })
             .then((contact) => {
+                if (!contact) {
+                    return;
+                }
                 packageInfo.ownerContactInfo = contact;
                 return packageInfo;
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
@@ -144,9 +159,6 @@ class PackageManager {
                 .where('packageID', packageID)
             .then((sectionObjects: any) => {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
-            })
-            .catch((err: Error) => {
-                throw err;
             });
     }
 
