@@ -129,6 +129,20 @@ test('/deals GET', (t: Test) => {
         apiHelper.setReqOpts({headers: {}});
     });
 
+    t.test('ATW_D_GET_V6 when valid parameters passed in', (assert: Test) => {
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
+                assert.deepEquals(res.body.data[0], toPayload([ixmPackage.package], newPub, newSection),
+                    'The response object should match mock response object');
+            })
+            .finally(() => {
+                assert.end();
+            });
+        apiHelper.setReqOpts({headers: {}});
+    });
+
     t.test('teardown', (assert: test.Test) => {
         Promise.coroutine(function* (): any {
             for (let i = 0; i < tables.length; i += 1) {

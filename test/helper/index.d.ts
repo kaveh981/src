@@ -91,7 +91,7 @@ interface IPackage {
     name: string;
     description: string;
     status: string;
-    public: number;
+    accessMode?: number;
     startDate: Date;
     endDate: Date;
     price: number;
@@ -114,7 +114,6 @@ interface IReqOptions {
     method?: string;
     path?: string;
     headers?: {};
-    json?: {};
 }
 
 interface INewDSPData {

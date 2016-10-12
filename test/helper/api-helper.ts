@@ -11,8 +11,9 @@ class ApiHelper implements testFramework.IApiHelper {
 
     public reqOptions: IReqOptions = {};
     public config: ConfigLoader;
-    public _queryString: Boolean = true;
+    public isQueryString: Boolean = true;
     public _protocol: string;
+    public json: {};
 
     constructor(config: ConfigLoader) {
         this.config = config;
@@ -28,26 +29,25 @@ class ApiHelper implements testFramework.IApiHelper {
         this.reqOptions.method = options.method || this.reqOptions.method || '';
         this.reqOptions.port = options.port || this.reqOptions.port || this.config.get('api-helper').port;
         this.reqOptions.path =  options.path || this.reqOptions.path || '';
-        this.reqOptions.json = options.json || this.reqOptions.json || {};
     }
 
-    public getReqOpts() {
+    public getReqOpts(): IReqOptions {
         return this.reqOptions;
     }
 
-    set queryString(qs: Boolean){
-        this._queryString = qs;
+    public setIsQueryString(qs: Boolean) {
+        this.isQueryString = qs;
     }
 
-    get queryString(){
-        return this._queryString;
+    public getIsQueryString(): Boolean {
+        return this.isQueryString;
     }
 
-    set protocol(protocol: string){
+    public setProtocol(protocol: string): void {
         this._protocol = protocol;
     }
 
-    get protocol(){
+    public getProtocol(): string {
         return this._protocol;
     }
     /**
@@ -60,7 +60,7 @@ class ApiHelper implements testFramework.IApiHelper {
         let reqOpts: IReqOptions = JSON.parse(JSON.stringify(this.reqOptions));
 
         // Process query string or attach request body
-        if (requestBody && this._queryString ) {
+        if (requestBody && this.isQueryString ) {
 
             let qs: string = '?';
 
@@ -73,18 +73,17 @@ class ApiHelper implements testFramework.IApiHelper {
                 qs = qs.slice(0, -1);
             }
             reqOpts.path += qs;
-        } else {
-            reqOpts.json = requestBody;
+        } else if (!this.isQueryString) {
+            reqOpts.headers['Content-Type'] = "application/json";
         }
 
         /**
          * With a given protocol, must explicitly choose between http and https implementation.
          * http://stackoverflow.com/questions/34147372/node-js-error-protocol-https-not-supported-expected-http
          */
-        let requestCall = (this.protocol === 'https') ? https.request : http.request;
+        let requestCall = (this._protocol === 'https') ? https.request : http.request;
 
         return new Promise((resolve: Function, reject: Function) => {
-
             let request: any = requestCall(reqOpts, (res: any) => {
 
                 let body: string = '';
@@ -106,6 +105,9 @@ class ApiHelper implements testFramework.IApiHelper {
                     resolve(result);
                 });
             });
+            if (requestBody && !this.isQueryString) {
+                request.write(JSON.stringify(requestBody));
+            }
             request.end();
         });
     }
