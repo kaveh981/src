@@ -9,7 +9,7 @@ import { app      } from '../../../helper/bootstrap';
 import { Injector } from '../../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../../api/src/models/package/package-model';
-import { authTest } from '../../auth/auth.test.ts';
+import { authTest } from '../../auth/auth.test';
 
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 
@@ -195,7 +195,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 return dbm.from('ixmPackages')
-                    .where('packageID', ixmPackage.package.packageID)
+                    .where('packageID', 16777215)
                     .update({
                         packageID: ixmPackage.package.packageID
                     });
@@ -223,7 +223,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 return dbm.from('ixmPackages')
-                    .where('packageID', ixmPackage.package.packageID)
+                    .where('packageID', 16777215)
                     .update({
                         packageID: ixmPackage.package.packageID
                     });
@@ -264,7 +264,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V10 when	package is paused', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V10 when package is paused', (assert: Test) => {
 
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -748,7 +748,7 @@ test('/deals/active PUT', (t: Test) => {
         Promise.coroutine(function* (): any {
                 for (let i = 0; i < tables.length; i += 1) {
                     let table = tables[i];
-                    //   yield dataSetup.restoreTable(table);
+                       yield dataSetup.restoreTable(table);
                 }
                 app.shutdown();
 
