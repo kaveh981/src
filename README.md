@@ -21,8 +21,13 @@ Atwater's project structure is currently divided into the following components:
 
 # Release Notes
 ## Release 0.1.0
+### Routes
+- `/deals`
+    - `GET`
+- `/deals/active`
+    - `PUT`
+
+### Functionality
 - List all available deals for purchase by sending a `GET` request to `/deals`
-- Accept a deal that's available for purchase by sending a `PUT` request with the desired `packageID` to `/deals/active`y
-### New Routes
-- `/deals GET`
-- `/deals/active PUT`
+- Accept a deal that's available for purchase by sending a `PUT` request with the desired `packageID` to `/deals/active`
+
