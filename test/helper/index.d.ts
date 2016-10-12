@@ -91,7 +91,7 @@ interface IPackage {
     name: string;
     description: string;
     status: string;
-    public: number;
+    accessMode?: number;
     startDate: Date;
     endDate: Date;
     price: number;
@@ -106,4 +106,40 @@ interface IPackage {
 interface INewPackageData {
     sectionIDs: number[];
     package: IPackage;
+}
+
+interface IReqOptions {
+    hostname?: string;
+    port?: number;
+    method?: string;
+    path?: string;
+    headers?: {};
+}
+
+interface INewDSPData {
+    dspID?: number;
+    udsID?: number;
+    name: string;
+    bidURL: string;
+    limiter?: number;
+    creativeContained?: number;
+    siteURLRequired: number;
+    status?: 'A' | 'D';
+    userMatchOptional?: number;
+    blockListDisabled?: number;
+    keepAliveDisabled?: number;
+    exchangeMode?: number;
+    campaignMode?: number;
+    apiEnabled?: number;
+    creativeTypeRequired?: number;
+    version?: number;
+    multiBidsCompete?: number;
+    proxy?: number;
+    protected?: number;
+    useBrandURL?: number;
+    publisherNotifyMode?: number;
+    sslEnabled?: number;
+    pubNetworkOverride?: number;
+    paused?: number;
+    ipcmidUDSID?: number;
 }

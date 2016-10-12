@@ -16,15 +16,15 @@ class PackageModel {
     public description: string;
     /** Status of the packge, which could only be active, paused or deleted */
     public status: 'active' | 'paused' | 'deleted';
-    /** Flag to define is the package viewable to public */
-    public isPublic: number;
+    /** Flag to define if/how the package is viewable to the public */
+    public accessMode: number;
     /** Start date of the package */
     public startDate: string;
     /** End date of the package */
     public endDate: string;
     /** Price of the package */
     public price: number;
-    /** Projected amout of impressions for the package */
+    /** Projected amount of impressions for the package */
     public impressions: number;
     /** Project amount to be spend by the buyer */
     public budget: number;

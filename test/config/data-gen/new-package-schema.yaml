@@ -19,7 +19,7 @@
                 ]
             }
         },
-        "public": 1,
+        "accessMode": 1,
         "startDate": {
             "faker": "date.recent"
         },
@@ -50,7 +50,7 @@
         "name",
         "description",
         "status",
-        "public",
+        "accessMode",
         "startDate",
         "endDate",
         "price",

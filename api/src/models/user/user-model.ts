@@ -5,7 +5,7 @@ class UserModel {
     /** The user's userId */
     public userID: string;
     /** The current status of the user */
-    public userStatus: string;
+    public status: string;
     /** The abbreviated name of the user type. */
     public userType: string;
     /** The usergroup to which this user belongs. */

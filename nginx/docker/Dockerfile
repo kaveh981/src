@@ -6,7 +6,7 @@ COPY . /src/
 ARG env=development
 ENV env $env
 
-RUN sh /src/etc/deploy.sh $env
+RUN sh /src/bin/deploy.sh $env
 RUN rm -rf /src
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -3,42 +3,41 @@ version: '2'
 networks:
   atwater:
     external: true
-  internal:
-    external: true
 
 services:
   atw-api:
     container_name: "atw-api"
-    restart: "no"
+    restart: "always"
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile
-    image: atw-api:dev
+      args:
+        env: "production"
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: atw-api:$TAG
     logging:
-      driver: "journald"
+      driver: "syslog"
       options:
         tag: "atwater.api"
     networks:
       - atwater
-    entrypoint: "sh /src/docker/scripts/entrypoint.sh"
-    volumes:
-      - "/src/atwater.git/api/:/src/:ro"
   atw-nginx:
     container_name: "atw-nginx"
-    restart: "no"
+    restart: "always"
     build:
       context: ./nginx
       dockerfile: ./docker/Dockerfile
-    image: atw-nginx:dev
+      args:
+        env: "production"
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: atw-nginx:$TAG
     logging:
-      driver: "journald"
+      driver: "syslog"
       options:
         tag: "atwater.nginx"
     networks:
       - atwater
-      - internal
-    entrypoint: "sh /src/docker/scripts/entrypoint.sh"
-    volumes:
-      - "/src/atwater.git/nginx/:/src/:ro"
     ports:
       - "443:443"

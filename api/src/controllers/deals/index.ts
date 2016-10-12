@@ -40,7 +40,7 @@ function Deals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BadRequest';
+            err.name = 'BAD_REQUEST';
             return next(err);
         }
 
@@ -51,7 +51,7 @@ function Deals(router: express.Router): void {
                     // Make sure a package is owned by an active user, has valid dates, and has at least one associated deal section
                      return userManager.fetchUserFromId(activePackage.ownerID.toString())
                         .then((user) => {
-                            if (activePackage.isValidAvailablePackage() && user.userStatus === 'A') {
+                            if (activePackage.isValidAvailablePackage() && user.status === 'A') {
                                 return activePackage;
                             }
                         });

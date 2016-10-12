@@ -1,12 +1,6 @@
 {
     "rules": {
         "member-access": true,
-        "member-ordering": [
-            true,
-            {
-                "order": "fields-first"
-            }
-        ],
         "no-reference": true,
         "curly": true,
         "label-position": true,

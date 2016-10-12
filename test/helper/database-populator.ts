@@ -230,6 +230,7 @@ class DatabasePopulator {
         newPackage.package.createDate = this.currentMidnightDate();
         newPackage.package.startDate.setHours(0, 0, 0, 0);
         newPackage.package.endDate.setHours(0, 0, 0, 0);
+        newPackage.package.accessMode = 1;
 
         return this.dbm
             .insert(newPackage.package, 'packageID')
@@ -252,6 +253,28 @@ class DatabasePopulator {
             });
     }
 
+    public newDSP(newID: number): Promise<INewDSPData> {
+        let newDSPData = this.generateDataObject<INewDSPData>('new-dsp-schema');
+        newDSPData.dspID = newID;
+        return this.dbm
+            .insert(newDSPData)
+            .into('rtbDSPs')
+            .then((dspID: number[]) => {
+                Log.debug(`Created DSP, dspID: ${newDSPData.dspID}`);
+
+                return this.dbm
+                    .select()
+                    .from('rtbDSPs')
+                    .where('dspID', newDSPData.dspID);
+            })
+            .then((newDSP: INewDSPData[]) => {
+                return newDSP[0];
+            })
+            .catch((e) => {
+                Log.error(e);
+                throw e;
+            });
+    }
     /**
      * Generates an entity based on a jsf schema, e.g. "generateDataObject<INewUserData>('new-user-schema')" returns a
      * newUserData object.
