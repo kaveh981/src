@@ -47,6 +47,6 @@ Atwater's project structure is currently divided into the following components:
 - Accept a deal that's available for purchase by sending a `PUT` request with the desired `packageID` to `/deals/active`    
 
 
-"This is the buyer API. Hot stuff." - Adam Harvie, 2016  
+<sup>"This is the buyer API. Hot stuff." - Adam Harvie, 2016</sup>  
 All rights reserved. ®
 
