@@ -44,7 +44,9 @@ class BuyerManager {
 
                 return userId;
             })
-            .then(this.contactManager.fetchContactInfoFromId)
+            .then((theId) => {
+                return this.contactManager.fetchContactInfoFromId(theId);
+            })
             .then((contactInfo) => {
                 buyerObject.contactInfo = contactInfo;
                 return buyerObject;

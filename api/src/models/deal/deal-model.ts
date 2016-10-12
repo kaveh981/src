@@ -8,7 +8,7 @@ class DealModel {
     public dealID: number;
     /** The publisher offering the deal */
     public publisherID: number;
-    /** Publisher information */
+    /** Publisher contact information */
     public publisherContact: ContactModel;
     /** The DSP buying the deal */
     public dspID: number;
@@ -43,7 +43,7 @@ class DealModel {
 
     /**
      * Return the model as a ready-to-send JSON object.
-     * @returns - The model as specified in the API.
+     * @returns The model as specified in the API.
      */
     public toPayload(): any {
         return {
@@ -72,6 +72,7 @@ class DealModel {
      * Helper function that makes sure that a stringhas the format 'YYYY-MM-DD'
      * Ensures that the date provided follows the format 'YYYY-MM-DD'
      * @param date - date about to be set
+     * @returns true if the date is valid, false otherwise
      */
     private isValidDate(date: string): boolean {
         let datePattern  = /^\d\d\d\d-\d\d-\d\d$/;

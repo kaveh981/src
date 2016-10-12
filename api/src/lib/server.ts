@@ -50,7 +50,8 @@ class Server {
             });
     }
 
-    /** Start the server 
+    /** 
+     * Start the server 
      * @param - Kraken configuration object.
      * @returns Resolves if the server starts correctly, and returns the port number.
      */
@@ -103,7 +104,8 @@ class Server {
         });
     }
 
-    /** Resolve the shortstop notation for config. Currently only supports 'path:'
+    /** 
+     * Resolve the shortstop notation for config. Currently only supports 'path:'
      * @param config - The config object to resolve shortstop.
      * @returns A promise for the kraken config with shortstops resolved.
     */

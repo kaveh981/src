@@ -31,6 +31,6 @@ en-US:
 
     TYPE_TIME_ONLY_INVALID: 'Time "{{value}}" should be of the form "hh:mm:ss".'
 
-    TYPE_DATE_TIME_ONLY_INVALID: 'Datetime "{{value}}" is not a valid date-time.'
+    TYPE_DATE_TIME_ONLY_INVALID: 'Date-time "{{value}}" is not a valid date-time.'
 
-    TYPE_DATETIME_INVALID: 'Datetime "{{value}}" is not a valid date-time.'
+    TYPE_DATETIME_INVALID: 'Date-time "{{value}}" is not a valid date-time.'

@@ -7,7 +7,7 @@ import { Logger } from '../lib/logger';
 const Log: Logger = new Logger('ROUT');
 
 /**
- * An error catcher that catch malformed request.
+ * An error handler for 400 - Malformed Request errors.
  */
 function BadRequestHandler(err: Error, req: express.Request, res: express.Response, next: Function): void {
     if (err.name === 'BAD_REQUEST') {

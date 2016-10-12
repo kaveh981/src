@@ -31,7 +31,7 @@ class PackageManager {
     /**
      * Get package object by ID
      * @param packageID - the ID of the package
-     * @returns Returns a package object includes associated section IDs
+     * @returns a package object including associated section IDs
      */
     public fetchPackageFromId(packageID: number): Promise<any> {
         let packageObject: PackageModel;
@@ -56,21 +56,24 @@ class PackageManager {
     /**
      * Get package object by name
      * @param packageName - the unique name of the package
-     * @returns Returns a package object includes associated section IDs
+     * @returns a package object includes associated section IDs
      */
     public fetchPackageFromName(packageName: string): Promise<PackageModel> {
         return this.databaseManager.select('packageID')
                 .from('ixmPackages')
                 .where('name', packageName)
             .then((packageIDs: any) => {
+                if (!packageIDs) {
+                    return;
+                }
                 return this.fetchPackageFromId(packageIDs[0].packageID);
             });
     }
 
     /**
-     * Get list of objects by status
-     * @param packageStatus - status of the package, a enum value which could be active, paused or deleted
-     * @returns Returns an array of package objects by the given status
+     * Get a list of package objects by status
+     * @param packageStatus - status of the package (an enum value which could be 'active', 'paused' or 'deleted')
+     * @returns an array of package objects by the given status
      */
     public fetchPackagesFromStatus(packageStatus: string, pagination: any): Promise<any> {
         return this.databaseManager.select('packageID')
@@ -86,9 +89,9 @@ class PackageManager {
     }
 
     /**
-     * Get list of objects by owner
-     * @param packageOwner - ID of the package's owner
-     * @returns Returns an array of package objects by the given owner
+     * Get a list of package objects by owner
+     * @param packageOwner - ID of the packages' owner
+     * @returns an array of package objects by the given owner
      */
     public fetchPackagesFromOwner(packageOwner: number, pagination: any): Promise<any> {
         return this.databaseManager.select('packageID')
@@ -123,7 +126,7 @@ class PackageManager {
     /**
      * Get package information by package ID
      * @param packageID - the ID of the package
-     * @returns Returns an object include all the information of the package 
+     * @returns an object include all the information of the package 
      */
     private getPackageInfo(packageID: number): Promise<any> {
         let packageInfo: PackageModel;
@@ -151,7 +154,7 @@ class PackageManager {
     /**
      * Get corresponding section IDs by package ID
      * @param packageID - the ID of the package
-     * @returns Returns an array of section IDs
+     * @returns an array of section IDs
      */
     private getPackageSections (packageID: number): Promise<number[]> {
         return this.databaseManager.select('sectionID')

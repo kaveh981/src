@@ -26,6 +26,7 @@ class UserManager {
     /**
      * Returns a user model from an id
      * @param id - The id of the user we want information from.
+     * @returns the corresponding user object
      */
     public fetchUserFromId(userID: string): Promise<UserModel> {
         return this.databaseManager.select('userID', 'status', 'userTypes.name as userType', 'ug.name as userGroup')

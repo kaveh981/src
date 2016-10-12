@@ -42,6 +42,7 @@ class DealManager {
     /**
      * Returns a deal model from an id
      * @param id - The id of the deal we want information from.
+     * @returns the corresponding deal object
      */
     public fetchDealFromId(id: number): Promise<DealModel> {
         let deal: DealModel;
@@ -71,6 +72,7 @@ class DealManager {
      * Returns all active deals for a certain buyer 
      * @param buyerId - The id of the buyer we need to find active deals for
      * @param pagination - Pagination details for the request
+     * @returns TBD
      */
     public fetchActiveDealsFromBuyerId(buyerID: number, pagination: any): Promise<any> {
         /* TODO: This select statement will need to obtain information that was accepted by both the pub and buyer (i.e. latest
@@ -101,6 +103,7 @@ class DealManager {
      * Gets the deal associated with a buyer's DSP and a specific package, if it exists
      * @param packageID - the ID of the package is question
      * @param buyerID - the ID of the buyer in question
+     * @returns the corresponding deal, if it exists
      */
     public fetchExistingDealWithBuyerDSP(packageID: number, buyerID: number): Promise<any> {
         let deal: DealModel;
@@ -127,6 +130,7 @@ class DealManager {
      * Creates a new deal in the database and creates any relevant mappings for a buyer and a package
      * @param buyerID - ID of the buyer in question
      * @param acceptedPackage - PackageModel object containing information about the accepted package
+     * @returns the newly inserted deal object
      */
     public saveDealForBuyer = Promise.coroutine(function* (buyerID: number, acceptedPackage: any) {
         // Get buyer's dspID

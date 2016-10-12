@@ -27,7 +27,6 @@ en-US:
 
     # 404 Status Code Messages
     404: Not found.
-    404_NONEXISTANT_PACKAGE: Package does not exist.
 
     # 500 Status Code Messages
     500: Internal server error.
