@@ -96,8 +96,6 @@ function authTest(t: Test, apiHelper: testFramework.IApiHelper, newBuyerID: numb
                 let table = tables[i];
                 yield dataSetup.restoreTable(table, '_backup_auth');
             }
-            app.shutdown();
-
         })()
             .finally(() => {
                 assert.end();

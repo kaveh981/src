@@ -40,7 +40,7 @@ function Deals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BadRequest';
+            err.name = 'BAD_REQUEST';
             return next(err);
         }
 
