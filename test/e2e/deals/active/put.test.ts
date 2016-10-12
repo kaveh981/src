@@ -49,6 +49,7 @@ test('/deals/active PUT', (t: Test) => {
     let ixmPackage: INewPackageData;
     let newBuyer: INewBuyerData;
     let newBuyer2: INewBuyerData;
+    let newBuyer3: INewBuyerData;
     let newBuyerDifferentDSP: INewBuyerData;
     let newPub: INewPubData;
     let newSection: INewSectionData;
@@ -70,6 +71,7 @@ test('/deals/active PUT', (t: Test) => {
                 newDSP = yield databasePopulator.newDSP(2);
                 newBuyer = yield databasePopulator.newBuyer();
                 newBuyer2 = yield databasePopulator.newBuyer();
+                newBuyer3 = yield databasePopulator.newBuyer();
                 newBuyerDifferentDSP = yield databasePopulator.newBuyer();
                 newPub = yield databasePopulator.newPub();
                 newSite = yield databasePopulator.newSite(newPub.user.userID);
@@ -497,7 +499,7 @@ test('/deals/active PUT', (t: Test) => {
             apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
                 .then((res: any) => {
                     response = res;
-                    apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+                    apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer3.user.userID}});
                     return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
