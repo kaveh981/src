@@ -96,7 +96,6 @@ test('/deals/active PUT', (t: Test) => {
     });
 
     t.test(' ATW_DA_PUT_V1 when valid parameters passed in', (assert: Test) => {
-
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID }});
         apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
             .then((res: any) => {
