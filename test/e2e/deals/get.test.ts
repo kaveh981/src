@@ -9,7 +9,7 @@ import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../api/src/models/package/package-model';
-import { authTest } from '../auth/auth.test.ts';
+import { authTest } from '../auth/auth.test';
 
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 
@@ -28,7 +28,7 @@ const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
 apiHelper.setReqOpts({
     method: 'GET',
-    path: '/deals'
+    path: '/ixm/deals'
 });
 
 test('/deals GET', (t: Test) => {
@@ -122,6 +122,20 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest({'offset': -1})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: ' + res.body.message);
+            })
+            .finally(() => {
+                assert.end();
+            });
+        apiHelper.setReqOpts({headers: {}});
+    });
+
+    t.test('ATW_D_GET_V6 when valid parameters passed in', (assert: Test) => {
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+        apiHelper.sendRequest()
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
+                assert.deepEquals(res.body.data[0], toPayload([ixmPackage.package], newPub, newSection),
+                    'The response object should match mock response object');
             })
             .finally(() => {
                 assert.end();

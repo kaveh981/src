@@ -230,6 +230,7 @@ class DatabasePopulator {
         newPackage.package.createDate = this.currentMidnightDate();
         newPackage.package.startDate.setHours(0, 0, 0, 0);
         newPackage.package.endDate.setHours(0, 0, 0, 0);
+        newPackage.package.accessMode = 1;
 
         return this.dbm
             .insert(newPackage.package, 'packageID')

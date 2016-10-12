@@ -78,7 +78,7 @@ class DataSetup implements testFramework.IDataSetup {
                 return this.dbm.raw('SET foreign_key_checks=0');
             })
             .then(() => {
-                return this.dbm.raw('DELETE FROM ' + table);
+                return this.dbm.raw('TRUNCATE TABLE ' + table);
             })
             .then(() => {
                 return this.dbm.raw('INSERT INTO ' + table + ' SELECT * FROM ' + backup);

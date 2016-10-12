@@ -14,11 +14,15 @@ declare module 'testFramework' {
 
             config: ConfigLoader;
             reqOptions: IReqOptions;
-            queryString: Boolean;
+            isQueryString: Boolean;
             protocol?: string;
 
             setReqOpts(options: IReqOptions): void;
             getReqOpts(): IReqOptions;
+            setIsQueryString(qs: Boolean): void;
+            getIsQueryString(): Boolean;
+            setProtocol(protocol: string): void;
+            getProtocol(): string;
             sendRequest(requestBody?: any): Promise<any>;
 
         }
