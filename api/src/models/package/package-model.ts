@@ -68,7 +68,11 @@ class PackageModel {
         endDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        return (((startDate < endDate || this.startDate === this.endDate) && endDate >= today) || (this.endDate === zeroDate))
+        let datesEqual = startDate.getFullYear() === endDate.getFullYear()
+            && startDate.getMonth() === endDate.getMonth()
+            && startDate.getDate() === endDate.getDate();
+
+        return (((startDate < endDate || datesEqual) && endDate >= today) || (this.endDate === zeroDate))
             && this.sections.length > 0;
     }
 
