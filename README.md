@@ -12,7 +12,7 @@ Atwater's project structure is currently divided into the following components:
 -- contains any project documentation, which is mainly API specifications at this point
 - `nginx/`
 -- contains configuration files for the NGINX instance
-- `test/`
+- `test/`  
 -- contains all end-to-end tests and test suites for the project
 
 # Release Notes
