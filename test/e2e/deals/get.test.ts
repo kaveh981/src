@@ -28,7 +28,7 @@ const dbm = Injector.request<DatabaseManager>('DatabaseManager');
 
 apiHelper.setReqOpts({
     method: 'GET',
-    path: '/deals'
+    path: '/ixm/deals'
 });
 
 test('/deals GET', (t: Test) => {

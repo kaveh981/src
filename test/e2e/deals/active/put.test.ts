@@ -26,7 +26,7 @@ const dbm: DatabaseManager = Injector.request<DatabaseManager>('DatabaseManager'
 
 apiHelper.setReqOpts({
     method: 'PUT',
-    path: '/deals/active'
+    path: '/ixm/deals/active'
 });
 apiHelper.setIsQueryString(false);
 
