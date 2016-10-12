@@ -253,6 +253,11 @@ class DatabasePopulator {
             });
     }
 
+    /**
+     * Creates a new DSP entity based on "new-dsp-schema". Inserts into "Viper2.rtbDSPs",
+     * @param newID {int} - the new DSP ID
+     * @returns {Promise<INewDSPData>} - Promise which resolves with an object of new DSP data
+     */
     public newDSP(newID: number): Promise<INewDSPData> {
         let newDSPData = this.generateDataObject<INewDSPData>('new-dsp-schema');
         newDSPData.dspID = newID;
