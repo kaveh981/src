@@ -21,17 +21,32 @@ Atwater's project structure is currently divided into the following components:
 
 # Release Notes
 ## Release 0.1.0
+- API framework has been set up
+    - Models structure was defined
+    - Dependency injector was created
+    - RAML Validator was created
+    - File logger was created
+    - Error handling middleware was created
+    - Basic buyer authentication was created
+- Testing framework has been set up
+    - Database populator was created
+    - Helper and setup functions were added
+- Docker has been configured
+    - Works on local machine
+    - Works on virtual machine
+- NGINX has been configured
+
 ### Routes
 - `/deals`
     - `GET`
 - `/deals/active`
     - `PUT`
 
-### Functionality
+### Features
 - List all available deals for purchase by sending a `GET` request to `/deals`
-- Accept a deal that's available for purchase by sending a `PUT` request with the desired `packageID` to `/deals/active`
+- Accept a deal that's available for purchase by sending a `PUT` request with the desired `packageID` to `/deals/active`    
 
 
-
-This is the buyer API. Hot stuff. All rights reserved. ®
+"This is the buyer API. Hot stuff." - Adam Harvie, 2016  
+All rights reserved. ®
 
