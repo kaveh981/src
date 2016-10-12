@@ -52,9 +52,7 @@ class PackageModel {
     }
 
     /**
-     * Checks that a package is currently available to buy by checking its start and end dates,
-     * as well as its owner's current status
-     * @param owner - owner of the package
+     * Checks that a package is currently available to buy by checking its start and end dates
      * @returns a boolean indicating whether the package is available to buy or not
      */
     public isValidAvailablePackage(): boolean {
