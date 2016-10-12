@@ -34,6 +34,7 @@ middleware:
     # Controller routes
     router:
         priority: 70
+        route: "/ixm"
         module:
             arguments:
                 - directory: path:./controllers

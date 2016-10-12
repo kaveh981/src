@@ -15,7 +15,7 @@ services:
         env: "production"
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: atw-api:newest
+    image: atw-api:$TAG
     logging:
       driver: "syslog"
       options:
@@ -32,7 +32,7 @@ services:
         env: "production"
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: atw-nginx:newest
+    image: atw-nginx:$TAG
     logging:
       driver: "syslog"
       options:
