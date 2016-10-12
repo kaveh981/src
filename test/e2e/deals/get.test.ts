@@ -9,7 +9,7 @@ import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
 import { PackageModel } from '../../../api/src/models/package/package-model';
-import { authTest } from '../auth/auth.test.ts';
+import { authTest } from '../auth/auth.test';
 
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
 

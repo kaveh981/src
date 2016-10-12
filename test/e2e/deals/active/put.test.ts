@@ -34,6 +34,7 @@ apiHelper.setIsQueryString(false);
 
 test('/deals/active PUT', (t: Test) => {
     const tables: string[] = [
+        'rtbDSPs',
         'rtbDeals',
         'ixmPackageSectionMappings',
         'ixmBuyerDealMappings',
@@ -56,6 +57,7 @@ test('/deals/active PUT', (t: Test) => {
     let newSection2: INewSectionData;
     let newSite: INewSiteData;
     let newSite2: INewSiteData;
+    let newDSP: INewDSPData;
     let buyerIDKey: string = config.get('auth').header;
 
     t.test('setup', (assert: test.Test) => {
@@ -66,6 +68,8 @@ test('/deals/active PUT', (t: Test) => {
                     yield dataSetup.backupTable(table);
                     yield dataSetup.clearTable(table);
                 }
+                yield databasePopulator.newDSP(1);
+                newDSP = yield databasePopulator.newDSP(2);
                 newBuyer = yield databasePopulator.newBuyer();
                 newBuyer2 = yield databasePopulator.newBuyer();
                 newBuyerDifferentDSP = yield databasePopulator.newBuyer();
@@ -77,7 +81,7 @@ test('/deals/active PUT', (t: Test) => {
                 ixmPackage = yield databasePopulator.newPackage(newPub.user.userID,
                     [newSection.section.sectionID, newSection2.section.sectionID]);
             })()
-            .catch(() => {
+            .catch((e) => {
                 assert.end();
             })
             .finally(() => {
@@ -92,6 +96,7 @@ test('/deals/active PUT', (t: Test) => {
     });
 
     t.test(' ATW_DA_PUT_V1 when valid parameters passed in', (assert: Test) => {
+
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID }});
         apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
             .then((res: any) => {
@@ -143,7 +148,93 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V4 when packageID is not int', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V4 when packageID is negative', (assert: Test) => {
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+        apiHelper.sendRequest({'packageID': - ixmPackage.package.packageID })
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+
+    });
+
+    t.test(' ATW_DA_PUT_V5 when packageID is 0', (assert: Test) => {
+        apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+        apiHelper.sendRequest({'packageID': 0})
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+
+    });
+
+    t.test(' ATW_DA_PUT_V6 when packageID is max range', (assert: Test) => {
+        dbm.from('ixmPackages')
+            .where('packageID', ixmPackage.package.packageID)
+            .update({
+                packageID: 16777215
+            })
+            .then(() => {
+                apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+                return apiHelper.sendRequest({'packageID': 16777215});
+            })
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+            })
+            .then(() => {
+                return dbm.from('ixmPackages')
+                    .where('packageID', ixmPackage.package.packageID)
+                    .update({
+                        packageID: ixmPackage.package.packageID
+                    });
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+    });
+
+    t.test(' ATW_DA_PUT_V7 when packageID is max range + 1', (assert: Test) => {
+        dbm.from('ixmPackages')
+            .where('packageID', ixmPackage.package.packageID)
+            .update({
+                packageID: 16777215
+            })
+            .then(() => {
+                apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+                return apiHelper.sendRequest({'packageID': 16777215 + 1});
+            })
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+            })
+            .then(() => {
+                return dbm.from('ixmPackages')
+                    .where('packageID', ixmPackage.package.packageID)
+                    .update({
+                        packageID: ixmPackage.package.packageID
+                    });
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+    });
+
+    t.test(' ATW_DA_PUT_V8 when packageID is not int', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': '`' + ixmPackage.package.packageID + '`'})
             .then((res: any) => {
@@ -158,7 +249,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V5 when packageID does not exist', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V9 when packageID does not exist', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID + 5})
             .then((res: any) => {
@@ -173,7 +264,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V6 when	package is paused', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V10 when	package is paused', (assert: Test) => {
 
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -203,7 +294,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V7 when	package is deleted', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V11 when	package is deleted', (assert: Test) => {
 
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -232,7 +323,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V8 when package is expired', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V12 when package is expired', (assert: Test) => {
         let currentDate: Date = new Date();
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -262,7 +353,36 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V9 when package has not started yet', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V13 when package expires today', (assert: Test) => {
+        dbm.from('ixmPackages')
+            .where('packageID', ixmPackage.package.packageID)
+            .update({
+                endDate: helperMethods.dateToYMD( new Date())
+            })
+            .then(() => {
+                apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+            })
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+            })
+            .then(() => {
+                return dbm.from('ixmPackages')
+                    .where('packageID', ixmPackage.package.packageID)
+                    .update({
+                        endDate:  ixmPackage.package.endDate
+                    });
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+
+    });
+
+    t.test(' ATW_DA_PUT_V14 when package has not started yet', (assert: Test) => {
         let currentDate: Date = new Date();
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -293,11 +413,48 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V10 when package already bought by a buyer from different DSP',
+    t.test(' ATW_DA_PUT_V15 when package starts today', (assert: Test) => {
+        dbm.from('ixmPackages')
+            .where('packageID', ixmPackage.package.packageID)
+            .update({
+                startDate: helperMethods.dateToYMD(new Date())
+            })
+            .then(() => {
+                apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
+                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+            })
+            .then((res: any) => {
+                assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
+                    + res.body.message + ' ' + JSON.stringify(res.body));
+                return afterAPICall(res);
+
+            })
+            .then(() => {
+                return dbm.from('ixmPackages')
+                    .where('packageID', ixmPackage.package.packageID)
+                    .update({
+                        startDate: ixmPackage.package.startDate
+                    });
+            })
+            .finally(() => {
+                assert.end();
+                apiHelper.setReqOpts({headers: {}});
+            });
+
+    });
+
+    t.test(' ATW_DA_PUT_V16 when package already bought by a buyer from different DSP',
         (assert: Test) => {
             let response: any = {};
-            apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyerDifferentDSP.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            dbm.from('ixmBuyers')
+                .where('userID', newBuyerDifferentDSP.user.userID)
+                .update({
+                    dspID: 2
+                })
+                .then(() => {
+                    apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyerDifferentDSP.user.userID}});
+                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                })
                 .then((res: any) => {
                     response = res;
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
@@ -314,8 +471,7 @@ test('/deals/active PUT', (t: Test) => {
                 });
 
         });
-
-    t.test(' ATW_DA_PUT_V11 when package already bought by same buyer',
+    t.test(' ATW_DA_PUT_V17 when package already bought by same buyer',
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
@@ -337,7 +493,7 @@ test('/deals/active PUT', (t: Test) => {
 
         });
 
-    t.test(' ATW_DA_PUT_V12 when Package package already bought by a buyer from same DSP',
+    t.test(' ATW_DA_PUT_V18 when Package package already bought by a buyer from same DSP',
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer2.user.userID}});
@@ -359,14 +515,14 @@ test('/deals/active PUT', (t: Test) => {
 
         });
 
-    t.test(' ATW_DA_PUT_V13 when package already bought by same buyer, but deal now disabled',
+    t.test(' ATW_DA_PUT_V19 when package already bought by same buyer, but deal now disabled',
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
             apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
                 .then((res) => {
                     response = res;
-                    dbm.from('rtbDeals')
+                    return dbm.from('rtbDeals')
                         .where('dealID', res.body.data[0].id)
                         .update({
                             status: 'D'
@@ -388,7 +544,7 @@ test('/deals/active PUT', (t: Test) => {
 
         });
 
-    t.test(' ATW_DA_PUT_V14 when package already bought by same buyer, deal is status new',
+    t.test(' ATW_DA_PUT_V20 when package already bought by same buyer, deal is status new',
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
@@ -417,7 +573,7 @@ test('/deals/active PUT', (t: Test) => {
 
         });
 
-    t.test(' ATW_DA_PUT_V15 when package already bought by same buyer, but deal now paused',
+    t.test(' ATW_DA_PUT_V21 when package already bought by same buyer, but deal now paused',
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
@@ -446,7 +602,7 @@ test('/deals/active PUT', (t: Test) => {
 
         });
 
-    t.test(' ATW_DA_PUT_V16 when some sections are no longer active', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V22 when some sections are no longer active', (assert: Test) => {
         dbm.from('rtbSections')
             .where('sectionID', newSection2.section.sectionID)
             .update({
@@ -475,7 +631,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V17 when no active sections are available', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V23 when no active sections are available', (assert: Test) => {
         dbm.from('rtbSections')
             .where('sectionID', newSection.section.sectionID)
             .update({
@@ -517,7 +673,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V18 when some sites are no longer active', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V24 when some sites are no longer active', (assert: Test) => {
         dbm.from('sites')
             .where('siteID', newSite2.siteID)
             .update({
@@ -546,7 +702,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V19 when no active site remains', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V25 when no active site remains', (assert: Test) => {
         dbm.from('sites')
             .where('siteID', newSite.siteID)
             .update({
@@ -592,7 +748,7 @@ test('/deals/active PUT', (t: Test) => {
         Promise.coroutine(function* (): any {
                 for (let i = 0; i < tables.length; i += 1) {
                     let table = tables[i];
-                    yield dataSetup.restoreTable(table);
+                    //   yield dataSetup.restoreTable(table);
                 }
                 app.shutdown();
 
@@ -643,7 +799,7 @@ test('/deals/active PUT', (t: Test) => {
      */
     function afterAPICall(res: any) {
         apiHelper.setReqOpts({headers: {}});
-        if (res.httpStatusCode === 200) {
+        if (res && res.httpStatusCode === 200) {
             return deleteDeal(res.body.data[0].id);
         } else {
             return Promise.resolve();
