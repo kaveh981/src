@@ -1,3 +1,6 @@
 # Project Atwater
 
-This is the buyer API. Hot stuff.
+# Release 0.1.0
+### Routes
+* /deals GET
+* /deals/active PUT
