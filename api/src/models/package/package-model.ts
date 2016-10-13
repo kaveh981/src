@@ -76,7 +76,7 @@ class PackageModel {
 
     /**
      * Return the model as a ready-to-send JSON object.
-     * @returns - The model as specified in the API.
+     * @returns The model as specified in the API.
      */
     public toPayload(): any {
         return {

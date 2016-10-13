@@ -7,7 +7,7 @@ import { Logger } from '../lib/logger';
 const Log: Logger = new Logger('ROUT');
 
 /**
- * An error catcher that catch unauthorized request.
+ * An error handler for 403 - Forbidden Request errors.
  */
 function ForbiddenHandler(err: Error, req: express.Request, res: express.Response, next: Function): void {
     if (err.name === 'FORBIDDEN') {

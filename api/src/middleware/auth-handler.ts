@@ -42,7 +42,7 @@ function verifyToken(token: string): Promise<string> {
 }
 
 /**
- * Temporary authentication handler, simply extracts userId from the configured header and inserts into ixmBuyerInfo
+ * Temporary authentication handler. Simply extracts userId from the configured header and inserts into ixmBuyerInfo
  * if the userId corresponds to an ixmBuyer.
  */
 function AuthHandler(req: express.Request, res: express.Response, next: Function): void {

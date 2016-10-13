@@ -16,7 +16,7 @@ const validator = require('validator');
 const raml2obj = require('raml2obj');
 
 /**
- * I'm a just a validation error.
+ * I'm just a validation error.
  */
 interface IValidationError {
     error: string;
@@ -374,7 +374,7 @@ class RamlTypeValidator {
                     }
                 break;
 
-                // k den
+                // If any, do nothing
                 case 'any':
                 break;
 

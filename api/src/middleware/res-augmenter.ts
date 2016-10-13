@@ -102,7 +102,7 @@ function augmentResponse(res: express.Response): void {
         res.sendJSON(200, msg);
     };
 
-    // Validation error.
+    // 400 Validation error.
     res.sendValidationError = (details: any[]) => {
         res.sendError(400, '400', details);
     };
