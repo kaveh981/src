@@ -150,7 +150,7 @@ class DealManager {
             startDate: acceptedPackage.startDate,
             endDate: acceptedPackage.endDate,
             externalDealID: externalDealID,
-            priority: 0,
+            priority: 5,
             openMarket: 0,
             noPayoutMode: 0,
             manualApproval: 1
