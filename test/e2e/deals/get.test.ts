@@ -58,7 +58,8 @@ test('/deals GET', (t: Test) => {
                 newPub = yield databasePopulator.newPub();
                 let newSite: INewSiteData = yield databasePopulator.newSite(newPub.user.userID);
                 newSection = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
-                ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID]);
+                ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID],
+                    {status: 'active'});
             })()
             .finally(() => {
                 assert.end();
