@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "dspID": 1,
+    "user": {
+      "__ref__": "new-user-schema",
+      "properties": {
+        "userType": 22,
+        "emailAddress": {
+          "chance": {
+            "email": {
+              "domain": "atw-test-buyer.com"
+            }
+          }
+        },
+        "companyName": "iBuyAdSpace"
+      }
+    }
+  },
+  "required": [
+    "user",
+    "dspID"
+  ]
+}

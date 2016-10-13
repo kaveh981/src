@@ -1,0 +1,46 @@
+#%RAML 1.0 DataType
+
+type: object
+description: The standard response object. All responses from the API will be wrapped in this response. Includes metadata on the status of the request, and the data payload, if any, in the "data" field. If an error has occured, error details will be included in the "message" field.
+properties:
+    code:
+        type: integer
+        required: true
+        displayName: Response Code
+        description: The HTTP response code for the request result
+        example: 200
+    message: 
+        type: string
+        required: true
+        displayName: Message
+        description: A result message. Will contain a success message, or error details in the case of error codes.
+    data:
+        type: array # can specify array w potential types with ( Type1 | Type 2)[] but haven't figured out how to !include
+        required: true
+        displayName: Data
+        description: An array of data objects returned from the request. May be empty.
+    pagination:
+        type: object #QueryPaging?
+        required: false
+        displayName: pagination
+        description: An optional object describing the pagination context of the returned data.
+example: |
+    {
+        "code": 200,
+        "message": "Request successful",
+        "data": [
+            {
+                "name": "data-object-1"
+            },
+            {
+                "name": "data-object-2"
+            },
+            {
+                "name": "data-object-N"
+            }
+        ],
+        "pagination": {
+            "limit": 250,
+            "offset": 0
+        }
+    }

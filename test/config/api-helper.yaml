@@ -1,0 +1,4 @@
+# Change protocol to 'https' for secure http calls
+protocol: http
+hostname: localhost
+port: 8000

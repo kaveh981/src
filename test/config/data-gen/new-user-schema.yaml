@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "userType": {
+      "minimum": 2,
+      "maximum": 23
+    },
+    "emailAddress": {
+      "chance": {
+        "email": {
+          "domain": "atw-test-user.com"
+        }
+      }
+    },
+    "status": "A",
+    "password": "ratpoint.jpeg",
+    "firstName": {
+      "faker": "name.lastName"
+    },
+    "lastName": {
+      "faker": "name.firstName"
+    },
+    "companyName": {
+      "faker": "company.companyName"
+    },
+    "address1": {
+      "faker": "address.streetAddress"
+    },
+    "address2": "-",
+    "city": {
+      "faker": "address.city"
+    },
+    "state": {
+      "faker": "address.state"
+    },
+    "zipCode": {
+      "faker": "address.zipCode"
+    },
+    "country": {
+      "faker": "address.countryCode"
+    },
+    "phone": {
+      "faker": "phone.phoneNumber"
+    },
+    "fax": "-",
+    "version": 1,
+    "lastLogin": "0000-00-00"
+  },
+  "required": ["emailAddress", "password", "firstName", "lastName", "companyName", "address1", "city", "state",
+    "zipCode", "country", "phone", "userType", "status", "userType", "version", "address2", "fax", "lastLogin"]
+}

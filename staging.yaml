@@ -1,0 +1,43 @@
+version: '2'
+
+networks:
+  atwater:
+    external: true
+
+services:
+  atw-api:
+    container_name: "atw-api"
+    restart: "always"
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+      args:
+        env: "production"
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: atw-api:$TAG
+    logging:
+      driver: "syslog"
+      options:
+        tag: "atwater.api"
+    networks:
+      - atwater
+  atw-nginx:
+    container_name: "atw-nginx"
+    restart: "always"
+    build:
+      context: ./nginx
+      dockerfile: ./docker/Dockerfile
+      args:
+        env: "production"
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: atw-nginx:$TAG
+    logging:
+      driver: "syslog"
+      options:
+        tag: "atwater.nginx"
+    networks:
+      - atwater
+    ports:
+      - "443:443"

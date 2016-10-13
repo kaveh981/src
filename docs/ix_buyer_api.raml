@@ -1,0 +1,108 @@
+#%RAML 1.0
+---
+################################
+# Overview
+################################
+
+title: Index Exchange Buyer API
+baseUri: https://market.indexexchange.com/api/{version}
+version: v1
+mediaType: application/json
+
+################################
+# Traits
+#   These are reusable traits that can be applied in multiple nodes
+################################
+
+traits:
+    auth_required:
+        headers:
+            X-IXM-BuyerId:
+                type: integer
+                description: The current user's ID, used as an authentication token.
+
+
+################################
+# Object Definitions
+################################
+
+types:
+    Contact:        !include types/contact.raml
+    Deal:           !include types/deal.raml
+    ActiveDeal:     !include types/active_deal.raml
+    Response:       !include types/response.raml
+    QueryPaging:    !include types/query_paging.raml
+
+################################
+# Route Definitions
+################################
+
+/deals:
+    get:
+        is: [ auth_required]
+        description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or countr-offers sent.
+        queryString: 
+            type: [ QueryPaging ]
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            500: # 500 = "Internal Server Error" something done broke
+    put:
+        description: Create a new offered deal in the IX system to be offered to one or more publishers. Publisher(s) may accept as offered, or create a counter-offer. Only available to the package creator.
+        body:
+            type: Deal
+        responses:
+            201: #201 = "Created"
+    /active:
+        get:
+            is: [ auth_required ]
+            description: Retrieve deals that are currently active in the system for the current user.
+            queryString: 
+                type: [ QueryPaging ]
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        put:
+            is: [ auth_required ]
+            description: Accept a new deal, rendering it active in the system
+            body:
+                application/json:
+                    properties:
+                        packageID:
+                            type: integer
+                            required: true
+                            minimum: 1
+                            maximum: 16777215
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" provided package ID does not exist in the database
+                500: # 500 = "Internal Server Error" something done broke
+
+/users:
+    /{user_id}:
+        get:
+            is: [ auth_required ]
+            description: Retrieve contact information for a user by id.
+            responses:
+                200: # 200 = OK
+                    body:
+                        application/json:
+                            type: Contact
+                404: # 404 = User not found.

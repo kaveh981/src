@@ -12,6 +12,7 @@ node_modules
 #####################
 *.js
 *.js.map
+build
 
 # Typings
 #####################
@@ -30,3 +31,10 @@ typings
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local Config Files
+######################
+.env
+entrypoint_local.sh
+*override.yaml
+.rsyncignore

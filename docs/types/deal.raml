@@ -1,0 +1,126 @@
+#%RAML 1.0 DataType
+
+type: object
+description: An object describing a deal available to buy on a deal section
+properties:
+    id:
+        type: integer
+        required: true
+        displayName: Deal ID
+        description: The unique identifier for the deal
+    publisher_id:
+        type: integer[]
+        required: true
+        displayName: Publisher ID(s)
+        description: The IDs of the publishers involved in the deal
+    # publisher_name:
+    #     type: string[]
+    #     required: false
+    #     displayName: Publisher name(s)
+    #     description: The names of publishers involved in the deal
+    name:
+        type: string
+        required: true
+        displayName: Name
+        description: Name of the deal
+    deal_section_id: # ? Provide API paths to access ?
+        type: integer[]
+        required: true
+        displayName: Deal Section Id(s)
+        description: An array of Deal Section IDs, indicating which sections will be active in this deal.
+    description:
+        type: string
+        required: false
+        displayName: Description
+        description: A description of the deal.
+    status:
+        type: string
+        required: true
+        displayName: Status
+        description: The deal's current status. May be one of... # ? what are the list of statuses?
+        enum: ["active", "paused", "deleted"] # ? See above - this will be the field values list
+    start_date:
+        type: date-only
+        required: false
+        displayName: Start Date
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal is set to start immediately on acceptance.
+        example: 2016-09-09
+    end_date:
+        type: date-only
+        required: false # should we omit date for 'ongoing'? Or?
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal does not expire.
+        example: 2016-10-10
+    price:
+        type: number
+        required: true
+        displayName: Deal Price
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
+    impressions:
+        type: number
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package
+    budget:
+        type: number
+        required: false
+        displayName: Budget
+        description: The projected amount to be spent by the buyer
+    currency:
+        type: string
+        required: true
+        displayName: Currency
+        description: Three-letter currency code for the deal.
+        example: USD
+    auction_type:
+        type: integer
+        required: true
+        displayName: Auction Type,
+        description: The auction type - 1 = First Price, 2 = Second Price, 3 = Fixed Rate
+        enum: [1,2,3] # Use integer or string values? Strings clearer, ints are what system uses
+    contact:
+        type: !include contact.raml
+        required: true
+        displayName: Contact Information
+        description: The primary contact information for the deal
+    terms:
+        type: string
+        required: false
+        displayName: Terms & Conditions
+        description: The terms & conditions for the deal - extra information describing the deal.
+    created_at:
+        type: datetime
+        required: true
+        displayName: Created At
+        description: The timestamp the deal was created at. RFC3339 format, UTC.
+    modified_at:
+        type: datetime
+        required: true
+        displayName: Modified At
+        description: The timestamp the deal was last modified at. RFC3339 format, UTC.
+example: |
+    {
+        "id": 999,
+        "publisher_id": [123],
+        "site_id": [111,222],
+        "deal_section_id": [4321, 9876],
+        "name": "Superfab Ultradeal",
+        "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+        "status": "active",
+        "start_date": "2016-09-09",
+        "end_date": "2016-10-10",
+        "price": 1.99,
+        "impressions": 8,
+        "budget": 9999999.99,
+        "currency": "USD",
+        "auction_type": 1,
+        "contact": {
+            "title": "Captain",
+            "name": "Jimdex Exchange",
+            "email": "jimdex.exchange@indexexchange.com",
+            "phone": "666 666 6665"
+        },
+        "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+        "created_at": "2016-04-04T04:00:00Z",
+        "modified_at": "2016-04-14T14:00:00Z"
+    }
