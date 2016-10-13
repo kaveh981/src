@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TAG=${VERSION:-newest}
+export TAG=${VERSION:-newest}
 
 git fetch --all \
   && git checkout master \
@@ -8,6 +8,6 @@ git fetch --all \
   && git checkout $TAG \
   || exit 10
 
-GIT_COMMIT=$(git rev-parse --short HEAD)
-DATE=`date +%Y-%m-%d`
+export GIT_COMMIT=$(git rev-parse --short HEAD)
+export DATE=`date +%Y-%m-%d`
 
