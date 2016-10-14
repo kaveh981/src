@@ -304,7 +304,7 @@ test('/deals/active PUT', (t: Test) => {
                 return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
-                assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
+                assert.equal(res.httpStatusCode, 404, 'It should return status code 404, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
                 return afterAPICall(res);
             })
