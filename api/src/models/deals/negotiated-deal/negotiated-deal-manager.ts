@@ -85,8 +85,8 @@ class NegotiatedDealManager {
             sender: negotiatedDeal.sender,
             pubStatus: negotiatedDeal.publisherStatus,
             buyerStatus: negotiatedDeal.buyerStatus,
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date())
+            createDate: negotiatedDeal.createDate,
+            modifyDate: negotiatedDeal.modifyDate
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
@@ -115,8 +115,8 @@ class NegotiatedDealManager {
             publisherStatus: 'accepted',
             buyerStatus: 'accepted',
             sender: 'buyer',
-            createDate: '0000-00-00',
-            modifyDate: '0000-00-00',
+            createDate: this.dateToMysqlTimestamp(new Date()),
+            modifyDate: this.dateToMysqlTimestamp(new Date()),
             proposedDeal: proposedDeal,
             startDate: proposedDeal.startDate,
             endDate: proposedDeal.endDate,
