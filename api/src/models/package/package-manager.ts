@@ -152,14 +152,16 @@ class PackageManager {
     }
 
     /**
-     * Get corresponding section IDs by package ID
+     * Get corresponding section IDs by package ID with active sections
      * @param packageID - the ID of the package
      * @returns an array of section IDs
      */
     private getPackageSections (packageID: number): Promise<number[]> {
-        return this.databaseManager.select('sectionID')
-                .from('ixmPackageSectionMappings')
-                .where('packageID', packageID)
+        return this.databaseManager.select('ixmPackageSectionMappings.sectionID')
+            .from('ixmPackageSectionMappings')
+            .join('rtbSections', 'ixmPackageSectionMappings.sectionID', 'rtbSections.sectionID')
+            .where('ixmPackageSectionMappings.packageID', packageID)
+            .andWhere('rtbSections.status', 'A')
             .then((sectionObjects: any) => {
                 return sectionObjects.map((sectionObject) => { return sectionObject.sectionID; });
             });
