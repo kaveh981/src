@@ -218,12 +218,12 @@ class DatabasePopulator {
      * @param packageFields {INewPackageData} - Optional: a new package object to override random fields
      * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
      */
-    public newPackage(ownerID: number, sectionIDs: number[], packageFields?: INewPackageData): Promise<INewPackageData> {
+    public newPackage(ownerID: number, sectionIDs: number[], packageFields?: IPackage): Promise<INewPackageData> {
         let newPackageObj = this.generateDataObject<IPackage>('new-package-schema');
         let newPackage: INewPackageData = { package: newPackageObj, sectionIDs: sectionIDs };
 
         if (packageFields) {
-            Object.assign(newPackage, packageFields);
+            Object.assign(newPackage.package, packageFields);
         }
 
         newPackage.package.ownerID = ownerID;

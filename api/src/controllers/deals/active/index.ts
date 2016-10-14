@@ -80,41 +80,41 @@ function ActiveDeals(router: express.Router): void {
             return next(err);
         }
 
-        // Check that package exists
+        // Check that proposal exists
         let proposalID: number = req.body.proposalID;
         let buyerID = Number(req.ixmBuyerInfo.userID);
         let buyerIXMInfo = yield buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal: ProposedDealModel = yield proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (!proposedDeal) {
-            Log.debug('Package does not exist');
+        if (!proposedDeal || proposedDeal.status === 'deleted') {
+            Log.debug('Proposal does not exist');
             return next();
         }
 
-        // Check that the package is available for purchase
+        // Check that the proposal is available for purchase
         let owner = yield userManager.fetchUserFromId(proposedDeal.ownerID);
 
         if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
-            Log.debug('Package is not available for purchase');
+            Log.debug('Proposal is not available for purchase');
             let err = new Error('403_NOT_FORSALE');
             err.name = 'FORBIDDEN';
             return next(err);
         }
 
-        // Check that package has not been bought yet by this buyer, or isn't in negotiation
+        // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
         let dealNegotiation: NegotiatedDealModel =
                 yield negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
-                Log.debug('Package has already been accepted.');
+                Log.debug('Proposal has already been accepted.');
 
-                let err = new Error('403_PACKAGE_BOUGHT');
+                let err = new Error('403_PROPOSAL_BOUGHT');
                 err.name = 'FORBIDDEN';
                 return next(err);
             } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
-                Log.debug('Package is in negotiation.');
-                let err = new Error('403_PACKAGE_IN_NEGOTIATION');
+                Log.debug('Proposal is in negotiation.');
+                let err = new Error('403_PROPOSAL_IN_NEGOTIATION');
                 err.name = 'FORBIDDEN';
                 return next(err);
             }

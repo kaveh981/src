@@ -6,7 +6,7 @@ en-US:
     # 200 Status Code Messages
     200: Ok.
     200_NO_CONTENT: No content.
-    200_NO_PACKAGES: No deals are currently available. Come check again soon!
+    200_NO_PROPOSALS: No deals are currently available. Come check again soon!
     200_NO_DEALS: You don't seem to have any active deals at the moment. Sorry, eh!
     
     # 400 Status Code Messages
@@ -22,9 +22,9 @@ en-US:
 
     # 403 Status Code Messages
     403: Forbidden.
-    403_NOT_FORSALE: Package is not available for purchase.
-    403_PACKAGE_BOUGHT: Package has already been accepted.
-    403_PACKAGE_IN_NEGOTIATION: Package is in negotiation.
+    403_NOT_FORSALE: Proposal is not available for purchase.
+    403_PROPOSAL_BOUGHT: Proposal has already been accepted.
+    403_PROPOSAL_IN_NEGOTIATION: Proposal is in negotiation.
 
     # 404 Status Code Messages
     404: Not found.
