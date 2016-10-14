@@ -158,10 +158,9 @@ class DealManager {
         .into('rtbDeals');
 
         // Get the new deal ID using the externalDealID because Knex doesn't return what it inserted for MySQL
-        let newDealID = yield this.databaseManager.select('dealID')
+        let newDealID = (yield this.databaseManager.select('dealID')
             .from('rtbDeals')
-            .where('externalDealID', externalDealID)
-            .then((rows) => {return rows[0].dealID; });
+            .where('externalDealID', externalDealID))[0].dealID;
 
         // Insert deal section mappings
         for (let i = 0; i < acceptedPackage.sections.length; i++) {
