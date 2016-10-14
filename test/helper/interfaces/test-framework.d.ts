@@ -40,6 +40,14 @@ declare module 'testFramework' {
             backupTable(table: string, suffix: string = '_bckp'): Promise<any>;
 
             /**
+             * Backup an array of tables.
+             * @param [tables] - The name of tables that we want to backup.
+             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @returns A promise.
+             */
+            backupTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
+
+            /**
              * Restore a table.
              * @param table - The name of the table that we want to restore.
              * @param suffix - The backup table name suffix which is optional and default is _bckp.
@@ -48,14 +56,29 @@ declare module 'testFramework' {
             restoreTable(table: string, suffix: string = '_bckp'): Promise<any>;
 
             /**
+             * Restore an array of tables.
+             * @param [tables] - The name of tables that we want to restore.
+             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @returns A promise.
+             */
+            restoreTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
+            /**
              * Clear a table.
              * @param table - The name of the table that we want to clear.
+             * @param suffix - The clear table name suffix which is optional and default is _bckp.
              * @returns A promise.
              */
             clearTable(table: string, suffix: string = '_bckp'): Promise<any>;
 
-        }
+            /**
+             * Clear an array of tables.
+             * @param [tables] - The name of tables that we want to clear.
+             * @param suffix - The clear table name suffix which is optional and default is _bckp.
+             * @returns A promise.
+             */
+            clearTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
 
+        }
         interface IHelperMethods {
 
             /**
