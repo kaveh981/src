@@ -57,7 +57,7 @@ class DataSetup implements testFramework.IDataSetup {
             let table = tables[i];
             yield this.backupTable(table, suffix);
         }
-    }) as { (tables: string[], suffix: string = '_bckp'): Promise<any> };
+    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
 
     /**
      * Restore a table.

@@ -45,7 +45,7 @@ declare module 'testFramework' {
              * @param suffix - The backup table name suffix which is optional and default is _bckp.
              * @returns A promise.
              */
-            backupTables(tables: string[], suffix: string = '_bckp'): any;
+            backupTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
 
             /**
              * Restore a table.
