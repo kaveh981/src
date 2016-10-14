@@ -87,25 +87,25 @@ interface INewSectionData {
 
 interface IPackage {
     packageID?: number;
-    ownerID: number;
-    name: string;
-    description: string;
-    status: string;
+    ownerID?: number;
+    name?: string;
+    description?: string;
+    status?: string;
     accessMode?: number;
-    startDate: Date;
-    endDate: Date;
-    price: number;
-    impressions: number;
-    budget: number;
-    auctionType: string;
-    terms: string;
-    createDate: Date;
+    startDate?: Date;
+    endDate?: Date;
+    price?: number;
+    impressions?: number;
+    budget?: number;
+    auctionType?: string;
+    terms?: string;
+    createDate?: Date;
     modifyDate?: Date;
 }
 
 interface INewPackageData {
-    sectionIDs: number[];
-    package: IPackage;
+    sectionIDs?: number[];
+    package?: IPackage;
 }
 
 interface IReqOptions {

@@ -52,7 +52,8 @@ class PackageModel {
     }
 
     /**
-     * Checks that a package is currently available to buy by checking its start and end dates
+     * Checks that a package is currently available to buy by checking its start and end dates,
+     * that is has at least one section, and that its status is active
      * @returns a boolean indicating whether the package is available to buy or not
      */
     public isValidAvailablePackage(): boolean {
@@ -71,7 +72,8 @@ class PackageModel {
             && startDate.getDate() === endDate.getDate();
 
         return (((startDate < endDate || datesEqual) && endDate >= today) || (this.endDate === zeroDate))
-            && this.sections.length > 0;
+            && this.sections.length > 0
+            && this.status === 'active';
     }
 
     /**

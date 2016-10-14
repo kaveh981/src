@@ -46,10 +46,10 @@ test('/deals/active PUT', (t: Test) => {
         'users',
         'ixmBuyers'
     ];
+
     let ixmPackage: INewPackageData;
     let newBuyer: INewBuyerData;
     let newBuyer2: INewBuyerData;
-    let newBuyer3: INewBuyerData;
     let newBuyerDifferentDSP: INewBuyerData;
     let newPub: INewPubData;
     let newSection: INewSectionData;
@@ -71,7 +71,6 @@ test('/deals/active PUT', (t: Test) => {
                 newDSP = yield databasePopulator.newDSP(2);
                 newBuyer = yield databasePopulator.newBuyer();
                 newBuyer2 = yield databasePopulator.newBuyer();
-                newBuyer3 = yield databasePopulator.newBuyer();
                 newBuyerDifferentDSP = yield databasePopulator.newBuyer();
                 newPub = yield databasePopulator.newPub();
                 newSite = yield databasePopulator.newSite(newPub.user.userID);
@@ -79,7 +78,7 @@ test('/deals/active PUT', (t: Test) => {
                 newSection = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID, newSite2.siteID]);
                 newSection2 = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
                 ixmPackage = yield databasePopulator.newPackage(newPub.user.userID,
-                    [newSection.section.sectionID, newSection2.section.sectionID]);
+                    [newSection.section.sectionID, newSection2.section.sectionID], {status: 'active'});
             })()
             .catch((e) => {
                 assert.end();
@@ -117,7 +116,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V2 when packageID is not provided', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V2 when packageID is not provided', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest()
             .then((res: any) => {
@@ -132,7 +131,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V3 when packageID contains letters', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V3 when packageID contains letters', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': '`ixm' + ixmPackage.package.packageID + '`'})
             .then((res: any) => {
@@ -147,7 +146,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V4 when packageID is negative', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V4 when packageID is negative', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': - ixmPackage.package.packageID })
             .then((res: any) => {
@@ -162,7 +161,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V5 when packageID is 0', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V5 when packageID is 0', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': 0})
             .then((res: any) => {
@@ -177,7 +176,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V6 when packageID is max range', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V6 when packageID is max range', (assert: Test) => {
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
             .update({
@@ -205,7 +204,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V7 when packageID is max range + 1', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V7 when packageID is max range + 1', (assert: Test) => {
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
             .update({
@@ -233,7 +232,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V8 when packageID is not int', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V8 when packageID is not int', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': '`' + ixmPackage.package.packageID + '`'})
             .then((res: any) => {
@@ -248,7 +247,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V9 when packageID does not exist', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V9 when packageID does not exist', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID + 5})
             .then((res: any) => {
@@ -263,7 +262,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V10 when package is paused', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V10 when package is paused', (assert: Test) => {
 
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -293,7 +292,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V11 when	package is deleted', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V11 when	package is deleted', (assert: Test) => {
 
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
@@ -305,7 +304,7 @@ test('/deals/active PUT', (t: Test) => {
                 return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
-                assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
+                assert.equal(res.httpStatusCode, 404, 'It should return status code 404, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
                 return afterAPICall(res);
             })
@@ -462,6 +461,9 @@ test('/deals/active PUT', (t: Test) => {
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 200, 'It should return status code 200, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
@@ -483,6 +485,9 @@ test('/deals/active PUT', (t: Test) => {
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403 , 'It should return status code 403, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
@@ -499,12 +504,15 @@ test('/deals/active PUT', (t: Test) => {
             apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
                 .then((res: any) => {
                     response = res;
-                    apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer3.user.userID}});
+                    apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
                     return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 200, 'It should return status code 200, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
@@ -534,6 +542,9 @@ test('/deals/active PUT', (t: Test) => {
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
@@ -563,6 +574,9 @@ test('/deals/active PUT', (t: Test) => {
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
@@ -592,6 +606,9 @@ test('/deals/active PUT', (t: Test) => {
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
                         + secRes.body.message + ' ' + JSON.stringify(secRes.body));
+                    return afterAPICall(secRes);
+                })
+                .then(() => {
                     return afterAPICall(response);
                 })
                 .finally(() => {
