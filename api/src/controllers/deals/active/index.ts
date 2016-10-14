@@ -81,7 +81,7 @@ function ActiveDeals(router: express.Router): void {
             // Check that package exists
             let thePackage = yield packageManager.fetchPackageFromId(packageID);
 
-            if (!thePackage) {
+            if (!thePackage || thePackage.status === 'deleted') {
                 Log.debug('Package does not exist');
                 return next();
             }
