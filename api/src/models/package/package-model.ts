@@ -71,7 +71,8 @@ class PackageModel {
             && startDate.getDate() === endDate.getDate();
 
         return (((startDate < endDate || datesEqual) && endDate >= today) || (this.endDate === zeroDate))
-            && this.sections.length > 0;
+            && this.sections.length > 0
+            && this.status === 'active';
     }
 
     /**
