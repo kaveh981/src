@@ -60,7 +60,7 @@ function Deals(router: express.Router): void {
         if (proposedDeals.length > 0) {
             res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
-            res.sendError(200, '200_NO_PACKAGES');
+            res.sendError(200, '200_NO_PROPOSALS');
         }
 
     }) as any);
