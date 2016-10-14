@@ -8,11 +8,12 @@ import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
 import { RamlTypeValidator } from '../../lib/raml-type-validator';
 import { ProtectedRoute } from '../../middleware/protected-route';
-import { PackageManager } from '../../models/package/package-manager';
-import { UserManager } from '../../models/user/user-manager';
-import { PackageModel } from '../../models/package/package-model';
 
-const packageManager = Injector.request<PackageManager>('PackageManager');
+import { ProposedDealManager } from '../../models/deals/proposed-deal/proposed-deal-manager';
+import { ProposedDealModel } from '../../models/deals/proposed-deal/proposed-deal-model';
+import { UserManager } from '../../models/user/user-manager';
+
+const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
@@ -24,10 +25,10 @@ const Log: Logger = new Logger('DEAL');
 function Deals(router: express.Router): void {
 
     /**
-     * GET request to get all available packages. The function first validates pagination query parameters. It then retrieves all
-     * packages from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
+     * GET request to get all available proposals. The function first validates pagination query parameters. It then retrieves all
+     * proposals from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
-    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
+    router.get('/', ProtectedRoute, Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
 
         // Validate pagination parameters
         let pagination = {
@@ -44,31 +45,25 @@ function Deals(router: express.Router): void {
             return next(err);
         }
 
-        // Get all packages with an 'active' status
-        return packageManager.fetchPackagesFromStatus('active', pagination)
-            .then((activePackages: PackageModel[]) => {
-                return Promise.filter(activePackages, (activePackage: PackageModel) => {
-                    // Make sure a package is owned by an active user, has valid dates, and has at least one associated deal section
-                     return userManager.fetchUserFromId(activePackage.ownerID.toString())
-                        .then((user) => {
-                            if (activePackage.isValidAvailablePackage() && user.status === 'A') {
-                                return activePackage;
-                            }
-                        });
-                });
-            })
-            .then((availablePackages) => {
-                if (availablePackages.length === 0) {
-                    res.sendError(200, '200_NO_PACKAGES');
-                    return;
-                }
-                res.sendPayload(availablePackages.map((pack) => { return pack.toPayload(); }), pagination);
-            })
-            .catch((err: Error) => {
-                next(err);
-            });
+        let activeProposals: ProposedDealModel[] = yield proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
+        let proposedDeals = [];
 
-    });
+        for (let i = 0; i < activeProposals.length; i++) {
+            let activeProposal = activeProposals[i];
+            let owner = yield userManager.fetchUserFromId(activeProposal.ownerID);
+
+            if (activeProposal.isAvailable() && owner.status === 'A') {
+                proposedDeals.push(activeProposal);
+            }
+        }
+
+        if (proposedDeals.length > 0) {
+            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+        } else {
+            res.sendError(200, '200_NO_PACKAGES');
+        }
+
+    }) as any);
 
 };
 

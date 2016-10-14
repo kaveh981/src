@@ -8,13 +8,19 @@ import { Injector } from '../../../lib/injector';
 import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { ProtectedRoute } from '../../../middleware/protected-route';
-import { DealManager } from '../../../models/deal/deal-manager';
-import { PackageManager } from '../../../models/package/package-manager';
-import { PackageModel } from '../../../models/package/package-model';
+import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
+import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
+import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
+import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
+import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
+import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 import { UserManager } from '../../../models/user/user-manager';
+import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
-const dealManager = Injector.request<DealManager>('DealManager');
-const packageManager = Injector.request<PackageManager>('PackageManager');
+const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
+const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
+const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
+const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
@@ -24,10 +30,11 @@ const Log: Logger = new Logger('ACTD');
  * Function that takes care of all /deals/active routes
  */
 function ActiveDeals(router: express.Router): void {
+
     /**
      * GET request to get all active deals.
      */
-    router.get('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
+    router.get('/', ProtectedRoute, Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
 
         // Validate pagination parameters
         let pagination = {
@@ -48,23 +55,22 @@ function ActiveDeals(router: express.Router): void {
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmBuyerInfo.userID);
 
-        return dealManager.fetchActiveDealsFromBuyerId(buyerId, pagination)
-            .then((activeDeals) => {
-                if (activeDeals.length === 0) {
-                    res.sendError(200, '200_NO_DEALS');
-                    return;
-                }
-                res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(); }), pagination);
-            })
-            .catch((err: Error) => {
-                throw err;
-            });
+        let activeDeals = yield settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
 
-    })
+        if (activeDeals.length > 0) {
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(); }), pagination);
+        } else {
+            res.sendError(200, '200_NO_DEALS');
+        }
+
+    }) as any);
+
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */
-    .put('/', ProtectedRoute, (req: express.Request, res: express.Response, next: Function) => {
+    router.put('/', ProtectedRoute, Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
+
+        // Validate the request
         let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
 
         if (validationErrors.length > 0) {
@@ -74,59 +80,57 @@ function ActiveDeals(router: express.Router): void {
             return next(err);
         }
 
-        let packageID: number = req.body.packageID;
+        // Check that package exists
+        let proposalID: number = req.body.proposalID;
         let buyerID = Number(req.ixmBuyerInfo.userID);
+        let buyerIXMInfo = yield buyerManager.fetchBuyerFromId(buyerID);
+        let proposedDeal: ProposedDealModel = yield proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        Promise.coroutine(function* (): any {
-            // Check that package exists
-            let thePackage = yield packageManager.fetchPackageFromId(packageID);
+        if (!proposedDeal) {
+            Log.debug('Package does not exist');
+            return next();
+        }
 
-            if (!thePackage) {
-                Log.debug('Package does not exist');
-                return next();
-            }
+        // Check that the package is available for purchase
+        let owner = yield userManager.fetchUserFromId(proposedDeal.ownerID);
 
-            // Check that the package is available for purchase
-            let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
+        if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
+            Log.debug('Package is not available for purchase');
+            let err = new Error('403_NOT_FORSALE');
+            err.name = 'FORBIDDEN';
+            return next(err);
+        }
 
-            if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
-                Log.debug('Package is not available for purchase');
-                let err = new Error('403_NOT_FORSALE');
-                err.name = 'FORBIDDEN';
-                return next(err);
-            }
+        // Check that package has not been bought yet by this buyer, or isn't in negotiation
+        let dealNegotiation: NegotiatedDealModel =
+                yield negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
-            // Check that package has not been bought yet by this buyer
-            let accepted = yield packageManager.isPackageMappedToBuyer(packageID, buyerID);
+        if (dealNegotiation) {
+            if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
+                Log.debug('Package has already been accepted.');
 
-            if (accepted) {
-                Log.debug('Package has already been accepted');
                 let err = new Error('403_PACKAGE_BOUGHT');
                 err.name = 'FORBIDDEN';
                 return next(err);
+            } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
+                Log.debug('Package is in negotiation.');
+                let err = new Error('403_PACKAGE_IN_NEGOTIATION');
+                err.name = 'FORBIDDEN';
+                return next(err);
             }
+        }
 
-            // Check if the package already has a deal associated with this buyer's DSP
-            let existingDeal = yield dealManager.fetchExistingDealWithBuyerDSP(packageID, buyerID);
+        // Create a new negotiation
+        let acceptedNegotiation = yield negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
+        yield negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
 
-            if (existingDeal) {
-                // If buyer's DSP already accepted this deal, just add a mapping between this buyer and the existing deal
-                // and return this deal
-                Log.info("Deal for this package already exists with buyer's DSP");
-                yield dealManager.insertBuyerDealMapping(buyerID, existingDeal.dealID);
-                res.sendPayload(existingDeal.toPayload());
-            } else {
-                // If not, create a new deal in the database
-                Log.info("New deal will be created");
-                let newDeal = yield dealManager.saveDealForBuyer(buyerID, thePackage);
-                res.sendPayload(newDeal.toPayload());
-            }
+        // Create the settled deal
+        let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
+        yield settledDealManager.insertSettledDeal(settledDeal);
 
-        })()
-        .catch((err: Error) => {
-            throw err;
-        });
-    });
+        res.sendPayload(settledDeal.toPayload());
+
+    }) as any);
 
 };
 

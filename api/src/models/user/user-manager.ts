@@ -3,11 +3,8 @@
 import * as Promise from 'bluebird';
 
 import { UserModel } from './user-model';
-
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
-
-const Log = new Logger('mUSR');
 
 /** User model manager */
 class UserManager {
@@ -17,7 +14,7 @@ class UserManager {
 
     /**
      * Constructor
-     * @param database - An instance of the database manager.
+     * @param databaseManager - An instance of the database manager.
      */
     constructor(databaseManager: DatabaseManager) {
         this.databaseManager = databaseManager;
@@ -25,22 +22,21 @@ class UserManager {
 
     /**
      * Returns a user model from an id
-     * @param id - The id of the user we want information from.
-     * @returns the corresponding user object
+     * @param userId - The id of the user we want information from.
+     * @returns A user model for that user.
      */
-    public fetchUserFromId(userID: string): Promise<UserModel> {
-        return this.databaseManager.select('userID', 'status', 'userTypes.name as userType', 'ug.name as userGroup')
+    public fetchUserFromId(userID: number): Promise<UserModel> {
+
+        return this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
+                'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone')
                 .from('users')
                 .innerJoin('userTypes', 'userType', '=', 'userTypeID')
                 .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
                 .where('userID', userID)
-                .limit(1)
             .then((rows) => {
                 return new UserModel(rows[0]);
-            })
-            .catch((err: Error) => {
-                throw err;
             });
+
     }
 }
 

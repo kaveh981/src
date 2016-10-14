@@ -24,6 +24,7 @@ en-US:
     403: Forbidden.
     403_NOT_FORSALE: Package is not available for purchase.
     403_PACKAGE_BOUGHT: Package has already been accepted.
+    403_PACKAGE_IN_NEGOTIATION: Package is in negotiation.
 
     # 404 Status Code Messages
     404: Not found.
