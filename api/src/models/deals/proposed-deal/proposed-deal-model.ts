@@ -93,8 +93,8 @@ class ProposedDealModel {
             budget: this.budget,
             auction_type: this.auctionType,
             terms: this.terms,
-            created_at: this.formatDate(this.createDate),
-            modified_at: this.formatDate(this.modifyDate),
+            created_at: (new Date(this.createDate)).toISOString(),
+            modified_at: (new Date(this.modifyDate)).toISOString(),
             deal_section_id: this.sections
         };
     }

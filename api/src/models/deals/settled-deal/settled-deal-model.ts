@@ -62,8 +62,8 @@ class SettledDealModel {
                 price: this.negotiatedDeal.price,
                 deal_section_id: this.negotiatedDeal.proposedDeal.sections,
                 currency: this.negotiatedDeal.proposedDeal.currency,
-                created_at: this.formatDate(this.createDate),
-                modified_at: this.formatDate(this.modifyDate)
+                created_at: (new Date(this.createDate)).toISOString(),
+                modified_at: (new Date(this.modifyDate)).toISOString()
             };
         } else {
             // Non-ixm deals have less information

@@ -77,8 +77,8 @@ class NegotiatedDealModel {
             price: this.price,
             deal_section_id: this.proposedDeal.sections,
             currency: this.proposedDeal.currency,
-            created_at: this.formatDate(this.createDate),
-            modified_date: this.formatDate(this.modifyDate)
+            created_at: (new Date(this.createDate)).toISOString(),
+            modified_at: (new Date(this.modifyDate)).toISOString()
         };
     }
 
