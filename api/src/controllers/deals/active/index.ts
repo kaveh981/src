@@ -89,7 +89,7 @@ function ActiveDeals(router: express.Router): void {
             // Check that the package is available for purchase
             let owner = yield userManager.fetchUserFromId(thePackage.ownerID.toString());
 
-            if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A') || thePackage.status === 'paused') {
+            if (!thePackage.isValidAvailablePackage() || !(owner.status === 'A')) {
                 Log.debug('Package is not available for purchase');
                 let err = new Error('403_NOT_FORSALE');
                 err.name = 'FORBIDDEN';
