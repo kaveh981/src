@@ -52,12 +52,12 @@ class DataSetup implements testFramework.IDataSetup {
      * @param suffix - The backup table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
-    public backupTables = Promise.coroutine(function* (tables: string[], suffix: string): any {
+    public backupTables = Promise.coroutine(function* (tables: string[], suffix: string  = '_bckp'): any {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.backupTable(table, suffix);
         }
-    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
+    }) as (tables: string[], suffix: string) => Promise<any>;
 
     /**
      * Restore a table.
@@ -106,12 +106,12 @@ class DataSetup implements testFramework.IDataSetup {
      * @param suffix - The backup table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
-    public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string): any  {
+    public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string  = '_bckp'): any  {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.restoreTable(table, suffix);
         }
-    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
+    }) as (tables: string[], suffix: string) => Promise<any>;
 
     /**
      * Clear a table.
@@ -144,12 +144,12 @@ class DataSetup implements testFramework.IDataSetup {
      * @param suffix - The clear table name suffix which is optional and default is _bckp.
      * @returns A promise.
      */
-    public clearTables = Promise.coroutine(function* (tables: string[], suffix: string): any {
+    public clearTables = Promise.coroutine(function* (tables: string[], suffix: string = '_bckp'): any {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.clearTable(table, suffix);
         }
-    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
+    }) as (tables: string[], suffix: string) => Promise<any>;
 
 }
 
