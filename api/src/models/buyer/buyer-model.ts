@@ -1,6 +1,6 @@
 'use strict';
 
-import { ContactModel } from '../contact-info/contact-model';
+import { UserModel } from '../user/user-model';
 
 class BuyerModel {
 
@@ -9,7 +9,7 @@ class BuyerModel {
     /** An array of dspID's associated with this buyer */
     public dspIDs: number[];
     /** The buyer's contact info */
-    public contactInfo: ContactModel;
+    public userInfo: UserModel;
 
     /**
      * Constructor
