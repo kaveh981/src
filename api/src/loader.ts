@@ -12,7 +12,7 @@ import { ConfigLoader } from './lib/config-loader';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { RamlTypeValidator } from './lib/raml-type-validator';
-import { HttpError } from './lib/http-error';
+import { ErrorCreator } from './lib/error-creator';
 
 /** Models */
 import { UserManager } from './models/user/user-manager';
@@ -34,8 +34,8 @@ Injector.put(databaseManager, 'DatabaseManager');
 const server = new Server(config);
 Injector.put(server, 'Server');
 
-const httpError = new HttpError();
-Injector.put(httpError, 'HttpError');
+const errorCreator = new ErrorCreator();
+Injector.put(errorCreator, 'ErrorCreator');
 
 const userManager = new UserManager(databaseManager);
 Injector.put(userManager, 'UserManager');
