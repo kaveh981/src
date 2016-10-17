@@ -7,8 +7,10 @@ import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
 import { UserManager } from '../models/user/user-manager';
+import { BuyerManager } from '../models/buyer/buyer-manager';
 
 const userManager = Injector.request<UserManager>('UserManager');
+const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const authConfig = config.get('auth');
@@ -19,8 +21,13 @@ const Log = new Logger('AUTH');
 function verifyToken(token: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
 
+        if (!Number(token)) {
+            resolve('401_NOT_IXMBUYER');
+            return;
+        }
+
         // Right now the "token" is just the user id.
-        userManager.fetchUserFromId(token)
+        userManager.fetchUserFromId(Number(token))
             .then((userInfo) => {
                 // User not found or not an IXM buyer
                 if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
@@ -45,7 +52,8 @@ function verifyToken(token: string): Promise<string> {
  * Temporary authentication handler. Simply extracts userId from the configured header and inserts into ixmBuyerInfo
  * if the userId corresponds to an ixmBuyer.
  */
-function AuthHandler(req: express.Request, res: express.Response, next: Function): void {
+const AuthHandler = Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
+
     let accessToken = req.get(authConfig['header']);
 
     if (!accessToken) {
@@ -53,19 +61,15 @@ function AuthHandler(req: express.Request, res: express.Response, next: Function
         return;
     }
 
-    verifyToken(accessToken)
-        .then((result) => {
-            if (result !== 'OK') {
-                res.sendError(401, result);
-                return;
-            }
+    let verificationStatus = yield verifyToken(accessToken);
 
-            req.ixmBuyerInfo = { userID: accessToken };
-            next();
-        })
-        .catch((err: Error) => {
-            Log.error(err);
-        });
-}
+    if (verificationStatus !== 'OK') {
+        res.sendError(401, verificationStatus);
+    } else {
+        req.ixmBuyerInfo = yield buyerManager.fetchBuyerFromId(Number(accessToken));
+        next();
+    }
+
+});
 
 module.exports = () => { return AuthHandler; };

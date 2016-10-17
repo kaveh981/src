@@ -16,10 +16,9 @@ import { RamlTypeValidator } from './lib/raml-type-validator';
 /** Models */
 import { UserManager } from './models/user/user-manager';
 import { BuyerManager } from './models/buyer/buyer-manager';
-import { PackageManager } from './models/package/package-manager';
-import { NegotiationManager } from './models/deal-negotiation/negotiation-manager';
-import { ContactManager } from './models/contact-info/contact-manager';
-import { DealManager } from './models/deal/deal-manager';
+import { ProposedDealManager } from './models/deals/proposed-deal/proposed-deal-manager';
+import { NegotiatedDealManager } from './models/deals/negotiated-deal/negotiated-deal-manager';
+import { SettledDealManager } from './models/deals/settled-deal/settled-deal-manager';
 
 /** Dependency Resolution */
 const config = new ConfigLoader('../../config');
@@ -37,17 +36,14 @@ Injector.put(server, 'Server');
 const userManager = new UserManager(databaseManager);
 Injector.put(userManager, 'UserManager');
 
-const contactManager = new ContactManager(databaseManager);
-Injector.put(contactManager, 'ContactManager');
-
-const buyerManager = new BuyerManager(databaseManager, contactManager);
+const buyerManager = new BuyerManager(databaseManager, userManager);
 Injector.put(buyerManager, 'BuyerManager');
 
-const packageManager = new PackageManager(databaseManager, contactManager);
-Injector.put(packageManager, 'PackageManager');
+const proposedDealManager = new ProposedDealManager(databaseManager, userManager);
+Injector.put(proposedDealManager, 'ProposedDealManager');
 
-const negotiationManager = new NegotiationManager(databaseManager);
-Injector.put(negotiationManager, 'NegotiationManager');
+const negotiatedDealManager = new NegotiatedDealManager(databaseManager, proposedDealManager, userManager);
+Injector.put(negotiatedDealManager, 'NegotiatedDealManager');
 
-const dealManager = new DealManager(databaseManager, packageManager, contactManager, buyerManager);
-Injector.put(dealManager, 'DealManager');
+const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager);
+Injector.put(settledDealManager, 'SettledDealManager');
