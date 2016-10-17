@@ -43,12 +43,21 @@ class DataSetup implements testFramework.IDataSetup {
             })
             .then(() => {
                 return this.dbm.raw(' SET foreign_key_checks=1');
-            })
-            .catch((err: Error) => {
-                Log.error(err);
-                throw err;
             });
     }
+
+    /**
+     * Backup an array of tables.
+     * @param [tables] - The name of tables that we want to backup.
+     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @returns A promise.
+     */
+    public backupTables = Promise.coroutine(function* (tables: string[], suffix: string): any {
+        for (let i = 0; i < tables.length; i += 1) {
+            let table = tables[i];
+            yield this.backupTable(table, suffix);
+        }
+    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
 
     /**
      * Restore a table.
@@ -88,12 +97,21 @@ class DataSetup implements testFramework.IDataSetup {
             })
             .then(() => {
                 return this.dbm.raw('SET foreign_key_checks=1');
-            })
-            .catch((err: Error) => {
-                Log.error(err);
-                throw err;
             });
     }
+
+    /**
+     * Restore an array of tables.
+     * @param [tables] - The name of tables that we want to restore.
+     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @returns A promise.
+     */
+    public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string): any  {
+        for (let i = 0; i < tables.length; i += 1) {
+            let table = tables[i];
+            yield this.restoreTable(table, suffix);
+        }
+    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
 
     /**
      * Clear a table.
@@ -117,12 +135,21 @@ class DataSetup implements testFramework.IDataSetup {
             })
             .then(() => {
                 return this.dbm.raw('SET foreign_key_checks=1');
-            })
-            .catch((err: Error) => {
-                Log.error(err);
-                throw err;
             });
     };
+
+    /**
+     * Clear an array of tables.
+     * @param [tables] - The name of tables that we want to clear.
+     * @param suffix - The clear table name suffix which is optional and default is _bckp.
+     * @returns A promise.
+     */
+    public clearTables = Promise.coroutine(function* (tables: string[], suffix: string): any {
+        for (let i = 0; i < tables.length; i += 1) {
+            let table = tables[i];
+            yield this.clearTable(table, suffix);
+        }
+    }) as (tables: string[], suffix: string = '_bckp') => Promise<any>;
 
 }
 
