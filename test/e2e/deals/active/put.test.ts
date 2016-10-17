@@ -35,7 +35,7 @@ test('/deals/active PUT', (t: Test) => {
         'rtbDSPs',
         'rtbDeals',
         'ixmPackageSectionMappings',
-        'ixmBuyerDealMappings',
+        'ixmDealNegotiations',
         'ixmPackageDealMappings',
         'rtbDealSections',
         'ixmPackages',
@@ -81,6 +81,7 @@ test('/deals/active PUT', (t: Test) => {
                     [newSection.section.sectionID, newSection2.section.sectionID], {status: 'active'});
             })()
             .catch((e) => {
+                console.error(e);
                 assert.end();
             })
             .finally(() => {
@@ -96,7 +97,7 @@ test('/deals/active PUT', (t: Test) => {
 
     t.test(' ATW_DA_PUT_V1 when valid parameters passed in', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID }});
-        apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+        apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -116,7 +117,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V2 when packageID is not provided', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V2 when proposalID is not provided', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
         apiHelper.sendRequest()
             .then((res: any) => {
@@ -131,9 +132,9 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V3 when packageID contains letters', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V3 when proposalID contains letters', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest({'packageID': '`ixm' + ixmPackage.package.packageID + '`'})
+        apiHelper.sendRequest({'proposalID': '`ixm' + ixmPackage.package.packageID + '`'})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -146,9 +147,9 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V4 when packageID is negative', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V4 when proposalID is negative', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest({'packageID': - ixmPackage.package.packageID })
+        apiHelper.sendRequest({'proposalID': - ixmPackage.package.packageID })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -161,9 +162,9 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V5 when packageID is 0', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V5 when proposalID is 0', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest({'packageID': 0})
+        apiHelper.sendRequest({'proposalID': 0})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -176,7 +177,7 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V6 when packageID is max range', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V6 when proposalID is max range', (assert: Test) => {
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
             .update({
@@ -184,7 +185,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': 16777215});
+                return apiHelper.sendRequest({'proposalID': 16777215});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -204,7 +205,7 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V7 when packageID is max range + 1', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V7 when proposalID is max range + 1', (assert: Test) => {
         dbm.from('ixmPackages')
             .where('packageID', ixmPackage.package.packageID)
             .update({
@@ -212,7 +213,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': 16777215 + 1});
+                return apiHelper.sendRequest({'proposalID': 16777215 + 1});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
@@ -232,9 +233,9 @@ test('/deals/active PUT', (t: Test) => {
             });
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V8 when packageID is not int', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V8 when proposalID is not int', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest({'packageID': '`' + ixmPackage.package.packageID + '`'})
+        apiHelper.sendRequest({'proposalID': '`' + ixmPackage.package.packageID + '`'})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 400, 'It should return status code 400, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -247,9 +248,9 @@ test('/deals/active PUT', (t: Test) => {
 
     });
 
-    t.test(' ATW_DA_PUT_V_PACKAGE_V9 when packageID does not exist', (assert: Test) => {
+    t.test(' ATW_DA_PUT_V_PACKAGE_V9 when proposalID does not exist', (assert: Test) => {
         apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-        apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID + 5})
+        apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID + 5})
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 404, 'It should return status code 404, returned message is: '
                     + res.body.message + ' ' + JSON.stringify(res.body));
@@ -271,7 +272,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID});
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -301,7 +302,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 404, 'It should return status code 404, returned message is: '
@@ -330,7 +331,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -359,7 +360,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -389,7 +390,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -419,7 +420,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': + ixmPackage.package.packageID });
+                return apiHelper.sendRequest({'proposalID': + ixmPackage.package.packageID });
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -451,12 +452,12 @@ test('/deals/active PUT', (t: Test) => {
                 })
                 .then(() => {
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyerDifferentDSP.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((res: any) => {
                     response = res;
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -476,11 +477,11 @@ test('/deals/active PUT', (t: Test) => {
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
                 .then((res: any) => {
                     response = res;
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403 , 'It should return status code 403, returned message is: '
@@ -501,11 +502,11 @@ test('/deals/active PUT', (t: Test) => {
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer2.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
                 .then((res: any) => {
                     response = res;
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -526,18 +527,19 @@ test('/deals/active PUT', (t: Test) => {
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
                 .then((res) => {
                     response = res;
                     return dbm.from('rtbDeals')
-                        .where('dealID', res.body.data[0].id)
+                        .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
+                        .where('packageID', ixmPackage.package.packageID)
                         .update({
                             status: 'D'
                         });
                 })
                 .then((res: any) => {
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -558,18 +560,19 @@ test('/deals/active PUT', (t: Test) => {
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
                 .then((res) => {
                     response = res;
-                    dbm.from('rtbDeals')
-                        .where('dealID', res.body.data[0].id)
+                    return dbm.from('rtbDeals')
+                        .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
+                        .where('packageID', ixmPackage.package.packageID)
                         .update({
                             status: 'N'
                         });
                 })
                 .then((res: any) => {
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -590,18 +593,22 @@ test('/deals/active PUT', (t: Test) => {
         (assert: Test) => {
             let response: any = {};
             apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-            apiHelper.sendRequest({'packageID': ixmPackage.package.packageID})
+            apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID})
                 .then((res) => {
                     response = res;
                     dbm.from('rtbDeals')
-                        .where('dealID', res.body.data[0].id)
+                        .whereIn('dealID', function() {
+                            this.select('dealID')
+                                .from('ixmPackageDealMappings')
+                                .where('packageID', ixmPackage.package.packageID);
+                        })
                         .update({
                             status: 'P'
                         });
                 })
                 .then((res: any) => {
                     apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                    return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                    return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
                 })
                 .then((secRes: any) => {
                     assert.equal(secRes.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -626,7 +633,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -662,7 +669,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -697,7 +704,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: '
@@ -733,7 +740,7 @@ test('/deals/active PUT', (t: Test) => {
             })
             .then(() => {
                 apiHelper.setReqOpts({headers: {[buyerIDKey]: newBuyer.user.userID}});
-                return apiHelper.sendRequest({'packageID': ixmPackage.package.packageID});
+                return apiHelper.sendRequest({'proposalID': ixmPackage.package.packageID});
             })
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 403, 'It should return status code 403, returned message is: '
@@ -816,7 +823,7 @@ test('/deals/active PUT', (t: Test) => {
     function afterAPICall(res: any) {
         apiHelper.setReqOpts({headers: {}});
         if (res && res.httpStatusCode === 200) {
-            return deleteDeal(res.body.data[0].id);
+            return deleteDeal(res.body.data[0].proposal_id, res.body.data[0].buyer_id);
         } else {
             return Promise.resolve();
         }
@@ -827,10 +834,22 @@ test('/deals/active PUT', (t: Test) => {
      * @param dealID Number - dealID of generated deal
      * @returns a promise
      */
-    function deleteDeal(dealID: number): Promise<any> {
-        return dbm.from('ixmBuyerDealMappings')
-            .where('dealID', dealID)
-            .del()
+    function deleteDeal(proposalID: number, buyerID: number): Promise<any> {
+        let dealID;
+
+        return dbm.select('rtbDeals.dealID')
+                .from('rtbDeals')
+                .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
+                .where('packageID', proposalID)
+            .then((rows) => {
+                dealID = rows[0].dealID;
+            })
+            .then(() => {
+                return dbm.from('ixmDealNegotiations')
+                    .where('packageID', proposalID)
+                    .where('buyerID', buyerID)
+                    .del();
+            })
             .then(() => {
                 return dbm.from('ixmPackageDealMappings')
                     .where('dealID', dealID)

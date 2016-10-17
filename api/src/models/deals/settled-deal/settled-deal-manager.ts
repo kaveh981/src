@@ -49,7 +49,9 @@ class SettledDealManager {
         if (!rows[0]) {
             return;
         }
+
         let settledDealObject = new SettledDealModel(rows[0]);
+
         settledDealObject.negotiatedDeal = yield this.negotiatedDealManager.fetchNegotiatedDealFromIds(packageID, buyerID, publisherID);
         settledDealObject.status = this.statusLetterToWord(settledDealObject.status);
 
@@ -116,7 +118,7 @@ class SettledDealManager {
         if (settledDeal.externalDealID) {
             externalDealID = settledDeal.externalDealID;
         } else {
-            externalDealID = `ixm-${settledDeal.negotiatedDeal.proposedDeal.id}-${this.encrypt(settledDeal.dspID)}`;
+            externalDealID = `ixm-${settledDeal.negotiatedDeal.proposedDeal.id}-${this.encrypt(settledDeal.negotiatedDeal.buyerID)}`;
         }
 
         let negotiatedDeal = settledDeal.negotiatedDeal;
@@ -161,7 +163,7 @@ class SettledDealManager {
                 dealID: dealID
             }).into('ixmPackageDealMappings');
 
-        }));
+        }.bind(this)));
 
     }.bind(this)) as (settledDeal: SettledDealModel) => void;
 

@@ -7,7 +7,7 @@ import * as testFramework from 'testFramework';
 import { Injector     } from '../lib/injector';
 import { ConfigLoader } from '../lib/config-loader';
 
-const config = new ConfigLoader('../../../test/config');
+const config = new ConfigLoader('../../test/config');
 Injector.put(config, 'ConfigLoader');
 
 /** Helper modules */

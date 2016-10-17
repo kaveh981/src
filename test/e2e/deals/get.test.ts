@@ -8,7 +8,6 @@ import * as testFramework  from 'testFramework';
 import { app      } from '../../helper/bootstrap';
 import { Injector } from '../../lib/injector';
 import { Test     } from 'tape';
-import { PackageModel } from '../../../api/src/models/package/package-model';
 import { authTest } from '../auth/auth.test';
 
 const apiHelper = Injector.request<testFramework.IApiHelper>('ApiHelper');
@@ -165,7 +164,7 @@ test('/deals GET', (t: Test) => {
      * @param newSection INewSection - a new site section object
      * @returns expected api response
      */
-    function toPayload(packages, contact, createdSection): {} {
+    function toPayload(packages, contact: INewPubData, createdSection): {} {
         return  packages.map((pack) => {
             return {
                 id: pack.packageID,
@@ -173,10 +172,12 @@ test('/deals GET', (t: Test) => {
                 contact: {
                     title: 'Warlord',
                     name: contact.user.firstName + ' ' + contact.user.lastName,
-                    email: contact.user.emailAddress,
+                    email_address: contact.user.emailAddress,
                     phone: contact.user.phone
                 },
                 name: pack.name,
+                status: pack.status,
+                currency: 'USD',
                 description: pack.description,
                 start_date: helperMethods.dateToYMD(pack.startDate.toISOString()),
                 end_date: helperMethods.dateToYMD(pack.endDate.toISOString()),
