@@ -17,6 +17,7 @@ import { UserManager } from '../../models/user/user-manager';
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
+const httpError = Injector.request<HttpError>('HttpError');
 
 const Log: Logger = new Logger('DEAL');
 
@@ -41,7 +42,7 @@ function Deals(router: express.Router): void {
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
-            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
+            return next(httpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         let activeProposals: ProposedDealModel[] = yield proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
