@@ -52,10 +52,9 @@ class ProposedDealModel {
     }
 
     /**
-     * Checks that a proposal is currently available to buy by checking its start and end dates,
-     * as well as its owner's current status
-     * @param owner - owner of the proposal
-     * @returns a boolean indicating whether the proposal is available to buy or not
+     * Checks that a proposed deal is currently available to buy by checking its start and end dates,
+     * that is has at least one section, and that its status is active
+     * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isAvailable(): boolean {
         let startDate = new Date(this.startDate);
@@ -68,9 +67,13 @@ class ProposedDealModel {
         endDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        return (this.startDate === zeroDate || startDate <= endDate)
-            && (endDate >= today || this.endDate === zeroDate)
-            && this.sections.length > 0;
+        let datesEqual = startDate.getFullYear() === endDate.getFullYear()
+            && startDate.getMonth() === endDate.getMonth()
+            && startDate.getDate() === endDate.getDate();
+
+        return (((startDate < endDate || datesEqual) && endDate >= today) || (this.endDate === zeroDate))
+            && this.sections.length > 0
+            && this.status === 'active';
     }
 
     /**
