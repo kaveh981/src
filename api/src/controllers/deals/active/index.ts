@@ -25,6 +25,7 @@ const settledDealManager = Injector.request<SettledDealManager>('SettledDealMana
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
+const httpError = Injector.request<HttpError>('HttpError');
 
 const Log: Logger = new Logger('ACTD');
 
@@ -49,7 +50,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
+            return next(httpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         // Get all active deals for current buyer
@@ -75,7 +76,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
+            return next(httpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         // Check that proposal exists
@@ -94,7 +95,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
             Log.debug('Proposal is not available for purchase');
-            return next(HttpError.forbidden('403_NOT_FORSALE'));
+            return next(httpError.forbidden('403_NOT_FORSALE'));
         }
 
         // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
@@ -104,11 +105,11 @@ function ActiveDeals(router: express.Router): void {
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
                 Log.debug('Proposal has already been accepted.');
-                return next(HttpError.forbidden('403_PROPOSAL_BOUGHT'));
+                return next(httpError.forbidden('403_PROPOSAL_BOUGHT'));
 
             } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
                 Log.debug('Proposal is in negotiation.');
-                return next(HttpError.forbidden('403_PROPOSAL_IN_NEGOTIATION'));
+                return next(httpError.forbidden('403_PROPOSAL_IN_NEGOTIATION'));
             }
         }
 
