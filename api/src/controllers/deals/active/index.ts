@@ -7,7 +7,9 @@ import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
 import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
+import { HttpError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
+
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
@@ -47,9 +49,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BAD_REQUEST';
-            return next(err);
+            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         // Get all active deals for current buyer
@@ -75,9 +75,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) {
             Log.debug('Request is invalid');
-            let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BAD_REQUEST';
-            return next(err);
+            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         // Check that proposal exists
@@ -96,9 +94,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
             Log.debug('Proposal is not available for purchase');
-            let err = new Error('403_NOT_FORSALE');
-            err.name = 'FORBIDDEN';
-            return next(err);
+            return next(HttpError.forbidden('403_NOT_FORSALE'));
         }
 
         // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
@@ -108,15 +104,11 @@ function ActiveDeals(router: express.Router): void {
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
                 Log.debug('Proposal has already been accepted.');
+                return next(HttpError.forbidden('403_PROPOSAL_BOUGHT'));
 
-                let err = new Error('403_PROPOSAL_BOUGHT');
-                err.name = 'FORBIDDEN';
-                return next(err);
             } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
                 Log.debug('Proposal is in negotiation.');
-                let err = new Error('403_PROPOSAL_IN_NEGOTIATION');
-                err.name = 'FORBIDDEN';
-                return next(err);
+                return next(HttpError.forbidden('403_PROPOSAL_IN_NEGOTIATION'));
             }
         }
 
