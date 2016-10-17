@@ -12,7 +12,7 @@ declare module 'express' {
     // Augment the express request object
     interface Request {
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
-        ixmBuyerInfo: BuyerModel
+        ixmBuyerInfo: BuyerModel;
     }
 
     // Augment the express response object.
