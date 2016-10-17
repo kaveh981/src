@@ -4,7 +4,7 @@ import { IValidationError } from './raml-type-validator';
 
 class ErrorCreator {
 
-    public createNotFound(message: string): Error {
+    public createHttpNotFound(message: string): Error {
         let err = new Error(message);
         err.name = 'NOT_FOUND';
         return err;
@@ -16,13 +16,13 @@ class ErrorCreator {
         return err;
     }
 
-    public createBadRequest(message: string): Error {
+    public createHttpBadRequest(message: string): Error {
         let err = new Error(message);
         err.name = 'BAD_REQUEST';
         return err;
     }
 
-    public createForbidden(message: string): Error {
+    public createHttpForbidden(message: string): Error {
         let err = new Error(message);
         err.name = 'FORBIDDEN';
         return err;

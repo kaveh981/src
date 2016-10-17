@@ -95,7 +95,7 @@ function ActiveDeals(router: express.Router): void {
 
         if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
             Log.debug('Proposal is not available for purchase');
-            return next(errorCreator.createForbidden('403_NOT_FORSALE'));
+            return next(errorCreator.createHttpForbidden('403_NOT_FORSALE'));
         }
 
         // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
@@ -105,11 +105,11 @@ function ActiveDeals(router: express.Router): void {
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
                 Log.debug('Proposal has already been accepted.');
-                return next(errorCreator.createForbidden('403_PROPOSAL_BOUGHT'));
+                return next(errorCreator.createHttpForbidden('403_PROPOSAL_BOUGHT'));
 
             } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
                 Log.debug('Proposal is in negotiation.');
-                return next(errorCreator.createForbidden('403_PROPOSAL_IN_NEGOTIATION'));
+                return next(errorCreator.createHttpForbidden('403_PROPOSAL_IN_NEGOTIATION'));
             }
         }
 
