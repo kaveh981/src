@@ -7,6 +7,7 @@ import { Logger } from '../../lib/logger';
 import { Injector } from '../../lib/injector';
 import { ConfigLoader } from '../../lib/config-loader';
 import { RamlTypeValidator } from '../../lib/raml-type-validator';
+import { HttpError } from '../../lib/http-error';
 import { ProtectedRoute } from '../../middleware/protected-route';
 
 import { ProposedDealManager } from '../../models/deals/proposed-deal/proposed-deal-manager';
@@ -40,9 +41,7 @@ function Deals(router: express.Router): void {
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
-            let err = new Error(JSON.stringify(validationErrors));
-            err.name = 'BAD_REQUEST';
-            return next(err);
+            return next(HttpError.badRequest(JSON.stringify(validationErrors)));
         }
 
         let activeProposals: ProposedDealModel[] = yield proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
