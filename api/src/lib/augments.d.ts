@@ -34,7 +34,7 @@ declare module 'express' {
         /**
          * Send a message as JSON 
          * @param status - The status code to send with the message.
-         * @param josn - The json object to send. 
+         * @param json - The json object to send. 
          */
         sendJSON(status: number, json: any): void;
     }
