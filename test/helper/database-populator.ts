@@ -21,20 +21,20 @@ const Log = new Logger('DPOP');
 class DatabasePopulator {
 
     /**
-     * Maps a package to 1 or more sections.
-     * @arg packageID {int} - the packageID to map
-     * @arg sectionIDs {int[]} - an array of sectionIDs to map to the given packageID
+     * Maps a proposal to 1 or more sections.
+     * @arg proposalID {int} - the proposalID to map
+     * @arg sectionIDs {int[]} - an array of sectionIDs to map to the given proposalID
      * @returns {Promise<void>} Promise that resolves when all mappings done
      */
-    public mapPackage2Sections = Promise.coroutine(function* (packageID: number, sectionIDs: number[]): any {
+    public mapProposal2Sections = Promise.coroutine(function* (proposalID: number, sectionIDs: number[]): any {
         for (let i = 0; i < sectionIDs.length; i += 1) {
-            let mapping = {packageID: packageID, sectionID: sectionIDs[i]};
-            yield this.dbm.insert(mapping).into('ixmPackageSectionMappings')
+            let mapping = {proposalID: proposalID, sectionID: sectionIDs[i]};
+            yield this.dbm.insert(mapping).into('ixmProposalSectionMappings')
                 .then(() => {
-                    Log.debug(`Mapped packageID ${packageID} to sectionID ${sectionIDs[i]}`);
+                    Log.debug(`Mapped proposalID ${proposalID} to sectionID ${sectionIDs[i]}`);
                 });
         }
-    }) as (packageID: number, sectionIDs: number[]) => Promise<void>;
+    }) as (proposalID: number, sectionIDs: number[]) => Promise<void>;
 
     /**
      * Creates mapping entry in "Viper2.rtbSiteSections"
@@ -211,42 +211,42 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new package entity based on "new-package-schema". Inserts into "Viper2.ixmPackages",
-     * "Viper2.ixmPackageSectionMappings"
-     * @param ownerID {int} - the userID of the package owner
-     * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new package
-     * @param packageFields {INewPackageData} - Optional: a new package object to override random fields
-     * @returns {Promise<INewPackageData>} - Promise which resolves with an object of new package data
+     * Creates a new proposal entity based on "new-proposal-schema". Inserts into "Viper2.ixmDealProposals",
+     * "Viper2.ixmProposalSectionMappings"
+     * @param ownerID {int} - the userID of the proposal owner
+     * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new proposal
+     * @param proposalFields {INewProposalData} - Optional: a new proposal object to override random fields
+     * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public newPackage(ownerID: number, sectionIDs: number[], packageFields?: IPackage): Promise<INewPackageData> {
-        let newPackageObj = this.generateDataObject<IPackage>('new-package-schema');
-        let newPackage: INewPackageData = { package: newPackageObj, sectionIDs: sectionIDs };
+    public newProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal): Promise<INewProposalData> {
+        let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
+        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs };
 
-        if (packageFields) {
-            Object.assign(newPackage.package, packageFields);
+        if (proposalFields) {
+            Object.assign(newProposal.proposal, proposalFields);
         }
 
-        newPackage.package.ownerID = ownerID;
-        newPackage.package.createDate = this.currentMidnightDate();
-        newPackage.package.startDate.setHours(0, 0, 0, 0);
-        newPackage.package.endDate.setHours(0, 0, 0, 0);
-        newPackage.package.accessMode = 1;
+        newProposal.proposal.ownerID = ownerID;
+        newProposal.proposal.createDate = this.currentMidnightDate();
+        newProposal.proposal.startDate.setHours(0, 0, 0, 0);
+        newProposal.proposal.endDate.setHours(0, 0, 0, 0);
+        newProposal.proposal.accessMode = 1;
 
         return this.dbm
-            .insert(newPackage.package, 'packageID')
-            .into('ixmPackages')
-            .then((packageID: number[]) => {
-                Log.debug(`Created package ID: ${packageID[0]}`);
-                newPackage.package.packageID = packageID[0];
+            .insert(newProposal.proposal, 'proposalID')
+            .into('ixmDealProposals')
+            .then((proposalID: number[]) => {
+                Log.debug(`Created proposal ID: ${proposalID[0]}`);
+                newProposal.proposal.proposalID = proposalID[0];
 
-                return this.dbm.select('modifyDate').from('ixmPackages').where('packageID', packageID[0]);
+                return this.dbm.select('modifyDate').from('ixmDealProposals').where('proposalID', proposalID[0]);
             })
             .then((res: any[]) => {
-                newPackage.package.modifyDate = res[0].modifyDate;
-                return this.mapPackage2Sections(newPackage.package.packageID, newPackage.sectionIDs);
+                newProposal.proposal.modifyDate = res[0].modifyDate;
+                return this.mapProposal2Sections(newProposal.proposal.proposalID, newProposal.sectionIDs);
             })
             .then(() => {
-                return newPackage;
+                return newProposal;
             })
             .catch((e) => {
                 throw e;

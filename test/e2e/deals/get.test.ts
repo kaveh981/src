@@ -3,6 +3,7 @@
 import * as test from 'tape';
 import * as express from 'express';
 import * as Promise from 'bluebird';
+
 import * as testFramework  from 'testFramework';
 
 import { app      } from '../../helper/bootstrap';
@@ -31,15 +32,15 @@ apiHelper.setReqOpts({
 });
 
 test('/deals GET', (t: Test) => {
-    const tables: string[] = ['ixmPackageSectionMappings',
-        'ixmPackages',
+    const tables: string[] = ['ixmProposalSectionMappings',
+        'ixmDealProposals',
         'rtbSiteSections',
         'rtbSections',
         'sites',
         'publishers',
         'users',
         'ixmBuyers'];
-    let ixmPackage: INewPackageData;
+    let ixmProposal: INewProposalData;
     let newBuyer: INewBuyerData;
     let newPub: INewPubData;
     let newSection: INewSectionData;
@@ -57,7 +58,7 @@ test('/deals GET', (t: Test) => {
                 newPub = yield databasePopulator.newPub();
                 let newSite: INewSiteData = yield databasePopulator.newSite(newPub.user.userID);
                 newSection = yield databasePopulator.newSection(newPub.user.userID, [newSite.siteID]);
-                ixmPackage = yield databasePopulator.newPackage(newPub.user.userID, [newSection.section.sectionID],
+                ixmProposal = yield databasePopulator.newProposal(newPub.user.userID, [newSection.section.sectionID],
                     {status: 'active'});
             })()
             .finally(() => {
@@ -134,7 +135,7 @@ test('/deals GET', (t: Test) => {
         apiHelper.sendRequest()
             .then((res: any) => {
                 assert.equal(res.httpStatusCode, 200, 'It should return status code 200, returned message is: ' + res.body.message);
-                assert.deepEquals(res.body.data[0], toPayload([ixmPackage.package], newPub, newSection),
+                assert.deepEquals(res.body.data[0], toPayload([ixmProposal.proposal], newPub, newSection),
                     'The response object should match mock response object');
             })
             .finally(() => {
@@ -158,16 +159,16 @@ test('/deals GET', (t: Test) => {
     });
 
     /**
-     * Reformat the package object as is in the expected response based on API spec
-     * @param [packages] Array<INewPackageData> - Array of INewPackageData object
+     * Reformat the proposal object as is in the expected response based on API spec
+     * @param [proposals] Array<INewProposalData> - Array of INewProposalData object
      * @param contact INewPubData - publisher contact info
      * @param newSection INewSection - a new site section object
      * @returns expected api response
      */
-    function toPayload(packages, contact: INewPubData, createdSection): {} {
-        return  packages.map((pack) => {
+    function toPayload(proposals, contact: INewPubData, createdSection): {} {
+        return  proposals.map((pack) => {
             return {
-                id: pack.packageID,
+                id: pack.proposalID,
                 publisher_id: pack.ownerID,
                 contact: {
                     title: 'Warlord',
