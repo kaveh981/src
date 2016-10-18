@@ -27,19 +27,18 @@ class ProposedDealManager {
     }
 
     /**
-     * Get package object by ID
-     * @param proposalID - the ID of the package
+     * Get proposal object by ID
+     * @param proposalID - the ID of the proposal
      * @returns Returns a proposed deal object and includes associated section IDs
      */
     public fetchProposedDealFromId = Promise.coroutine(function* (proposalID: number) {
 
-        let rows = yield this.databaseManager.select('ixmPackages.packageID as id', 'ownerID', 'name', 'description', 'status',
+        let rows = yield this.databaseManager.select('ixmDealProposals.proposalID as id', 'ownerID', 'name', 'description', 'status',
                     'accessMode', 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms',
                     'createDate', 'modifyDate', 'sectionID')
-                .from('ixmPackages')
-                .join('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
-                .limit(1)
-                .where('ixmPackages.packageID', proposalID);
+                .from('ixmDealProposals')
+                .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+                .where('ixmDealProposals.proposalID', proposalID);
 
         if (!rows[0]) {
             return;
@@ -55,20 +54,20 @@ class ProposedDealManager {
 
     /**
      * Get list of objects by status
-     * @param proposalStatus - status of the package, a enum value which could be active, paused or deleted.
+     * @param proposalStatus - status of the proposal, a enum value which could be active, paused or deleted.
      * @param pagination - The pagination parameters.
      * @returns Returns an array of proposed deal objects with the given status.
      */
     public fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
 
-        return this.databaseManager.select('packageID')
-                .from('ixmPackages')
+        return this.databaseManager.select('proposalID')
+                .from('ixmDealProposals')
                 .where('status', proposalStatus)
                 .limit(Number(pagination.limit))
                 .offset(Number(pagination.offset))
             .then((idObjects: any) => {
                 return Promise.map(idObjects, (idObject: any) => {
-                    return this.fetchProposedDealFromId(idObject.packageID);
+                    return this.fetchProposedDealFromId(idObject.proposalID);
                 });
             });
 
@@ -81,12 +80,12 @@ class ProposedDealManager {
      */
     public fetchSectionsFromProposalId(proposalID: number): Promise<string[]> {
 
-        return this.databaseManager.select('ixmPackageSectionMappings.sectionID as id')
-                .from('ixmPackageSectionMappings')
-                .join('rtbSections', 'ixmPackageSectionMappings.sectionID', 'rtbSections.sectionID')
+        return this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
+                .from('ixmProposalSectionMappings')
+                .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
                 .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                 .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                .where('ixmPackageSectionMappings.packageID', proposalID)
+                .where('ixmProposalSectionMappings.proposalID', proposalID)
                 .andWhere('rtbSections.status', 'A')
                 .andWhere('sites.status', 'A')
                 .groupBy('id')
