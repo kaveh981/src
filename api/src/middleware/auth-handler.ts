@@ -21,6 +21,11 @@ const Log = new Logger('AUTH');
 function verifyToken(token: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
 
+        if (!Number(token)) {
+            resolve('401_NOT_IXMBUYER');
+            return;
+        }
+
         // Right now the "token" is just the user id.
         userManager.fetchUserFromId(Number(token))
             .then((userInfo) => {

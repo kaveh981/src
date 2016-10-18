@@ -46,7 +46,7 @@ class ProposedDealManager {
         }
 
         let proposalInfo = rows[0];
-        proposalInfo.sections = [1]; // yield this.fetchSectionsFromProposalId(proposalID);
+        proposalInfo.sections = yield this.fetchSectionsFromProposalId(proposalID);
         proposalInfo.ownerInfo = yield this.userManager.fetchUserFromId(proposalInfo.ownerID);
 
         return new ProposedDealModel(proposalInfo);
@@ -89,6 +89,7 @@ class ProposedDealManager {
                 .where('ixmPackageSectionMappings.packageID', proposalID)
                 .andWhere('rtbSections.status', 'A')
                 .andWhere('sites.status', 'A')
+                .groupBy('id')
             .then((rows) => {
                 return rows.map((row) => { return row.id; });
             });
