@@ -33,49 +33,49 @@ declare module 'testFramework' {
             /**
              * Backup a table.
              * @param table - The name of the table that we want to backup.
-             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            backupTable(table: string, suffix: string = '_bckp'): Promise<any>;
+            backupTable(table: string, suffix: string = BKP_SUFFIX): Promise<any>;
 
             /**
              * Backup an array of tables.
              * @param [tables] - The name of tables that we want to backup.
-             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            backupTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
+            backupTables(tables: string[], suffix: string = BKP_SUFFIX): Promise<any>;
 
             /**
              * Restore a table.
              * @param table - The name of the table that we want to restore.
-             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            restoreTable(table: string, suffix: string = '_bckp'): Promise<any>;
+            restoreTable(table: string, suffix: string = BKP_SUFFIX): Promise<any>;
 
             /**
              * Restore an array of tables.
              * @param [tables] - The name of tables that we want to restore.
-             * @param suffix - The backup table name suffix which is optional and default is _bckp.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            restoreTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
+            restoreTables(tables: string[], suffix: string = BKP_SUFFIX): Promise<any>;
             /**
              * Clear a table.
              * @param table - The name of the table that we want to clear.
-             * @param suffix - The clear table name suffix which is optional and default is _bckp.
+             * @param suffix - The clear table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            clearTable(table: string, suffix: string = '_bckp'): Promise<any>;
+            clearTable(table: string, suffix: string = BKP_SUFFIX): Promise<any>;
 
             /**
              * Clear an array of tables.
              * @param [tables] - The name of tables that we want to clear.
-             * @param suffix - The clear table name suffix which is optional and default is _bckp.
+             * @param suffix - The clear table name suffix which is optional and defaults to constant BKP_SUFFIX
              * @returns A promise.
              */
-            clearTables(tables: string[], suffix: string = '_bckp'): Promise<any>;
+            clearTables(tables: string[], suffix: string = BKP_SUFFIX): Promise<any>;
 
         }
         interface IHelperMethods {

@@ -32,6 +32,9 @@ typings
 ehthumbs.db
 Thumbs.db
 
+# Tools generated files - VIM
+*.swp
+
 # Local Config Files
 ######################
 .env
