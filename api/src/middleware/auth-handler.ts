@@ -64,7 +64,7 @@ const AuthHandler = Promise.coroutine(function* (req: express.Request, res: expr
     let verificationStatus = yield verifyToken(accessToken);
 
     if (verificationStatus !== 'OK') {
-        res.sendError(401, verificationStatus);
+        res.sendError(verificationStatus);
     } else {
         req.ixmBuyerInfo = yield buyerManager.fetchBuyerFromId(Number(accessToken));
         next();
