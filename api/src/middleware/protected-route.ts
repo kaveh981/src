@@ -9,7 +9,7 @@ function ProtectedRoute(req: express.Request, res: express.Response, next: Funct
 
     // An ixmBuyer will have these two fields populated by the auth-handler middleware.
     if (!req.ixmBuyerInfo || !req.ixmBuyerInfo.userID) {
-        res.sendUnauthorizedError();
+        res.sendError('401_UNAUTHORIZED');
         return;
     }
 

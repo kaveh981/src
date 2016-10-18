@@ -28,6 +28,7 @@ en-US:
 
     # 404 Status Code Messages
     404: Not found.
+    404_PROPOSAL_NOT_FOUND: Proposal not found.
 
     # 500 Status Code Messages
     500: Internal server error.

@@ -1,7 +1,6 @@
 'use strict';
 
 import * as express from 'express';
-import * as Promise from 'bluebird';
 
 import { Injector } from '../../lib/injector';
 import { UserManager } from '../../models/user/user-manager';
@@ -16,14 +15,14 @@ function Users(router: express.Router): void {
     /**
      * GET request to get contact info for a user
      */
-    router.get('/:id', Promise.coroutine(function* (req: express.Request, res: express.Response): any {
+    router.get('/:id', async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let userID = req.params['id'];
-        let contactInfo = yield userManager.fetchUserFromId(userID);
+        let contactInfo = await userManager.fetchUserFromId(userID);
 
         res.sendPayload(contactInfo.toContactPayload());
 
-    }) as any);
+    } catch (error) { next(error); } });
 
 };
 

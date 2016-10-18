@@ -48,17 +48,16 @@ function augmentResponse(res: express.Response): void {
 
     // Send JSON payload
     res.sendPayload = (payload: any, pagination?: IPagination) => {
-        // If the payload is undefined or is an empty object, send no content
-        if (!payload) {
-            res.sendNoContent();
-            return;
-        }
-
         let msg: IHttpResponse = {
             status: 200,
             message: errorMessages['200'],
             data: []
         };
+
+        // If the payload is undefined or is an empty object, send no content
+        if (!payload) {
+            msg.message = errorMessages['200_NO_CONTENT'];
+        }
 
         if (Array.isArray(payload)) {
             msg.data = payload;
@@ -77,7 +76,9 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Send an error message.
-    res.sendError = (status: number, error: string, details: string[]) => {
+    res.sendError = (error: string, details: string[]) => {
+        let status = Number(error.split('_')[0]);
+
         let msg: IHttpResponse = {
             status: status,
             message: errorMessages[error] || errorMessages[status] || '',
@@ -90,38 +91,6 @@ function augmentResponse(res: express.Response): void {
 
         res.sendJSON(status, msg);
     };
-
-    // 204 no content
-    res.sendNoContent = () => {
-        let msg: IHttpResponse = {
-            status: 200,
-            message: errorMessages['200_NO_CONTENT'],
-            data: []
-        };
-
-        res.sendJSON(200, msg);
-    };
-
-    // 400 Validation error.
-    res.sendValidationError = (details: any[]) => {
-        res.sendError(400, '400', details);
-    };
-
-    // 403 error handler
-    res.sendUnauthorizedError = () => {
-        res.sendError(401, '401');
-    };
-
-    // 404 error handler
-    res.sendNotFoundError = () => {
-        res.sendError(404, '404');
-    };
-
-    // 500 general error
-    res.sendInternalError = () => {
-        res.sendError(500, '500');
-    };
-
 };
 
 /**
