@@ -1,4 +1,3 @@
-'use strict';
 declare module 'testFramework' {
 
     export = testFramework;
