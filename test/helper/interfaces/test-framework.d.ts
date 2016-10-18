@@ -29,12 +29,6 @@ declare module 'testFramework' {
         interface IDataSetup {
 
             dbm: DatabaseManager;
-            /** @constant
-                @type {string}
-                @default
-                Specifies what the suffix of tables being backed up by the data generation will be.
-            */
-            const bkpSuffix = '_backup';
 
             /**
              * Backup a table.
