@@ -59,6 +59,21 @@ types:
                 type: Deal
             responses:
                 201: #201 = "Created"
+    /negotiation:
+        get:
+            description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal.
+            queryString:
+                type: [ QueryPaging ]
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not Found" No results for this request
+                500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
             is: [ auth_required ]
