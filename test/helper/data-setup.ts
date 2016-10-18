@@ -25,7 +25,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Backup a table.
      * @param table - The name of the table that we want to backup.
-     * @param suffix - The backup table name suffix which is optional and defaults to the global one bkpSuffix.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public backupTable(table: string, suffix: string = bkpSuffix): Promise<any> {
@@ -55,7 +55,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Backup an array of tables.
      * @param [tables] - The name of tables that we want to backup.
-     * @param suffix - The backup table name suffix which is optional and defaults to the global one bkpSuffix.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public backupTables = Promise.coroutine(function* (tables: string[], suffix: string  = bkpSuffix): any {
@@ -68,7 +68,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Restore a table.
      * @param table - The name of the table that we want to restore.
-     * @param suffix - The backup table name suffix which is optional and defaults to bkpSuffix.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public restoreTable(table: string, suffix: string = bkpSuffix): Promise<any> {
@@ -109,7 +109,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Restore an array of tables.
      * @param [tables] - The name of tables that we want to restore.
-     * @param suffix - The backup table name suffix which is optional and defaults to global bkpSuffix.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string  = bkpSuffix): any  {
@@ -122,7 +122,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Clear a table.
      * @param table - The name of the table that we want to clear.
-     * @param suffix - The clear table name suffix which is optional and default is global bkpSuffix.
+     * @param suffix - The clear table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public clearTable(table: string, suffix: string = bkpSuffix): Promise<any> {
@@ -147,7 +147,7 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Clear an array of tables.
      * @param [tables] - The name of tables that we want to clear.
-     * @param suffix - The clear table name suffix which is optional and defaults to global one bkpSuffix.
+     * @param suffix - The clear table name suffix which is optional and defaults to constant bkpSuffix.
      * @returns A promise.
      */
     public clearTables = Promise.coroutine(function* (tables: string[], suffix: string = bkpSuffix): any {

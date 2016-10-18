@@ -33,7 +33,7 @@ declare module 'testFramework' {
             /**
              * Backup a table.
              * @param table - The name of the table that we want to backup.
-             * @param suffix - The backup table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             backupTable(table: string, suffix: string = bkpSuffix): Promise<any>;
@@ -41,7 +41,7 @@ declare module 'testFramework' {
             /**
              * Backup an array of tables.
              * @param [tables] - The name of tables that we want to backup.
-             * @param suffix - The backup table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             backupTables(tables: string[], suffix: string = bkpSuffix): Promise<any>;
@@ -49,7 +49,7 @@ declare module 'testFramework' {
             /**
              * Restore a table.
              * @param table - The name of the table that we want to restore.
-             * @param suffix - The backup table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             restoreTable(table: string, suffix: string = bkpSuffix): Promise<any>;
@@ -57,14 +57,14 @@ declare module 'testFramework' {
             /**
              * Restore an array of tables.
              * @param [tables] - The name of tables that we want to restore.
-             * @param suffix - The backup table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The backup table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             restoreTables(tables: string[], suffix: string = bkpSuffix): Promise<any>;
             /**
              * Clear a table.
              * @param table - The name of the table that we want to clear.
-             * @param suffix - The clear table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The clear table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             clearTable(table: string, suffix: string = bkpSuffix): Promise<any>;
@@ -72,7 +72,7 @@ declare module 'testFramework' {
             /**
              * Clear an array of tables.
              * @param [tables] - The name of tables that we want to clear.
-             * @param suffix - The clear table name suffix which is optional and default is global bkpSuffix.
+             * @param suffix - The clear table name suffix which is optional and defaults to constant bkpSuffix
              * @returns A promise.
              */
             clearTables(tables: string[], suffix: string = bkpSuffix): Promise<any>;
