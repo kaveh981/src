@@ -38,26 +38,27 @@ types:
 ################################
 
 /deals:
-    get:
-        is: [ auth_required]
-        description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or countr-offers sent.
-        queryString: 
-            type: [ QueryPaging ]
-        responses:
-            200: # 200 = "OK"
-                body:
-                    application/json:
-                        type: Response
-            400: # 400 = "Bad Request" use for malformed requests
-            401: # 401 = "Unauthorized" authentication has failed or was not provided
-            403: # 403 = "Forbidden" authentication successful but insufficient permissions
-            500: # 500 = "Internal Server Error" something done broke
-    put:
-        description: Create a new offered deal in the IX system to be offered to one or more publishers. Publisher(s) may accept as offered, or create a counter-offer. Only available to the package creator.
-        body:
-            type: Deal
-        responses:
-            201: #201 = "Created"
+    /proposals:
+        get:
+            is: [ auth_required]
+            description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or countr-offers sent.
+            queryString: 
+                type: [ QueryPaging ]
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        put:
+            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the package creator.
+            body:
+                type: Deal
+            responses:
+                201: #201 = "Created"
     /active:
         get:
             is: [ auth_required ]
