@@ -3,8 +3,12 @@
 # Kraken Middleware
 middleware:
 
-    # Disable sessions
+    # Disable sessions.
     session:
+        enabled: false
+
+    # Security not supported without sessions.
+    appsec:
         enabled: false
 
     # Log HTTP traffic
@@ -38,18 +42,6 @@ middleware:
         module:
             arguments:
                 - directory: path:./controllers
-
-    # Handle Bad Request
-    badRequestHandler:
-        priority: 97
-        module:
-            name: path:./middleware/400-handler
-
-    # Handle Forbidden
-    forbiddenHandler:
-        priority: 98
-        module:
-            name: path:./middleware/403-handler
 
     # Handle Not Founds
     404Handler:

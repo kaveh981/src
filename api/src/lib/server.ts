@@ -80,7 +80,7 @@ class Server {
             app.use(kraken(krakenOptions));
 
             app.on('middleware:before', (event: any) => {
-                let middlewarePath = event.config.module.name;
+                let middlewarePath = event.config.name;
 
                 if (middlewarePath) {
                     Log.debug(`Loading middleware ${middlewarePath.split('\\').pop()}...`);
