@@ -19,19 +19,23 @@ declare module 'express' {
     interface Response {
         /**
          * Send an error message in the correct format.
-         * @param status - The status code.
          * @param error - The error code string in ./config/errors.json corresponding to the message.
-         * @param [details=void] - Strings with information about the error.
+         * @param details - The details of the error message, optional.
          */
         sendError(error: string, details?: string[]): void;
 
         /**
          * Send JSON payload with 200 status code.
          * @param payload - JSON object to send in the response.
+         * @param pagination - The pagination parameters, optional.
          */
         sendPayload(payload: any, pagination?: any): void;
 
-        /** Send a message as JSON */
+        /**
+         * Send a message as JSON 
+         * @param status - The status code to send with the message.
+         * @param josn - The json object to send. 
+         */
         sendJSON(status: number, json: any): void;
     }
 }
