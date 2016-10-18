@@ -45,7 +45,7 @@ class NegotiatedDealManager {
         let rows = yield this.databaseManager.select('negotiationID as id', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
                 'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
             .from('ixmDealNegotiations')
-            .where('packageID', proposalID)
+            .where('proposalID', proposalID)
             .andWhere('buyerID', buyerID)
             .andWhere('publisherID', publisherID);
 
@@ -104,7 +104,7 @@ class NegotiatedDealManager {
         }
 
         yield this.databaseManager.insert({
-            packageID: negotiatedDeal.proposedDeal.id,
+            proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
             price: negotiatedDeal.price,
@@ -122,7 +122,7 @@ class NegotiatedDealManager {
 
         // Get the id and set it in the negotiated deal object.
         let negotiationId = (yield this.databaseManager.select('negotiationID').from('ixmDealNegotiations')
-                                      .where('packageID', negotiatedDeal.proposedDeal.id)
+                                      .where('proposalID', negotiatedDeal.proposedDeal.id)
                                       .andWhere('buyerID', negotiatedDeal.buyerID)
                                       .andWhere('publisherID', negotiatedDeal.publisherID))[0].negotiationID;
 

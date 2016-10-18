@@ -35,14 +35,14 @@ class SettledDealManager {
      * @param publisherID - The id of the publisher for the settled deal.
      * @returns A promise for the settled deal object.
      */
-    public fetchSettledDealFromIds = Promise.coroutine(function* (packageID: number, buyerID: number, publisherID: number) {
+    public fetchSettledDealFromIds = Promise.coroutine(function* (proposalID: number, buyerID: number, publisherID: number) {
 
         let rows = yield this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                     'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID', 'createDate', 'modifyDate')
                 .from('rtbDeals')
-                .join('ixmPackageDealMappings', 'rtbDeals.dealID', 'ixmPackageDealMappings.dealID')
-                .join('ixmDealNegotiations', 'ixmDealNegotiations.packageID', 'ixmPackageDealMappings.packageID')
-                .where('ixmDealNegotiations.packageID', packageID)
+                .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
+                .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
+                .where('ixmDealNegotiations.proposalID', proposalID)
                 .where('buyerID', buyerID)
                 .where('publisherID', publisherID);
 
@@ -52,12 +52,12 @@ class SettledDealManager {
 
         let settledDealObject = new SettledDealModel(rows[0]);
 
-        settledDealObject.negotiatedDeal = yield this.negotiatedDealManager.fetchNegotiatedDealFromIds(packageID, buyerID, publisherID);
+        settledDealObject.negotiatedDeal = yield this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         settledDealObject.status = this.statusLetterToWord(settledDealObject.status);
 
         return settledDealObject;
 
-    }.bind(this)) as (packageID: number, buyerID: number, publisherID: number) => Promise<SettledDealModel>;
+    }.bind(this)) as (proposalID: number, buyerID: number, publisherID: number) => Promise<SettledDealModel>;
 
     /**
      * Get all settled deals with the given buyer.
@@ -69,15 +69,15 @@ class SettledDealManager {
 
         let settledDeals: SettledDealModel[];
 
-        return this.databaseManager.select('ixmDealNegotiations.packageID', 'publisherID')
+        return this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
                 .from('ixmDealNegotiations')
-                .join('ixmPackageDealMappings', 'ixmDealNegotiations.packageID', 'ixmPackageDealMappings.packageID')
+                .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
                 .where('ixmDealNegotiations.buyerID', buyerID)
                 .limit(Number(pagination.limit))
                 .offset(Number(pagination.offset))
             .then((rows) => {
                 return Promise.map(rows, (row: any) => {
-                    return this.fetchSettledDealFromIds(row.packageID, buyerID, row.publisherID);
+                    return this.fetchSettledDealFromIds(row.proposalID, buyerID, row.publisherID);
                 });
             });
 
@@ -157,11 +157,11 @@ class SettledDealManager {
                 }).into('rtbDealSections');
             }
 
-            // Insert package deal mapping
+            // Insert proposal deal mapping
             yield trx.insert({
-                packageID: proposedDeal.id,
+                negotiationID: negotiatedDeal.id,
                 dealID: dealID
-            }).into('ixmPackageDealMappings');
+            }).into('ixmNegotiationDealMappings');
 
         }.bind(this)));
 
