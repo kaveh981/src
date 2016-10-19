@@ -71,13 +71,14 @@ class NegotiatedDealManager {
      */
     public fetchNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
 
-        let rows = yield this.databaseManager.select( 'proposalID', 'publisherID')
+        let rows = yield this.databaseManager.select('proposalID', 'publisherID')
                     .from('ixmDealNegotiations')
                     .where('buyerID', buyerID)
                     .limit(Number(pagination.limit))
                     .offset(Number(pagination.offset));
 
-        let negotiatedDealArray: NegotiatedDealModel[]  = [];
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
+
         for (let i = 0; i < rows.length; i++) {
                 let negotiatedDeal = yield this.fetchNegotiatedDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
                 negotiatedDealArray.push(negotiatedDeal);

@@ -49,6 +49,7 @@ function NegotiationDeals(router: express.Router): void {
         for (let i = 0; i < negotiatedDeals.length; i++) {
                 let proposal = negotiatedDeals[i].proposedDeal;
                 let owner = await userManager.fetchUserFromId(proposal.ownerID);
+
                 if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
                    && proposal.isAvailable() && owner.status === 'A' ) {
                         activeNegotiatedDeals.push(negotiatedDeals[i]);
@@ -56,7 +57,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => {return deal.toPayload(); }), pagination);
+            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
