@@ -39,17 +39,16 @@ function NegotiationDeals(router: express.Router): void {
                                 { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
-            Log.debug('Request is invalid');
             throw HTTPError('400', validationErrors);
         }
 
         let buyerID = Number(req.ixmBuyerInfo.userID);
-        let negotiatedDeals: NegotiatedDealModel[] = await negotiatedDealManager.fetchLatestNegotiatedDealsFromBuyerId(buyerID, pagination);
+        let negotiatedDeals: NegotiatedDealModel[] = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < negotiatedDeals.length; i++) {
-                let proposal: ProposedDealModel = negotiatedDeals[i].proposedDeal;
-                let owner: UserModel = await userManager.fetchUserFromId(proposal.ownerID);
+                let proposal = negotiatedDeals[i].proposedDeal;
+                let owner = await userManager.fetchUserFromId(proposal.ownerID);
                 if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
                    && proposal.isAvailable() && owner.status === 'A' ) {
                         activeNegotiatedDeals.push(negotiatedDeals[i]);

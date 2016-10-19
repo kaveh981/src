@@ -67,27 +67,19 @@ class NegotiatedDealManager {
     /**
      * Get list of latest deals in negotiation for the buyer  
      * @param buyerID - The id of the buyer of the negotiation.
-     * @returns A list of negotiated deal object.
+     * @returns A list of negotiated deal objects.
      */
-    public fetchLatestNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
+    public fetchNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
 
-        // extra proposalID field in query; proposalID not in NegotiatedDealModel
-        let rows = yield this.databaseManager.select('negotiationID as id', 'proposalID', 'buyerID', 'publisherID',
-        'startDate', 'endDate', 'terms', 'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender',
-        'createDate', 'modifyDate', 'budget', 'impressions')
+        let rows = yield this.databaseManager.select( 'proposalID', 'publisherID')
             .from('ixmDealNegotiations')
             .where('buyerID', buyerID)
             .limit(pagination.limit)
             .offset(pagination.offset);
 
-        let negotiatedDealArray = new Array<NegotiatedDealModel>();
+        let negotiatedDealArray: NegotiatedDealModel[]  = [];
         for (let i = 0; i < rows.length; i++) {
-                let negotiatedDeal = new NegotiatedDealModel(rows[i]);
-                negotiatedDeal.proposedDeal = yield this.proposedDealManager.fetchProposedDealFromId(rows[i].proposalID);
-                negotiatedDeal.buyerInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.buyerID);
-                negotiatedDeal.publisherInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.publisherID);
-                // delete extra field from query in NegotiatedDealModel 
-                delete negotiatedDeal["proposalID"];
+                let negotiatedDeal = yield this.fetchNegotiatedDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
                 negotiatedDealArray.push(negotiatedDeal);
         }
 
