@@ -63,6 +63,37 @@ class NegotiatedDealManager {
     }.bind(this)) as (proposalID: number, buyerID: number, publisherID: number) => Promise<NegotiatedDealModel>;
 
     /**
+     * Get list of latest deals in negotiation for the buyer  
+     * @param buyerID - The id of the buyer of the negotiation.
+     * @returns A list of negotiated deal object.
+     */
+    public fetchLatestNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
+
+        //extra proposalID field in query; proposalID not in NegotiatedDealModel
+        let rows = yield this.databaseManager.max('negotiationID as id').select('proposalID', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
+                'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
+            .from('ixmDealNegotiations')
+            .where('buyerID', buyerID)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+            .groupBy('proposalID', 'publisherID', 'buyerID');
+
+        let negotiatedDealArray = new Array<NegotiatedDealModel>();   
+        rows.forEach(function* (element, index, array) { 
+                let negotiatedDeal = new NegotiatedDealModel(element);
+                negotiatedDeal.proposedDeal = yield this.proposedDealManager.fetchProposedDealFromId(element.proposalID);
+                negotiatedDeal.buyerInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.buyerID);
+                negotiatedDeal.publisherInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.publisherID);
+                //delete extra field from query in NegotiatedDealModel
+                delete negotiatedDeal["proposalID"];
+                negotiatedDealArray.push(negotiatedDeal); 
+        });  
+
+        return negotiatedDealArray;
+
+    }.bind(this)) as (buyerID: number, pagination: any) => Promise<NegotiatedDealModel[]>;
+
+    /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
      */
