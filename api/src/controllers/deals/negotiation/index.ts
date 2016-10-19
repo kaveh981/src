@@ -7,8 +7,9 @@ import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector'; 
 import { ConfigLoader } from '../../../lib/config-loader'; 
 import { RamlTypeValidator } from '../../../lib/raml-type-validator'; 
+import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
-import { ErrorCreator } from '../../../lib/error-creator'; 
+
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
@@ -21,11 +22,9 @@ import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
-const buyerManager = Injector.request<BuyerManager>('BuyerManager');
-//const userModel = Injector.request<UserModel>('UserModel'); 
+const buyerManager = Injector.request<BuyerManager>('BuyerManager'); 
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
-const errorCreator = Injector.request<ErrorCreator>('ErrorCreator');
 
 const Log: Logger = new Logger('ACTD'); 
 
@@ -47,7 +46,7 @@ function NegotiationDeals(router: express.Router): void {
 
         if (validationErrors.length > 0) { 
             Log.debug('Request is invalid'); 
-            return next(errorCreator.createValidationError(validationErrors)); 
+            throw HTTPError('400', validationErrors);
         }
 
         let buyerID = Number(req.ixmBuyerInfo.userID); 
@@ -66,7 +65,7 @@ function NegotiationDeals(router: express.Router): void {
         if (activeNegotiatedDeals.length > 0) { 
             res.sendPayload(activeNegotiatedDeals.map((deal) => {return deal.toPayload(); }), pagination);
         } else { 
-            res.sendError(200, '200_NO_DEALS'); 
+            res.sendError('200_NO_DEALS'); 
         }
 
     }) as any); 
