@@ -58,7 +58,7 @@ function NegotiationDeals(router: express.Router): void {
         if (activeNegotiatedDeals.length > 0) {
             res.sendPayload(activeNegotiatedDeals.map((deal) => {return deal.toPayload(); }), pagination);
         } else {
-            res.sendError('200_NO_DEALS');
+            res.sendError('200_NO_NEGOTIATIONS');
         }
 
     } catch (error) { next(error); } });
