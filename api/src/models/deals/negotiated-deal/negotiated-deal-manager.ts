@@ -9,6 +9,8 @@ import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
 
+const Log: Logger = new Logger('ACTD');
+
 /** Deal Negotiation model manager */
 class NegotiatedDealManager {
 
@@ -70,24 +72,24 @@ class NegotiatedDealManager {
     public fetchLatestNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
 
         //extra proposalID field in query; proposalID not in NegotiatedDealModel
-        let rows = yield this.databaseManager.max('negotiationID as id').select('proposalID', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
+        let rows = yield this.databaseManager.select('negotiationID as id', 'proposalID', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
                 'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
             .from('ixmDealNegotiations')
             .where('buyerID', buyerID)
             .limit(pagination.limit)
-            .offset(pagination.offset)
-            .groupBy('proposalID', 'publisherID', 'buyerID');
-
+            .offset(pagination.offset);
+             
+            
         let negotiatedDealArray = new Array<NegotiatedDealModel>();   
-        rows.forEach(function* (element, index, array) { 
-                let negotiatedDeal = new NegotiatedDealModel(element);
-                negotiatedDeal.proposedDeal = yield this.proposedDealManager.fetchProposedDealFromId(element.proposalID);
+        for (let i = 0; i < rows.length; i++) {  
+                let negotiatedDeal = new NegotiatedDealModel(rows[i]);  
+                negotiatedDeal.proposedDeal = yield this.proposedDealManager.fetchProposedDealFromId(rows[i].proposalID);
                 negotiatedDeal.buyerInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.buyerID);
-                negotiatedDeal.publisherInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.publisherID);
-                //delete extra field from query in NegotiatedDealModel
+                negotiatedDeal.publisherInfo = yield this.userManager.fetchUserFromId(negotiatedDeal.publisherID); 
+                //delete extra field from query in NegotiatedDealModel 
                 delete negotiatedDeal["proposalID"];
                 negotiatedDealArray.push(negotiatedDeal); 
-        });  
+        }
 
         return negotiatedDealArray;
 

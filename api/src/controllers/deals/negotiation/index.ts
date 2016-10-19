@@ -48,13 +48,13 @@ function NegotiationDeals(router: express.Router): void {
 
         let buyerID = Number(req.ixmBuyerInfo.userID); 
         let negotiatedDeals : NegotiatedDealModel[] = await negotiatedDealManager.fetchLatestNegotiatedDealsFromBuyerId(buyerID, pagination);
-        let activeNegotiatedDeals : NegotiatedDealModel[] = []; 
+        let activeNegotiatedDeals : NegotiatedDealModel[] = [];  
 
         for (let i = 0; i < negotiatedDeals.length; i++) {        
                 let proposal : ProposedDealModel = negotiatedDeals[i].proposedDeal; 
                 let owner : UserModel = await userManager.fetchUserFromId(proposal.ownerID);       
-                if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active') 
-                    && proposal.isAvailable() && owner.status === 'A' ) { 
+                if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')  
+                   && proposal.isAvailable() && owner.status === 'A' ) {  
                         activeNegotiatedDeals.push(negotiatedDeals[i]); 
                 }
         }
