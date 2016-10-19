@@ -17,7 +17,7 @@ mediaType: application/json
 traits:
     auth_required:
         headers:
-            X-IXM-BuyerId:
+            X-IXM-userID:
                 type: integer
                 description: The current user's ID, used as an authentication token.
 
@@ -59,7 +59,7 @@ types:
                 type: Deal
             responses:
                 201: # 201 = "Created"
-    /negotiation:
+    /negotiations:
         get:
             is: [ auth_required ]
             description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal.
@@ -70,10 +70,12 @@ types:
                     body:
                         application/json:
                             type: Response
+                204: # 204 = "No Content"
+                    body:
+                        type: Response
                 400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                404: # 404 = "Not Found" No results for this request
                 500: # 500 = "Internal Server Error" something done broke
         put:
             is: [ auth_required ]
