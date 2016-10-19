@@ -9,7 +9,6 @@ import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
-
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
@@ -17,14 +16,12 @@ import { UserModel } from '../../../models/user/user-model';
 import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
-
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ACTD');
-
 
 /**
  * Function that takes care of all /deals/negotiation routes  
