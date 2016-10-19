@@ -4,14 +4,12 @@ import * as express from 'express';
 import * as Promise from 'bluebird'; 
 
 import { Logger } from '../../../lib/logger'; 
-import { Injector } from '../../../lib/injector'; 
-import { ConfigLoader } from '../../../lib/config-loader'; 
+import { Injector } from '../../../lib/injector';  
 import { RamlTypeValidator } from '../../../lib/raml-type-validator'; 
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
 
-import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
@@ -21,7 +19,6 @@ import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
-const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager'); 
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
@@ -34,7 +31,7 @@ const Log: Logger = new Logger('ACTD');
  */
 function NegotiationDeals(router: express.Router): void { 
 
-    router.get('/', ProtectedRoute, Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
+    router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let pagination = {
             limit: req.query.limit,
@@ -50,12 +47,12 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let buyerID = Number(req.ixmBuyerInfo.userID); 
-        let negotiatedDeals : NegotiatedDealModel[] = yield negotiatedDealManager.fetchLatestNegotiatedDealsFromBuyerId(buyerID, pagination);
+        let negotiatedDeals : NegotiatedDealModel[] = await negotiatedDealManager.fetchLatestNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals : NegotiatedDealModel[] = []; 
 
         for (let i = 0; i < negotiatedDeals.length; i++) {        
                 let proposal : ProposedDealModel = negotiatedDeals[i].proposedDeal; 
-                let owner : UserModel = yield userManager.fetchUserFromId(proposal.ownerID);       
+                let owner : UserModel = await userManager.fetchUserFromId(proposal.ownerID);       
                 if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active') 
                     && proposal.isAvailable() && owner.status === 'A' ) { 
                         activeNegotiatedDeals.push(negotiatedDeals[i]); 
@@ -68,7 +65,7 @@ function NegotiationDeals(router: express.Router): void {
             res.sendError('200_NO_DEALS'); 
         }
 
-    }) as any); 
+    } catch (error) { next(error); } });
 }
 
 module.exports = NegotiationDeals;
