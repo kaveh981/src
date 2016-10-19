@@ -7,6 +7,12 @@ import { Injector } from '../lib/injector';
 import { DatabaseManager } from '../lib/database-manager';
 
 const Log = new Logger('DSTP');
+/** @constant
+    @type {string}
+    @default
+    Specifies what the suffix of tables being backed up by the data generation will be.
+*/
+const BKP_SUFFIX = '_backup';
 
 class DataSetup implements testFramework.IDataSetup {
 
@@ -19,10 +25,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Backup a table.
      * @param table - The name of the table that we want to backup.
-     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public backupTable(table: string, suffix: string = '_bckp'): Promise<any> {
+    public backupTable(table: string, suffix: string = BKP_SUFFIX): Promise<any> {
 
         let newtable: string = table + suffix;
 
@@ -49,10 +55,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Backup an array of tables.
      * @param [tables] - The name of tables that we want to backup.
-     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public backupTables = Promise.coroutine(function* (tables: string[], suffix: string  = '_bckp'): any {
+    public backupTables = Promise.coroutine(function* (tables: string[], suffix: string  = BKP_SUFFIX): any {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.backupTable(table, suffix);
@@ -62,10 +68,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Restore a table.
      * @param table - The name of the table that we want to restore.
-     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public restoreTable(table: string, suffix: string = '_bckp'): Promise<any> {
+    public restoreTable(table: string, suffix: string = BKP_SUFFIX): Promise<any> {
 
         let backup: string = table + suffix;
 
@@ -103,10 +109,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Restore an array of tables.
      * @param [tables] - The name of tables that we want to restore.
-     * @param suffix - The backup table name suffix which is optional and default is _bckp.
+     * @param suffix - The backup table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string  = '_bckp'): any  {
+    public restoreTables = Promise.coroutine(function* (tables: string[], suffix: string  = BKP_SUFFIX): any  {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.restoreTable(table, suffix);
@@ -116,10 +122,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Clear a table.
      * @param table - The name of the table that we want to clear.
-     * @param suffix - The clear table name suffix which is optional and default is _bckp.
+     * @param suffix - The clear table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public clearTable(table: string, suffix: string = '_bckp'): Promise<any> {
+    public clearTable(table: string, suffix: string = BKP_SUFFIX): Promise<any> {
 
         let backup: string = table + suffix;
 
@@ -141,10 +147,10 @@ class DataSetup implements testFramework.IDataSetup {
     /**
      * Clear an array of tables.
      * @param [tables] - The name of tables that we want to clear.
-     * @param suffix - The clear table name suffix which is optional and default is _bckp.
+     * @param suffix - The clear table name suffix which is optional and defaults to constant BKP_SUFFIX.
      * @returns A promise.
      */
-    public clearTables = Promise.coroutine(function* (tables: string[], suffix: string = '_bckp'): any {
+    public clearTables = Promise.coroutine(function* (tables: string[], suffix: string = BKP_SUFFIX): any {
         for (let i = 0; i < tables.length; i += 1) {
             let table = tables[i];
             yield this.clearTable(table, suffix);
