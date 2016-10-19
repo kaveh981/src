@@ -62,7 +62,7 @@ types:
     /negotiations:
         get:
             is: [ auth_required ]
-            description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal.
+            description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal. If no deals in negotiation are found, a 200 response code will still be sent: the data will be empty and the message will state that nothing could be found.
             queryString:
                 type: [ QueryPaging ]
             responses:
@@ -70,9 +70,9 @@ types:
                     body:
                         application/json:
                             type: Response
-                204: # 204 = "No Content"
-                    body:
-                        type: Response
+                    examples: 
+                        ok:         !include examples/resources/deals/get_negotiation_ok.raml
+                        no_content: !include examples/resources/deals/get_negotiation_no_content.raml
                 400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
