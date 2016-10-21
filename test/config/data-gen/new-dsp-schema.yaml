@@ -10,29 +10,7 @@
        
     },
     "required": [
-        "dspID",
-        "udsID",
         "name",
-        "bidURL",
-        "limiter",
-        "creativeContained",
-        "siteURLRequired",
-        "status",
-        "userMatchOptional",
-        "blockListDisabled",
-        "keepAliveDisabled",
-        "exchangeMode",
-        "campaignMode",
-        "apiEnabled",
-        "creativeTypeRequired",
-        "version",
-        "multiBidsCompete",
-        "proxy",
-        "protected",
-        "useBrandURL",
-        "publisherNotifyMode",
-        "sslEnabled",
-        "pubNetworkOverride",
-        "paused"
+        "bidURL"
     ]
 }

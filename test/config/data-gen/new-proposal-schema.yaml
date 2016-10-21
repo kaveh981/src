@@ -12,9 +12,7 @@
             "chance": {
                 "pickone": [
                     [
-                        "active",
-                        "paused",
-                        "deleted"
+                        "active"
                     ]
                 ]
             }
