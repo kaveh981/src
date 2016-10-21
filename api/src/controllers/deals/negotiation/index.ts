@@ -67,6 +67,102 @@ function NegotiationDeals(router: express.Router): void {
         }
 
     } catch (error) { next(error); } });
+
+    /**
+     * PUT request to accept a deal and insert it into the database to activate it.
+     */
+    router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        let responseType: string;
+        // Sanitize data: response is validated case-insensitively and by trailing spaces
+        if (req.body.hasOwnProperty(response)) {
+            req.body.response = req.body.response.trim().toLowerCase();
+            
+            // There cannot be negotiation fields along with a response to an offer
+            for (let key in req.body) {
+                if (req.body.hasOwnProperty(key) && key != partner_id && key != proposal_id) {
+                    throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field');
+                }
+            }
+            responseType = req.body.response;
+        }
+        else {
+            responseType = 'counter-offer';
+            for (let key in req.body) {
+                if (req.body.hasOwnProperty(key) && key != partner_id && key != proposal_id) {
+                    break;
+                }
+            }
+
+            // If there is no other field beyond partner_id and proposal_id, then the request is invalid
+            throw HTTPError('400', 'At least 1 negotiation or the "Response" field must be provided.');
+        }
+            
+        // Validate the request's parameters syntax
+        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
+        }
+
+
+        // Check whether the user is a publisher or a buyer and populate user fields accordingly 
+        let userType: string = 'buyer'; //TODO - for now let's hard-code it's a buyer for simplicity sake until the middleware is fixed
+        let buyerID: number;
+        let publisherID: number;
+
+        if (userType === 'publisher') {
+            buyerID = req.body.partner_id;
+            publisherID = Number(req.ixmUserInfo.userID);
+        }
+        else { // Route is protected so at this stage we already know that user is either a publisher or a buyer
+            buyerID = Number(req.ixmUserInfo.userID);
+            publisherID = req.body.partner_id;
+        }
+
+        // Check whether there are negotiations started already between the users at stake
+        let proposalID: number = req.body.proposal_id;
+        let currentNegotiation: negotiatedDealModel = await NegotiatedDealManager.fetchProposedDealFromIds(proposalID, buyerID, publisherID);
+
+    
+        // TODO confirm that proposal is available, insert the negotiation - if currentNego exists, follow rest of logic spec
+        if (!currentNegotiation) {
+            
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Check that the proposal is available for purchase
+        let owner = await userManager.fetchUserFromId(proposedDeal.ownerID);
+
+        if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
+            throw HTTPError('403_NOT_FORSALE');
+        }
+
+        // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
+        let dealNegotiation: NegotiatedDealModel =
+                await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
+
+        if (dealNegotiation) {
+            if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
+                throw HTTPError('403_PROPOSAL_BOUGHT');
+
+            } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
+                throw HTTPError('403_PROPOSAL_IN_NEGOTIATION');
+            }
+        }
+
+        // Create a new negotiation
+        let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
+        await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
+
+        // Create the settled deal
+        let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
+        let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
+        await settledDealManager.insertSettledDeal(settledDeal);
+
+        res.sendPayload(settledDeal.toPayload());
+
+    } catch (error) { next(error); } });
 }
 
 module.exports = NegotiationDeals;
