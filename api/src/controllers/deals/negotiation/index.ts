@@ -28,6 +28,10 @@ const Log: Logger = new Logger('ACTD');
  */
 function NegotiationDeals(router: express.Router): void {
 
+    /**
+     * GET request to get all active negotiations for the user. The function first validates pagination query parameters. It then retrieves all
+     * negotiations from the database and filters out all invalid ones, before returning the rest of them to the requesting entity.
+     */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let pagination = {
