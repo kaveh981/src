@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "typings install",
     "tape": "ts-node node_modules/tape/bin/tape",
-    "tslint": "tslint -e./typings/** -e./node_modules/** ./**/*.ts",
+    "tslint": "tslint -e./typings/** -e./node_modules/** './**/*.ts'",
     "build": "tsc && cp -rf config/ build/.",
     "prestart": "npm run build",
     "start": "node build/src/index.js",

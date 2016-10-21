@@ -11,7 +11,9 @@ import { Logger } from './logger';
 
 const Log = new Logger('SUMN');
 
-interface ITestCaseFn { (assert: test.Test): Promise<void> }
+interface ITestCaseFn {
+    (assert: test.Test): Promise<void>;
+}
 
 /**
  * SuiteManager class. Loads all test files in the specified folder and includes any test cases that match a RegExp

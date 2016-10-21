@@ -160,7 +160,7 @@ class DatabasePopulator {
         let newSectionData = this.generateDataObject<INewSectionData>('new-section-schema');
         newSectionData.section.userID = ownerID;
 
-        let sectionID = await this.dbm.insert(newSectionData.section, 'sectionID').into('rtbSections')
+        let sectionID = await this.dbm.insert(newSectionData.section, 'sectionID').into('rtbSections');
         newSectionData.section.sectionID = sectionID[0];
         Log.debug(`Created section ID: ${sectionID[0]}, ownerID: ${ownerID}`);
         newSectionData.siteIDs = siteIDs;
@@ -239,8 +239,6 @@ class DatabasePopulator {
             Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
         }
     }
-
-
 
     /**
      * Generates an entity based on a jsf schema, e.g. "generateDataObject<INewUserData>('new-user-schema')" returns a

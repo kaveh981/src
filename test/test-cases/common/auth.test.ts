@@ -12,7 +12,6 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-
  /*
  * @case    - The buyer is an IXM Buyer.
  * @expect  - The response has status code which isn't 500 or 401.
@@ -98,7 +97,6 @@ async function ATW_AUTH_V4 (route: string, verb: string, setup: Function, assert
     assert.equal(response.status, 401);
 
 }
-
 
 /**
  * Reusable tests for buyer authentication

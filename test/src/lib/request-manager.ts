@@ -22,7 +22,7 @@ class APIRequestManager {
     constructor(configLoader: ConfigLoader) {
         this.configLoader = configLoader;
         this.baseDomain = configLoader.getVar('API_BASE');
-        if (this.baseDomain.indexOf('https://') === 0) { process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' }
+        if (this.baseDomain.indexOf('https://') === 0) { process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; }
     };
 
     /**
