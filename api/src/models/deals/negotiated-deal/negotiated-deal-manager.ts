@@ -36,11 +36,11 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get a negotation from the primary id keys.
+     * Get a negotation from the primary id keys: proposalID, buyerID, publisherID.
      * @param proposalID - The id of the original proposed deal.
      * @param buyerID - The id of the buyer of the negotiation.
      * @param publisherID - The id of the publisher of the negotiation.
-     * @returns A negotiated deal object.
+     * @returns A negotiated deal object or nothing if none can be found.
      */
     public fetchNegotiatedDealFromIds = Promise.coroutine(function* (proposalID: number, buyerID: number, publisherID: number) {
 
