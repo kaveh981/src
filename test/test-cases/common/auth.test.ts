@@ -16,15 +16,15 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
  /*
  * @case    - The buyer is an IXM Buyer.
  * @expect  - The response has status code which isn't 500 or 401.
- * @label   - ATW_AUTH_V1
- * @route   - GET deals
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V1 (route: string, verb: string, assert: test.Test) {
+async function ATW_AUTH_V1 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
+
+    await setup();
 
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -40,15 +40,15 @@ async function ATW_AUTH_V1 (route: string, verb: string, assert: test.Test) {
  /*
  * @case    - The user is not an IXM Buyer.
  * @expect  - The response has status code 401.
- * @label   - ATW_AUTH_V2
- * @route   - GET deals
  * @status  - working
- * @tags    - get, auth, buyer
+ * @tags    - get,auth,buyer
  */
-async function ATW_AUTH_V2 (route: string, verb: string, assert: test.Test) {
+async function ATW_AUTH_V2 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
+
+    await setup();
 
     let publisher = await databasePopulator.createPublisher();
 
@@ -62,15 +62,15 @@ async function ATW_AUTH_V2 (route: string, verb: string, assert: test.Test) {
  /*
  * @case    - The buyer id is not an integer.
  * @expect  - The response has status code 401.
- * @label   - ATW_AUTH_V3
- * @route   - GET deals
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V3 (route: string, verb: string, assert: test.Test) {
+async function ATW_AUTH_V3 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
+
+    await setup();
 
     /** Test */
     let response = await apiRequest[verb](route, {}, 'goose bear');
@@ -82,15 +82,15 @@ async function ATW_AUTH_V3 (route: string, verb: string, assert: test.Test) {
  /*
  * @case    - The buyer id is not supplied.
  * @expect  - The response has status code 401.
- * @label   - ATW_AUTH_V4
- * @route   - GET deals
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V4 (route: string, verb: string, assert: test.Test) {
+async function ATW_AUTH_V4 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
+
+    await setup();
 
     /** Test */
     let response = await apiRequest[verb](route, {});
@@ -103,12 +103,12 @@ async function ATW_AUTH_V4 (route: string, verb: string, assert: test.Test) {
 /**
  * Reusable tests for buyer authentication
  */
-function authenticationTest(route: string, verb: string) {
+function authenticationTest(route: string, verb: string, setup: Function) {
     return [
-        (assert: test.Test) => { return ATW_AUTH_V1(route, verb, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V2(route, verb, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V3(route, verb, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V4(route, verb, assert); }
+        (assert: test.Test) => { return ATW_AUTH_V1(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_V2(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_V3(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_V4(route, verb, setup, assert); }
     ];
 }
 

@@ -7,6 +7,9 @@ import Finder = require("fs-finder");
 
 /** Lib */
 import { TestManager } from './test-manager';
+import { Logger } from './logger';
+
+const Log = new Logger('SUMN');
 
 interface ITestCaseFn { (assert: test.Test): Promise<void> }
 
@@ -41,18 +44,17 @@ class SuiteManager {
             let file_exports: any = require(testFile);
 
             for (let test_name in file_exports) {
-                if (!file_exports.hasOwnProperty(test_name)) { return }
+                if (!file_exports.hasOwnProperty(test_name)) { return; }
 
                 if (this.regex.test(test_name)) {
-                    let exported:ITestCaseFn | ITestCaseFn[] = file_exports[test_name];
+                    let exported: ITestCaseFn | ITestCaseFn[] = file_exports[test_name];
 
                     if (Array.isArray(exported)) {
-                        exported.forEach((test_fn:ITestCaseFn, i) => {
+                        exported.forEach((test_fn: ITestCaseFn, i) => {
                             let test_case = new TestManager(`${test_name}_${i}`, test_fn);
                             this.test_cases.push(test_case);
                         }, this);
-                    }
-                    else {
+                    } else {
                         let test_case = new TestManager(test_name, exported);
                         this.test_cases.push(test_case);
                     }
@@ -68,7 +70,12 @@ class SuiteManager {
     public async runSuite() {
         for (let i = 0; i < this.test_cases.length; i += 1) {
             let test_case = this.test_cases[i];
-            await test_case.runTest();
+
+            try {
+                await test_case.runTest();
+            } catch (error) {
+                Log.error(error);
+            }
         }
     }
 

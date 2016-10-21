@@ -17,13 +17,23 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 /** Test constants */
 const route = 'deals/active';
 
+async function commonDatabaseSetup() {
+    let dsp = await databasePopulator.createDSP(123);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+}
+
+
 /** Generic Authentication Tests */
- export let IXM_API_DEALS_PUT_AUTH = authenticationTest(route, 'put');
+export let IXM_API_DEALS_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetup);
 
  /*
  * @case    - The buyer buys a proposal.
  * @expect  - A payload containing the deal data.
- * @label   - IXM_API_DEALS_PUT_V1
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -91,7 +101,6 @@ export async function IXM_API_DEALS_PUT_V1 (assert: test.Test) {
 /*
  * @case    - The buyer does supplies invalid proposal IDs.
  * @expect  - The API responds with 400s.
- * @label   - IXM_API_DEALS_PUT_V2
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -120,7 +129,6 @@ export async function IXM_API_DEALS_PUT_V2 (assert: test.Test) {
 /*
  * @case    - The buyer does supplies a proposal ID that doesn't exist.
  * @expect  - The response has status code 404.
- * @label   - IXM_API_DEALS_PUT_V3
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -143,7 +151,6 @@ export async function IXM_API_DEALS_PUT_V3 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal that is paused.
  * @expect  - The response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V4
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -170,7 +177,6 @@ export async function IXM_API_DEALS_PUT_V4 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal that is deleted.
  * @expect  - The response has status code 404.
- * @label   - IXM_API_DEALS_PUT_V5
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -197,7 +203,6 @@ export async function IXM_API_DEALS_PUT_V5 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal that is expired.
  * @expect  - The response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V6
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -225,7 +230,6 @@ export async function IXM_API_DEALS_PUT_V6 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal that expires today.
  * @expect  - The response has status code 200.
- * @label   - IXM_API_DEALS_PUT_V7
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -254,7 +258,6 @@ export async function IXM_API_DEALS_PUT_V7 (assert: test.Test) {
 /*
  * @case    - The buyer buys a proposal that hasn't started yet.
  * @expect  - The response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V8
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -282,7 +285,6 @@ export async function IXM_API_DEALS_PUT_V8 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal that starts today.
  * @expect  - The response has status code 200.
- * @label   - IXM_API_DEALS_PUT_V9
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -311,7 +313,6 @@ export async function IXM_API_DEALS_PUT_V9 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal twice.
  * @expect  - The first response has status code 200. The second response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V10
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -340,7 +341,6 @@ export async function IXM_API_DEALS_PUT_V10 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, and attempts to buy it again but it is disabled.
  * @expect  - The first response has status code 200. The second response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V11
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -372,7 +372,6 @@ export async function IXM_API_DEALS_PUT_V11 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, and attempts to buy it again but it is paused.
  * @expect  - The first response has status code 200. The second response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V11
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -404,7 +403,6 @@ export async function IXM_API_DEALS_PUT_V12 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, but one out of two sections are not active.
  * @expect  - The response has status code 200.
- * @label   - IXM_API_DEALS_PUT_V13
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -435,7 +433,6 @@ export async function IXM_API_DEALS_PUT_V13 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, but no sections are active.
  * @expect  - The response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V14
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -466,7 +463,6 @@ export async function IXM_API_DEALS_PUT_V14 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, but one out of two sites aren't active.
  * @expect  - The response has status code 200.
- * @label   - IXM_API_DEALS_PUT_V15
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals, sites
@@ -496,7 +492,6 @@ export async function IXM_API_DEALS_PUT_V15 (assert: test.Test) {
  /*
  * @case    - The buyer buys a proposal, but no sites are active.
  * @expect  - The response has status code 403.
- * @label   - IXM_API_DEALS_PUT_V16
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals, sites
