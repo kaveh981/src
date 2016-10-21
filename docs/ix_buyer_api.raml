@@ -79,9 +79,18 @@ types:
                 500: # 500 = "Internal Server Error" something done broke
         put:
             is: [ auth_required ]
-            description: Send a counter-offer on an existing deal in negotiation. Only allowed if the other negotiating party was the last to send an offer. A successful request will update the current negotiation state to the sent terms. Original propsoal terms will be preserved.
+            description: |
+            Send a counter-offer for, accept, or reject an existing deal in negotiation. Only allowed if the other negotiating party was the last to send an offer. 
+
+            The request will be processed according to fields in the body JSON object. An object containing only proposal_id, partner_id and status fields will accept or reject the negotiation accordingly.
+
+            An object containing one or more of the negotiatible deal fields will update the current negotiation state to the sent terms. Original propsoal terms will be preserved.
             body:
                 type: Negotiation
+            examples:
+                counter-offer:  !include examples/resources/deals/put_negotiation_counter-offer.raml
+                accept:         !include examples/resources/deals/put_negotiation_accept.raml
+                reject:         !include examples/resources/deals/put_negotiation_reject.raml
             responses:
                 201: # 201 = "Created"
                     body:
