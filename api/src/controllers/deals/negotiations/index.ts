@@ -9,6 +9,7 @@ import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
+import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 import { UserModel } from '../../../models/user/user-model';
@@ -16,6 +17,7 @@ import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
+const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
@@ -111,17 +113,17 @@ function NegotiationDeals(router: express.Router): void {
 
         if (userType === 'publisher') {
             buyerID = req.body.partner_id;
-            publisherID = Number(req.ixmUserInfo.userID);
+            publisherID = Number(req.ixmBuyerInfo.userID);
         } else {
             // Route is protected so at this stage we already know that user is either a publisher or a buyer
-            buyerID = Number(req.ixmUserInfo.userID);
+            buyerID = Number(req.ixmBuyerInfo.userID);
             publisherID = req.body.partner_id;
         }
 
         // Check whether there are negotiations started already between the users at stake
         let proposalID: number = req.body.proposal_id;
-        let currentNegotiation: negotiatedDealModel =
-            await NegotiatedDealManager.fetchProposedDealFromIds(proposalID, buyerID, publisherID);
+        let currentNegotiation: NegotiatedDealModel =
+            await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
 
         // If the negotiation had not started yet, then it gets created
         if (!currentNegotiation) {
@@ -132,9 +134,9 @@ function NegotiationDeals(router: express.Router): void {
             }
 
             // Confirm that the proposal is available and belongs to this publisher
-            let targetProposal: proposedDealModel;
+            let targetProposal: ProposedDealModel;
             try {
-                targetProposal = await ProposedDealManager.fetchProposedDealFromId(proposalID);
+                targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
             } catch (e) {
                Log.debug('Was not able to retrieve proposal associated with ID: ' + proposalID);
             }
@@ -188,13 +190,13 @@ function NegotiationDeals(router: express.Router): void {
             }
 
             // Check that the proposal is available for purchase
-            let owner = await userManager.fetchUserFromId(proposedDeal.ownerID);
-            if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
+            let owner = await userManager.fetchUserFromId(targetProposal.ownerID);
+            if (!targetProposal.isAvailable() || !(owner.status === 'A')) {
                 throw HTTPError('403_NOT_FORSALE');
             }
 
             try {
-                NegotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
+                negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
             } catch (e) {
                 Log.debug('Was not able to insert the new negotiation: ' + e);
             }
@@ -203,6 +205,7 @@ function NegotiationDeals(router: express.Router): void {
             res.sendPayload(currentNegotiation.toPayload());
 
         } else {
+/** FUTURE
 
             // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
             let dealNegotiation: NegotiatedDealModel =
@@ -217,7 +220,6 @@ function NegotiationDeals(router: express.Router): void {
                 }
             }
 
-    // FUTURE
             // Create a new negotiation
             let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
             await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
@@ -228,6 +230,7 @@ function NegotiationDeals(router: express.Router): void {
             await settledDealManager.insertSettledDeal(settledDeal);
 
             res.sendPayload(settledDeal.toPayload());
+*/
         }
 
     } catch (error) { next(error); } });
