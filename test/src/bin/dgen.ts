@@ -38,22 +38,22 @@ class DataGenCLI {
      * @return {void}
      */
     constructor() {
-        let file_desc = 'A json file containing data objects';
-        let pub_desc = 'Generate a publisher, use -p <n> to generate n publishers.';
-        let site_desc = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
+        let fileDescription = 'A json file containing data objects';
+        let publisherDescription = 'Generate a publisher, use -p <n> to generate n publishers.';
+        let siteDescription = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
                       + ' -s <id>,<n> .';
-        let section_desc = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
+        let sectionDescription = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
                       + ' -S <pid>,<sid>,<n>';
-        let proposal_desc = 'Generate a proposal. Owner ID, section [ID]s required:'
+        let proposalDescription = 'Generate a proposal. Owner ID, section [ID]s required:'
                       + ' -P <pid>,<sid0>:...:<sidN>,n';
 
         this.cmd = commander.version('6.6.6')
             .description('Generate IXM related data. Call with no arguments for generating a standard set.')
-            .option('-f --file <string>', file_desc)
-            .option('-p --pub [string]', pub_desc)
-            .option('-s --site <string>', site_desc)
-            .option('-S --section <string>', section_desc)
-            .option('-P --proposal <string>', proposal_desc)
+            .option('-f --file <string>', fileDescription)
+            .option('-p --pub [string]', publisherDescription)
+            .option('-s --site <string>', siteDescription)
+            .option('-S --section <string>', sectionDescription)
+            .option('-P --proposal <string>', proposalDescription)
             .parse(process.argv);
     }
 
