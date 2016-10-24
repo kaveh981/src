@@ -2,7 +2,6 @@
 
 import { UserModel } from '../../user/user-model';
 
-
 class ProposedDealModel {
 
     /** ID of the proposal */
