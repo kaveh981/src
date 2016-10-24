@@ -11,7 +11,7 @@ import { Logger } from './logger';
 
 const Log = new Logger('SUMN');
 
-interface ITestCaseFn {
+interface ITestCaseFunction {
     (assert: test.Test): Promise<void>;
 }
 
@@ -22,7 +22,7 @@ class SuiteManager {
 
     private testsPath: string;
     private regex: RegExp;
-    private test_cases: TestManager[];
+    private testCases: TestManager[];
 
     /**
      * Instance constructor. Assigns params and loads test cases
@@ -30,7 +30,7 @@ class SuiteManager {
      * @param regex - the regular expression to describe test cases to load
      */
     constructor (testsPath: string, regex: RegExp = /\.*/) {
-        this.test_cases = [];
+        this.testCases = [];
         this.regex = regex;
         this.testsPath = path.join(__dirname, '../../test-cases/endpoints', testsPath);
         this.loadTests();
@@ -43,22 +43,22 @@ class SuiteManager {
         let testFiles: string[] = Finder.from(this.testsPath).findFiles('*.test.js');
 
         testFiles.forEach((testFile: string) => {
-            let file_exports: any = require(testFile);
+            let fileExports: any = require(testFile);
 
-            for (let test_name in file_exports) {
-                if (!file_exports.hasOwnProperty(test_name)) { return; }
+            for (let testName in fileExports) {
+                if (!fileExports.hasOwnProperty(testName)) { return; }
 
-                if (this.regex.test(test_name)) {
-                    let exported: ITestCaseFn | ITestCaseFn[] = file_exports[test_name];
+                if (this.regex.test(testName)) {
+                    let exported: ITestCaseFunction | ITestCaseFunction[] = fileExports[testName];
 
                     if (Array.isArray(exported)) {
-                        exported.forEach((test_fn: ITestCaseFn, i) => {
-                            let test_case = new TestManager(`${test_name}_${i}`, test_fn);
-                            this.test_cases.push(test_case);
+                        exported.forEach((testFunction: ITestCaseFunction, i) => {
+                            let testCase = new TestManager(`${testName}_${i}`, testFunction);
+                            this.testCases.push(testCase);
                         }, this);
                     } else {
-                        let test_case = new TestManager(test_name, exported);
-                        this.test_cases.push(test_case);
+                        let testCase = new TestManager(testName, exported);
+                        this.testCases.push(testCase);
                     }
                 }
             }
@@ -67,14 +67,14 @@ class SuiteManager {
     }
 
     /**
-     * Runs all test cases loaded by calling runTest() on each of the test_cases
+     * Runs all test cases loaded by calling runTest() on each of the testCases
      */
     public async runSuite() {
-        for (let i = 0; i < this.test_cases.length; i += 1) {
-            let test_case = this.test_cases[i];
+        for (let i = 0; i < this.testCases.length; i += 1) {
+            let testCase = this.testCases[i];
 
             try {
-                await test_case.runTest();
+                await testCase.runTest();
             } catch (error) {
                 Log.error(error);
             }
