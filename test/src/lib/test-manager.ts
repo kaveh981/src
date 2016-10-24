@@ -16,17 +16,17 @@ const data_setup = Injector.request<DataSetup>('DataSetup');
  */
 class TestManager {
 
-    private test_name: string;
-    private test_fn: (assert: test.Test) => Promise<void>;
+    private testName: string;
+    private testFunction: (assert: test.Test) => Promise<void>;
 
     /**
      *  Constructs a TestManager instance describing an atomic test-case.
      * @param name - The name or label to assign to the test case
-     * @param test_case_fn - an async function that runs the test case
+     * @param testCaseFunction - an async function that runs the test case
      */
-    constructor (name: string, test_case_fn: (assert: test.Test) => Promise<void>) {
-        this.test_name = name;
-        this.test_fn = test_case_fn;
+    constructor (name: string, testCaseFunction: (assert: test.Test) => Promise<void>) {
+        this.testName = name;
+        this.testFunction = testCaseFunction;
     }
 
     /**
@@ -34,11 +34,11 @@ class TestManager {
      */
     public runTest() {
         return new Promise((resolve, reject) => {
-            test(this.test_name, async function (t: test.Test) {
+            test(this.testName, async function (t: test.Test) {
                 try {
                     this.upgradeTapeObject(t);
                     await data_setup.clearTables();
-                    await this.test_fn(t);
+                    await this.testFunction(t);
                     resolve();
                 } catch (e) {
                     reject(e);
