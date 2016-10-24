@@ -9,7 +9,7 @@ import { DataSetup } from './data-setup';
 import { Injector  } from './injector';
 
 /** request dependencies */
-const data_setup = Injector.request<DataSetup>('DataSetup');
+const dataSetup = Injector.request<DataSetup>('DataSetup');
 
 /**
  *  Test Manager class. 
@@ -37,7 +37,7 @@ class TestManager {
             test(this.testName, async function (t: test.Test) {
                 try {
                     this.upgradeTapeObject(t);
-                    await data_setup.clearTables();
+                    await dataSetup.clearTables();
                     await this.testFunction(t);
                     resolve();
                 } catch (e) {
