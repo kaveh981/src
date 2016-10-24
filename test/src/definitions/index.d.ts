@@ -76,10 +76,10 @@ interface INewSiteData {
 interface ISection {
     sectionID?: number;
     userID?: number;
-    status: string;
-    name: string;
-    percent: number;
-    entireSite: number;
+    status?: string;
+    name?: string;
+    percent?: number;
+    entireSite?: number;
 }
 
 interface INewSectionData {
