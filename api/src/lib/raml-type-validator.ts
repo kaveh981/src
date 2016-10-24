@@ -91,12 +91,18 @@ class RamlTypeValidator {
             }
         });
 
-        let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
+        let parsedAPI: any = raml.parseRAMLSync("#%RAML 1.0\n" + yaml.dump(apiFormat));
 
+        if (parsedAPI.errors().length > 0) {
+            parsedAPI.errors().forEach((error) => {
+                Log.error(JSON.stringify(error));
+            });
+        }
+/**
         if (parsedAPI.errors().length > 0) {
             Log.error(parsedAPI.errors().join('\n'));
         }
-
+*/
         // We parse the raml api object into a JSON object and put it in the types variable.
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
