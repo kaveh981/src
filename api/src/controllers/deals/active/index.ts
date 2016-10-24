@@ -99,7 +99,6 @@ function ActiveDeals(router: express.Router): void {
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
-
             } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
                 throw HTTPError('403_PROPOSAL_IN_NEGOTIATION');
             }
