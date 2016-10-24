@@ -53,7 +53,7 @@ export async function IXM_API_DEALS_PUT_V1 (assert: test.Test) {
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
 
     let externalDealID = await databaseManager.select('externalDealID').from('rtbDeals');
-    externalDealID = externalDealID[0].externalDealID || 'ghost goose';
+    externalDealID = externalDealID[0] && externalDealID[0].externalDealID || 'ghost goose';
 
     let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
     let createDate = new Date(dates[0]['createDate']);

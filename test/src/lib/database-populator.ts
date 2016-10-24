@@ -171,7 +171,7 @@ class DatabasePopulator {
      * @param siteIDs {int[]} - An array of siteIDs to map to the new section
      * @returns {Promise<INewSectionData>} - Promise which resolves with object of new section data
      */
-    public async createSection(ownerID: number, siteIDs: number[]) {
+    public async createSection(ownerID: number, siteIDs: number[], sectionFields?: ISection) {
 
         if (siteIDs.length < 1) {
             Log.error(`1 or more siteIDs are required to create a section you provided ${siteIDs}`);
@@ -180,6 +180,10 @@ class DatabasePopulator {
 
         let newSectionData = this.generateDataObject<INewSectionData>('new-section-schema');
         newSectionData.section.userID = ownerID;
+
+        if (sectionFields) {
+            Object.assign(newSectionData.section, sectionFields);
+        }
 
         let sectionID = await this.dbm.insert(newSectionData.section, 'sectionID').into('rtbSections');
         newSectionData.section.sectionID = sectionID[0];

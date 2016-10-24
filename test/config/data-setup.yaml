@@ -15,4 +15,5 @@ tables:
     - rtbDeals
     - rtbDSPs
     - rtbSections
+    - rtbDealSections
     - rtbSiteSections
