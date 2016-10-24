@@ -139,7 +139,7 @@ class DataSetup {
 
         await this.dbm.transaction(async (trans) => {
             await trans.raw('SET foreign_key_checks=0');
-            await trans.raw(`DELETE FROM ${table}`);
+            await trans.raw(`TRUNCATE ${table}`);
             await trans.raw('SET foreign_key_checks=1');
         });
 
