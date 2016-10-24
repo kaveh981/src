@@ -64,9 +64,13 @@ class DatabasePopulator {
      * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmBuyers"
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */
-    public async createBuyer(dspID?: number) {
+    public async createBuyer(dspID: number, userFields?: INewUserData) {
 
         let newBuyerData = this.generateDataObject<INewBuyerData>('new-buyer-schema');
+
+        if (userFields) {
+            Object.assign(newBuyerData.user, userFields);
+        }
 
         let newUserData = await this.createUser(newBuyerData.user);
         if (dspID) { newBuyerData.dspID = dspID; }
@@ -84,15 +88,23 @@ class DatabasePopulator {
      * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers".
      * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
      */
-    public async createPublisher() {
+    public async createPublisher(userFields?: INewUserData, publisherFields?: INewPubData) {
 
         let newPubData = this.generateDataObject<INewPubData>('new-pub-schema');
         newPubData.publisher.approvalDate = this.currentMidnightDate();
+
+        if (userFields) {
+            Object.assign(newPubData.user, userFields);
+        }
 
         let newUserData = await this.createUser(newPubData.user);
         let publisherData = newPubData.publisher;
         publisherData.userID = newUserData.userID;
         newPubData.user = newUserData;
+
+        if (userFields) {
+            Object.assign(newPubData.publisher, publisherFields);
+        }
 
         await this.dbm.insert(publisherData).into('publishers');
 
@@ -105,9 +117,14 @@ class DatabasePopulator {
      * @param newID {int} - the new DSP ID
      * @returns {Promise<INewDSPData>} - Promise which resolves with an object of new DSP data
      */
-    public async createDSP(newID: number) {
+    public async createDSP(newID: number, dspFields?: INewDSPData) {
 
         let newDSPData = this.generateDataObject<INewDSPData>('new-dsp-schema');
+
+        if (dspFields) {
+            Object.assign(newDSPData, dspFields);
+        }
+
         newDSPData.dspID = newID;
 
         await this.dbm.insert(newDSPData).into('rtbDSPs');
@@ -125,11 +142,15 @@ class DatabasePopulator {
      * @param ownerID {int} - the userID of the site owner
      * @returns {Promise<INewSiteData>} - Promise which resolves with object of new site data
      */
-    public async createSite(ownerID: number) {
+    public async createSite(ownerID: number, siteFields?: INewSiteData) {
 
         let newSiteData = this.generateDataObject<INewSiteData>('new-site-schema');
         newSiteData.userID = ownerID;
         newSiteData.createDate = this.currentMidnightDate();
+
+        if (siteFields) {
+            Object.assign(newSiteData, siteFields);
+        }
 
         let siteIDs = await this.dbm.insert(newSiteData, ['siteID']).into('sites');
         newSiteData.siteID = siteIDs[0];
