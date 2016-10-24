@@ -1,1 +1,12 @@
-../api/tsconfig.json
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs",
+        "outDir": "build",
+        "moduleResolution": "node"
+    },
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}
