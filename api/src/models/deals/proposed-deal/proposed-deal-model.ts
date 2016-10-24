@@ -57,23 +57,14 @@ class ProposedDealModel {
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isAvailable(): boolean {
-        let startDate = new Date(this.startDate);
-        let endDate = new Date(this.endDate);
-        let today = new Date(Date.now());
-        let zeroDate = '0000-00-00';
 
-        // Set all date "hours" to be 0 to be able to just compare the dates alone
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
+        let startDate = this.formatDate(this.startDate);
+        let endDate = this.formatDate(this.endDate);
+        let today = this.formatDate(new Date());
 
-        let datesEqual = startDate.getFullYear() === endDate.getFullYear()
-            && startDate.getMonth() === endDate.getMonth()
-            && startDate.getDate() === endDate.getDate();
+        return (this.sections.length > 0) && (this.status === 'active')
+            && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00');
 
-        return (((startDate < endDate || datesEqual) && endDate >= today) || (this.endDate === zeroDate))
-            && this.sections.length > 0
-            && this.status === 'active';
     }
 
     /**
@@ -81,6 +72,7 @@ class ProposedDealModel {
      * @returns - The model as specified in the API.
      */
     public toPayload(): any {
+
         return {
             id: this.id,
             publisher_id: this.ownerID,
@@ -100,14 +92,17 @@ class ProposedDealModel {
             modified_at: (new Date(this.modifyDate)).toISOString(),
             deal_section_id: this.sections
         };
+
     }
 
     /** 
      * Format the dates to yyyy-mm-dd
      * @param dateString - The date as a string.
      */
-    private formatDate(dateString: string) {
+    private formatDate(dateString: string | Date) {
+
         dateString = dateString.toString();
+
         let date = new Date(dateString.toString());
 
         if (dateString.includes('0000-00-00')) {
@@ -120,6 +115,7 @@ class ProposedDealModel {
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+
     }
 
 }
