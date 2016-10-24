@@ -1,7 +1,6 @@
 'use strict';
 
 import * as express from 'express';
-import * as Promise from 'bluebird';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
@@ -43,7 +42,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let buyerID = Number(req.ixmBuyerInfo.userID);
-        let negotiatedDeals: NegotiatedDealModel[] = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < negotiatedDeals.length; i++) {

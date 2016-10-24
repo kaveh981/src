@@ -43,11 +43,16 @@ function Deals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let activeProposals: ProposedDealModel[] = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
+        let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
 
         for (let i = 0; i < activeProposals.length; i++) {
             let activeProposal = activeProposals[i];
+
+            if (!activeProposal) {
+                continue;
+            }
+
             let owner = await userManager.fetchUserFromId(activeProposal.ownerID);
 
             if (activeProposal.isAvailable() && owner.status === 'A') {
