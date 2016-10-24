@@ -23,12 +23,12 @@ NegotiateDealRequest:
             required: false
             minimum: 0.01
             maximum: 655.35
-	impressions:
+        impressions:
             type: integer
             required: false
             minimum: 1
             maximum: 16777215
-	budget:
+        budget:
             type: integer
             required: false
             minimum: 1
@@ -36,8 +36,8 @@ NegotiateDealRequest:
         terms:
             type: string
             required: false
-	    minLength: 1
-	    maxLength: 65535
+            minLength: 1
+            maxLength: 65535
         response:
             enum: ['accept', 'reject']
             required: false
