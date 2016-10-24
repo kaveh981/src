@@ -1,11 +1,11 @@
 'use strict';
 
-import * as Promise from 'bluebird';
-
 import { DatabaseManager } from '../../../lib/database-manager';
-import { Logger } from '../../../lib/logger';
 import { ProposedDealModel } from './proposed-deal-model';
 import { UserManager } from '../../user/user-manager';
+import { Logger } from '../../../lib/logger';
+
+const Log = new Logger('MODS');
 
 /** Package model manager */
 class ProposedDealManager {
@@ -27,72 +27,75 @@ class ProposedDealManager {
     }
 
     /**
-     * Get package object by ID
-     * @param proposalID - the ID of the package
+     * Get proposal object by ID
+     * @param proposalID - the ID of the proposal
      * @returns Returns a proposed deal object and includes associated section IDs
      */
-    public fetchProposedDealFromId = Promise.coroutine(function* (proposalID: number) {
+    public async fetchProposedDealFromId(proposalID: number): Promise<ProposedDealModel> {
 
-        let rows = yield this.databaseManager.select('ixmPackages.packageID as id', 'ownerID', 'name', 'description', 'status',
-                    'accessMode', 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms',
-                    'createDate', 'modifyDate', 'sectionID')
-                .from('ixmPackages')
-                .join('ixmPackageSectionMappings', 'ixmPackages.packageID', 'ixmPackageSectionMappings.packageID')
-                .limit(1)
-                .where('ixmPackages.packageID', proposalID);
+        let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'name', 'description', 'status',
+                    'accessMode', 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
+                    'modifyDate')
+                .from('ixmDealProposals')
+                .where('proposalID', proposalID);
 
         if (!rows[0]) {
             return;
         }
 
         let proposalInfo = rows[0];
-        proposalInfo.sections = yield this.fetchSectionsFromProposalId(proposalID);
-        proposalInfo.ownerInfo = yield this.userManager.fetchUserFromId(proposalInfo.ownerID);
+        proposalInfo.sections = await this.fetchSectionsFromProposalId(proposalID);
+
+        if (proposalInfo.sections.length === 0) {
+            Log.warn(`Package ${proposalInfo.id} has no sections.`);
+        }
+
+        proposalInfo.ownerInfo = await this.userManager.fetchUserFromId(proposalInfo.ownerID);
 
         return new ProposedDealModel(proposalInfo);
 
-    }.bind(this)) as (proposalID: number) => Promise<ProposedDealModel>;
+    }
 
     /**
      * Get list of objects by status
-     * @param proposalStatus - status of the package, a enum value which could be active, paused or deleted.
+     * @param proposalStatus - status of the proposal, a enum value which could be active, paused or deleted.
      * @param pagination - The pagination parameters.
      * @returns Returns an array of proposed deal objects with the given status.
      */
-    public fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
+    public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
 
-        return this.databaseManager.select('packageID')
-                .from('ixmPackages')
-                .where('status', proposalStatus)
-                .limit(Number(pagination.limit))
-                .offset(Number(pagination.offset))
-            .then((idObjects: any) => {
-                return Promise.map(idObjects, (idObject: any) => {
-                    return this.fetchProposedDealFromId(idObject.packageID);
-                });
-            });
+        let proposals = [];
+        let rows = await this.databaseManager.select('proposalID').from('ixmDealProposals').where('status', proposalStatus)
+                    .limit(Number(pagination.limit))
+                    .offset(Number(pagination.offset));
+
+        for (let i = 0; i < rows.length; i++) {
+            let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);
+            proposals.push(proposal);
+        }
+
+        return proposals;
 
     }
 
-    /** 
+    /**
      * Get the active section ids for the proposal
      * @param proposalID - The id of the proposed deal.
      * @returns An array of section ids;
      */
-    public fetchSectionsFromProposalId(proposalID: number): Promise<string[]> {
+    public async fetchSectionsFromProposalId(proposalID: number): Promise<string[]> {
 
-        return this.databaseManager.select('ixmPackageSectionMappings.sectionID as id')
-                .from('ixmPackageSectionMappings')
-                .join('rtbSections', 'ixmPackageSectionMappings.sectionID', 'rtbSections.sectionID')
-                .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
-                .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                .where('ixmPackageSectionMappings.packageID', proposalID)
-                .andWhere('rtbSections.status', 'A')
-                .andWhere('sites.status', 'A')
-                .groupBy('id')
-            .then((rows) => {
-                return rows.map((row) => { return row.id; });
-            });
+        let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
+                    .from('ixmProposalSectionMappings')
+                    .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+                    .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
+                    .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                    .where('ixmProposalSectionMappings.proposalID', proposalID)
+                    .andWhere('rtbSections.status', 'A')
+                    .andWhere('sites.status', 'A')
+                    .groupBy('id');
+
+        return rows.map((row) => { return row.id; });
 
     }
 }

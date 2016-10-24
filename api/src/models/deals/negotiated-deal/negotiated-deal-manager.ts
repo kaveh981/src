@@ -9,6 +9,8 @@ import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
 
+const Log: Logger = new Logger('ACTD');
+
 /** Deal Negotiation model manager */
 class NegotiatedDealManager {
 
@@ -45,7 +47,7 @@ class NegotiatedDealManager {
         let rows = yield this.databaseManager.select('negotiationID as id', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
                 'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
             .from('ixmDealNegotiations')
-            .where('packageID', proposalID)
+            .where('proposalID', proposalID)
             .andWhere('buyerID', buyerID)
             .andWhere('publisherID', publisherID);
 
@@ -63,6 +65,30 @@ class NegotiatedDealManager {
     }.bind(this)) as (proposalID: number, buyerID: number, publisherID: number) => Promise<NegotiatedDealModel>;
 
     /**
+     * Get list of latest deals in negotiation for the buyer  
+     * @param buyerID - The id of the buyer of the negotiation.
+     * @returns A list of negotiated deal objects.
+     */
+    public fetchNegotiatedDealsFromBuyerId = Promise.coroutine(function* (buyerID: number, pagination: any) {
+
+        let rows = yield this.databaseManager.select('proposalID', 'publisherID')
+                    .from('ixmDealNegotiations')
+                    .where('buyerID', buyerID)
+                    .limit(Number(pagination.limit))
+                    .offset(Number(pagination.offset));
+
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
+
+        for (let i = 0; i < rows.length; i++) {
+                let negotiatedDeal = yield this.fetchNegotiatedDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
+                negotiatedDealArray.push(negotiatedDeal);
+        }
+
+        return negotiatedDealArray;
+
+    }.bind(this)) as (buyerID: number, pagination: any) => Promise<NegotiatedDealModel[]>;
+
+    /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
      */
@@ -73,7 +99,7 @@ class NegotiatedDealManager {
         }
 
         yield this.databaseManager.insert({
-            packageID: negotiatedDeal.proposedDeal.id,
+            proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
             price: negotiatedDeal.price,
@@ -91,7 +117,7 @@ class NegotiatedDealManager {
 
         // Get the id and set it in the negotiated deal object.
         let negotiationId = (yield this.databaseManager.select('negotiationID').from('ixmDealNegotiations')
-                                      .where('packageID', negotiatedDeal.proposedDeal.id)
+                                      .where('proposalID', negotiatedDeal.proposedDeal.id)
                                       .andWhere('buyerID', negotiatedDeal.buyerID)
                                       .andWhere('publisherID', negotiatedDeal.publisherID))[0].negotiationID;
 

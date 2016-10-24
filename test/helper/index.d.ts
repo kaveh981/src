@@ -85,8 +85,8 @@ interface INewSectionData {
     section: ISection;
 }
 
-interface IPackage {
-    packageID?: number;
+interface IProposal {
+    proposalID?: number;
     ownerID?: number;
     name?: string;
     description?: string;
@@ -103,9 +103,9 @@ interface IPackage {
     modifyDate?: Date;
 }
 
-interface INewPackageData {
+interface INewProposalData {
     sectionIDs?: number[];
-    package?: IPackage;
+    proposal?: IProposal;
 }
 
 interface IReqOptions {

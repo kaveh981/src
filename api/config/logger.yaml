@@ -1,7 +1,7 @@
 # Logger Configuration
 
 # Minimum level of messages to write to stdout.
-consoleLevel: 1
+consoleLevel: 0
 
 # Sources of logs to suppress.
 consoleFilter:

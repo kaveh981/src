@@ -13,7 +13,7 @@ const authConfig = config.get('auth');
  */
 function PublicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
     if (!authConfig['public'] && (!req.ixmBuyerInfo || !req.ixmBuyerInfo.userID)) {
-        res.sendError(401, '401_PRIVATE');
+        res.sendError('401_PRIVATE');
     } else {
         next();
     }
