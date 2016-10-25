@@ -231,6 +231,56 @@ class DatabasePopulator {
         return newProposal;
 
     }
+    
+     /**
+     * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmDealNegotiations",
+     * "Viper2.ixmDealNegotiations".
+     * @param proposalID {int} - proposalID of the proposal being negotiated
+     * @param publisherID {int} - publisherID to whom the proposal belongs to
+     * @param buyerID {int} - buyerID of buyer negotiating with publisher
+     * @returns {Promise<IDealNegotiationData>} - Promise which resolves with object of new section data
+     */
+    public async createDealNegotiation (proposalID: number, publisherID: number, buyerID: number, optionalFields?: IDealNegotiationData) {
+
+        let newDealNegotiationData = this.generateDataObject<IDealNegotiationData>('new-negotiation-schema');
+
+        if (optionalFields) {
+            Object.assign(newDealNegotiationData, optionalFields);
+        }
+
+        newDealNegotiationData.proposalID = proposalID;
+        newDealNegotiationData.publisherID = publisherID;
+        newDealNegotiationData.buyerID = buyerID;
+        Log.debug(`updated fields`);
+
+        let newDealNegotiationIds;
+
+        try {
+            newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
+            newDealNegotiationData.negotiationID = newDealNegotiationIds[0];
+            Log.debug('NegotiationID is ' + newDealNegotiationData.negotiationID);
+        } catch (err) {
+            Log.trace(err);
+            return;
+        }
+
+        let selection;
+        try {
+            selection = await this.dbm.select('modifyDate').from('ixmDealNegotiations')
+                                        .where('negotiationID', newDealNegotiationData.negotiationID);
+            newDealNegotiationData.modifyDate = selection[0].modifyDate;
+            Log.debug("modifyDate is " + newDealNegotiationData.modifyDate);
+        } catch (err) {
+            Log.trace(err);
+            return;
+        }
+
+        Log.debug(`updated modifyDate`);
+        Log.debug(`Created new negotiation, ID: ${newDealNegotiationData.negotiationID}`);
+
+        return newDealNegotiationData;
+
+    }
 
     /**
      * Maps a proposal to 1 or more sections.
