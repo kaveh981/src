@@ -135,11 +135,7 @@ function NegotiationDeals(router: express.Router): void {
 
             // Confirm that the proposal is available and belongs to this publisher
             let targetProposal: ProposedDealModel;
-            try {
-                targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-            } catch (e) {
-               Log.debug('Was not able to retrieve proposal associated with ID: ' + proposalID);
-            }
+            targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
             if (!targetProposal) {
                 throw HTTPError('404_PROPOSAL_NOT_FOUND');
@@ -195,11 +191,7 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NOT_FORSALE');
             }
 
-            try {
-                negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
-            } catch (e) {
-                Log.debug('Was not able to insert the new negotiation: ' + e);
-            }
+            await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
 
             Log.debug('Inserted the new negotiation with ID: ' + currentNegotiation.id);
             res.sendPayload(currentNegotiation.toPayload());
