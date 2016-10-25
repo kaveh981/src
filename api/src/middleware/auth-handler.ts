@@ -1,6 +1,5 @@
 'use strict';
 
-import * as Promise from 'bluebird';
 import * as express from 'express';
 
 import { ConfigLoader } from '../lib/config-loader';
@@ -18,41 +17,31 @@ const authConfig = config.get('auth');
 const Log = new Logger('AUTH');
 
 /** Verify if the token is legitimate, and is an IXM buyer */
-function verifyToken(token: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+async function verifyToken(token: string): Promise<string> {
 
         if (!Number(token)) {
-            resolve('401_NOT_IXMBUYER');
-            return;
+            return '401_NOT_IXMBUYER';
         }
 
         // Right now the "token" is just the user id.
-        userManager.fetchUserFromId(Number(token))
-            .then((userInfo) => {
-                // User not found or not an IXM buyer
-                if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
-                    resolve('401_NOT_IXMBUYER');
-                    return;
-                } else if (userInfo.status !== 'A') {
-                    resolve('401_NOT_ACTIVE');
-                    return;
-                }
+        let userInfo = await userManager.fetchUserFromId(Number(token));
 
-                resolve('OK');
-            })
-            .catch((err: Error) => {
-                Log.error(err);
-                throw err;
-            });
+        // User not found or not an IXM buyer
+        if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
+            return '401_NOT_IXMBUYER';
+        } else if (userInfo.status !== 'A') {
+            return '401_NOT_ACTIVE';
+        }
 
-    });
+        return 'OK';
+
 }
 
 /**
  * Temporary authentication handler. Simply extracts userId from the configured header and inserts into ixmBuyerInfo
  * if the userId corresponds to an ixmBuyer.
  */
-const AuthHandler = Promise.coroutine(function* (req: express.Request, res: express.Response, next: Function): any {
+async function AuthHandler (req: express.Request, res: express.Response, next: Function) {
 
     let accessToken = req.get(authConfig['header']);
 
@@ -61,15 +50,15 @@ const AuthHandler = Promise.coroutine(function* (req: express.Request, res: expr
         return;
     }
 
-    let verificationStatus = yield verifyToken(accessToken);
+    let verificationStatus = await verifyToken(accessToken);
 
     if (verificationStatus !== 'OK') {
         res.sendError(verificationStatus);
     } else {
-        req.ixmBuyerInfo = yield buyerManager.fetchBuyerFromId(Number(accessToken));
+        req.ixmBuyerInfo = await buyerManager.fetchBuyerFromId(Number(accessToken));
         next();
     }
 
-});
+}
 
 module.exports = () => { return AuthHandler; };
