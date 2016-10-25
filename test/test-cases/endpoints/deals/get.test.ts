@@ -38,7 +38,7 @@ async function createProposal(publisher: INewPubData) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
-    return Helper.proposalToPayload(proposal, publisher)
+    return Helper.proposalToPayload(proposal, publisher);
 }
 
 /** Generic Authentication Tests */

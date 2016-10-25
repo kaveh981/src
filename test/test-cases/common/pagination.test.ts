@@ -31,7 +31,7 @@ async function ATW_PAG_V01 (route: string, verb: string, setup: Function, create
     /** Test */
     let cases = [`'10'`, {10: true}, [10], true];
 
-    for(let limit of cases) {
+    for (let limit of cases) {
         let response = await apiRequest[verb](route, {'limit': limit}, buyer.user.userID);
 
         assert.equal(response.status, 400);
@@ -100,8 +100,8 @@ async function ATW_PAG_V03 (route: string, verb: string, setup: Function, create
         {input: 251, expect: {limit: 250, data: [entity1Payload, entity2Payload]}}
     ];
 
-    for(let caseObject of cases) {
-        let response = await apiRequest[verb](route, {'limit': caseObject.input}, buyer.user.userID);
+    for (let caseObject of cases) {
+        response = await apiRequest[verb](route, {'limit': caseObject.input}, buyer.user.userID);
 
         assert.equal(response.status, 200);
         assert.equal(response.body.data, caseObject.expect.data);
@@ -132,7 +132,7 @@ async function ATW_PAG_V04 (route: string, verb: string, setup: Function, create
     /** Test */
     let cases = [`'10'`, {10: true}, [10], true];
 
-    for(let offset of cases) {
+    for (let offset of cases) {
         let response = await apiRequest[verb](route, {'offset': offset}, buyer.user.userID);
 
         assert.equal(response.status, 400);
@@ -193,7 +193,7 @@ async function ATW_PAG_V06 (route: string, verb: string, setup: Function, create
         {input: 1, expect: {offset: 1, data: [entity2Payload]}}
     ];
 
-    for(let caseObject of cases) {
+    for (let caseObject of cases) {
         let response = await apiRequest[verb](route, {'offset': caseObject.input, 'limit': 1}, buyer.user.userID);
 
         assert.equal(response.status, 200);
