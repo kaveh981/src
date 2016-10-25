@@ -126,8 +126,21 @@ function NegotiationDeals(router: express.Router): void {
             Log.trace('BuyerID is: ' + buyerID);
         }
 
-        // Check whether there are negotiations started already between the users at stake
+        // Confirm that the proposal is available and belongs to this publisher
         let proposalID: number = req.body.proposal_id;
+        let targetProposal: ProposedDealModel;
+        targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!targetProposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Confirm that proposal is from the same publisher as negotiation request
+        if (targetProposal.ownerID !== publisherID) {
+            throw HTTPError('403_BAD_PROPOSAL');
+        }
+
+        // Check whether there are negotiations started already between the users at stake
         let currentNegotiation: NegotiatedDealModel =
             await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
 
@@ -137,19 +150,6 @@ function NegotiationDeals(router: express.Router): void {
             // Only buyers can start a negotiation
             if (userType === 'publisher') {
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
-            }
-
-            // Confirm that the proposal is available and belongs to this publisher
-            let targetProposal: ProposedDealModel;
-            targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-
-            if (!targetProposal) {
-                throw HTTPError('404_PROPOSAL_NOT_FOUND');
-            }
-
-            // Confirm that proposal is from the same publisher as negotiation request
-            if (targetProposal.ownerID !== publisherID) {
-                throw HTTPError('403_BAD_PROPOSAL');
             }
 
             // Build the negotiation object with the core fields
