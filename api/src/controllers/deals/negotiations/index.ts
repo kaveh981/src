@@ -77,27 +77,30 @@ function NegotiationDeals(router: express.Router): void {
 
         let responseType: string;
         // Sanitize data: response is validated case-insensitively and by trailing spaces
-        if (req.body.hasOwnProperty('response')) {
-            req.body.response = req.body.response.trim().toLowerCase();
+        negotiationOrResponse:
+            if (req.body.hasOwnProperty('response')) {
+                req.body.response = req.body.response.trim().toLowerCase();
 
-            // There cannot be negotiation fields along with a response to an offer
-            for (let key in req.body) {
-                if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
-                    throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field');
+                // There cannot be negotiation fields along with a response to an offer
+                for (let key in req.body) {
+                    if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
+                        throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field');
+                    }
                 }
-            }
-            responseType = req.body.response;
-        } else {
-            responseType = 'counter-offer';
-            for (let key in req.body) {
-                if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
-                    break;
+                responseType = req.body.response;
+                Log.trace('User is sending a response: ' + responseType);
+            } else {
+                responseType = 'counter-offer';
+                Log.trace('User is sending a counter-offer');
+                for (let key in req.body) {
+                    if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
+                        break negotiationOrResponse;
+                    }
                 }
-            }
 
-            // If there is no other field beyond partner_id and proposal_id, then the request is invalid
-            throw HTTPError('400', 'At least 1 negotiation or the "Response" field must be provided.');
-        }
+                // If there is no other field beyond partner_id and proposal_id, then the request is invalid
+                throw HTTPError('400', 'At least 1 negotiation or the "response" field must be provided.');
+            }
 
         // Validate the request's parameters syntax
         let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
@@ -112,12 +115,15 @@ function NegotiationDeals(router: express.Router): void {
         let publisherID: number;
 
         if (userType === 'publisher') {
+            Log.trace('User is a publisher');
             buyerID = req.body.partner_id;
             publisherID = Number(req.ixmBuyerInfo.userID);
         } else {
+            Log.trace('User is a buyer');
             // Route is protected so at this stage we already know that user is either a publisher or a buyer
             buyerID = Number(req.ixmBuyerInfo.userID);
             publisherID = req.body.partner_id;
+            Log.trace('BuyerID is: ' + buyerID);
         }
 
         // Check whether there are negotiations started already between the users at stake
@@ -148,8 +154,8 @@ function NegotiationDeals(router: express.Router): void {
 
             // Build the negotiation object with the core fields
             currentNegotiation = new NegotiatedDealModel({
-                buyerID: this.buyerID,
-                publisherID: this.publisherID,
+                'buyerID': buyerID,
+                'publisherID': publisherID,
                 publisherStatus: 'active',
                 buyerStatus: 'active',
                 sender: 'buyer',
@@ -159,24 +165,25 @@ function NegotiationDeals(router: express.Router): void {
             // Populate the negotiation fields
             for (let key in req.body) {
                 if (req.body.hasOwnProperty(key)) {
+                    Log.trace('Found key: ' + key + ' with value: ' + req.body[key]);
                     switch (key) {
                         case 'start_date':
-                            currentNegotiation.startDate = req.body.key;
+                            currentNegotiation.startDate = req.body[key];
                             break;
                         case 'end_date':
-                            currentNegotiation.endDate = req.body.key;
+                            currentNegotiation.endDate = req.body[key];
                             break;
                         case 'price':
-                            currentNegotiation.price = req.body.key;
+                            currentNegotiation.price = req.body[key];
                             break;
                         case 'impressions':
-                            currentNegotiation.impressions = req.body.key;
+                            currentNegotiation.impressions = req.body[key];
                             break;
                         case 'budget':
-                            currentNegotiation.budget = req.body.key;
+                            currentNegotiation.budget = req.body[key];
                             break;
                         case 'terms':
-                            currentNegotiation.terms = req.body.key;
+                            currentNegotiation.terms = req.body[key];
                             break;
                         default:
                             // This is not a negotiation field, nothing to do
@@ -191,6 +198,9 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NOT_FORSALE');
             }
 
+            currentNegotiation.publisherInfo = owner;
+            let buyer = await userManager.fetchUserFromId(buyerID);
+            currentNegotiation.buyerInfo = buyer;
             await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
 
             Log.debug('Inserted the new negotiation with ID: ' + currentNegotiation.id);
