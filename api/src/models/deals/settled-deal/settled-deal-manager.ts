@@ -73,8 +73,8 @@ class SettledDealManager {
                 .from('ixmDealNegotiations')
                 .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
                 .where('ixmDealNegotiations.buyerID', buyerID)
-                .limit(Number(pagination.limit))
-                .offset(Number(pagination.offset))
+                .limit(pagination.limit)
+                .offset(pagination.offset)
             .then((rows) => {
                 return Promise.map(rows, (row: any) => {
                     return this.fetchSettledDealFromIds(row.proposalID, buyerID, row.publisherID);
