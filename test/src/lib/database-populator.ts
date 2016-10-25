@@ -231,7 +231,7 @@ class DatabasePopulator {
         return newProposal;
 
     }
-    
+
      /**
      * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmDealNegotiations",
      * "Viper2.ixmDealNegotiations".
