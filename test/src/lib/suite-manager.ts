@@ -53,7 +53,7 @@ class SuiteManager {
 
                     if (Array.isArray(exported)) {
                         exported.forEach((testFunction: ITestCaseFunction, i) => {
-                            let testCase = new TestManager(`${testName}_${i}`, testFunction);
+                            let testCase = new TestManager(`${testName}_${('0' + (i + 1)).slice(-2)}`, testFunction);
                             this.testCases.push(testCase);
                         }, this);
                     } else {

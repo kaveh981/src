@@ -1,6 +1,5 @@
 'use strict';
 
-import * as Promise from 'bluebird';
 import * as crypto from 'crypto';
 
 import { SettledDealModel } from './settled-deal-model';
@@ -35,9 +34,9 @@ class SettledDealManager {
      * @param publisherID - The id of the publisher for the settled deal.
      * @returns A promise for the settled deal object.
      */
-    public fetchSettledDealFromIds = Promise.coroutine(function* (proposalID: number, buyerID: number, publisherID: number) {
+    public async fetchSettledDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<SettledDealModel> {
 
-        let rows = yield this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
+        let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                     'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID', 'createDate', 'modifyDate')
                 .from('rtbDeals')
                 .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
@@ -52,12 +51,12 @@ class SettledDealManager {
 
         let settledDealObject = new SettledDealModel(rows[0]);
 
-        settledDealObject.negotiatedDeal = yield this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+        settledDealObject.negotiatedDeal = await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         settledDealObject.status = this.statusLetterToWord(settledDealObject.status);
 
         return settledDealObject;
 
-    }.bind(this)) as (proposalID: number, buyerID: number, publisherID: number) => Promise<SettledDealModel>;
+    }
 
     /**
      * Get all settled deals with the given buyer.
@@ -65,21 +64,23 @@ class SettledDealManager {
      * @param pagination - The pagination parameters.
      * @returns A promise for the settled deals with the given buyer.
      */
-    public fetchSettledDealsFromBuyerId(buyerID: number, pagination: any): Promise<SettledDealModel[]> {
+    public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: any): Promise<SettledDealModel[]> {
 
-        let settledDeals: SettledDealModel[];
+        let settledDeals: SettledDealModel[] = [];
 
-        return this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
+        let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
                 .from('ixmDealNegotiations')
                 .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
                 .where('ixmDealNegotiations.buyerID', buyerID)
-                .limit(Number(pagination.limit))
-                .offset(Number(pagination.offset))
-            .then((rows) => {
-                return Promise.map(rows, (row: any) => {
-                    return this.fetchSettledDealFromIds(row.proposalID, buyerID, row.publisherID);
-                });
-            });
+                .limit(pagination.limit)
+                .offset(pagination.offset);
+
+        for (let i = 0; i < rows.length; i++) {
+            let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
+            settledDeals.push(deal);
+        }
+
+        return settledDeals;
 
     }
 
@@ -107,7 +108,7 @@ class SettledDealManager {
      * Insert a new settled deal into the database, fails if the settled deal already has an id or else populates the id.
      * @param settledDeal - The settled deal to insert.
      */
-    public insertSettledDeal = Promise.coroutine(function* (settledDeal: SettledDealModel) {
+    public async insertSettledDeal(settledDeal: SettledDealModel) {
 
         if (settledDeal.id) {
             throw new Error('A deal with that id already exists.');
@@ -125,9 +126,9 @@ class SettledDealManager {
         let proposedDeal = negotiatedDeal.proposedDeal;
 
         // Begin a database transaction.
-        yield this.databaseManager.transaction(Promise.coroutine(function* (trx) {
+        await this.databaseManager.transaction(async (trx) => {
 
-            yield trx.insert({
+            await trx.insert({
                 userID: proposedDeal.ownerID,
                 dspID: settledDeal.dspID,
                 name: proposedDeal.name,
@@ -144,28 +145,28 @@ class SettledDealManager {
             }).into('rtbDeals');
 
             // Get newly created deal id
-            let dealID = (yield trx.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
+            let dealID = (await trx.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
 
             settledDeal.id = dealID;
             settledDeal.externalDealID = externalDealID;
 
             // Insert into deal section mapping
             for (let i = 0; i < proposedDeal.sections.length; i++) {
-                yield trx.insert({
+                await trx.insert({
                     dealID: dealID,
                     sectionID: proposedDeal.sections[i]
                 }).into('rtbDealSections');
             }
 
             // Insert proposal deal mapping
-            yield trx.insert({
+            await trx.insert({
                 negotiationID: negotiatedDeal.id,
                 dealID: dealID
             }).into('ixmNegotiationDealMappings');
 
-        }.bind(this)));
+        });
 
-    }.bind(this)) as (settledDeal: SettledDealModel) => void;
+    }
 
     /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)

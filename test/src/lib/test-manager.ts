@@ -55,19 +55,19 @@ class TestManager {
     private upgradeTapeObject(assert: test.Test) {
 
         // Improve the tape deep equals by adding the location of difference.
-        assert.deepEqual = function(a: any, b: any) {
+        assert.deepEqual = function(actualObject: any, expectedObject: any, message?: string) {
 
-            let deepDifference = deep.diff(a, b) || [];
+            let deepDifference = deep.diff(expectedObject, actualObject) || [];
 
             this._assert(deepDifference.length === 0, {
-                message: 'Both objects should be identical.',
+                message: message || 'Both objects should be identical.',
                 operator: 'deepEquals',
-                expected: JSON.stringify(a),
-                actual: JSON.stringify(b),
+                expected: JSON.stringify(expectedObject),
+                actual: JSON.stringify(actualObject),
             });
 
             console.log(deepDifference.map((diff) => {
-                        return `Error at: ${diff.path.join(' -> ')}. Expected '${diff.lhs}' got '${diff.rhs}'.`;
+                        return `Error at: ${diff.path && diff.path.join(' -> ')}. Expected '${diff.lhs}' got '${diff.rhs}'.`;
                     }).join('\n'));
 
         };
