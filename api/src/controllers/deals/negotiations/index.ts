@@ -84,7 +84,7 @@ function NegotiationDeals(router: express.Router): void {
                 // There cannot be negotiation fields along with a response to an offer
                 for (let key in req.body) {
                     if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
-                        throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field');
+                        throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field, found field ' + key);
                     }
                 }
                 responseType = req.body.response;
@@ -137,6 +137,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Confirm that proposal is from the same publisher as negotiation request
         if (targetProposal.ownerID !== publisherID) {
+            Log.debug('Proposal belongs to ' + targetProposal.ownerID + ', not to sent ' + publisherID);
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
@@ -195,6 +196,7 @@ function NegotiationDeals(router: express.Router): void {
             // Check that the proposal is available for purchase
             let owner = await userManager.fetchUserFromId(targetProposal.ownerID);
             if (!targetProposal.isAvailable() || !(owner.status === 'A')) {
+                Log.debug('Proposal is not available for sale');
                 throw HTTPError('403_NOT_FORSALE');
             }
 
