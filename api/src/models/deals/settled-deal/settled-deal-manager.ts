@@ -119,7 +119,8 @@ class SettledDealManager {
         if (settledDeal.externalDealID) {
             externalDealID = settledDeal.externalDealID;
         } else {
-            externalDealID = `ixm-${settledDeal.negotiatedDeal.proposedDeal.id}-${this.encrypt(settledDeal.negotiatedDeal.buyerID)}`;
+            externalDealID =
+                `ixm-${settledDeal.negotiatedDeal.proposedDeal.id}-${this.encrypt(settledDeal.negotiatedDeal.buyerID.toString())}`;
         }
 
         let negotiatedDeal = settledDeal.negotiatedDeal;
@@ -204,7 +205,7 @@ class SettledDealManager {
      * @param status - The letter to convert.
      * @returns The word.
      */
-    private statusLetterToWord(status: string) {
+    private statusLetterToWord(status: string): 'active' | 'deleted' | 'paused' {
         switch (status) {
             case 'A':
                 return 'active';
@@ -213,7 +214,7 @@ class SettledDealManager {
             case 'P':
                 return 'paused';
             default:
-                return status;
+                return;
         }
     }
 
