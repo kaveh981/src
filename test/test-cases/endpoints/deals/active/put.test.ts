@@ -27,7 +27,13 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 }
 
-/** Generic Authentication Tests */
+ /*
+ * @case    - The buyer attempts to authenticate.
+ * @expect  - Authentication tests to pass.
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - get, deals, auth
+ */
 export let IXM_API_DEALS_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetup);
 
  /*
@@ -37,7 +43,7 @@ export let IXM_API_DEALS_PUT_AUTH = authenticationTest(route, 'put', commonDatab
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V1 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -104,7 +110,7 @@ export async function IXM_API_DEALS_PUT_V1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V2 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -132,7 +138,7 @@ export async function IXM_API_DEALS_PUT_V2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V3 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_03 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -154,7 +160,7 @@ export async function IXM_API_DEALS_PUT_V3 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V4 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_04 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -180,7 +186,7 @@ export async function IXM_API_DEALS_PUT_V4 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V5 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_05 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -206,7 +212,7 @@ export async function IXM_API_DEALS_PUT_V5 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V6 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_06 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -233,7 +239,7 @@ export async function IXM_API_DEALS_PUT_V6 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V7 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_07 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -261,7 +267,7 @@ export async function IXM_API_DEALS_PUT_V7 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V8 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_08 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -288,7 +294,7 @@ export async function IXM_API_DEALS_PUT_V8 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V9 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_09 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -316,7 +322,7 @@ export async function IXM_API_DEALS_PUT_V9 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V10 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_10 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -344,7 +350,7 @@ export async function IXM_API_DEALS_PUT_V10 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V11 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_11 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -375,7 +381,7 @@ export async function IXM_API_DEALS_PUT_V11 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V12 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_12 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -406,7 +412,7 @@ export async function IXM_API_DEALS_PUT_V12 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V13 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_13 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -436,7 +442,7 @@ export async function IXM_API_DEALS_PUT_V13 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_V14 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_14 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -466,7 +472,7 @@ export async function IXM_API_DEALS_PUT_V14 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals, sites
  */
-export async function IXM_API_DEALS_PUT_V15 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_15 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -495,7 +501,7 @@ export async function IXM_API_DEALS_PUT_V15 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals, sites
  */
-export async function IXM_API_DEALS_PUT_V16 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_16 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);

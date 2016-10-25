@@ -24,8 +24,14 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 }
 
-/** Generic Authentication Tests */
-export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+ /*
+ * @case    - The buyer attempts to authenticate.
+ * @expect  - Authentication tests to pass.
+ * @route   - GET deals
+ * @status  - working
+ * @tags    - get, deals, auth
+ */
+export let IXM_API_DEALS_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
 
  /*
  * @case    - The buyer sends a GET request to view active proposals.
@@ -34,7 +40,7 @@ export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetu
  * @status  - working
  * @tags    - get, deals
  */
-export async function IXM_API_DEALS_GET_V1 (assert: test.Test) {
+export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
