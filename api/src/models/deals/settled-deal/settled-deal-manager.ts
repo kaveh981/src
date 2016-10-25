@@ -75,7 +75,6 @@ class SettledDealManager {
                 .limit(pagination.limit)
                 .offset(pagination.offset);
 
-
         for (let i = 0; i < rows.length; i++) {
             let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
             settledDeals.push(deal);
