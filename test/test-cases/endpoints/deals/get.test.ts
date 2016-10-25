@@ -3,6 +3,7 @@
 import * as test from 'tape';
 
 import { authenticationTest } from '../../common/auth.test';
+import { paginationTest } from '../../common/pagination.test';
 
 import { Injector } from '../../../src/lib/injector';
 import { APIRequestManager } from '../../../src/lib/request-manager';
@@ -15,7 +16,7 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 /** Test constants */
 const route = 'deals';
 
-async function commonDatabaseSetup() {
+async function authDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -24,14 +25,41 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 }
 
- /*
+async function paginationDatabaseSetup() {
+    let dsp = await databasePopulator.createDSP(123);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+}
+
+async function createProposal(publisher: INewPubData) {
+    if (typeof publisher === 'undefined') {
+        publisher = await databasePopulator.createPublisher();
+    }
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+    return Helper.proposalToPayload(proposal, publisher);
+}
+
+/*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
  * @route   - GET deals
  * @status  - working
  * @tags    - get, deals, auth
  */
-export let IXM_API_DEALS_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+/** Generic Authentication Tests */
+export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup);
+
+/*
+ * @case    - Different pagination parameters are attempted.
+ * @expect  - Pagination tests to pass.
+ * @route   - GET deals
+ * @status  - working
+ * @tags    - get, deals, auth
+ */
+/** Generic Pagination Tests */
+export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup, createProposal);
 
  /*
  * @case    - The buyer sends a GET request to view active proposals.
