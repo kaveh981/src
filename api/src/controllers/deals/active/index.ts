@@ -104,6 +104,7 @@ function ActiveDeals(router: express.Router): void {
             }
         }
 
+        // TODO ATW-382 Both INSERTs should happen in a transaction
         // Create a new negotiation
         let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
         await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
