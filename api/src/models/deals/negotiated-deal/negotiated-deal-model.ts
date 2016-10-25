@@ -73,33 +73,24 @@ class NegotiatedDealModel {
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
 
-        let optionalProperties: string[] = [ 'terms', 'impressions', 'budget', 'startDate', 'endDate', 'price'];
-        for (let key in optionalProperties) {
-            if (this.hasOwnProperty(key)) {
-                switch (key) {
-                    case 'terms':
-                        payload.terms = this.terms;
-                        break;
-                    case 'impressions':
-                        payload.impressions = this.impressions;
-                        break
-                    case 'budget':
-                        payload.budget = this.budget;
-                        break;
-                    case 'price':
-                        payload.price = this.price;
-                        break;
-                    case 'startDate':
-                        payload.start_date = this.formatDate(this.startDate);
-                        break;
-                    case 'endDate':
-                        payload.end_date = this.formatDate(this.endDate);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
+        if (this.terms) {
+            payload.terms = this.terms;
+        }
+        if (this.impressions) {
+            payload.impressions = this.impressions;
+        }
+        if (this.budget) {
+            payload.budget = this.budget;
+        }
+        if (this.price) {
+            payload.price = this.price;
+        }
+        if (this.startDate) {
+            payload.start_date = this.formatDate(this.startDate);
+        }
+        if (this.endDate) {
+            payload.end_date = this.formatDate(this.endDate);
+        }
 
         return payload;
     }
