@@ -11,12 +11,11 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
 /*
  * @case    - Limit is non-int
- * @label   - ATW_PAG_V01
- * @route   - Any GET routes
+ * @expect  - 400 - TYPE_INT_INVALID
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V01 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_01 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -41,12 +40,11 @@ async function ATW_PAG_V01 (route: string, verb: string, setup: Function, create
 
 /*
  * @case    - limit is less than 1
- * @label   - ATW_PAG_V02
- * @route   - Any GET route
+ * @expect  - 400 - TYPE_NUMB_TOO_SMALL
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V02 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_02 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -67,12 +65,11 @@ async function ATW_PAG_V02 (route: string, verb: string, setup: Function, create
 
 /*
  * @case    - limit is within the permitted values
- * @label   - ATW_PAG_V03
- * @route   - Any GET route
+ * @expect  - 200 - the correct proposals is fetched, limit returned in the response is correct
  * @status  - failing ("expected" date incorrect, limit type from response is incorrect - should be int instead of string)
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(15);
@@ -112,12 +109,11 @@ async function ATW_PAG_V03 (route: string, verb: string, setup: Function, create
 
 /*
  * @case    - offset is non-int
- * @label   - ATW_PAG_V04
- * @route   - Any GET route
+ * @expect  - 400 - TYPE_INT_INVALID
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V04 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_04 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -142,12 +138,11 @@ async function ATW_PAG_V04 (route: string, verb: string, setup: Function, create
 
 /*
  * @case    - offset is less than 0
- * @label   - ATW_PAG_V05
- * @route   - Any GET route
+ * @expect  - 400 - TYPE_NUMB_TOO_SMALL
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V05 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_05 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -168,12 +163,11 @@ async function ATW_PAG_V05 (route: string, verb: string, setup: Function, create
 
 /*
  * @case    - offset is within the permitted values
- * @label   - ATW_PAG_V06
- * @route   - Any GET route
+ * @expect  - 200 - the correct proposal is fetched, offset returned in the response is correct
  * @status  - failing ("expected" date incorrect, offset type from response is incorrect - should be int instead of string)
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_V06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -208,12 +202,12 @@ async function ATW_PAG_V06 (route: string, verb: string, setup: Function, create
  */
 function paginationTest(route: string, verb: string, setup: Function, createEntity: Function) {
     return [
-        (assert: test.Test) => { return ATW_PAG_V01(route, verb, setup, createEntity, assert); },
-        (assert: test.Test) => { return ATW_PAG_V02(route, verb, setup, createEntity, assert); },
-        (assert: test.Test) => { return ATW_PAG_V03(route, verb, setup, createEntity, assert); },
-        (assert: test.Test) => { return ATW_PAG_V04(route, verb, setup, createEntity, assert); },
-        (assert: test.Test) => { return ATW_PAG_V05(route, verb, setup, createEntity, assert); },
-        (assert: test.Test) => { return ATW_PAG_V06(route, verb, setup, createEntity, assert); }
+        (assert: test.Test) => { return ATW_PAG_01(route, verb, setup, createEntity, assert); },
+        (assert: test.Test) => { return ATW_PAG_02(route, verb, setup, createEntity, assert); },
+        (assert: test.Test) => { return ATW_PAG_03(route, verb, setup, createEntity, assert); },
+        (assert: test.Test) => { return ATW_PAG_04(route, verb, setup, createEntity, assert); },
+        (assert: test.Test) => { return ATW_PAG_05(route, verb, setup, createEntity, assert); },
+        (assert: test.Test) => { return ATW_PAG_06(route, verb, setup, createEntity, assert); }
     ];
 }
 

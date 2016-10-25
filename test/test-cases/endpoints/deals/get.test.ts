@@ -41,11 +41,26 @@ async function createProposal(publisher: INewPubData) {
     return Helper.proposalToPayload(proposal, publisher);
 }
 
+/*
+ * @case    - The buyer attempts to authenticate.
+ * @expect  - Authentication tests to pass.
+ * @route   - GET deals
+ * @status  - working
+ * @tags    - get, deals, auth
+ */
 /** Generic Authentication Tests */
 export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup);
 
+/*
+ * @case    - Different pagination parameters are attempted.
+ * @expect  - Pagination tests to pass.
+ * @route   - GET deals
+ * @status  - working
+ * @tags    - get, deals, auth
+ */
 /** Generic Pagination Tests */
 export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup, createProposal);
+
 
  /*
  * @case    - The buyer sends a GET request to view active proposals.
@@ -54,7 +69,7 @@ export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup
  * @status  - working
  * @tags    - get, deals
  */
-export async function IXM_API_DEALS_GET_V1 (assert: test.Test) {
+export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);

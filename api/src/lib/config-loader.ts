@@ -29,11 +29,11 @@ class ConfigLoader {
      * @param variable - The name of the environment variable to get.
      * @returns The value of the environment variable requested. Throws error if it is not configured.
      */
-    public getVar(variable: string): string {
+    public getVar(variable: string, optional?: boolean): string {
         let value: string = process.env[variable];
 
-        if (!value) {
-            throw `Environment variable "${variable}" has not been configured.`;
+        if (!value && !optional) {
+            throw new Error(`Environment variable "${variable}" has not been configured.`);
         }
 
         return value;
