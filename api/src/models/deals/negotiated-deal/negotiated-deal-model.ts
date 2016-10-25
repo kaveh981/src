@@ -60,26 +60,48 @@ class NegotiatedDealModel {
      * Return payload formated object
      */
     public toPayload(): any {
-        return {
-            proposal_id: this.proposedDeal.id,
-            publisher_id: this.publisherID,
+        let payload: any = {
             publisher_contact: this.publisherInfo.toContactPayload(),
             buyer_id: this.buyerID,
             buyer_contact: this.buyerInfo.toContactPayload(),
             description: this.proposedDeal.description,
-            terms: this.terms,
-            impressions: this.impressions,
-            budget: this.budget,
             name: this.proposedDeal.name,
-            start_date: this.formatDate(this.startDate),
-            end_date: this.formatDate(this.endDate),
             auction_type: this.proposedDeal.auctionType,
-            price: this.price,
             deal_section_id: this.proposedDeal.sections,
             currency: this.proposedDeal.currency,
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
+
+        let optionalProperties: string[] = [ 'terms', 'impressions', 'budget', 'startDate', 'endDate', 'price'];
+        for (let key in optionalProperties) {
+            if (this.hasOwnProperty(key)) {
+                switch (key) {
+                    case 'terms':
+                        payload.terms = this.terms;
+                        break;
+                    case 'impressions':
+                        payload.impressions = this.impressions;
+                        break
+                    case 'budget':
+                        payload.budget = this.budget;
+                        break;
+                    case 'price':
+                        payload.price = this.price;
+                        break;
+                    case 'startDate':
+                        payload.start_date = this.formatDate(this.startDate);
+                        break;
+                    case 'endDate':
+                        payload.end_date = this.formatDate(this.endDate);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
+        return payload;
     }
 
     /** 
