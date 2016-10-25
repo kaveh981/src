@@ -7,7 +7,7 @@ class SettledDealModel {
     /** Id for the deal in rtbDeals */
     public id: number;
     /** Status of the deal in rtbDeals */
-    public status: 'active' | 'paused' | 'removed' | 'goosed';
+    public status: 'active' | 'paused' | 'deleted';
     /** External deal id for the deal */
     public externalDealID: string;
     /** The dsp ID corresponding to this deal */
