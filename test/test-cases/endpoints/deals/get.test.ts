@@ -61,7 +61,6 @@ export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup)
 /** Generic Pagination Tests */
 export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup, createProposal);
 
-
  /*
  * @case    - The buyer sends a GET request to view active proposals.
  * @expect  - The buyer should receive the defined proposal.
