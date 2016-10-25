@@ -98,6 +98,12 @@ class NegotiatedDealManager {
             throw new Error('A negotiated deal with that id already exists.');
         }
 
+        // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
+        if (!negotiatedDeal.createDate) {
+            let date: Date = new Date()
+            negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
+        }
+
         yield this.databaseManager.insert({
             proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
@@ -116,12 +122,14 @@ class NegotiatedDealManager {
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
-        let negotiationId = (yield this.databaseManager.select('negotiationID').from('ixmDealNegotiations')
-                                      .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                      .andWhere('buyerID', negotiatedDeal.buyerID)
-                                      .andWhere('publisherID', negotiatedDeal.publisherID))[0].negotiationID;
+        let negotiationInserted = (yield this.databaseManager.select('negotiationID','modifyDate')
+                                                             .from('ixmDealNegotiations')
+                                                             .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                             .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                             .andWhere('publisherID', negotiatedDeal.publisherID))[0];
 
-        negotiatedDeal.id = negotiationId;
+        negotiatedDeal.id = negotiationInserted.negotiationID;
+        negotiatedDeal.modifyDate = negotiationInserted.modifyDate;
 
     }) as (negotiatedDeal: NegotiatedDealModel) => void;
 
