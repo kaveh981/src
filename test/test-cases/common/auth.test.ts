@@ -18,7 +18,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V1 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_01 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -42,7 +42,7 @@ async function ATW_AUTH_V1 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - get,auth,buyer
  */
-async function ATW_AUTH_V2 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -64,7 +64,7 @@ async function ATW_AUTH_V2 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V3 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -84,7 +84,7 @@ async function ATW_AUTH_V3 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_V4 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -103,10 +103,10 @@ async function ATW_AUTH_V4 (route: string, verb: string, setup: Function, assert
  */
 function authenticationTest(route: string, verb: string, setup: Function) {
     return [
-        (assert: test.Test) => { return ATW_AUTH_V1(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V2(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V3(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_V4(route, verb, setup, assert); }
+        (assert: test.Test) => { return ATW_AUTH_01(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_02(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_03(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_04(route, verb, setup, assert); }
     ];
 }
 
