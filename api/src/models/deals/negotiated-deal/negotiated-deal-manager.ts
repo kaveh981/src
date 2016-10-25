@@ -166,6 +166,46 @@ class NegotiatedDealManager {
     }
 
     /**
+     * Update a negotiation with new parameters sent in the request
+     * @param negotiatedDealID - The negotiation that needs updating.
+     * @param userType- Whether the user changing status is the publisher or the buyer.
+     * @param responseType - Whether this is a counter offer or a rejection/ final acceptance.
+     * @param negotiatedFields - The negotiated fields being updated. May be "response" if user is accepting/rejecting.
+     * @param otherPartyStatus - Other party's status - if it is rejected, then it should not be changed
+     */
+    public updateNegotiatedDeal = Promise.coroutine(function* (negotiatedDealID: number, userType: string, responseType: string,
+        negotiatedFields: any, otherPartyStatus: string) {
+
+        negotiatedFields.sender = userType;
+        // If the user does not reject, then he's Ok with the offer
+        let newStatus: string = responseType === 'reject' ? 'rejected' : 'accepted';
+
+        if (userType === 'buyer') {
+            negotiatedFields.buyerStatus = newStatus;
+            if (otherPartyStatus !== 'rejected') {
+                negotiatedFields.publisherStatus = 'active';
+            }
+
+        } else {
+            negotiatedFields.publisherStatus = newStatus;
+            if (otherPartyStatus !== 'rejected') {
+                negotiatedFields.buyerStatus = 'active';
+            }
+        }
+
+        yield this.databaseManager('ixmDealNegotiations')
+                    .where('negotiationID', '=', negotiatedDealID)
+                    .update(negotiatedFields);
+
+        // Get the new modifyDate
+        return (yield this.databaseManager.select('modifyDate')
+                                                             .from('ixmDealNegotiations')
+                                                             .where('proposalID', negotiatedDealID))[0].modifyDate;
+
+    }) as (negotiatedDealID: number, userType: string, responseType: string, negotiatedFields: any, otherPartyStatus: string) => string;
+
+
+    /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
      * @param date - The date in ISO format
      * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss

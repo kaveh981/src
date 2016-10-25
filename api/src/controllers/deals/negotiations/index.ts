@@ -12,12 +12,15 @@ import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
+import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
+import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
 import { UserModel } from '../../../models/user/user-model';
 import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
-const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
+const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
+const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
@@ -209,32 +212,102 @@ function NegotiationDeals(router: express.Router): void {
             res.sendPayload(currentNegotiation.toPayload());
 
         } else {
-/** FUTURE
 
-            // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
-            let dealNegotiation: NegotiatedDealModel =
-                    await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
-
-            if (dealNegotiation) {
-                if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
-                    throw HTTPError('403_PROPOSAL_BOUGHT');
-
-                } else if (dealNegotiation.buyerStatus !== 'rejected' && dealNegotiation.publisherStatus !== 'rejected') {
-                    throw HTTPError('403_PROPOSAL_IN_NEGOTIATION');
-                }
+            // Check if last offerer is same as current
+            let otherPartyStatus: string = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
+            if (currentNegotiation.sender === userType && otherPartyStatus !== 'rejected') {
+                throw HTTPError('403_OUT_OF_TURN');
             }
 
-            // Create a new negotiation
-            let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
-            await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
+            // Check that proposal has not been bought yet
+            if (currentNegotiation.buyerStatus === 'accepted' && currentNegotiation.publisherStatus === 'accepted') {
+                throw HTTPError('403_PROPOSAL_BOUGHT');
+            }
 
-            // Create the settled deal
-            let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
-            let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
-            await settledDealManager.insertSettledDeal(settledDeal);
+            // If user rejects the negotiation, there is nothing more to do:
+            if (responseType === 'reject') {
+                Log.debug('User is rejecting the negotiation');
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
+                    { }, otherPartyStatus);
+                res.sendPayload(currentNegotiation.toPayload());
+            } else if (responseType === 'accept') {
+                Log.debug('User is rejecting the negotiation');
 
-            res.sendPayload(settledDeal.toPayload());
-*/
+                // Confirm that the other party hasn't closed the deal
+                if (otherPartyStatus === 'rejected') {
+                    throw HTTPError('403_OTHER_REJECTED');
+                }
+
+                // Finalize the negotiation and create the settled deal
+                // TODO: this belongs in a transaction
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
+                    { }, otherPartyStatus);
+                Log.debug('Negotiation updated');
+                let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
+                let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
+                await settledDealManager.insertSettledDeal(settledDeal);
+                Log.debug('New deal created with id: ' + settledDeal.id);
+
+                res.sendPayload(settledDeal.toPayload());
+            }
+            else {
+
+                // This is a negotiation, let's populate the relevant fields and confirm there exists at least 1 difference
+                let negotiationFields: any = { };
+                let hasDifferentField: boolean = false;
+
+                for (let key in req.body) {
+                    if (req.body.hasOwnProperty(key)) {
+                        switch (key) {
+                            case 'start_date':
+                                negotiationFields.startDate = req.body[key];
+                                if ( negotiationFields.startDate !== currentNegotiation.startDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            case 'end_date':
+                                negotiationFields.endDate = req.body[key];
+                                if ( negotiationFields.endDate !== currentNegotiation.endDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            case 'price':
+                                negotiationFields.price = req.body[key];
+                                if ( negotiationFields.price !== currentNegotiation.startDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            case 'impressions':
+                                negotiationFields.impressions = req.body[key];
+                                if ( negotiationFields.impressions !== currentNegotiation.startDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            case 'budget':
+                                negotiationFields.budget = req.body[key];
+                                if ( negotiationFields.budget !== currentNegotiation.startDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            case 'terms':
+                                negotiationFields.terms = req.body[key];
+                                if ( negotiationFields.terms !== currentNegotiation.startDate ) {
+                                    hasDifferentField = true;
+                                }
+                                break;
+                            default:
+                                // This is not a negotiation field, nothing to do
+                                break;
+                        }
+                    }
+                }
+
+                // Update the negotiation
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
+                    negotiationFields, otherPartyStatus);
+                res.sendPayload(currentNegotiation.toPayload());
+            }
+
         }
 
     } catch (error) { next(error); } });
