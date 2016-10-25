@@ -100,7 +100,7 @@ class NegotiatedDealManager {
 
         // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
         if (!negotiatedDeal.createDate) {
-            let date: Date = new Date()
+            let date: Date = new Date();
             negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
         }
 
@@ -122,7 +122,7 @@ class NegotiatedDealManager {
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
-        let negotiationInserted = (yield this.databaseManager.select('negotiationID','modifyDate')
+        let negotiationInserted = (yield this.databaseManager.select('negotiationID', 'modifyDate')
                                                              .from('ixmDealNegotiations')
                                                              .where('proposalID', negotiatedDeal.proposedDeal.id)
                                                              .andWhere('buyerID', negotiatedDeal.buyerID)
@@ -202,7 +202,6 @@ class NegotiatedDealManager {
                                                              .where('proposalID', negotiatedDealID))[0].modifyDate;
 
     }) as (negotiatedDealID: number, userType: string, responseType: string, negotiatedFields: any, otherPartyStatus: string) => string;
-
 
     /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)

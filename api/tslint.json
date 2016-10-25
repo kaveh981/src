@@ -3,7 +3,7 @@
         "member-access": true,
         "no-reference": true,
         "curly": true,
-        "label-position": true,
+        "label-position": false,
         "no-arg": true,
         "no-bitwise": true,
         "no-conditional-assignment": true,

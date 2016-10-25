@@ -80,6 +80,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let responseType: string;
         // Sanitize data: response is validated case-insensitively and by trailing spaces
+        // TODO: label should only be used on loops - need to refactor this, disabling tslint rule for now
         negotiationOrResponse:
             if (req.body.hasOwnProperty('response')) {
                 req.body.response = req.body.response.trim().toLowerCase();
@@ -227,8 +228,8 @@ function NegotiationDeals(router: express.Router): void {
             // If user rejects the negotiation, there is nothing more to do:
             if (responseType === 'reject') {
                 Log.debug('User is rejecting the negotiation');
-                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
-                    { }, otherPartyStatus);
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
+                    userType, responseType, { }, otherPartyStatus);
                 res.sendPayload(currentNegotiation.toPayload());
             } else if (responseType === 'accept') {
                 Log.debug('User is rejecting the negotiation');
@@ -239,9 +240,9 @@ function NegotiationDeals(router: express.Router): void {
                 }
 
                 // Finalize the negotiation and create the settled deal
-                // TODO: this belongs in a transaction
-                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
-                    { }, otherPartyStatus);
+                // TODO: this belongs in a transaction (ATW-382)
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
+                    userType, responseType, { }, otherPartyStatus);
                 Log.debug('Negotiation updated');
                 let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
                 let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
@@ -249,8 +250,7 @@ function NegotiationDeals(router: express.Router): void {
                 Log.debug('New deal created with id: ' + settledDeal.id);
 
                 res.sendPayload(settledDeal.toPayload());
-            }
-            else {
+            } else {
 
                 // This is a negotiation, let's populate the relevant fields and confirm there exists at least 1 difference
                 let negotiationFields: any = { };
@@ -303,8 +303,8 @@ function NegotiationDeals(router: express.Router): void {
                 }
 
                 // Update the negotiation
-                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id, userType, responseType,
-                    negotiationFields, otherPartyStatus);
+                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
+                    userType, responseType, negotiationFields, otherPartyStatus);
                 res.sendPayload(currentNegotiation.toPayload());
             }
 
