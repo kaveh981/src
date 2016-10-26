@@ -76,8 +76,8 @@ properties:
         type: integer
         required: true
         displayName: Auction Type,
-        description: The auction type - 1 = First Price, 2 = Second Price, 3 = Fixed Rate
-        enum: [1,2,3] # Use integer or string values? Strings clearer, ints are what system uses
+        description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
+        enum: ['first','second','fixed']
     contact:
         type: !include contact.raml
         required: true
@@ -113,7 +113,7 @@ example: |
         "impressions": 8,
         "budget": 9999999.99,
         "currency": "USD",
-        "auction_type": 1,
+        "auction_type": "first",
         "contact": {
             "title": "Captain",
             "name": "Jimdex Exchange",
