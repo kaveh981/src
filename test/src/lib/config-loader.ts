@@ -1,9 +1,9 @@
 'use strict';
 
+/** node_modules */
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import * as Promise from 'bluebird';
 
 require('dotenv').config();
 
@@ -29,11 +29,11 @@ class ConfigLoader {
      * @param variable - The name of the environment variable to get.
      * @returns The value of the environment variable requested. Throws error if it is not configured.
      */
-    public getVar(variable: string, optional?: boolean): string {
+    public getVar(variable: string): string {
         let value: string = process.env[variable];
 
-        if (!value && !optional) {
-            throw new Error(`Environment variable "${variable}" has not been configured.`);
+        if (!value) {
+            throw `Environment variable "${variable}" has not been configured.`;
         }
 
         return value;

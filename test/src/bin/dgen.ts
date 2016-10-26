@@ -1,18 +1,18 @@
+'use strict';
+
 /**
- * @file Provides a command line interface (CLI) to the data generation functions
+ * @file Provides a command line interface (CLI) to the data population functions
  */
 
-import * as fs from 'fs';
 import * as process from 'process';
-import * as Promise from 'bluebird';
+import * as PromiseB from 'bluebird';
+import * as commander from 'commander';
 
-import { DatabasePopulator } from '../helper/database-populator';
+import { DatabasePopulator } from '../lib/database-populator';
 import { Injector } from '../lib/injector';
-import { app } from '../helper/bootstrap';
+import { Bootstrap } from '../lib/bootstrap';
 
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
-
-import * as commander from 'commander';
 
 /*
  * The commander interface won't have our CLI option vars by default
@@ -23,7 +23,7 @@ interface InterfaceCLI extends commander.ICommand {
         pub?: string;
         site?: string;
         section?: string;
-        package?: string;
+        proposal?: string;
 }
 
 /** 
@@ -38,22 +38,22 @@ class DataGenCLI {
      * @return {void}
      */
     constructor() {
-        let file_desc = 'A json file containing data objects';
-        let pub_desc = 'Generate a publisher, use -p <n> to generate n publishers.';
-        let site_desc = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
+        let fileDescription = 'A json file containing data objects';
+        let publisherDescription = 'Generate a publisher, use -p <n> to generate n publishers.';
+        let siteDescription = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
                       + ' -s <id>,<n> .';
-        let section_desc = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
+        let sectionDescription = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
                       + ' -S <pid>,<sid>,<n>';
-        let package_desc = 'Generate a package. Owner ID, section [ID]s required:'
+        let proposalDescription = 'Generate a proposal. Owner ID, section [ID]s required:'
                       + ' -P <pid>,<sid0>:...:<sidN>,n';
 
         this.cmd = commander.version('6.6.6')
             .description('Generate IXM related data. Call with no arguments for generating a standard set.')
-            .option('-f --file <string>', file_desc)
-            .option('-p --pub [string]', pub_desc)
-            .option('-s --site <string>', site_desc)
-            .option('-S --section <string>', section_desc)
-            .option('-P --package <string>', package_desc)
+            .option('-f --file <string>', fileDescription)
+            .option('-p --pub [string]', publisherDescription)
+            .option('-s --site <string>', siteDescription)
+            .option('-S --section <string>', sectionDescription)
+            .option('-P --proposal <string>', proposalDescription)
             .parse(process.argv);
     }
 
@@ -61,9 +61,15 @@ class DataGenCLI {
      * Run the command according to input options.
      * @return {void}
      */
-    public run(): void {
+    public async run() {
 
-        app.boot()
+        await Bootstrap.boot(false);
+        let results = await this.runHandlers();
+        console.log("Here's what you got:");
+        console.log(results);
+        await Bootstrap.shutdown(false);
+        console.log("All done");
+/*        Bootstrap.boot(false)
             .then(() => {
                 return this.runHandlers();
             })
@@ -71,10 +77,10 @@ class DataGenCLI {
 
                 console.log("Here's what you got:");
                 console.log(results);
-                app.shutdown();
+                Bootstrap.shutdown(false);
 
                 console.log("All done");
-            });
+            });*/
     }
 
     /**
@@ -82,7 +88,7 @@ class DataGenCLI {
      * @return {Object} results The generated data
      */
     private runHandlers(): Object {
-        let cocorico =  Promise.coroutine(function* (): Object {
+        let cocorico =  PromiseB.coroutine(function* (): Object {
             let cmd = this.cmd;
             console.log("cocorico");
             console.log(cmd.site);
@@ -91,12 +97,12 @@ class DataGenCLI {
                 pub: null,
                 site: null,
                 section: null,
-                package: null
+                proposal: null
             };
             if (cmd.file) {
                 res.file = yield this.handleFile(cmd.file);
             } else {
-                // if(!cmd.pub && !cmd.site && !cmd.section && !cmd.package) {
+                // if(!cmd.pub && !cmd.site && !cmd.section && !cmd.proposal) {
                 //  this.handleAll();
                 //  return;
                 // }
@@ -113,8 +119,8 @@ class DataGenCLI {
                     res.section = yield this.handleSection(cmd.section);
                 }
 
-                if (cmd.package) {
-                    res.package = yield this.handlePackage(cmd.package);
+                if (cmd.proposal) {
+                    res.proposal = yield this.handlePackage(cmd.proposal);
                 }
             }
 
@@ -140,12 +146,12 @@ class DataGenCLI {
      * @param {string | boolean} pubArgs The publisher arguments from the command line
      * @return {Promise<INewPubData>}
      */
-    private handlePublisher(pubArgs: string | boolean): Promise<INewPubData> {
+    private handlePublisher(pubArgs: string | boolean) {
         console.log("Sure would be nice to have some pubs");
         console.log("Here's what you wrote though:");
         console.log(pubArgs);
 
-        return dbPopulator.newPub();
+        return dbPopulator.createPublisher();
     }
 
     /**
@@ -153,7 +159,7 @@ class DataGenCLI {
      * @param {string} siteArgs The site arguments from the command line
      * @return {Promise<INewSiteData>}
      */
-    private handleSite(siteArgs: string): Promise<INewSiteData> {
+    private handleSite(siteArgs: string) {
         console.log("Maybe for your birthday");
         console.log("Here's what you wrote though:");
         console.log(siteArgs);
@@ -161,7 +167,7 @@ class DataGenCLI {
         let parts = siteArgs.split(',');
         let ownerID = parseInt(parts[0], 10);
 
-        return dbPopulator.newSite(ownerID);
+        return dbPopulator.createSite(ownerID);
     }
 
     /**
@@ -169,7 +175,7 @@ class DataGenCLI {
      * @param {string} sectionArgs The section arguments from the command line
      * @return {Promise<INewSectionData>}
      */
-    private handleSection(sectionArgs: string): Promise<INewSectionData> {
+    private handleSection(sectionArgs: string) {
         console.log("Sections too?");
         console.log("Here's what you wrote though:");
         console.log(sectionArgs);
@@ -178,24 +184,24 @@ class DataGenCLI {
         let ownerID = parseInt(parts[0], 10);
         let siteIDs = this.getIDsFromArgs(parts[1]);
 
-        return dbPopulator.newSection(ownerID, siteIDs);
+        return dbPopulator.createSection(ownerID, siteIDs);
     }
 
     /**
-     * Parse package input and trigger creation functions
-     * @param {string} packageArgs The package arguments from the command line
+     * Parse proposal input and trigger creation functions
+     * @param {string} proposalArgs The proposal arguments from the command line
      * @return {Promise<INewPackageData>}
      */
-    private handlePackage(packageArgs: string): Promise<INewPackageData> {
-        console.log("Pretend this is a new package");
+    private handlePackage(proposalArgs: string) {
+        console.log("Pretend this is a new proposal");
         console.log("Here's what you wrote though:");
-        console.log(packageArgs);
+        console.log(proposalArgs);
 
-        let parts = packageArgs.split(',');
+        let parts = proposalArgs.split(',');
         let ownerID = parseInt(parts[0], 10);
         let sectionIDs = this.getIDsFromArgs(parts[1]);
 
-        return dbPopulator.newPackage(ownerID, sectionIDs);
+        return dbPopulator.createProposal(ownerID, sectionIDs);
     }
 
     /**

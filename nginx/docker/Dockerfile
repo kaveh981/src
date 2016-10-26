@@ -1,5 +1,7 @@
 FROM ir.indexexchange.com:5000/nginx:1.10
 
+ENV TZ America/Toronto
+
 RUN mkdir /src
 COPY . /src/
 
