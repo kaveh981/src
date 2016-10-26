@@ -136,18 +136,18 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         // Check whether the user is a publisher or a buyer and populate user fields accordingly
-        let userType: string = 'buyer'; // TODO - for now let's hard-code it's a buyer for simplicity sake until the middleware is fixed
         let buyerID: number;
         let publisherID: number;
+        let userType: string = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
+        Log.trace('User is a |'+ userType + '|.');
 
         if (userType === 'publisher') {
-            Log.trace('User is a publisher');
             buyerID = req.body.partner_id;
-            publisherID = Number(req.ixmBuyerInfo.userID);
+            publisherID = Number(req.ixmUserInfo.id);
         } else {
             Log.trace('User is a buyer');
             // Route is protected so at this stage we already know that user is either a publisher or a buyer
-            buyerID = Number(req.ixmBuyerInfo.userID);
+            buyerID = Number(req.ixmUserInfo.id);
             publisherID = req.body.partner_id;
             Log.trace('BuyerID is: ' + buyerID);
         }
