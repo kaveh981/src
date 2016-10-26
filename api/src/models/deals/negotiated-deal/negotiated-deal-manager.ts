@@ -225,7 +225,7 @@ class NegotiatedDealManager {
             return;
         }
 
-        await transaction.update({
+        await transaction.from('ixmDealNegotiations').update({
             proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
@@ -240,7 +240,7 @@ class NegotiatedDealManager {
             buyerStatus: negotiatedDeal.buyerStatus,
             createDate: negotiatedDeal.createDate,
             modifyDate: negotiatedDeal.modifyDate
-        }).into('ixmDealNegotiations');
+        }).where('negotiationID', negotiatedDeal.id);
 
         // Get the id and set it in the negotiated deal object.
         let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
