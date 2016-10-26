@@ -66,8 +66,8 @@ class ProposedDealManager {
 
         let proposals = [];
         let rows = await this.databaseManager.select('proposalID').from('ixmDealProposals').where('status', proposalStatus)
-                    .limit(Number(pagination.limit))
-                    .offset(Number(pagination.offset));
+                    .limit(pagination.limit)
+                    .offset(pagination.offset);
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);

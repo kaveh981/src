@@ -1,0 +1,4 @@
+# Server Configuration
+
+# Kraken base directory, relative to config-loader.ts
+baseDirectory: '../'

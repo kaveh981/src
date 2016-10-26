@@ -50,26 +50,68 @@ types:
 ################################
 
 /deals:
-    get:
-        is: [ auth_required]
-        description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or countr-offers sent.
-        queryString: 
-            type: [ QueryPaging ]
-        responses:
-            200: # 200 = "OK"
-                body:
-                    application/json:
-                        type: Response
-            400: # 400 = "Bad Request" use for malformed requests
-            401: # 401 = "Unauthorized" authentication has failed or was not provided
-            403: # 403 = "Forbidden" authentication successful but insufficient permissions
-            500: # 500 = "Internal Server Error" something done broke
-    put:
-        description: Create a new offered deal in the IX system to be offered to one or more publishers. Publisher(s) may accept as offered, or create a counter-offer. Only available to the package creator.
-        body:
-            type: Deal
-        responses:
-            201: #201 = "Created"
+    /proposals:
+        get:
+            is: [ auth_required ]
+            description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or counter-offers sent.
+            queryString: 
+                type: [ QueryPaging ]
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        put:
+            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
+            body:
+                type: Deal
+            responses:
+                201: # 201 = "Created"
+    /negotiations:
+        get:
+            is: [ auth_required ]
+            description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal. If no deals in negotiation are found, a 200 response code will still be sent: the data will be empty and the message will state that nothing could be found.
+            queryString:
+                type: [ QueryPaging ]
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    examples: 
+                        ok:         !include examples/resources/deals/get_negotiation_ok.raml
+                        no_content: !include examples/resources/deals/get_negotiation_no_content.raml
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        put:
+            is: [ auth_required ]
+            description: |
+            Send a counter-offer for, accept, or reject an existing deal in negotiation. Only allowed if the other negotiating party was the last to send an offer. 
+
+            The request will be processed according to fields in the body JSON object. An object containing only proposal_id, partner_id and status fields will accept or reject the negotiation accordingly.
+
+            An object containing one or more of the negotiable deal fields will update the current negotiation state to the sent terms. Original propsoal terms will be preserved.
+            body:
+                type: Negotiation
+            examples:
+                counter-offer:  !include examples/resources/deals/put_negotiation_counter-offer.raml
+                accept:         !include examples/resources/deals/put_negotiation_accept.raml
+                reject:         !include examples/resources/deals/put_negotiation_reject.raml
+            responses:
+                201: # 201 = "Created"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
             is: [ auth_required ]
@@ -91,7 +133,7 @@ types:
             body:
                 application/json:
                     properties:
-                        packageID:
+                        proposal_id:
                             type: integer
                             required: true
                             minimum: 1
