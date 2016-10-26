@@ -83,6 +83,7 @@ function NegotiationDeals(router: express.Router): void {
 
         for (let key in req.body) {
             if (req.body.hasOwnProperty(key)) {
+                Log.trace('Found key: ' + key + ' with value: ' + req.body[key]);
                 switch (key) {
                     case 'response':
                         // Sanitize data: response is validated case-insensitively and by removing leading and trailing spaces
@@ -187,36 +188,8 @@ function NegotiationDeals(router: express.Router): void {
                 sender: 'buyer',
                 proposedDeal: targetProposal
             });
-
-            // Populate the negotiation fields
-            for (let key in req.body) {
-                if (req.body.hasOwnProperty(key)) {
-                    Log.trace('Found key: ' + key + ' with value: ' + req.body[key]);
-                    switch (key) {
-                        case 'start_date':
-                            currentNegotiation.startDate = req.body[key];
-                            break;
-                        case 'end_date':
-                            currentNegotiation.endDate = req.body[key];
-                            break;
-                        case 'price':
-                            currentNegotiation.price = req.body[key];
-                            break;
-                        case 'impressions':
-                            currentNegotiation.impressions = req.body[key];
-                            break;
-                        case 'budget':
-                            currentNegotiation.budget = req.body[key];
-                            break;
-                        case 'terms':
-                            currentNegotiation.terms = req.body[key];
-                            break;
-                        default:
-                            // This is not a negotiation field, nothing to do
-                            break;
-                    }
-                }
-            }
+            // Add the negotiation fields provided in the request
+            Object.assign(currentNegotiation, negotiationFields);
 
             // Check that the proposal is available for purchase
             let owner = await userManager.fetchUserFromId(targetProposal.ownerID);
@@ -274,59 +247,24 @@ function NegotiationDeals(router: express.Router): void {
             } else {
 
                 // This is a negotiation, let's populate the relevant fields and confirm there exists at least 1 difference
-                let negotiationFields: any = { };
                 let hasDifferentField: boolean = false;
-
-                for (let key in req.body) {
-                    if (req.body.hasOwnProperty(key)) {
-                        switch (key) {
-                            case 'start_date':
-                                negotiationFields.startDate = req.body[key];
-                                if ( negotiationFields.startDate !== currentNegotiation.startDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            case 'end_date':
-                                negotiationFields.endDate = req.body[key];
-                                if ( negotiationFields.endDate !== currentNegotiation.endDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            case 'price':
-                                negotiationFields.price = req.body[key];
-                                if ( negotiationFields.price !== currentNegotiation.startDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            case 'impressions':
-                                negotiationFields.impressions = req.body[key];
-                                if ( negotiationFields.impressions !== currentNegotiation.startDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            case 'budget':
-                                negotiationFields.budget = req.body[key];
-                                if ( negotiationFields.budget !== currentNegotiation.startDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            case 'terms':
-                                negotiationFields.terms = req.body[key];
-                                if ( negotiationFields.terms !== currentNegotiation.startDate ) {
-                                    hasDifferentField = true;
-                                }
-                                break;
-                            default:
-                                // This is not a negotiation field, nothing to do
-                                break;
+                for (let key in negotiationFields) {
+                    if (negotiationFields.hasOwnProperty(key)) {
+                        if ( negotiationFields[key] !== currentNegotiation[key] ) {
+                            hasDifferentField = true;
+                            break;
                         }
                     }
                 }
 
-                // Update the negotiation
-                currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
-                    userType, responseType, negotiationFields, otherPartyStatus);
-                res.sendPayload(currentNegotiation.toPayload());
+                if (hasDifferentField) {
+                    // Update the negotiation
+                    currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
+                        userType, responseType, negotiationFields, otherPartyStatus);
+                    res.sendPayload(currentNegotiation.toPayload());
+                } else {
+                    throw HTTPError('403_NO_CHANGE');
+                }
             }
 
         }
