@@ -54,6 +54,7 @@ async function AuthHandler (req: express.Request, res: express.Response, next: F
         }
 
         req.ixmUserInfo = await indentifyUser(accessToken);
+        next();
 
     } catch (error) { next(error); };
 
