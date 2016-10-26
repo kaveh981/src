@@ -25,9 +25,12 @@ documentation:
 traits:
     auth_required:
         headers:
-            X-IXM-BuyerId:
+            X-Auth-ID:
                 type: integer
-                description: The current user's ID, used as an authentication token.
+                description: The current user's ID
+            X-Auth-Token:
+                type: string
+                description: An OAuth token, obtained from the auth route #TODO: insert details/link when available
 
 
 ################################
