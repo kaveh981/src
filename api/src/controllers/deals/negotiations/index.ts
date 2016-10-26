@@ -79,32 +79,53 @@ function NegotiationDeals(router: express.Router): void {
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let responseType: string;
-        // Sanitize data: response is validated case-insensitively and by trailing spaces
-        // TODO: label should only be used on loops - need to refactor this, disabling tslint rule for now
-        negotiationOrResponse:
-            if (req.body.hasOwnProperty('response')) {
-                req.body.response = req.body.response.trim().toLowerCase();
+        let negotiationFields: any = {};
 
-                // There cannot be negotiation fields along with a response to an offer
-                for (let key in req.body) {
-                    if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
-                        throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field, found field ' + key);
-                    }
+        for (let key in req.body) {
+            if (req.body.hasOwnProperty(key)) {
+                switch (key) {
+                    case 'response':
+                        // Sanitize data: response is validated case-insensitively and by removing leading and trailing spaces
+                        req.body.response = req.body.response.trim().toLowerCase();
+                        responseType = req.body.response;
+                        break;
+                    case 'start_date':
+                        negotiationFields.startDate = req.body[key];
+                        break;
+                    case 'end_date':
+                        negotiationFields.endDate = req.body[key];
+                        break;
+                    case 'price':
+                        negotiationFields.price = req.body[key];
+                        break;
+                    case 'impressions':
+                        negotiationFields.impressions = req.body[key];
+                        break;
+                    case 'budget':
+                        negotiationFields.budget = req.body[key];
+                        break;
+                    case 'terms':
+                        negotiationFields.terms = req.body[key];
+                        break;
+                    default:
+                        // This is not a negotiation field, nothing to do
+                        break;
                 }
-                responseType = req.body.response;
-                Log.trace('User is sending a response: ' + responseType);
+            }
+        }
+
+        let nbFields: number = Object.keys(negotiationFields).length;
+        if (!responseType) {
+            Log.debug('User is sending a counter-offer');
+            if (nbFields === 0) {
+                throw HTTPError('400', 'At least 1 negotiation or the "response" field must be provided.');
             } else {
                 responseType = 'counter-offer';
-                Log.trace('User is sending a counter-offer');
-                for (let key in req.body) {
-                    if (req.body.hasOwnProperty(key) && key !== 'partner_id' && key !== 'proposal_id') {
-                        break negotiationOrResponse;
-                    }
-                }
-
-                // If there is no other field beyond partner_id and proposal_id, then the request is invalid
-                throw HTTPError('400', 'At least 1 negotiation or the "response" field must be provided.');
             }
+
+        } else if (nbFields > 0) {
+            throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field.');
+        }
 
         // Validate the request's parameters syntax
         let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
