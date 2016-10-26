@@ -174,41 +174,83 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Update a negotiation with new parameters sent in the request and return new modifyDate
-     * @param negotiatedDealID - The negotiation that needs updating.
-     * @param userType- Whether the user changing status is the publisher or the buyer.
-     * @param responseType - Whether this is a counter offer or a rejection/ final acceptance.
-     * @param negotiatedFields - The negotiated fields being updated. May be "response" if user is accepting/rejecting.
-     * @param otherPartyStatus - Other party's status - if it is rejected, then it should not be changed
+     * Create a new negotiation between a buyer and a sender.
+     * @param proposedDeal - The proposed deal model this is based off of.
+     * @param buyerID - The buyer id for the buyer of this negotiation.
+     * @param publisherID - The id of the publisher for this negotiation.
+     * @param negotiationFields - The fields to use as the negotiation terms.
+     * @returns A negotiated deal model with the appropriate fields updated.
      */
-    public async updateNegotiatedDeal (negotiatedDealID: number, userType: string, responseType: string,
-        negotiatedFields: any, otherPartyStatus: string): Promise<string> {
+    public async createNegotiationFromProposedDeal(
+        proposedDeal: ProposedDealModel, buyerID: number, publisherID: number, sender: 'buyer' | 'publisher', negotiationFields: any) {
 
-        negotiatedFields.sender = userType;
-        // If the user does not reject, then he's Ok with the offer
-        let newStatus: string = responseType === 'reject' ? 'rejected' : 'accepted';
+        let negotiatedDeal = new NegotiatedDealModel({
+            buyerID: buyerID,
+            buyerInfo: await this.userManager.fetchUserFromId(buyerID),
+            publisherID: publisherID,
+            publisherInfo: await this.userManager.fetchUserFromId(publisherID),
+            publisherStatus: sender === 'publisher' ? 'accepted' : 'active',
+            buyerStatus: sender === 'buyer' ? 'accepted' : 'active',
+            sender: sender,
+            createDate: this.dateToMysqlTimestamp(new Date()),
+            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            proposedDeal: proposedDeal,
+            startDate: negotiationFields.startDate || proposedDeal.startDate,
+            endDate: negotiationFields.endDate || proposedDeal.endDate,
+            price: negotiationFields.price || proposedDeal.price,
+            impressions: negotiationFields.impressions || proposedDeal.impressions,
+            budget: negotiationFields.budget || proposedDeal.budget,
+            terms: negotiationFields.terms || proposedDeal.terms
+        });
 
-        if (userType === 'buyer') {
-            negotiatedFields.buyerStatus = newStatus;
-            if (otherPartyStatus !== 'rejected' && responseType === 'counter-offer') {
-                negotiatedFields.pubStatus = 'active';
-            }
+        return negotiatedDeal;
+    }
 
-        } else {
-            negotiatedFields.pubStatus = newStatus;
-            if (otherPartyStatus !== 'rejected' && responseType === 'counter-offer') {
-                negotiatedFields.buyerStatus = 'active';
-            }
+    /**
+     * Update a negotiation with new parameters sent in the request and return new modifyDate
+     * @param negotiatedDeal - The negotiated deal to update.
+     * @param transaction - An optional transaction to use. 
+     */
+    public async updateNegotiatedDeal (negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction): Promise<string> {
+
+        if (!negotiatedDeal.id) {
+            throw new Error('Cannot update a negotiated deal without an id.');
         }
 
-        await this.databaseManager.from('ixmDealNegotiations')
-                                    .update(negotiatedFields)
-                                    .where('negotiationID', '=', negotiatedDealID);
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertNegotiatedDeal(negotiatedDeal, trx);
+            });
+            return;
+        }
 
-        // Get the new modifyDate
-        return (await this.databaseManager.select('modifyDate')
-                                             .from('ixmDealNegotiations')
-                                             .where('negotiationID', negotiatedDealID))[0].modifyDate;
+        await transaction.update({
+            proposalID: negotiatedDeal.proposedDeal.id,
+            publisherID: negotiatedDeal.publisherID,
+            buyerID: negotiatedDeal.buyerID,
+            price: negotiatedDeal.price,
+            startDate: negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate,
+            budget: negotiatedDeal.budget,
+            impressions: negotiatedDeal.impressions,
+            terms: negotiatedDeal.terms,
+            sender: negotiatedDeal.sender,
+            pubStatus: negotiatedDeal.publisherStatus,
+            buyerStatus: negotiatedDeal.buyerStatus,
+            createDate: negotiatedDeal.createDate,
+            modifyDate: negotiatedDeal.modifyDate
+        }).into('ixmDealNegotiations');
+
+        // Get the id and set it in the negotiated deal object.
+        let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
+                                                             .from('ixmDealNegotiations')
+                                                             .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                             .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                             .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+
+        negotiatedDeal.id = negotiationUpdated.negotiationID;
+        negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
 
     }
 

@@ -57,6 +57,41 @@ class NegotiatedDealModel {
     }
 
     /**
+     * Update the current negotiation with new fields.
+     * @param negotationFields - Fields to update.
+     * @param sender - The person who is sending the new fields.
+     * @param responseType - The response the sender is sending.
+     * @param otherPartyStatus - The status of the receiving party.
+     * @returns True if there was a change to the negotiation terms.
+     */
+    public update(negotationFields: any, sender: 'buyer' | 'publisher',
+        responseType: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        otherPartyStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
+
+        let existDifference = false;
+
+        this.sender = sender;
+
+        for (let key in negotationFields) {
+            if (negotationFields[key] && negotationFields[key] !== this[key]) {
+                this[key] = negotationFields[key];
+                existDifference = true;
+            }
+        }
+
+        if (sender === 'publisher') {
+            this.publisherStatus = responseType;
+            this.buyerStatus = otherPartyStatus;
+        } else {
+            this.buyerStatus = responseType;
+            this.publisherStatus = otherPartyStatus;
+        }
+
+        return existDifference;
+
+    }
+
+    /**
      * Return payload formated object
      */
     public toPayload(): any {
