@@ -1,5 +1,7 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../../lib/database-manager';
 import { Logger } from '../../../lib/logger';
 import { NegotiatedDealModel } from './negotiated-deal-model';
@@ -89,11 +91,20 @@ class NegotiatedDealManager {
     /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
+     * @param transation - A knex transaction object to use.
      */
-    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel) {
+    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction) {
 
         if (negotiatedDeal.id) {
-            throw new Error('A negotiated deal with that id already exists.');
+            throw new Error('Cannot insert a negotiated deal with an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertNegotiatedDeal(negotiatedDeal, trx);
+            });
+            return;
         }
 
         // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
@@ -102,7 +113,7 @@ class NegotiatedDealManager {
             negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
         }
 
-        await this.databaseManager.insert({
+        await transaction.insert({
             proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
@@ -120,7 +131,7 @@ class NegotiatedDealManager {
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
-        let negotiationInserted = (await this.databaseManager.select('negotiationID', 'modifyDate')
+        let negotiationInserted = (await transaction.select('negotiationID', 'modifyDate')
                                                              .from('ixmDealNegotiations')
                                                              .where('proposalID', negotiatedDeal.proposedDeal.id)
                                                              .andWhere('buyerID', negotiatedDeal.buyerID)
@@ -204,7 +215,7 @@ class NegotiatedDealManager {
     /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
      * @param date - The date in ISO format
-     * @returns A strign with the date in the format of yyyy-mm-dd hh:mm:ss
+     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
      */
     private dateToMysqlTimestamp(date: string | Date): string {
 

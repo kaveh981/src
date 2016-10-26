@@ -16,11 +16,13 @@ import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 import { UserManager } from '../../../models/user/user-manager';
+import { DatabaseManager } from '../../../lib/database-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
@@ -108,16 +110,18 @@ function ActiveDeals(router: express.Router): void {
             }
         }
 
-        // TODO ATW-382 Both INSERTs should happen in a transaction
-        // Create a new negotiation
-        let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
-        await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation);
+        // Begin transaction
+        await databaseManager.transaction(async (transaction) => {
+            // Create a new negotiation
+            let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
+            await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation, transaction);
 
-        // Create the settled deal
-        let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
-        await settledDealManager.insertSettledDeal(settledDeal);
+            // Create the settled deal
+            let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
+            await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-        res.sendPayload(settledDeal.toPayload());
+            res.sendPayload(settledDeal.toPayload());
+        });
 
     } catch (error) { next(error); } });
 
