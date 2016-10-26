@@ -94,13 +94,13 @@ class SettledDealModel {
      */
     private formatDate(dateString: string) {
 
+        if (!dateString) {
+            return '0000-00-00';
+        }
+
         dateString = dateString.toString();
 
         let date = new Date(dateString.toString());
-
-        if (dateString.includes('0000-00-00')) {
-            return '0000-00-00';
-        }
 
         if (date.toString() === 'Invalid Date') {
             throw new Error('Invalid date provided.');
