@@ -1,7 +1,5 @@
 'use strict';
 
-import * as Promise from 'bluebird';
-
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
 import { UserManager } from '../user/user-manager';
@@ -32,23 +30,22 @@ class BuyerManager {
      * @param userId - The userID of the buyer we want information from.
      * @returns A promise for a new buyer model.
      */
-    public fetchBuyerFromId(id: number): Promise<BuyerModel> {
+    public async fetchBuyerFromId(id: number): Promise<BuyerModel> {
 
         let buyerObject = new BuyerModel();
 
-        return this.databaseManager.select('dspID')
+        let rows = await this.databaseManager.select('dspID')
                 .from('ixmBuyers')
-                .where('userID', id)
-            .then((rows) => {
-                let dsps = rows.map((row) => { return row.dspID; });
-                buyerObject.dspIDs = dsps;
-                return this.userManager.fetchUserFromId(id);
-            })
-            .then((userInfo) => {
-                buyerObject.userInfo = userInfo;
-                buyerObject.userID = id;
-                return buyerObject;
-            });
+                .where('userID', id);
+
+        let dsps = rows.map((row) => { return row.dspID; });
+        buyerObject.dspIDs = dsps;
+
+        let userInfo = await this.userManager.fetchUserFromId(id);
+        buyerObject.userInfo = userInfo;
+        buyerObject.userID = id;
+
+        return buyerObject;
 
     }
 }

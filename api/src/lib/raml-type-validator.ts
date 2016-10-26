@@ -79,6 +79,12 @@ class RamlTypeValidator {
             types: {}
         };
 
+        // No schemas :(
+        if (!files[0]) {
+            Log.debug('No schemas found.');
+            return;
+        }
+
         // We need to create a fake RAML API spec in order for it to be used by raml-1-parser.
         files.forEach((file: string) => {
             let fileContent: string = fs.readFileSync(path.join(schemaDirectory, file), 'utf8');
@@ -94,7 +100,8 @@ class RamlTypeValidator {
         let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
 
         if (parsedAPI.errors().length > 0) {
-            Log.error(parsedAPI.errors().join('\n'));
+            Log.error(JSON.stringify(parsedAPI.errors(), null, 4));
+            throw new Error('Compilation error in schemas.');
         }
 
         // We parse the raml api object into a JSON object and put it in the types variable.

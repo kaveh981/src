@@ -6,9 +6,9 @@ interface IJsfSchema {
 
 interface INewUserData {
     userID?: number;
-    userType: number;
-    emailAddress: string;
-    password: string;
+    userType?: number;
+    emailAddress?: string;
+    password?: string;
     status?: string;
     firstName?: string;
     lastName?: string;
@@ -32,37 +32,39 @@ interface INewBuyerData {
     dspID: number;
 }
 
+interface IPubData {
+    userID?: number;
+    payeeName?: string;
+    minimumPayment?: number;
+    creditTerms?: number;
+    paypalAccount?: string;
+    allowInvoiceType?: number;
+    payout?: number;
+    ip?: string;
+    language?: string;
+    paymentGroupID?: number;
+    monthlyAdvRevenue?: string;
+    networks?: string;
+    approvalDate?: Date;
+    rtbNetwork?: string;
+    reportingEmail?: string;
+    isSFRP?: number;
+    notificationEnabled?: number;
+    autoInvoice?: number;
+}
+
 interface INewPubData {
     user: INewUserData;
-    publisher: {
-        userID?: number;
-        payeeName: string;
-        minimumPayment: number;
-        creditTerms: number;
-        paypalAccount: string;
-        allowInvoiceType: number;
-        payout: number;
-        ip: string;
-        language: string;
-        paymentGroupID: number;
-        monthlyAdvRevenue: string;
-        networks: string;
-        approvalDate: Date;
-        rtbNetwork: string;
-        reportingEmail: string;
-        isSFRP: number;
-        notificationEnabled: number;
-        autoInvoice: number;
-    };
+    publisher: IPubData;
 }
 
 interface INewSiteData {
     siteID?: number;
-    userID: number;
-    status: string;
-    name: string;
-    mainDomain: string;
-    description: string;
+    userID?: number;
+    status?: string;
+    name?: string;
+    mainDomain?: string;
+    description?: string;
     createDate?: Date;
     modifyDate?: Date;
     autoApprove?: number;
@@ -74,10 +76,10 @@ interface INewSiteData {
 interface ISection {
     sectionID?: number;
     userID?: number;
-    status: string;
-    name: string;
-    percent: number;
-    entireSite: number;
+    status?: string;
+    name?: string;
+    percent?: number;
+    entireSite?: number;
 }
 
 interface INewSectionData {
@@ -119,11 +121,11 @@ interface IReqOptions {
 interface INewDSPData {
     dspID?: number;
     udsID?: number;
-    name: string;
-    bidURL: string;
+    name?: string;
+    bidURL?: string;
     limiter?: number;
     creativeContained?: number;
-    siteURLRequired: number;
+    siteURLRequired?: number;
     status?: 'A' | 'D';
     userMatchOptional?: number;
     blockListDisabled?: number;
