@@ -1,5 +1,7 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../../lib/database-manager';
 import { Logger } from '../../../lib/logger';
 import { NegotiatedDealModel } from './negotiated-deal-model';
@@ -90,13 +92,13 @@ class NegotiatedDealManager {
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
      */
-    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel) {
+    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction: knex.Transaction) {
 
         if (negotiatedDeal.id) {
             throw new Error('A negotiated deal with that id already exists.');
         }
 
-        await this.databaseManager.insert({
+        await transaction.insert({
             proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
@@ -114,7 +116,7 @@ class NegotiatedDealManager {
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
-        let negotiationId = (await this.databaseManager.select('negotiationID').from('ixmDealNegotiations')
+        let negotiationId = (await transaction.select('negotiationID').from('ixmDealNegotiations')
                                       .where('proposalID', negotiatedDeal.proposedDeal.id)
                                       .andWhere('buyerID', negotiatedDeal.buyerID)
                                       .andWhere('publisherID', negotiatedDeal.publisherID))[0].negotiationID;
