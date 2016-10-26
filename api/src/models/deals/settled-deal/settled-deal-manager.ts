@@ -113,7 +113,7 @@ class SettledDealManager {
     public async insertSettledDeal(settledDeal: SettledDealModel, transaction?: knex.Transaction) {
 
         if (settledDeal.id) {
-            throw new Error('A deal with that id already exists.');
+            throw new Error('Cannot insert a settled deal with an id.');
         }
 
         // If there is no transaction, start one.
