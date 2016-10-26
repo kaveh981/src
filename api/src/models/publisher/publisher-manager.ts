@@ -31,7 +31,7 @@ class PublisherManager {
      * @returns A promise for a new Publisher model.
      */
     public async fetchPublisherFromId(id: number): Promise<PublisherModel> {
-
+        /** Currently doing nothing, this fucntion should be called unless we add somehing to pub model */
         let pubObject = new PublisherModel();
 
         let userInfo = await this.userManager.fetchUserFromId(id);
