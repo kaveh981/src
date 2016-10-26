@@ -35,11 +35,12 @@ class PublisherManager {
         let pubObject = new PublisherModel();
 
         let userInfo = await this.userManager.fetchUserFromId(id);
-        pubObject.userInfo = userInfo;
-        pubObject.userID = id;
 
-        return pubObject;
-
+        if (userInfo) {
+            pubObject.userInfo = userInfo;
+            pubObject.userID = id;
+            return pubObject;
+        }
     }
 }
 
