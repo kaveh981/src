@@ -183,7 +183,7 @@ function NegotiationDeals(router: express.Router): void {
                 'buyerID': buyerID,
                 'publisherID': publisherID,
                 publisherStatus: 'active',
-                buyerStatus: 'active',
+                buyerStatus: 'accepted',
                 sender: 'buyer',
                 proposedDeal: targetProposal
             });
