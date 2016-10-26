@@ -1,0 +1,7 @@
+{
+  "globalDependencies": {
+    "csv-parse": "registry:dt/csv-parse#1.1.0+20160602150508",
+    "csv-stringify": "registry:dt/csv-stringify#0.0.0+20160801211411",
+    "node": "registry:dt/node#6.0.0+20161019125345"
+  }
+}

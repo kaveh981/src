@@ -1,10 +1,14 @@
 {
-    "name": "ixm-csv-import-tool",
-    "version": "0.1.0",
-    "description": "A utility tool to import IXM proposals to System from .csv file",
-    "author": "Index Exchange",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    }
+  "name": "ixm-csv-import-tool",
+  "version": "0.1.0",
+  "description": "A utility tool to import IXM proposals to System from .csv file",
+  "author": "Index Exchange",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./build/index.js"
+  },
+  "dependencies": {
+    "csv": "^1.1.0",
+    "typings": "^1.4.0"
+  }
 }
