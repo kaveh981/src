@@ -5,7 +5,7 @@ import { Logger } from '../../lib/logger';
 import { UserManager } from '../user/user-manager';
 import { PublisherModel } from './publisher-model';
 
-const Log: Logger = new Logger('mBYR');
+const Log: Logger = new Logger('mPUB');
 
 /** Publisher' model manager */
 class PublisherManager {

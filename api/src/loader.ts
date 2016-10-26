@@ -16,6 +16,7 @@ import { RamlTypeValidator } from './lib/raml-type-validator';
 /** Models */
 import { UserManager } from './models/user/user-manager';
 import { BuyerManager } from './models/buyer/buyer-manager';
+import { PublisherManager } from './models/publisher/publisher-manager';
 import { ProposedDealManager } from './models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from './models/deals/negotiated-deal/negotiated-deal-manager';
 import { SettledDealManager } from './models/deals/settled-deal/settled-deal-manager';
@@ -38,6 +39,9 @@ Injector.put(userManager, 'UserManager');
 
 const buyerManager = new BuyerManager(databaseManager, userManager);
 Injector.put(buyerManager, 'BuyerManager');
+
+const publisherManager = new PublisherManager(databaseManager, userManager);
+Injector.put(publisherManager, 'PublisherManager');
 
 const proposedDealManager = new ProposedDealManager(databaseManager, userManager);
 Injector.put(proposedDealManager, 'ProposedDealManager');
