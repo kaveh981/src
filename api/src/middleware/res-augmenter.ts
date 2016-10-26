@@ -4,9 +4,10 @@ import * as express from 'express';
 
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
+import { Logger } from '../lib/logger';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
-
+const Log = new Logger('RESP');
 const errorMessages = config.get('errors')['en-US'];
 
 interface IPagination {
@@ -38,16 +39,25 @@ function augmentResponse(res: express.Response): void {
 
     // Send JSON and set content type
     res.sendJSON = (statusCode: number, message: any) => {
+
+        if (res.headersSent) {
+            Log.warn('Tried to send message twice.');
+            Log.trace(JSON.stringify(message));
+            return;
+        }
+
         let msg = JSON.stringify(message);
         res.set({
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(msg)
         });
         res.status(statusCode).send(msg);
+
     };
 
     // Send JSON payload
     res.sendPayload = (payload: any, pagination?: IPagination) => {
+
         let msg: IHttpResponse = {
             status: 200,
             message: errorMessages['200'],
@@ -73,10 +83,12 @@ function augmentResponse(res: express.Response): void {
         }
 
         res.sendJSON(200, msg);
+
     };
 
     // Send an error message.
     res.sendError = (error: string, details: string[]) => {
+
         let status = Number(error.split('_')[0]);
 
         let msg: IHttpResponse = {
@@ -90,6 +102,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         res.sendJSON(status, msg);
+
     };
 };
 

@@ -50,6 +50,10 @@ function ActiveDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
+        // Convert from strings (query) to integers
+        pagination.limit = Number(pagination.limit);
+        pagination.offset = Number(pagination.offset);
+
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmBuyerInfo.userID);
 
