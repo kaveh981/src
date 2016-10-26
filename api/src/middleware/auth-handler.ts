@@ -46,18 +46,16 @@ async function identifyUser(token: string): Promise<UserModel> {
  */
 async function AuthHandler (req: express.Request, res: express.Response, next: Function) { try {
 
-        let accessToken = req.get(authConfig['header']);
+    let accessToken = req.get(authConfig['header']);
 
-        if (!accessToken) {
-            next();
-            return;
-        }
-
-        req.ixmUserInfo = await identifyUser(accessToken);
+    if (!accessToken) {
         next();
+        return;
+    }
 
-    } catch (error) { next(error); };
+    req.ixmUserInfo = await identifyUser(accessToken);
+    next();
 
-}
+} catch (error) { next(error); } };
 
 module.exports = () => { return AuthHandler; };
