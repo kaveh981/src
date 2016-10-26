@@ -10,6 +10,14 @@ version: v1
 mediaType: application/json
 
 ################################
+# Documentation
+#   Documentation nodes containing explanations and workflows
+################################
+
+documentation:
+    -   !include documentation/terminology.raml
+
+################################
 # Traits
 #   These are reusable traits that can be applied in multiple nodes
 ################################
@@ -17,9 +25,12 @@ mediaType: application/json
 traits:
     auth_required:
         headers:
-            X-IXM-userID:
+            X-Auth-ID:
                 type: integer
-                description: The current user's ID, used as an authentication token.
+                description: The current user's ID
+            X-Auth-Token:
+                type: string
+                description: An OAuth token, obtained from the auth route #TODO: insert details/link when available
 
 
 ################################
