@@ -91,6 +91,7 @@ class NegotiatedDealManager {
     /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
+     * @param transation - A database manager transaction object to modify database.
      */
     public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction: knex.Transaction) {
 
