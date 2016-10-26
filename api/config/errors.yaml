@@ -26,6 +26,10 @@ en-US:
     403_NOT_FORSALE: Proposal is not available for purchase.
     403_PROPOSAL_BOUGHT: Proposal has already been accepted.
     403_PROPOSAL_IN_NEGOTIATION: Proposal is in negotiation.
+    403_BAD_PROPOSAL: The proposal does not match the provided partner.
+    403_CANNOT_START_NEGOTIATION: Cannot start a negotiation on your own proposal.
+    403_OTHER_REJECTED: The partner rejected this negotiation, the proposal cannot be bought as is.
+    403_OUT_OF_TURN: The partner did not reply to your previous offer.
 
     # 404 Status Code Messages
     404: Not found.
