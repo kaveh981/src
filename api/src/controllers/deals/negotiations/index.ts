@@ -78,18 +78,25 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        let responseType: string;
+        // Sanitize data: response is validated case-insensitively and by removing leading and trailing spaces
+        if (req.body.response) {
+            req.body.response = req.body.response.trim().toLowerCase();
+        }
+        // Validate the request's parameters syntax
+        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
+        }
+
+        // Populate negotiation information used in the rest of the route
+        let responseType: string = req.body.response;
         let negotiationFields: any = {};
 
         for (let key in req.body) {
             if (req.body.hasOwnProperty(key)) {
                 Log.trace('Found key: ' + key + ' with value: ' + req.body[key]);
                 switch (key) {
-                    case 'response':
-                        // Sanitize data: response is validated case-insensitively and by removing leading and trailing spaces
-                        req.body.response = req.body.response.trim().toLowerCase();
-                        responseType = req.body.response;
-                        break;
                     case 'start_date':
                         negotiationFields.startDate = req.body[key];
                         break;
@@ -115,6 +122,7 @@ function NegotiationDeals(router: express.Router): void {
             }
         }
 
+        // Confirm that the user sent fields consistent with negotiation / acceptance-rejection
         let nbFields: number = Object.keys(negotiationFields).length;
         if (!responseType) {
             Log.debug('User is sending a counter-offer');
@@ -126,13 +134,6 @@ function NegotiationDeals(router: express.Router): void {
 
         } else if (nbFields > 0) {
             throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field.');
-        }
-
-        // Validate the request's parameters syntax
-        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
-
-        if (validationErrors.length > 0) {
-            throw HTTPError('400', validationErrors);
         }
 
         // Check whether the user is a publisher or a buyer and populate user fields accordingly
