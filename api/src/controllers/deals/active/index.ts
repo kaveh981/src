@@ -123,7 +123,6 @@ function ActiveDeals(router: express.Router): void {
             res.sendPayload(settledDeal.toPayload());
         });
 
-
     } catch (error) { next(error); } });
 
 };
