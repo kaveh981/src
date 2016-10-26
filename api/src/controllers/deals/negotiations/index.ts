@@ -227,7 +227,7 @@ function NegotiationDeals(router: express.Router): void {
                     userType, responseType, { }, otherPartyStatus);
                 res.sendPayload(currentNegotiation.toPayload());
             } else if (responseType === 'accept') {
-                Log.debug('User is rejecting the negotiation');
+                Log.debug('User is accepting the negotiation');
 
                 // Confirm that the other party hasn't closed the deal
                 if (otherPartyStatus === 'rejected') {
@@ -254,13 +254,15 @@ function NegotiationDeals(router: express.Router): void {
                         if ( negotiationFields[key] !== currentNegotiation[key] ) {
                             Log.trace('Found different field ' + key + ', will update the negotiation');
                             hasDifferentField = true;
+                            // Update current negotiation
+                            Object.assign(currentNegotiation, negotiationFields);
                             break;
                         }
                     }
                 }
 
                 if (hasDifferentField) {
-                    // Update the negotiation
+                    // Update the DB
                     currentNegotiation.modifyDate = await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation.id,
                         userType, responseType, negotiationFields, otherPartyStatus);
                     res.sendPayload(currentNegotiation.toPayload());
