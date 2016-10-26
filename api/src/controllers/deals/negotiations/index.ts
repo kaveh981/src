@@ -207,6 +207,7 @@ function NegotiationDeals(router: express.Router): void {
             res.sendPayload(currentNegotiation.toPayload());
 
         } else {
+            Log.trace('Found negotiation with ID: ' + currentNegotiation.id);
 
             // Check if last offerer is same as current
             let otherPartyStatus: string = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
@@ -251,6 +252,7 @@ function NegotiationDeals(router: express.Router): void {
                 for (let key in negotiationFields) {
                     if (negotiationFields.hasOwnProperty(key)) {
                         if ( negotiationFields[key] !== currentNegotiation[key] ) {
+                            Log.trace('Found different field ' + key + ', will update the negotiation');
                             hasDifferentField = true;
                             break;
                         }
