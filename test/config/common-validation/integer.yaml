@@ -1,0 +1,13 @@
+---
+- input: ''
+  expect: 400
+- input: AAAA
+  expect: 400
+- input: -12
+  expect: 400
+- input: 12-
+  expect: 400
+- input: ~~~~
+  expect: 400
+- input: 0
+  expect: 400
