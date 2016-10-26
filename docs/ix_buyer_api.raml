@@ -14,6 +14,14 @@ mediaType: application/json
 #   These are reusable traits that can be applied in multiple nodes
 ################################
 
+documentation:
+    -   !include documentation/workflows/buy_deal.raml
+
+################################
+# Traits
+#   These are reusable traits that can be applied in multiple nodes
+################################
+
 traits:
     auth_required:
         headers:
