@@ -180,24 +180,24 @@ class NegotiatedDealManager {
         if (userType === 'buyer') {
             negotiatedFields.buyerStatus = newStatus;
             if (otherPartyStatus !== 'rejected') {
-                negotiatedFields.publisherStatus = 'active';
+                negotiatedFields.pubStatus = 'active';
             }
 
         } else {
-            negotiatedFields.publisherStatus = newStatus;
+            negotiatedFields.pubStatus = newStatus;
             if (otherPartyStatus !== 'rejected') {
                 negotiatedFields.buyerStatus = 'active';
             }
         }
 
-        await this.databaseManager('ixmDealNegotiations')
-                    .where('negotiationID', '=', negotiatedDealID)
-                    .update(negotiatedFields);
+        await this.databaseManager.from('ixmDealNegotiations')
+                                    .update(negotiatedFields)
+                                    .where('negotiationID', '=', negotiatedDealID);
 
         // Get the new modifyDate
         return (await this.databaseManager.select('modifyDate')
                                              .from('ixmDealNegotiations')
-                                             .where('proposalID', negotiatedDealID))[0].modifyDate;
+                                             .where('negotiationID', negotiatedDealID))[0].modifyDate;
 
     }
 
