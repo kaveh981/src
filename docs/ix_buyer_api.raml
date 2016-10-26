@@ -54,7 +54,7 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         put:
-            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the package creator.
+            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
                 type: Deal
             responses:
@@ -84,7 +84,7 @@ types:
 
             The request will be processed according to fields in the body JSON object. An object containing only proposal_id, partner_id and status fields will accept or reject the negotiation accordingly.
 
-            An object containing one or more of the negotiatible deal fields will update the current negotiation state to the sent terms. Original propsoal terms will be preserved.
+            An object containing one or more of the negotiable deal fields will update the current negotiation state to the sent terms. Original propsoal terms will be preserved.
             body:
                 type: Negotiation
             examples:
@@ -121,7 +121,7 @@ types:
             body:
                 application/json:
                     properties:
-                        packageID:
+                        proposal_id:
                             type: integer
                             required: true
                             minimum: 1
