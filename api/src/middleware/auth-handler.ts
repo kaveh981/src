@@ -17,7 +17,7 @@ const authConfig = config.get('auth');
 const Log = new Logger('AUTH');
 
 /** Identify if the user is legitimate, and is an IXM user */
-async function indentifyUser(token: string): Promise<UserModel> {
+async function identifyUser(token: string): Promise<UserModel> {
 
         if (!Number(token)) {
             throw HTTPError('401_NOT_IXMUSER');
@@ -53,7 +53,7 @@ async function AuthHandler (req: express.Request, res: express.Response, next: F
             return;
         }
 
-        req.ixmUserInfo = await indentifyUser(accessToken);
+        req.ixmUserInfo = await identifyUser(accessToken);
         next();
 
     } catch (error) { next(error); };
