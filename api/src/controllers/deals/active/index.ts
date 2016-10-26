@@ -57,7 +57,7 @@ function ActiveDeals(router: express.Router): void {
         pagination.offset = Number(pagination.offset);
 
         // Get all active deals for current buyer
-        let buyerId = Number(req.ixmBuyerInfo.userID);
+        let buyerId = Number(req.ixmUserInfo.id);
 
         let activeDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
 
@@ -83,7 +83,7 @@ function ActiveDeals(router: express.Router): void {
 
         // Check that proposal exists
         let proposalID: number = req.body.proposalID;
-        let buyerID = Number(req.ixmBuyerInfo.userID);
+        let buyerID = Number(req.ixmUserInfo.id);
         let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
