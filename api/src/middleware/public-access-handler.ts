@@ -12,7 +12,7 @@ const authConfig = config.get('auth');
  * Public access switch, if the configuration is set to private we block any unauthorized access.
  */
 function PublicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
-    if (!authConfig['public'] && (!req.ixmBuyerInfo || !req.ixmBuyerInfo.userID)) {
+    if (!authConfig['public'] && (!req.ixmUserInfo || !req.ixmUserInfo.id)) {
         res.sendError('401_PRIVATE');
     } else {
         next();
