@@ -1,6 +1,7 @@
 'use strict';
 
 import * as crypto from 'crypto';
+import * as knex from 'knex';
 
 import { SettledDealModel } from './settled-deal-model';
 import { DatabaseManager } from '../../../lib/database-manager';
@@ -107,11 +108,20 @@ class SettledDealManager {
     /**
      * Insert a new settled deal into the database, fails if the settled deal already has an id or else populates the id.
      * @param settledDeal - The settled deal to insert.
+     * @param transaction - A transaction object to use.
      */
-    public async insertSettledDeal(settledDeal: SettledDealModel) {
+    public async insertSettledDeal(settledDeal: SettledDealModel, transaction?: knex.Transaction) {
 
         if (settledDeal.id) {
-            throw new Error('A deal with that id already exists.');
+            throw new Error('Cannot insert a settled deal with an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertSettledDeal(settledDeal, trx);
+            });
+            return;
         }
 
         let externalDealID;
@@ -126,46 +136,42 @@ class SettledDealManager {
         let negotiatedDeal = settledDeal.negotiatedDeal;
         let proposedDeal = negotiatedDeal.proposedDeal;
 
-        // Begin a database transaction.
-        await this.databaseManager.transaction(async (trx) => {
+        // Begin database queries
+        await transaction.insert({
+            userID: proposedDeal.ownerID,
+            dspID: settledDeal.dspID,
+            name: proposedDeal.name,
+            auctionType: proposedDeal.auctionType,
+            rate: negotiatedDeal.price,
+            status: settledDeal.status[0].toUpperCase(),
+            startDate: negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate,
+            externalDealID: externalDealID,
+            priority: 5,
+            openMarket: 0,
+            noPayoutMode: 0,
+            manualApproval: 1
+        }).into('rtbDeals');
 
-            await trx.insert({
-                userID: proposedDeal.ownerID,
-                dspID: settledDeal.dspID,
-                name: proposedDeal.name,
-                auctionType: proposedDeal.auctionType,
-                rate: negotiatedDeal.price,
-                status: settledDeal.status[0].toUpperCase(),
-                startDate: negotiatedDeal.startDate,
-                endDate: negotiatedDeal.endDate,
-                externalDealID: externalDealID,
-                priority: 5,
-                openMarket: 0,
-                noPayoutMode: 0,
-                manualApproval: 1
-            }).into('rtbDeals');
+        // Get newly created deal id
+        let dealID = (await transaction.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
 
-            // Get newly created deal id
-            let dealID = (await trx.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
+        settledDeal.id = dealID;
+        settledDeal.externalDealID = externalDealID;
 
-            settledDeal.id = dealID;
-            settledDeal.externalDealID = externalDealID;
+        // Insert into deal section mapping
+        for (let i = 0; i < proposedDeal.sections.length; i++) {
+            await transaction.insert({
+                dealID: dealID,
+                sectionID: proposedDeal.sections[i]
+            }).into('rtbDealSections');
+        }
 
-            // Insert into deal section mapping
-            for (let i = 0; i < proposedDeal.sections.length; i++) {
-                await trx.insert({
-                    dealID: dealID,
-                    sectionID: proposedDeal.sections[i]
-                }).into('rtbDealSections');
-            }
-
-            // Insert proposal deal mapping
-            await trx.insert({
-                negotiationID: negotiatedDeal.id,
-                dealID: dealID
-            }).into('ixmNegotiationDealMappings');
-
-        });
+        // Insert proposal deal mapping
+        await transaction.insert({
+            negotiationID: negotiatedDeal.id,
+            dealID: dealID
+        }).into('ixmNegotiationDealMappings');
 
     }
 
