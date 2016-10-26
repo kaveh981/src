@@ -401,7 +401,6 @@ export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
     Object.assign(negotiation, { budget: '123' });
     let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
 
-
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
     assert.equal(responseMaxMore.status, 400);
@@ -716,4 +715,3 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
     assert.notEqual(responseReject.status, 400);
     assert.notEqual(responseReject.status, 500);
 }
-
