@@ -116,7 +116,7 @@ function NegotiationDeals(router: express.Router): void {
         let buyerID: number;
         let publisherID: number;
         let userType: string = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
-        Log.trace('User is a |'+ userType + '|.');
+        Log.trace('User is a ' + userType);
 
         if (userType === 'publisher') {
             buyerID = req.body.partner_id;
