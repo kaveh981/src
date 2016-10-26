@@ -2,41 +2,31 @@
 
 type: object
 description: |
-	Current state of a deal in negotiation. The object fields describe the current proposed terms of the deal. The included proposal object contains the original proposal terms.
+    Current state of a deal in negotiation. The object fields describe the current proposed terms of the deal. The included proposal object contains the original proposal terms.
 
-	All negotiation is 1-1 between a publisher and a buyer. In the case of a proposal offered to multiple parties on either side, individual negotiation states are created for each publisher/buyer pair.
+    All negotiation is 1-1 between a publisher and a buyer. In the case of a proposal offered to multiple parties on either side, individual negotiation states are created for each publisher/buyer pair.
 properties:
     proposal_id:
         type: integer
         required: true
         displayName: Proposal ID
         description: A reference to the proposal this negotiation is occuring on
-    publisher_id:
-    	type: integer
-    	required: true
-    	displayName: Publisher ID
-    	description: The unique identifier for the publisher involved in this negotiation
-	publisher_contact:
-		type: !include contact.raml
-		required: true
-		displayName: Publisher Contact Information
-		description: Contact information for the publisher involved in this negotiation
-	buyer_id:
-		type: integer
-		required: true
-		displayName: Buyer ID
-		description: The unique identifier for the buyer involved in this negotiation
-	buyer_contact:
-		type: !include contact.raml
-		required: true
-		displayName: Buyer Contact Information
-		description: Contact information for the buyer involved in this negotiation
-	description:
-		type: string
-		required: true
-		displayName: Description
-		description: The description of the deal, from the original deal proposal
-	terms:
+    partner_id:
+        type: integer
+        required: true
+        displayName: Partner ID
+        description: The unique identifier for the negotiating partner. Will be a publisher ID if request originates from a buyer, or a buyer ID if request originates from a publisher.
+    partner_contact:
+        type: !include contact.raml
+        required: true
+        displayName: Partner Contact Information
+        description: Contact information for the partner involved in this negotiation. As with the partner_id, this is a publisher ID if requested by a buyer, or vice-versa.
+    description:
+        type: string
+        required: true
+        displayName: Description
+        description: The description of the deal, from the original deal proposal
+    terms:
         type: string
         required: false
         displayName: Terms & Conditions
@@ -103,8 +93,7 @@ properties:
     example: |
     {
         "proposal_id": 999,
-        "publisher_id": 123,
-        "buyer_id": 666,
+        "partner_id": 666,
         "deal_section_id": [4321, 9876],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
@@ -115,13 +104,7 @@ properties:
         "budget": 9999999.99,
         "currency": "USD",
         "auction_type": "first",
-        "publisher_contact": {
-            "title": "Captain",
-            "name": "Jimdex Exchange",
-            "email": "jimdex.exchange@indexexchange.com",
-            "phone": "666 666 6665"
-        },
-        "buyer_contact": {
+        "partner_contact": {
             "title": "Lord",
             "name": "Humungus",
             "email": "ayatollah@rockandrollah.com",
