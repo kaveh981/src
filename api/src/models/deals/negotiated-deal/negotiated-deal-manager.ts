@@ -179,13 +179,13 @@ class NegotiatedDealManager {
 
         if (userType === 'buyer') {
             negotiatedFields.buyerStatus = newStatus;
-            if (otherPartyStatus !== 'rejected') {
+            if (otherPartyStatus !== 'rejected' && responseType === 'counter-offer') {
                 negotiatedFields.pubStatus = 'active';
             }
 
         } else {
             negotiatedFields.pubStatus = newStatus;
-            if (otherPartyStatus !== 'rejected') {
+            if (otherPartyStatus !== 'rejected' && responseType === 'counter-offer') {
                 negotiatedFields.buyerStatus = 'active';
             }
         }
