@@ -91,12 +91,20 @@ class NegotiatedDealManager {
     /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
-     * @param transation - A database manager transaction object to modify database.
+     * @param transation - A knex transaction object to use.
      */
-    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction: knex.Transaction) {
+    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction) {
 
         if (negotiatedDeal.id) {
-            throw new Error('A negotiated deal with that id already exists.');
+            throw new Error('Cannot insert a negotiated deal with an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertNegotiatedDeal(negotiatedDeal, trx);
+            });
+            return;
         }
 
         await transaction.insert({
@@ -160,7 +168,7 @@ class NegotiatedDealManager {
     /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
      * @param date - The date in ISO format
-     * @returns A strign with the date in the format of yyyy-mm-dd hh:mm:ss
+     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
      */
     private dateToMysqlTimestamp(date: string | Date): string {
 

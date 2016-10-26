@@ -118,7 +118,9 @@ function ActiveDeals(router: express.Router): void {
 
             // Create the settled deal
             let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
-            await settledDealManager.insertSettledDeal(settledDeal, transaction);
+            await settledDealManager.insertSettledDeal(settledDeal);
+
+            console.log('i did not wait');
 
             res.sendPayload(settledDeal.toPayload());
         });

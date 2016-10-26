@@ -108,12 +108,20 @@ class SettledDealManager {
     /**
      * Insert a new settled deal into the database, fails if the settled deal already has an id or else populates the id.
      * @param settledDeal - The settled deal to insert.
-     * @param transaction - A transaction object to use, required for inserts.
+     * @param transaction - A transaction object to use.
      */
-    public async insertSettledDeal(settledDeal: SettledDealModel, transaction: knex.Transaction) {
+    public async insertSettledDeal(settledDeal: SettledDealModel, transaction?: knex.Transaction) {
 
         if (settledDeal.id) {
             throw new Error('A deal with that id already exists.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertSettledDeal(settledDeal, trx);
+            });
+            return;
         }
 
         let externalDealID;
