@@ -41,18 +41,18 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let buyerID = Number(req.ixmBuyerInfo.userID);
+        let buyerID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < negotiatedDeals.length; i++) {
-                let proposal = negotiatedDeals[i].proposedDeal;
-                let owner = await userManager.fetchUserFromId(proposal.ownerID);
+            let proposal = negotiatedDeals[i].proposedDeal;
+            let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
-                if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                   && proposal.isAvailable() && owner.status === 'A' ) {
-                        activeNegotiatedDeals.push(negotiatedDeals[i]);
-                }
+            if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
+                && proposal.isAvailable() && owner.status === 'A' ) {
+                    activeNegotiatedDeals.push(negotiatedDeals[i]);
+            }
         }
 
         if (activeNegotiatedDeals.length > 0) {
