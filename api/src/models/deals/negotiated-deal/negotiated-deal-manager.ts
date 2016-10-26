@@ -166,7 +166,7 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Update a negotiation with new parameters sent in the request
+     * Update a negotiation with new parameters sent in the request and return new modifyDate
      * @param negotiatedDealID - The negotiation that needs updating.
      * @param userType- Whether the user changing status is the publisher or the buyer.
      * @param responseType - Whether this is a counter offer or a rejection/ final acceptance.
