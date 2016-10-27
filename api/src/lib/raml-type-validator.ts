@@ -37,8 +37,8 @@ interface IValidationOptions {
     /** Force defaults only on specific errors */
     forceOnError?: string[];
 
-    /** Sanitize strings to lowercase */
-    sanitizeToLowercase?: boolean;
+    /** Sanitize strings to lowercase and trim trailing whitespace */
+    sanitizeString?: boolean;
 
     /** Sanitize integers by converting strings to numbers */
     sanitizeIntegers?: boolean;
@@ -186,7 +186,7 @@ class RamlTypeValidator {
                 }
 
                 // Sanitize string to lower case if desired
-                if (opts.sanitizeToLowercase && typeof obj[property.key] === 'string') {
+                if (opts.sanitizeString && typeof obj[property.key] === 'string') {
                     obj[property.key] = obj[property.key].trim().toLowerCase();
                 }
 
