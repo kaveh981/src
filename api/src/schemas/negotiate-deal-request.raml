@@ -1,0 +1,44 @@
+#%RAML 1.0 DataType
+NegotiateDealRequest:
+    type: object
+    properties:
+        proposal_id:
+            type: integer
+            required: true
+            minimum: 1
+            maximum: 16777215
+        partner_id:
+            type: integer
+            required: true
+            minimum: 1
+            maximum: 16777215
+        start_date:
+            type: date-only
+            required: false
+        end_date:
+            type: date-only
+            required: false
+        price:
+            type: number
+            required: false
+            minimum: 0.01
+            maximum: 655.35
+        impressions:
+            type: integer
+            required: false
+            minimum: 1
+            maximum: 16777215
+        budget:
+            type: integer
+            required: false
+            minimum: 1
+            maximum: 16777215
+        terms:
+            type: string
+            required: false
+            minLength: 1
+            maxLength: 65535
+        response:
+            enum: ['accept', 'reject', 'counter-offer']
+            default: 'counter-offer'
+            required: false
