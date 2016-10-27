@@ -104,9 +104,9 @@ function NegotiationDeals(router: express.Router): void {
         let fieldCount = Object.keys(negotiationFields).length;
 
         if (responseType === 'counter-offer' && fieldCount === 0) {
-            throw HTTPError('400', 'At least 1 negotiation or the "response" field must be provided.');
+            throw HTTPError('400_MISSING_NEG_FIELD');
         } else if (fieldCount > 0 && responseType !== 'counter-offer') {
-            throw HTTPError('400', 'No negotiation field can be provided along with given response field.');
+            throw HTTPError('400_EXTRA_NEG_FIELD');
         }
 
         // Check whether the user is a publisher or a buyer and populate user fields accordingly
