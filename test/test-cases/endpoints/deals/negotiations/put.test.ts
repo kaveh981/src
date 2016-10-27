@@ -30,7 +30,7 @@ async function commonDatabaseSetup() {
 export let ATW_CO_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetup);
 
  /*
- * @case    - The user does not supply optional fields.
+ * @case    - The user does not provide any negotiation fields or a response.
  * @expect  - The API responds with 400.
  * @label   - ATW_API_NEGOTIATION_GENERAL_1
  * @route   - PUT deals/negotiations
@@ -57,7 +57,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
 }
 
 /*
- * @case    - The user supplies an optional negotiation field with the response field.
+ * @case    - The user supplies a negotiation field along with the response field.
  * @expect  - The API responds with 400.
  * @label   - ATW_API_NEGOTIATION_GENERAL_2
  * @route   - PUT deals/negotiations
@@ -493,7 +493,7 @@ export async function ATW_API_NEGOTIATION_TERMS (assert: test.Test) {
 
 /*
  * @case    - The user only supplies a start date for the optional fields.
- * @expect  - The API responds with 400s for invalid and not with 400s for valid start dates.
+ * @expect  - The API does not respond with 400. The request is valid.
  * @label   - ATW_API_NEGOTIATION_STARTDATE
  * @route   - PUT deals/negotiations
  * @status  - working
@@ -582,7 +582,7 @@ export async function ATW_API_COMMON_STARTDATE (assert: test.Test) {
 
 /*
  * @case    - The user only supplies an end date for the optional fields.
- * @expect  - The API responds with 400s for invalid and not with 400s for valid end dates.
+ * @expect  - The API does not respond with 400. The request is valid.
  * @label   - ATW_API_NEGOTIATION_ENDDATE
  * @route   - PUT deals/negotiations
  * @status  - working
