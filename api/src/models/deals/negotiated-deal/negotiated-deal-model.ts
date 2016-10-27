@@ -57,40 +57,79 @@ class NegotiatedDealModel {
     }
 
     /**
+     * Update the current negotiation with new fields.
+     * @param negotationFields - Fields to update.
+     * @param sender - The person who is sending the new fields.
+     * @param senderStatus - The response the sender is sending.
+     * @param partnerStatus - The status of the receiving party.
+     * @returns True if there was a change to the negotiation terms.
+     */
+    public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
+
+        let existDifference = false;
+
+        this.sender = sender;
+
+        for (let key in negotiationFields) {
+            if (negotiationFields[key] && negotiationFields[key] !== this[key]) {
+                this[key] = negotiationFields[key];
+                existDifference = true;
+            }
+        }
+
+        if (sender === 'publisher') {
+            this.publisherStatus = senderStatus;
+            this.buyerStatus = partnerStatus;
+        } else {
+            this.buyerStatus = senderStatus;
+            this.publisherStatus = partnerStatus;
+        }
+
+        return existDifference;
+
+    }
+
+    /**
      * Return payload formated object
      */
     public toPayload(): any {
-        return {
-            proposal_id: this.proposedDeal.id,
+        let payload: any = {
             publisher_id: this.publisherID,
             publisher_contact: this.publisherInfo.toContactPayload(),
             buyer_id: this.buyerID,
             buyer_contact: this.buyerInfo.toContactPayload(),
             description: this.proposedDeal.description,
-            terms: this.terms,
-            impressions: this.impressions,
-            budget: this.budget,
             name: this.proposedDeal.name,
-            start_date: this.formatDate(this.startDate),
-            end_date: this.formatDate(this.endDate),
             auction_type: this.proposedDeal.auctionType,
-            price: this.price,
             deal_section_id: this.proposedDeal.sections,
             currency: this.proposedDeal.currency,
+            terms: this.terms || undefined,
+            impressions: this.impressions || undefined,
+            budget: this.budget || undefined,
+            price: this.price || undefined,
+            start_date: this.formatDate(this.startDate),
+            end_date: this.formatDate(this.endDate),
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
+
+        return payload;
     }
 
     /** 
      * Format the dates to yyyy-mm-dd
      * @param dateString - The date as a string.
      */
-    private formatDate(dateString: string) {
-        dateString = dateString.toString();
+    private formatDate(dateString: string | Date) {
+
+        if (!dateString) {
+            return undefined;
+        }
+
         let date = new Date(dateString.toString());
 
-        if (dateString.includes('0000-00-00')) {
+        if (dateString.toString().includes('0000-00-00')) {
             return '0000-00-00';
         }
 
