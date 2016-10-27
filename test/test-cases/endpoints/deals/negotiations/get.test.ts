@@ -53,8 +53,8 @@ export async function ATW_DN_GET_01 (assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
 }
@@ -76,8 +76,8 @@ export async function ATW_DN_GET_02 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
 
@@ -102,8 +102,8 @@ export async function ATW_DN_GET_03 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID);
-
     let response = await apiRequest.get(route, {}, publisher2.publisher.userID);
+
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
 
@@ -132,8 +132,8 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
                      "1 DN Returned");
@@ -162,8 +162,8 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
                                                                              pubStatus: 'accepted',
                                                                              sender: 'publisher'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
                      "1 DN Returned");
@@ -191,8 +191,8 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
                                                                             buyerStatus: 'accepted',
                                                                             pubStatus: 'accepted'
                                                                         });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No data returned");
 }
@@ -220,8 +220,8 @@ export async function ATW_DN_GET_07 (assert: test.Test) {
                                                                              pubStatus: 'accepted',
                                                                              sender: 'buyer'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [], "No Negotiation Objects returned");
 }
@@ -249,8 +249,8 @@ export async function ATW_DN_GET_08 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
                      "1 DN Returned");
@@ -279,8 +279,8 @@ export async function ATW_DN_GET_09 (assert: test.Test) {
                                                                              pubStatus: 'rejected',
                                                                              sender: 'publisher'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
                      "1 DN Returned");
@@ -317,8 +317,8 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-
     let response = await apiRequest.get(route, {}, publisher.user.userID);
+
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher, buyer1),
                                              Helper.dealNegotiationToPayload(dealNegotiation2, proposal, publisher, buyer2)],
@@ -355,8 +355,8 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-
      let response = await apiRequest.get(route, {}, buyer1.user.userID);
+
      assert.equals(response.status, 200, "Response 200");
      assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher, buyer1)],
                       "1 DN for buyer1 returned returned");
@@ -393,8 +393,8 @@ export async function ATW_DN_GET_12 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-
     let response = await apiRequest.get(route, {}, buyer.user.userID);
+
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, publisher, buyer),
                                              Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, publisher, buyer)],
