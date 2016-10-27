@@ -148,6 +148,11 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
             }
 
+            // A buyer cannot accept or reject a negotiation that doesn't exist.
+            if (responseType !== 'counter-offer') {
+                throw HTTPError('403_NO_NEGOTIATION');
+            }
+
             currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(
                                         targetProposal, buyerID, publisherID, 'buyer', negotiationFields);
 
