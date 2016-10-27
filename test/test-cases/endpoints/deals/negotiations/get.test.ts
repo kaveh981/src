@@ -32,20 +32,19 @@ async function commonDatabaseSetup() {
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
  * @route   - GET deals/negotiations
- * @status  - broken
+ * @status  - passing
  * @tags    - get, deals, auth
  */
-/** Generic Authentication Tests */
-export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
 
 /*
  * @case    - Publisher has no proposals (and no negotiations)
- * @label   - ATW_DN_GET_F1
+ * @expect  - No proposals are returned
  * @route   - GET deals/negotitation
  * @status  - passing
  * @tags    - 
  */
-export async function ATW_DN_GET_F1 (assert: test.Test) {
+export async function ATW_DN_GET_01 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -62,12 +61,12 @@ export async function ATW_DN_GET_F1 (assert: test.Test) {
 
 /*
  * @case    - Publisher has proposals (no negotiations)
- * @label   - ATW_DN_GET_F2
  * @route   - GET deals/negotitation
+ * @expect  - No proposals are returned
  * @status  - passing
  * @tags    - 
  */
-export async function ATW_DN_GET_F2 (assert: test.Test) {
+export async function ATW_DN_GET_02 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -86,12 +85,11 @@ export async function ATW_DN_GET_F2 (assert: test.Test) {
 
 /*
  * @case    - Proposal belonging to different publisher containing negotiations exists, but current user is NOT linked to them
- * @label   - ATW_DN_GET_F3
  * @route   - GET deals/negotitation
- * @status  - incomplete
- * @tags    - pub perspective
+ * @status  - incomplete (pub perspective not a thing yet)
+ * @tags    - pub
  */
-export async function ATW_DN_GET_F3 (assert: test.Test) {
+export async function ATW_DN_GET_03 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -113,12 +111,12 @@ export async function ATW_DN_GET_F3 (assert: test.Test) {
 
 /*
  * @case    - Publisher was not the last to negotiate on its proposal
- * @label   - ATW_DN_GET_F4
+ * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotitation
- * @status  - failing    
- * @tags    - timezone error
+ * @status  - passing    
+ * @tags    - 
  */
-export async function ATW_DN_GET_F4 (assert: test.Test) {
+export async function ATW_DN_GET_04 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -134,6 +132,7 @@ export async function ATW_DN_GET_F4 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
+
     let response = await apiRequest.get(route, {}, buyer.user.userID);
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
@@ -142,12 +141,12 @@ export async function ATW_DN_GET_F4 (assert: test.Test) {
 
 /*
  * @case    - Publisher was the last to negotiate on its proposal
- * @label   - ATW_DN_GET_F5
+ * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotitation
- * @status  - failing
- * @tags    - timezone error
+ * @status  - passing
+ * @tags    - 
  */
-export async function ATW_DN_GET_F5 (assert: test.Test) {
+export async function ATW_DN_GET_05 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -163,6 +162,7 @@ export async function ATW_DN_GET_F5 (assert: test.Test) {
                                                                              pubStatus: 'accepted',
                                                                              sender: 'publisher'
                                                                          });
+
     let response = await apiRequest.get(route, {}, buyer.user.userID);
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
@@ -171,12 +171,12 @@ export async function ATW_DN_GET_F5 (assert: test.Test) {
 
 /*
  * @case    - Buyer accepted publisher's proposal right away
- * @label   - ATW_DN_GET_F6
+ * @expect  - Negotiation closed - nothing returned 
  * @route   - GET deals/negotitation
  * @status  - passing
  * @tags    - 
  */
-export async function ATW_DN_GET_F6 (assert: test.Test) {
+export async function ATW_DN_GET_06 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -187,8 +187,7 @@ export async function ATW_DN_GET_F6 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                        publisher.user.userID, buyer.user.userID,
-                                                                        {
+                                                                        publisher.user.userID, buyer.user.userID, {
                                                                             buyerStatus: 'accepted',
                                                                             pubStatus: 'accepted'
                                                                         });
@@ -200,12 +199,12 @@ export async function ATW_DN_GET_F6 (assert: test.Test) {
 
 /*
  * @case    - Publisher accepted its own proposal after a negotiation
- * @label   - ATW_DN_GET_F7
+ * @expect  - Negotiation closed - nothing returned
  * @route   - GET deals/negotitation
  * @status  - passing
  * @tags    - 
  */
-export async function ATW_DN_GET_F7 (assert: test.Test) {
+export async function ATW_DN_GET_07 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -221,6 +220,7 @@ export async function ATW_DN_GET_F7 (assert: test.Test) {
                                                                              pubStatus: 'accepted',
                                                                              sender: 'buyer'
                                                                          });
+
     let response = await apiRequest.get(route, {}, buyer.user.userID);
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [], "No Negotiation Objects returned");
@@ -228,12 +228,12 @@ export async function ATW_DN_GET_F7 (assert: test.Test) {
 
 /*
  * @case    - Buyer rejects publisher's proposal after negotiations
- * @label   - ATW_DN_GET_F8
+ * @expect  - 1 DN returned (still active)
  * @route   - GET deals/negotitation
- * @status  - failing
- * @tags    - timezone error
+ * @status  - passing
+ * @tags    -
  */
-export async function ATW_DN_GET_F8 (assert: test.Test) {
+export async function ATW_DN_GET_08 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -249,6 +249,7 @@ export async function ATW_DN_GET_F8 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
+
     let response = await apiRequest.get(route, {}, buyer.user.userID);
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
@@ -257,12 +258,12 @@ export async function ATW_DN_GET_F8 (assert: test.Test) {
 
 /*
  * @case    - Publisher rejects its own proposal after a negotiation
- * @label   - ATW_DN_GET_F9
+ * @expect  - 1 DN returned (still active)
  * @route   - GET deals/negotitation
- * @status  - failing
- * @tags    - timezone error
+ * @status  - passing
+ * @tags    - 
  */
-export async function ATW_DN_GET_F9 (assert: test.Test) {
+export async function ATW_DN_GET_09 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -278,6 +279,7 @@ export async function ATW_DN_GET_F9 (assert: test.Test) {
                                                                              pubStatus: 'rejected',
                                                                              sender: 'publisher'
                                                                          });
+
     let response = await apiRequest.get(route, {}, buyer.user.userID);
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer)],
@@ -286,12 +288,12 @@ export async function ATW_DN_GET_F9 (assert: test.Test) {
 
 /*
  * @case    - Multiple proposals belong to publisher - publisher's perspective
- * @label   - ATW_DN_GET_F10
+ * @expect  - 2 DN's returned that belong to 2 separate buyers
  * @route   - GET deals/negotitation
- * @status  - incomplete
- * @tags    - pub perspective
+ * @status  - incomplete (pub perspective not a thing yet)
+ * @tags    - pub
  */
-export async function ATW_DN_GET_F10 (assert: test.Test) {
+export async function ATW_DN_GET_10 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -317,7 +319,6 @@ export async function ATW_DN_GET_F10 (assert: test.Test) {
                                                                          });
 
     let response = await apiRequest.get(route, {}, publisher.user.userID);
-
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher, buyer1),
                                              Helper.dealNegotiationToPayload(dealNegotiation2, proposal, publisher, buyer2)],
@@ -326,12 +327,12 @@ export async function ATW_DN_GET_F10 (assert: test.Test) {
 
 /*
  * @case    - Multiple proposals belong to publisher - buyer's perspective
- * @label   - ATW_DN_GET_F11
+ * @expect  - 1 DN returned since only one of them belongs to the buyer making the request 
  * @route   - GET deals/negotitation
- * @status  - failing
- * @tags    - timezone error
+ * @status  - passing
+ * @tags    - 
  */
-    export async function ATW_DN_GET_F11 (assert: test.Test) {
+    export async function ATW_DN_GET_11 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -354,20 +355,22 @@ export async function ATW_DN_GET_F10 (assert: test.Test) {
                                                                              pubStatus: 'active',
                                                                              sender: 'buyer'
                                                                          });
-    let response = await apiRequest.get(route, {}, buyer1.user.userID);
+
+     let response = await apiRequest.get(route, {}, buyer1.user.userID);
      assert.equals(response.status, 200, "Response 200");
      assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher, buyer1)],
                       "1 DN for buyer1 returned returned");
 }
 
 /*
- * @case    - Buyer linked to multiple proposals
+ * @case    - Buyer linked to multiple proposals by different publishers
+ * @expect  - 2 DNs returned belonging to 2 different publishers 
  * @label   - ATW_DN_GET_F12
  * @route   - GET deals/negotitation
- * @status  - failing
- * @tags    - timezone error
+ * @status  - passing
+ * @tags    - 
  */
-export async function ATW_DN_GET_F12 (assert: test.Test) {
+export async function ATW_DN_GET_12 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -392,7 +395,6 @@ export async function ATW_DN_GET_F12 (assert: test.Test) {
                                                                          });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
-
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, publisher, buyer),
                                              Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, publisher, buyer)],

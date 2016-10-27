@@ -51,7 +51,7 @@ class Helper {
         };
     }
 
-    public static dealNegotiationToPayload (dealNegotiation: IDealNegotiationData, proposal: INewProposalData, 
+    public static dealNegotiationToPayload (dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
                                             publisher: INewPubData, buyer: INewBuyerData) {
         return {
             proposal_id: proposal.proposal.proposalID,
