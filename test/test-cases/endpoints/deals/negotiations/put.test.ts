@@ -27,7 +27,7 @@ async function commonDatabaseSetup() {
 }
 
 /** Generic Authentication Tests */
-export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+export let ATW_CO_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetup);
 
  /*
  * @case    - The user does not supply optional fields.
@@ -37,7 +37,7 @@ export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetu
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_GENERAL_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -64,7 +64,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_GENERAL_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_GENERAL_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -93,7 +93,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSALID_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSALID_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
