@@ -117,12 +117,11 @@ function NegotiationDeals(router: express.Router): void {
         if (userType === 'publisher') {
             buyerID = Number(req.body.partner_id);
             publisherID = Number(req.ixmUserInfo.id);
-            Log.trace(`User is a publisher with ID ${publisherID}`);
         } else {
             buyerID = Number(req.ixmUserInfo.id);
             publisherID = Number(req.body.partner_id);
-            Log.trace(`User is a buyer with ID ${buyerID}`);
         }
+        Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`);
 
         // Confirm that the proposal is available and belongs to this publisher
         let proposalID = Number(req.body.proposal_id);
@@ -204,7 +203,7 @@ function NegotiationDeals(router: express.Router): void {
 
                     await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-                    Log.trace(`New deal created with id ${settledDeal.id}.`)
+                    Log.trace(`New deal created with id ${settledDeal.id}.`);
 
                     res.sendPayload(settledDeal.toPayload());
                 });
