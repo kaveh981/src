@@ -29,6 +29,7 @@ en-US:
     403_BAD_PROPOSAL: The proposal does not match the provided partner.
     403_CANNOT_START_NEGOTIATION: Cannot start a negotiation on your own proposal.
     403_OTHER_REJECTED: The partner rejected this negotiation, the proposal cannot be bought as is.
+    403_NO_NEGOTIATION: You cannot accept or reject a negotiation which hasn't yet started.
     403_OUT_OF_TURN: The partner did not reply to your previous offer.
 
     # 404 Status Code Messages

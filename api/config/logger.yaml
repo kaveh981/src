@@ -8,11 +8,15 @@ filewriteLevel: 0
 
 # Sources of logs to override.
 sourceOverrides:
-    -   name: HTTP
-        consoleLevel: 1
-        filewriteLevel: 1
+    HTTP:                   # Name of the logger to override.
+        consoleLevel: 1     # Console level to override.
+        filewriteLevel: 0   # File write level to override.
 
-# Files to output JSON logs to. Relative to root.
+    DBMA:
+        consoleLevel: 1
+        filewriteLevel: 0    
+
+# Files to output JSON logs to. Relative to index.ts.
 outputFiles:
     - '../logs/output.log'
 
