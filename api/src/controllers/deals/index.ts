@@ -43,10 +43,6 @@ function Deals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        // Convert from strings (query) to integers
-        pagination.limit = Number(pagination.limit);
-        pagination.offset = Number(pagination.offset);
-
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
 
