@@ -64,9 +64,8 @@ class NegotiatedDealModel {
      * @param otherPartyStatus - The status of the receiving party.
      * @returns True if there was a change to the negotiation terms.
      */
-    public update(negotationFields: any, sender: 'buyer' | 'publisher',
-        senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
+    public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotationFields: any = {}) {
 
         let existDifference = false;
 

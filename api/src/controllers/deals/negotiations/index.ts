@@ -156,7 +156,7 @@ function NegotiationDeals(router: express.Router): void {
             currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(
                                         targetProposal, buyerID, publisherID, 'buyer');
 
-            let fieldChanged = currentNegotiation.update(negotiationFields, 'buyer', 'accepted', 'active');
+            let fieldChanged = currentNegotiation.update('buyer', 'accepted', 'active', negotiationFields);
 
             if (!fieldChanged) {
                 throw HTTPError('403_NO_CHANGE');
@@ -191,7 +191,7 @@ function NegotiationDeals(router: express.Router): void {
 
                 Log.trace('User is rejecting the negotiation');
 
-                currentNegotiation.update({ }, userType, 'rejected', otherPartyStatus);
+                currentNegotiation.update(userType, 'rejected', otherPartyStatus);
                 await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
 
             } else if (responseType === 'accept') {
@@ -206,7 +206,7 @@ function NegotiationDeals(router: express.Router): void {
                 await databaseManager.transaction(async (transaction) => {
                     Log.trace(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`);
 
-                    currentNegotiation.update({ }, userType, 'accepted', 'accepted');
+                    currentNegotiation.update(userType, 'accepted', 'accepted');
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
 
                     let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
@@ -225,7 +225,7 @@ function NegotiationDeals(router: express.Router): void {
 
                 Log.trace(`User has sent a counter-offer.`);
 
-                let fieldChanged = currentNegotiation.update(negotiationFields, userType, 'accepted', 'active');
+                let fieldChanged = currentNegotiation.update(userType, 'accepted', 'active', negotiationFields);
 
                 if (fieldChanged) {
                     Log.trace(`Fields have changed, updating negotiation.`);
