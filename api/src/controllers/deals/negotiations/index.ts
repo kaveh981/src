@@ -154,7 +154,13 @@ function NegotiationDeals(router: express.Router): void {
             }
 
             currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(
-                                        targetProposal, buyerID, publisherID, 'buyer', negotiationFields);
+                                        targetProposal, buyerID, publisherID, 'buyer');
+
+            let fieldChanged = currentNegotiation.update(negotiationFields, 'buyer', 'accepted', 'active');
+
+            if (!fieldChanged) {
+                throw HTTPError('403_NO_CHANGE');
+            }
 
             if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.status === 'A')) {
                 throw HTTPError('403_NOT_FORSALE');

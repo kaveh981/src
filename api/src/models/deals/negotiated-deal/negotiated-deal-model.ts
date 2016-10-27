@@ -65,8 +65,8 @@ class NegotiatedDealModel {
      * @returns True if there was a change to the negotiation terms.
      */
     public update(negotationFields: any, sender: 'buyer' | 'publisher',
-        responseType: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        otherPartyStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
+        senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
 
         let existDifference = false;
 
@@ -80,11 +80,11 @@ class NegotiatedDealModel {
         }
 
         if (sender === 'publisher') {
-            this.publisherStatus = responseType;
-            this.buyerStatus = otherPartyStatus;
+            this.publisherStatus = senderStatus;
+            this.buyerStatus = partnerStatus;
         } else {
-            this.buyerStatus = responseType;
-            this.publisherStatus = otherPartyStatus;
+            this.buyerStatus = senderStatus;
+            this.publisherStatus = partnerStatus;
         }
 
         return existDifference;

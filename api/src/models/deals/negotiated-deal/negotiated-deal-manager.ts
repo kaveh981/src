@@ -182,7 +182,7 @@ class NegotiatedDealManager {
      * @returns A negotiated deal model with the appropriate fields updated.
      */
     public async createNegotiationFromProposedDeal(
-        proposedDeal: ProposedDealModel, buyerID: number, publisherID: number, sender: 'buyer' | 'publisher', negotiationFields: any) {
+        proposedDeal: ProposedDealModel, buyerID: number, publisherID: number, sender: 'buyer' | 'publisher', negotiationFields: any = {}) {
 
         let negotiatedDeal = new NegotiatedDealModel({
             buyerID: buyerID,
