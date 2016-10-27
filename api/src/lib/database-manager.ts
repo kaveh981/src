@@ -53,8 +53,23 @@ export class DatabaseManager {
             queryBuilder.raw('SELECT 1')
                 .then(() => {
                     Log.info(`Database connection established successfully.`);
+
                     Object.assign(this, queryBuilder);
                     this.clientPool = queryBuilder.client;
+
+                    // Log all queries
+                    queryBuilder.on('query', (query) => {
+                        let filledQuery = query.sql;
+                        let idx = 0;
+
+                        while (filledQuery.includes('?')) {
+                            filledQuery = filledQuery.replace('?', query.bindings[idx]);
+                            idx++;
+                        }
+
+                        Log.trace(filledQuery);
+                    });
+
                     resolve();
                 })
                 .catch((err: Error) => {

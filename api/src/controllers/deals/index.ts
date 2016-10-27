@@ -22,7 +22,7 @@ const Log: Logger = new Logger('DEAL');
 /**
  * Function that takes care of /deals route
  */
-function Deals(router: express.Router): void {
+function Proposals(router: express.Router): void {
 
     /**
      * GET request to get all available proposals. The function first validates pagination query parameters. It then retrieves all
@@ -37,15 +37,11 @@ function Deals(router: express.Router): void {
         };
 
         let validationErrors = validator.validateType(pagination, 'Pagination',
-                            { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
-
-        // Convert from strings (query) to integers
-        pagination.limit = Number(pagination.limit);
-        pagination.offset = Number(pagination.offset);
 
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
@@ -74,4 +70,4 @@ function Deals(router: express.Router): void {
 
 };
 
-module.exports = Deals;
+module.exports = Proposals;
