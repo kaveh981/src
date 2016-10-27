@@ -51,6 +51,40 @@ class Helper {
         };
     }
 
+    public static dealNegotiationToPayload (dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
+                                            publisher: INewPubData, buyer: INewBuyerData) {
+        return {
+            proposal_id: proposal.proposal.proposalID,
+            publisher_id: publisher.user.userID,
+            publisher_contact: {
+                title: 'Warlord',
+                name: publisher.user.firstName + ' ' + publisher.user.lastName,
+                email_address: publisher.user.emailAddress,
+                phone: publisher.user.phone
+            },
+            buyer_id: buyer.user.userID,
+            buyer_contact: {
+                title: 'Warlord',
+                name: buyer.user.firstName + ' ' + buyer.user.lastName,
+                email_address: buyer.user.emailAddress,
+                phone: buyer.user.phone
+            },
+            description: proposal.proposal.description,
+            terms: dealNegotiation.terms,
+            impressions: dealNegotiation.impressions,
+            budget: dealNegotiation.budget,
+            name: proposal.proposal.name,
+            start_date: Helper.formatDate(dealNegotiation.startDate),
+            end_date: Helper.formatDate(dealNegotiation.endDate),
+            auction_type: proposal.proposal.auctionType,
+            price: dealNegotiation.price,
+            deal_section_id: proposal.sectionIDs,
+            currency: 'USD',
+            created_at: (new Date(dealNegotiation.createDate)).toISOString(),
+            modified_at: (new Date(dealNegotiation.modifyDate)).toISOString()
+        };
+    }
+
 }
 
 export { Helper };

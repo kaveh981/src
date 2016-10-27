@@ -1,0 +1,37 @@
+{ 
+    "type": "object",
+    "properties": { 
+        "startDate": {
+            "faker": "date.recent"
+        }, 
+        "endDate": {
+            "faker": "date.future"
+        }, 
+        "price": 50,
+        "impressions": 20,
+        "budget": 100,
+        "terms": { 
+            "faker": "lorem.paragraph"
+        },
+        "sender": {
+            "chance": {
+                "pickone": [
+                    [
+                        "buyer",
+                        "publisher"
+                    ]
+                ]
+            }
+        },
+        "pubStatus": "active",
+        "buyerStatus": "active",
+        "createDate": {
+            "faker": "date.past"
+        },
+        "modifyDate": {
+            "faker": "date.recent"
+        }
+    },
+    "required": ["startDate", "endDate", "price", "impressions", "budget", "terms", "sender", "pubStatus", "buyerStatus", "createDate", "modifyDate"] 
+
+}
