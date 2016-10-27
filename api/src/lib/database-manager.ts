@@ -62,7 +62,7 @@ export class DatabaseManager {
                         let filledQuery = query.sql;
                         let idx = 0;
 
-                        while (filledQuery.includes('?')) {
+                        while (filledQuery.includes('?') && idx < query.bindings.length) {
                             filledQuery = filledQuery.replace('?', query.bindings[idx]);
                             idx++;
                         }
