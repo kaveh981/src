@@ -23,32 +23,8 @@
                 ]
             }
         },
-        "pubStatus": {
-            "chance": {
-                "pickone": [
-                    [
-                        "active",
-                        "archived",
-                        "deleted",
-                        "accepted",
-                        "rejected"
-                    ]
-                ]
-            }
-        },
-        "buyerStatus": {
-            "chance": {
-                "pickone": [
-                    [
-                        "active",
-                        "archived",
-                        "deleted",
-                        "accepted",
-                        "rejected"
-                    ]
-                ]
-            }
-        },
+        "pubStatus": "active",
+        "buyerStatus": "active",
         "createDate": {
             "faker": "date.past"
         },

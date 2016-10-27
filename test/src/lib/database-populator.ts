@@ -251,35 +251,17 @@ class DatabasePopulator {
         newDealNegotiationData.proposalID = proposalID;
         newDealNegotiationData.publisherID = publisherID;
         newDealNegotiationData.buyerID = buyerID;
-        Log.debug(`updated fields`);
 
-        let newDealNegotiationIds;
+        let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
+        newDealNegotiationData.negotiationID = newDealNegotiationIds[0];
 
-        try {
-            newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
-            newDealNegotiationData.negotiationID = newDealNegotiationIds[0];
-            Log.debug('NegotiationID is ' + newDealNegotiationData.negotiationID);
-        } catch (err) {
-            Log.trace(err);
-            return;
-        }
+        let selection = await this.dbm.select('modifyDate').from('ixmDealNegotiations')
+                                    .where('negotiationID', newDealNegotiationData.negotiationID);
+        newDealNegotiationData.modifyDate = selection[0].modifyDate;
 
-        let selection;
-        try {
-            selection = await this.dbm.select('modifyDate').from('ixmDealNegotiations')
-                                        .where('negotiationID', newDealNegotiationData.negotiationID);
-            newDealNegotiationData.modifyDate = selection[0].modifyDate;
-            Log.debug("modifyDate is " + newDealNegotiationData.modifyDate);
-        } catch (err) {
-            Log.trace(err);
-            return;
-        }
-
-        Log.debug(`updated modifyDate`);
         Log.debug(`Created new negotiation, ID: ${newDealNegotiationData.negotiationID}`);
 
         return newDealNegotiationData;
-
     }
 
     /**
