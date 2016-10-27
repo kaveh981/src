@@ -16,8 +16,8 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 /** Test constants */
 const route = 'deals/negotiations';
-const DSP_ID = 514;
-const ANOTHER_DSP_ID = 438;
+const DSP_ID = 1;
+const ANOTHER_DSP_ID = 2;
 
 /** Generic Authentication Tests */
 // export let ATW_DA_PUT_AUTH = authenticationTest(route, 'put');
@@ -41,8 +41,8 @@ export async function ATW_API_negotiation_publisher_1 (assert: test.Test) {
 
     /** Test */
     let requestBody = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: publisher.user.userID,
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: publisher.user.userID,
             terms: 'Are you a goose'
     };
     let response = await apiRequest.put(route, requestBody, publisher.user.userID);
@@ -69,22 +69,22 @@ export async function ATW_API_negotiation_publisher_2_1 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
     /** Test */
     let pubRequestBody = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: buyer.user.userID,
-            terms: 'No you are a duck'
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyer.user.userID,
+            terms: 'no you are a duck'
     };
     let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
 
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'No you are a duck');
+    assert.equal(response.body.data[0].terms, 'no you are a duck');
 }
 
 /*
@@ -105,23 +105,23 @@ export async function ATW_API_negotiation_publisher_2_2 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
     let pubRequestBody1 = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: buyer.user.userID,
-            terms: 'No you are a duck'
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyer.user.userID,
+            terms: 'no you are a duck'
     };
     apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     /** Test */
     let pubRequestBody2 = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: buyer.user.userID,
-            terms: 'OK maybe you are a goose'
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyer.user.userID,
+            terms: 'ok maybe you are a goose'
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
 
@@ -150,8 +150,8 @@ export async function ATW_API_negotiation_publisher_3_2 (assert: test.Test) {
 
     /** Test */
     let pubRequestBody = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: publisher.user.userID,
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: publisher.user.userID,
             terms: 'Hello other pub'
     };
     let response = await apiRequest.put(route, pubRequestBody, annoyingPublisher.user.userID);
@@ -181,11 +181,11 @@ export async function ATW_API_negotiation_publisher_4 (assert: test.Test) {
 
     /** Test */
     let pubRequestBody = {
-            proposalID: proposalObj.proposal.proposalID,
-            partnerID: buyer.user.userID,
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: publisher.user.userID,
             terms: 'I have no idea what I am doing'
     };
-    let response = await apiRequest.put(route, { proposalID: proposalObj.proposal.proposalID }, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
 
     assert.equal(response.status, 403);
 
@@ -212,14 +212,14 @@ export async function ATW_API_negotiation_buyer_1 (assert: test.Test) {
 
     /** Test */
     let requestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, requestBody, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'I am a goose');
+    assert.equal(response.body.data[0].terms, 'i am a goose');
 
 }
 
@@ -243,28 +243,28 @@ export async function ATW_API_negotiation_buyer_2_1 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
     let pubRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'No you are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'no you are a duck'
     };
     await apiRequest.put(route, pubRequestBody, publisher.user.userID);
 
     /** Test */
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'Honk Honk Honk'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'Honk Honk Honk');
+    assert.equal(response.body.data[0].terms, 'honk honk honk');
 }
 
  /*
@@ -287,17 +287,17 @@ export async function ATW_API_negotiation_buyer_2_2 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     /** Test */
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'Honk Honk Honk'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
@@ -327,23 +327,23 @@ export async function ATW_API_negotiation_buyer_4 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerOneRequest = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a montreal goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a montreal goose'
     };
     let buyerOneResponse = await apiRequest.put(route, buyerOneRequest, buyer1.user.userID);
 
     /** Test */
     let buyerTwoRequest = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a toronto goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a toronto goose'
     };
     let buyerTwoResponse = await apiRequest.put(route, buyerTwoRequest, buyer2.user.userID);
 
     assert.equal(buyerTwoResponse.status, 200);
-    assert.equal(buyerOneResponse.body.terms, 'I am a montreal goose');
-    assert.equal(buyerTwoResponse.body.terms, 'I am a toronto goose');
+    assert.equal(buyerOneResponse.body.data[0].terms, 'i am a montreal goose');
+    assert.equal(buyerTwoResponse.body.data[0].terms, 'i am a toronto goose');
 
 }
 
@@ -367,31 +367,34 @@ export async function ATW_API_negotiation_state_1_1 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     let publisherRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
         response: 'reject'
     };
     await apiRequest.put(route, publisherRequestBody, publisher.user.userID);
 
     /** Test */
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'Honk Honk Honk'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
+    let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+    let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'Honk Honk Honk');
-    assert.equal(response.body.pubStatus, 'active');
-    assert.equal(response.body.buyerStatus, 'accepted');
+    assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(actualPubStatus, 'active');
+    assert.equal(actualBuyerStatus, 'accepted');
 }
 
  /*
@@ -414,38 +417,41 @@ export async function ATW_API_negotiation_state_1_2 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     let pubRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'No you are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'no you are a duck'
     };
     await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
         response: 'reject'
     };
     await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
     /** Test */
     let buyerRequestBody3 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'Honk Honk Honk'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody3, buyer.user.userID);
 
+    let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+    let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'Honk Honk Honk');
-    assert.equal(response.body.pubStatus, 'active');
-    assert.equal(response.body.buyerStatus, 'accepted');
+    assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(actualPubStatus, 'active');
+    assert.equal(actualBuyerStatus, 'accepted');
 }
 
 /*
@@ -468,31 +474,34 @@ export async function ATW_API_negotiation_state_2_1 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     let pubRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
         response: 'reject'
     };
     await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     /** Test */
     let pubRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'You are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'no you are a duck'
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
 
+    let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+    let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'You are a duck');
-    assert.equal(response.body.pubStatus, 'accepted');
-    assert.equal(response.body.buyerStatus, 'active');
+    assert.equal(response.body.data[0].terms, 'no you are a duck');
+    assert.equal(actualPubStatus, 'accepted');
+    assert.equal(actualBuyerStatus, 'active');
 }
 
 /*
@@ -515,38 +524,41 @@ export async function ATW_API_negotiation_state_2_2 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     let pubRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'No you are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'no you are a duck'
     };
     await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
         response: 'reject'
     };
     await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
     /** Test */
     let pubRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'OK maybe you are a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'ok maybe you are a goose'
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
 
+    let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+    let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
     assert.equal(response.status, 200);
-    assert.equal(response.body.terms, 'OK maybe you are a goose');
-    assert.equal(response.body.pubStatus, 'accepted');
-    assert.equal(response.body.buyerStatus, 'active');
+    assert.equal(response.body.data[0].terms, 'ok maybe you are a goose');
+    assert.equal(actualPubStatus, 'accepted');
+    assert.equal(actualBuyerStatus, 'active');
 }
 
 /*
@@ -569,24 +581,24 @@ export async function ATW_API_negotiation_state_3_1 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
 
     let pubRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
         response: 'accept'
     };
     await apiRequest.put(route, pubRequestBody, publisher.user.userID);
 
     /** Test */
     let buyerRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'Honk Honk Honk'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
 
@@ -613,23 +625,23 @@ export async function ATW_API_negotiation_state_3_2 (assert: test.Test) {
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
     let pubRequestBody1 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
         response: 'accept'
     };
     await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     /** Test */
     let pubRequestBody2 = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
-        terms: 'No you are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'no you are a duck'
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
 
@@ -657,8 +669,8 @@ export async function ATW_API_negotiation_state_4_1 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
         response: 'reject'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
@@ -687,8 +699,8 @@ export async function ATW_API_negotiation_state_4_2 (assert: test.Test) {
 
     /** Test */
     let pubRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: buyer.user.userID,
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
         response: 'reject'
     };
     let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
@@ -715,9 +727,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_1 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: fakeProposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: fakeProposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
@@ -743,9 +755,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_1 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: fakeProposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: fakeProposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
@@ -770,8 +782,8 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_2 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
@@ -799,9 +811,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_3 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: proposal.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposal.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
@@ -829,9 +841,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_4_1 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
@@ -859,11 +871,31 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_4_2 (assert: test.Test) {
 
     /** Test */
     let buyerRequestBody = {
-        proposalID: proposalObj.proposal.proposalID,
-        partnerID: publisher.user.userID,
-        terms: 'I am a goose'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
     };
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
     assert.equal(response.status, 403);
+}
+
+async function getPubStatus(proposalID: number, publisherID: number, buyerID: number): Promise<string> {
+
+    let row = await databaseManager.select('pubStatus')
+                .from('ixmDealNegotiations')
+                .where('proposalID', proposalID)
+                .andWhere('buyerID', buyerID)
+                .andWhere('publisherID', publisherID);
+    return row[0].pubStatus;
+}
+
+async function getBuyerStatus(proposalID: number, publisherID: number, buyerID: number): Promise<string> {
+
+    let row = await databaseManager.select('buyerStatus')
+                .from('ixmDealNegotiations')
+                .where('proposalID', proposalID)
+                .andWhere('buyerID', buyerID)
+                .andWhere('publisherID', publisherID);
+    return row[0].buyerStatus;
 }
