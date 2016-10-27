@@ -137,14 +137,29 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= loggerConfig['consoleLevel'] && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+
+        let override = loggerConfig['sourceOverrides'][message.ORIGIN];
+        let displayMessage = message.LEVEL >= loggerConfig['consoleLevel'];
+        let writeMessage = message.LEVEL >= loggerConfig['filewriteLevel'];
+
+        if (override && message.LEVEL < override['consoleLevel']) {
+            displayMessage = false;
+        }
+
+        if (override && message.LEVEL < override['filewriteLevel']) {
+            writeMessage = false;
+        }
+
+        if (displayMessage) {
             let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
             console.log(chalk[color](msg));
         }
 
-        writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        if (writeMessage) {
+            writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        }
     }
 
     /**
