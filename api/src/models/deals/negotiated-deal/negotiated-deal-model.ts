@@ -60,31 +60,30 @@ class NegotiatedDealModel {
      * Update the current negotiation with new fields.
      * @param negotationFields - Fields to update.
      * @param sender - The person who is sending the new fields.
-     * @param responseType - The response the sender is sending.
-     * @param otherPartyStatus - The status of the receiving party.
+     * @param senderStatus - The response the sender is sending.
+     * @param partnerStatus - The status of the receiving party.
      * @returns True if there was a change to the negotiation terms.
      */
-    public update(negotationFields: any, sender: 'buyer' | 'publisher',
-        responseType: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        otherPartyStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
+    public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
 
         let existDifference = false;
 
         this.sender = sender;
 
-        for (let key in negotationFields) {
-            if (negotationFields[key] && negotationFields[key] !== this[key]) {
-                this[key] = negotationFields[key];
+        for (let key in negotiationFields) {
+            if (negotiationFields[key] && negotiationFields[key] !== this[key]) {
+                this[key] = negotiationFields[key];
                 existDifference = true;
             }
         }
 
         if (sender === 'publisher') {
-            this.publisherStatus = responseType;
-            this.buyerStatus = otherPartyStatus;
+            this.publisherStatus = senderStatus;
+            this.buyerStatus = partnerStatus;
         } else {
-            this.buyerStatus = responseType;
-            this.publisherStatus = otherPartyStatus;
+            this.buyerStatus = senderStatus;
+            this.publisherStatus = partnerStatus;
         }
 
         return existDifference;
