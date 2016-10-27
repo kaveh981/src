@@ -36,6 +36,9 @@ interface IValidationOptions {
 
     /** Force defaults only on specific errors */
     forceOnError?: string[];
+
+    /** Sanitize strings to lowercase */
+    sanitizeToLowercase?: boolean;
 }
 
 /**
@@ -179,6 +182,11 @@ class RamlTypeValidator {
                     obj[property.key] = property.default;
                 }
 
+                // Sanitize string to lower case if desired
+                if (opts.sanitizeToLowercase && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
 
                 // If there are errors, and we force defaults, reassign.
@@ -258,7 +266,7 @@ class RamlTypeValidator {
                  * Verify numbers
                  */
                 case 'number':
-                    if (isNaN(Number(valueString))) {
+                    if (typeof value !== 'number' || isNaN(Number(valueString))) {
                         errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
                     } else {
                         // Verify number facets
@@ -276,7 +284,7 @@ class RamlTypeValidator {
                  * Verify strings
                  */
                 case 'string':
-                    if (typeof value === 'object') {
+                    if (typeof value !== 'string') {
                         errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
                     } else {
                         // Verify string facets

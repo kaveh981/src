@@ -96,6 +96,7 @@ class NegotiatedDealModel {
      */
     public toPayload(): any {
         let payload: any = {
+            publisher_id: this.publisherID,
             publisher_contact: this.publisherInfo.toContactPayload(),
             buyer_id: this.buyerID,
             buyer_contact: this.buyerInfo.toContactPayload(),
@@ -104,28 +105,15 @@ class NegotiatedDealModel {
             auction_type: this.proposedDeal.auctionType,
             deal_section_id: this.proposedDeal.sections,
             currency: this.proposedDeal.currency,
+            terms: this.terms || undefined,
+            impressions: this.impressions || undefined,
+            budget: this.budget || undefined,
+            price: this.price || undefined,
+            start_date: this.startDate || undefined,
+            end_date: this.endDate || undefined,
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
-
-        if (this.terms) {
-            payload.terms = this.terms;
-        }
-        if (this.impressions) {
-            payload.impressions = this.impressions;
-        }
-        if (this.budget) {
-            payload.budget = this.budget;
-        }
-        if (this.price) {
-            payload.price = this.price;
-        }
-        if (this.startDate) {
-            payload.start_date = this.formatDate(this.startDate);
-        }
-        if (this.endDate) {
-            payload.end_date = this.formatDate(this.endDate);
-        }
 
         return payload;
     }
