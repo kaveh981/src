@@ -178,6 +178,7 @@ class NegotiatedDealManager {
      * @param proposedDeal - The proposed deal model this is based off of.
      * @param buyerID - The buyer id for the buyer of this negotiation.
      * @param publisherID - The id of the publisher for this negotiation.
+     * @param sender - The person who is creating this counter-offer.
      * @param negotiationFields - The fields to use as the negotiation terms.
      * @returns A negotiated deal model with the appropriate fields updated.
      */

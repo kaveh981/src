@@ -60,8 +60,8 @@ class NegotiatedDealModel {
      * Update the current negotiation with new fields.
      * @param negotationFields - Fields to update.
      * @param sender - The person who is sending the new fields.
-     * @param responseType - The response the sender is sending.
-     * @param otherPartyStatus - The status of the receiving party.
+     * @param senderStatus - The response the sender is sending.
+     * @param partnerStatus - The status of the receiving party.
      * @returns True if there was a change to the negotiation terms.
      */
     public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
