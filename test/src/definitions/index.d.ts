@@ -145,3 +145,21 @@ interface INewDSPData {
     paused?: number;
     ipcmidUDSID?: number;
 }
+
+interface IDealNegotiationData {
+    negotiationID?: number;
+    proposalID?: number;
+    publisherID?: number;
+    buyerID?: number;
+    startDate?: Date;
+    endDate?: Date;
+    price?: number;
+    impressions?: number;
+    budget?: number;
+    terms?: string;
+    sender?: string;
+    pubStatus?: string;
+    buyerStatus?: string;
+    createDate?: Date;
+    modifyDate?: Date;
+}
