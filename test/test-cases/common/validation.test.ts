@@ -49,7 +49,6 @@ function validationTest(route: string, verb: string, setup: Function, validation
                     requestParams[property] = cases[i].input;
                     let res = await apiRequest[verb.toLowerCase()](route, requestParams, setupRes.userID);
                     t.equal(res.status, cases[i].expect);
-                    
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {
                         await dataSetup.clearTables();
