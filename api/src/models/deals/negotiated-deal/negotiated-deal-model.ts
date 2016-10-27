@@ -65,15 +65,15 @@ class NegotiatedDealModel {
      * @returns True if there was a change to the negotiation terms.
      */
     public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotationFields: any = {}) {
+        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
 
         let existDifference = false;
 
         this.sender = sender;
 
-        for (let key in negotationFields) {
-            if (negotationFields[key] && negotationFields[key] !== this[key]) {
-                this[key] = negotationFields[key];
+        for (let key in negotiationFields) {
+            if (negotiationFields[key] && negotiationFields[key] !== this[key]) {
+                this[key] = negotiationFields[key];
                 existDifference = true;
             }
         }
