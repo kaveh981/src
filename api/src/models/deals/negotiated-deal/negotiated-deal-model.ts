@@ -57,10 +57,46 @@ class NegotiatedDealModel {
     }
 
     /**
+     * Update the current negotiation with new fields.
+     * @param negotationFields - Fields to update.
+     * @param sender - The person who is sending the new fields.
+     * @param responseType - The response the sender is sending.
+     * @param otherPartyStatus - The status of the receiving party.
+     * @returns True if there was a change to the negotiation terms.
+     */
+    public update(negotationFields: any, sender: 'buyer' | 'publisher',
+        responseType: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        otherPartyStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected') {
+
+        let existDifference = false;
+
+        this.sender = sender;
+
+        for (let key in negotationFields) {
+            if (negotationFields[key] && negotationFields[key] !== this[key]) {
+                this[key] = negotationFields[key];
+                existDifference = true;
+            }
+        }
+
+        if (sender === 'publisher') {
+            this.publisherStatus = responseType;
+            this.buyerStatus = otherPartyStatus;
+        } else {
+            this.buyerStatus = responseType;
+            this.publisherStatus = otherPartyStatus;
+        }
+
+        return existDifference;
+
+    }
+
+    /**
      * Return payload formated object
      */
     public toPayload(): any {
         let payload: any = {
+            publisher_id: this.publisherID,
             publisher_contact: this.publisherInfo.toContactPayload(),
             buyer_id: this.buyerID,
             buyer_contact: this.buyerInfo.toContactPayload(),
@@ -69,28 +105,15 @@ class NegotiatedDealModel {
             auction_type: this.proposedDeal.auctionType,
             deal_section_id: this.proposedDeal.sections,
             currency: this.proposedDeal.currency,
+            terms: this.terms || undefined,
+            impressions: this.impressions || undefined,
+            budget: this.budget || undefined,
+            price: this.price || undefined,
+            start_date: this.formatDate(this.startDate),
+            end_date: this.formatDate(this.endDate),
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
-
-        if (this.terms) {
-            payload.terms = this.terms;
-        }
-        if (this.impressions) {
-            payload.impressions = this.impressions;
-        }
-        if (this.budget) {
-            payload.budget = this.budget;
-        }
-        if (this.price) {
-            payload.price = this.price;
-        }
-        if (this.startDate) {
-            payload.start_date = this.formatDate(this.startDate);
-        }
-        if (this.endDate) {
-            payload.end_date = this.formatDate(this.endDate);
-        }
 
         return payload;
     }
@@ -99,11 +122,15 @@ class NegotiatedDealModel {
      * Format the dates to yyyy-mm-dd
      * @param dateString - The date as a string.
      */
-    private formatDate(dateString: string) {
-        dateString = dateString.toString();
+    private formatDate(dateString: string | Date) {
+
+        if (!dateString) {
+            return undefined;
+        }
+
         let date = new Date(dateString.toString());
 
-        if (dateString.includes('0000-00-00')) {
+        if (dateString.toString().includes('0000-00-00')) {
             return '0000-00-00';
         }
 

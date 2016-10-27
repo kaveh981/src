@@ -92,15 +92,17 @@ class SettledDealModel {
      * Format the dates to yyyy-mm-dd
      * @param dateString - The date as a string.
      */
-    private formatDate(dateString: string) {
+    private formatDate(dateString: string | Date) {
 
         if (!dateString) {
-            return '0000-00-00';
+            return undefined;
         }
 
-        dateString = dateString.toString();
-
         let date = new Date(dateString.toString());
+
+        if (dateString.toString().includes('0000-00-00')) {
+            return '0000-00-00';
+        }
 
         if (date.toString() === 'Invalid Date') {
             throw new Error('Invalid date provided.');
@@ -108,7 +110,6 @@ class SettledDealModel {
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
-
     }
 
 }
