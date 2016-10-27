@@ -39,6 +39,9 @@ interface IValidationOptions {
 
     /** Sanitize strings to lowercase */
     sanitizeToLowercase?: boolean;
+
+    /** Sanitize integers by converting strings to numbers */
+    sanitizeIntegers?: boolean;
 }
 
 /**
@@ -178,13 +181,18 @@ class RamlTypeValidator {
             node.properties.forEach((property) => {
 
                 // Fill defaults for properties if fillDefault is true.
-                if (opts.fillDefaults && !obj[property.key] && typeof property.default !== 'undefined') {
+                if (opts.fillDefaults && typeof obj[property.key] === 'undefined' && typeof property.default !== 'undefined') {
                     obj[property.key] = property.default;
                 }
 
                 // Sanitize string to lower case if desired
                 if (opts.sanitizeToLowercase && typeof obj[property.key] === 'string') {
                     obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize integers to numbers
+                if (opts.sanitizeIntegers && typeof obj[property.key] === 'string' && validator.isInt(obj[property.key])) {
+                    obj[property.key] = Number(obj[property.key]);
                 }
 
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);

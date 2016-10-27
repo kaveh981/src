@@ -109,8 +109,8 @@ class NegotiatedDealModel {
             impressions: this.impressions || undefined,
             budget: this.budget || undefined,
             price: this.price || undefined,
-            start_date: this.startDate || undefined,
-            end_date: this.endDate || undefined,
+            start_date: this.formatDate(this.startDate),
+            end_date: this.formatDate(this.endDate),
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
@@ -122,11 +122,15 @@ class NegotiatedDealModel {
      * Format the dates to yyyy-mm-dd
      * @param dateString - The date as a string.
      */
-    private formatDate(dateString: string) {
-        dateString = dateString.toString();
+    private formatDate(dateString: string | Date) {
+
+        if (!dateString) {
+            return undefined;
+        }
+
         let date = new Date(dateString.toString());
 
-        if (dateString.includes('0000-00-00')) {
+        if (dateString.toString().includes('0000-00-00')) {
             return '0000-00-00';
         }
 
