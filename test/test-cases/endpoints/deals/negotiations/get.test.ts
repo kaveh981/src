@@ -11,7 +11,6 @@ import { DatabasePopulator } from '../../../../src/lib/database-populator';
 import { Helper } from '../../../../src/lib/helper';
 import { DatabaseManager } from '../../../../src/lib/database-manager';
 
-
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
@@ -29,28 +28,6 @@ async function commonDatabaseSetup() {
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID);
 }
-
-async function paginationDatabaseSetup() {
-    let dsp = await databasePopulator.createDSP(123);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-}
-
-async function createNegotiation(publisher: INewPubData, buyer: INewBuyerData) {
-    if (typeof publisher === 'undefined') {
-        publisher = await databasePopulator.createPublisher();
-    }
-    if (typeof buyer === 'undefined') {
-        buyer = await databasePopulator.createBuyer(123);
-    }
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
-
-    return Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher, buyer);
-}
-
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -60,16 +37,6 @@ async function createNegotiation(publisher: INewPubData, buyer: INewBuyerData) {
  */
 /** Generic Authentication Tests */
 export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
-
-/*
- * @case    - Different pagination parameters are attempted.
- * @expect  - Pagination tests to pass.
- * @route   - GET deals
- * @status  - working
- * @tags    - get, deals, auth
- */
-/** Generic Pagination Tests */
-export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup, createNegotiation);
 
 /*
  * @case    - Publisher has no proposals (and no negotiations)
