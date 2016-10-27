@@ -37,7 +37,7 @@ function Deals(router: express.Router): void {
         };
 
         let validationErrors = validator.validateType(pagination, 'Pagination',
-                            { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);

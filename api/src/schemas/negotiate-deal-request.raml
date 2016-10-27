@@ -39,5 +39,6 @@ NegotiateDealRequest:
             minLength: 1
             maxLength: 65535
         response:
-            enum: ['accept', 'reject']
+            enum: ['accept', 'reject', 'counter-offer']
+            default: 'counter-offer'
             required: false

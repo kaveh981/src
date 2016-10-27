@@ -14,6 +14,7 @@ import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/neg
 import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
+import { DatabaseManager } from '../../../lib/database-manager';
 import { UserModel } from '../../../models/user/user-model';
 import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
@@ -24,6 +25,7 @@ const settledDealManager = Injector.request<SettledDealManager>('SettledDealMana
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('ACTD');
 
@@ -39,13 +41,14 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
+        // Validate pagination parameters
         let pagination = {
             limit: req.query.limit,
             offset: req.query.offset
         };
 
         let validationErrors = validator.validateType(pagination, 'Pagination',
-                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -78,11 +81,8 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // TODO: Put this in validator
-        req.body.response = (req.body.response || 'counter-offer').trim().toLowerCase();
-
         // Validate the request's parameters syntax
-        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest');
+        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest', { sanitizeToLowercase: true, fillDefaults: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -105,8 +105,8 @@ function NegotiationDeals(router: express.Router): void {
 
         if (responseType === 'counter-offer' && fieldCount === 0) {
             throw HTTPError('400', 'At least 1 negotiation or the "response" field must be provided.');
-        } else if (fieldCount > 0) {
-            throw HTTPError('400', 'No negotiation field can be provided along with a "Response" field.');
+        } else if (fieldCount > 0 && responseType !== 'counter-offer') {
+            throw HTTPError('400', 'No negotiation field can be provided along with given response field.');
         }
 
         // Check whether the user is a publisher or a buyer and populate user fields accordingly
@@ -156,16 +156,16 @@ function NegotiationDeals(router: express.Router): void {
 
             Log.trace('Found negotiation with ID: ' + currentNegotiation.id);
 
-            // Check if last offerer is same as current
             let otherPartyStatus = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
-
-            if (currentNegotiation.sender === userType && otherPartyStatus !== 'rejected') {
-                throw HTTPError('403_OUT_OF_TURN');
-            }
 
             // Check that proposal has not been bought yet
             if (currentNegotiation.buyerStatus === 'accepted' && currentNegotiation.publisherStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
+            }
+
+            // Check if the user is out of turn
+            if (currentNegotiation.sender === userType && otherPartyStatus !== 'rejected') {
+                throw HTTPError('403_OUT_OF_TURN');
             }
 
             // If user rejects the negotiation, there is nothing more to do:
@@ -184,12 +184,18 @@ function NegotiationDeals(router: express.Router): void {
                     throw HTTPError('403_OTHER_REJECTED');
                 }
 
-                currentNegotiation.update({ }, userType, 'accepted', 'active');
+                await databaseManager.transaction(async (transaction) => {
+                    currentNegotiation.update({ }, userType, 'accepted', 'accepted');
+                    await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
 
-                let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
-                let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
+                    let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
+                    let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
 
-                await settledDealManager.insertSettledDeal(settledDeal);
+                    await settledDealManager.insertSettledDeal(settledDeal, transaction);
+                    res.sendPayload(settledDeal.toPayload());
+                });
+
+                return;
 
             } else {
 

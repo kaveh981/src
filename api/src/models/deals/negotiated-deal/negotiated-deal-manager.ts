@@ -220,7 +220,7 @@ class NegotiatedDealManager {
         // If there is no transaction, start one.
         if (!transaction) {
             await this.databaseManager.transaction(async (trx) => {
-                await this.insertNegotiatedDeal(negotiatedDeal, trx);
+                await this.updateNegotiatedDeal(negotiatedDeal, trx);
             });
             return;
         }
