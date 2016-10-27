@@ -85,6 +85,7 @@ export async function ATW_DN_GET_02 (assert: test.Test) {
 
 /*
  * @case    - Proposal belonging to different publisher containing negotiations exists, but current user is NOT linked to them
+ * @expect  - No DN returned; no proposals belong to the publisher making the request 
  * @route   - GET deals/negotitation
  * @status  - incomplete (pub perspective not a thing yet)
  * @tags    - pub
@@ -365,7 +366,6 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
 /*
  * @case    - Buyer linked to multiple proposals by different publishers
  * @expect  - 2 DNs returned belonging to 2 different publishers 
- * @label   - ATW_DN_GET_F12
  * @route   - GET deals/negotitation
  * @status  - passing
  * @tags    - 
