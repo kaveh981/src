@@ -17,7 +17,7 @@ en-US:
     401: Unauthorized.
     401_INVALID_HEADER: Authentication header is invalid.
     401_NO_HEADER: Authentication header not provided.
-    401_NOT_IXMBUYER: 'Provided user ID is not an Index Market Buyer. If you would like access, please contact your.mom@indexexchange.com'
+    401_NOT_IXMUSER: 'Provided user ID is not an Index Market User. If you would like access, please contact your.mom@indexexchange.com'
     401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
     401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
 
