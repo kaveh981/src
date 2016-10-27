@@ -1,2 +1,2 @@
 # API Authentication Header
-authentication-header: X-IXM-BuyerId
+authentication-header: X-IXM-UserId
