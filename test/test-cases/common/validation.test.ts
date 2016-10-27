@@ -32,23 +32,20 @@ function validationTest(route: string, verb: string, setup: Function, validation
         if (validationParams.hasOwnProperty(property)) {
 
             let cases = configLoader.get(`common-validation/${validationParams[property].type}`);
-            if (validationParams[property].extraParams && validationParams[property].extraParams.length > 0) {
-                validationParams[property].extraParams.forEach((param) => {
-                    cases.push(param);
-                });
+            if (validationParams[property].extraCases && validationParams[property].extraCases.length > 0) {
+                cases.concat(validationParams[property].extraCases);
             }
 
-            let func = async function (t: test.Test) {
+            let testFunction = async (t: test.Test) => {
                 let setupRes = await setup();
                 let requestParams = parseRequestParams(validationParams, setupRes);
                 t.plan(cases.length);
-
                 // loop through configs
                 for (let i = 0; i < cases.length; i++) {
 
                     requestParams[property] = cases[i].input;
                     let res = await apiRequest[verb.toLowerCase()](route, requestParams, setupRes.userID);
-                    t.equal(res.status, cases[i].expect);
+                    t.equal(res.status, cases[i].expect ? cases[i].expect : 400);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {
                         await dataSetup.clearTables();
@@ -57,14 +54,10 @@ function validationTest(route: string, verb: string, setup: Function, validation
                     }
 
                 }
-
+                // to test missing param
             };
 
-            tests.push(
-                (assert: test.Test) => {
-                    return func(assert);
-                }
-            );
+            tests.push((assert: test.Test) => {return testFunction(assert); });
 
         }
 
@@ -78,15 +71,15 @@ function validationTest(route: string, verb: string, setup: Function, validation
  * @param setupResponse - The object that setup function returns.
  * @returns A valid route request body object.
  */
-function parseRequestParams(validationParams: any, setupResponse: {}) {
+function parseRequestParams(validationParams: {}, setupResponse: {}) {
     let requestParams = {};
 
     for (let param in validationParams) {
 
         if (validationParams.hasOwnProperty(param)) {
-            if (!validationParams[param].validParam) {
+            if (validationParams[param].validParam) {
                 requestParams[param] = validationParams[param].validParam;
-            } else if (!setupResponse[param]) {
+            } else if (setupResponse[param]) {
                 requestParams[param] = setupResponse[param];
             } else {
                 Log.error(`The param ${param} is not included`);
