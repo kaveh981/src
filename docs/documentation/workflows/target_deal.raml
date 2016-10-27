@@ -1,0 +1,119 @@
+#%RAML 1.0 DocumentationItem
+    
+    title: Workflow - Offer a new deal to specific parties (Targeted Deal)
+    content: |
+
+    This example shows how a new deal can be offered to specific parties. A Targeted Deal won't be available to view in the marketplace by anybody other than the involved parties. Once a Targeted Deal has been completed (by acceptance or rejection), it will be closed. 
+
+    In the example, a buyer will offer a deal to two publishers. Note however that offering deals is symmetric – publishers can offer deals to one or more buyers as well. In this example the buyer will offer a deal to two publishers; the relationship is one to many from the sender to recipients – one buyer or publisher can send a proposal to one or more counterparts. 
+
+    1. Create a targeted proposal
+    2. Receive responses from negotiation partners
+    3. Respond to the results.
+    4. Ending negotiation
+
+    Before starting, make sure you've obtained an OAuth token in the [authorization workflow](#TODO: link to auth WF).
+
+    ## 1. Create a targeted proposal
+
+    To create a proposal, a request is sent to the PUT `/deals/proposals` route. To target the proposal to specific publishers, the buyer includes `publisher_id` values in the body.
+
+    The buyer may propose to include specific sites and/or sections belonging to the publishers if they wish to propose specific placement targeting. They may also omit it to leave it to the publisher's discretion.
+
+    Contact information will be associated from the buyer account's default, or the `contact` field may be included to override the default.
+
+    Any other deal terms omitted are also considered to be open-ended. (# TODO ???)
+
+    ```
+    $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ 
+                "id": 999,
+                "publisher_id": [123, 456],
+                "site_id": [111,222],
+                "deal_section_id": [4321, 9876],
+                "name": "Superfab Ultradeal",
+                "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+                "start_date": "2016-09-09",
+                "end_date": "2016-10-10",
+                "price": 1.99,
+                "impressions": 8,
+                "budget": 9999999.99,
+                "currency": "USD",
+                "auction_type": "first",
+                "contact": {
+                    "title": "Lord",
+                    "name": "Humungus",
+                    "email": "ayatollah@rockandrollah.com",
+                    "phone": "999 999 9998"
+                },
+                "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs"
+            }' \
+        https://market.indexexchange.com/ixm/v1/deals/proposals
+    ```
+
+    ## 2. Receive responses from negotiation partners
+
+    The publishers targeted in the proposal will be notified. They now can respond to the proposal in the same manner as any negotiation, choosing to accept, reject, or counter-offer.
+
+    All negotiation is one-to-one. In this case, each publisher will respond individually and there will be two negotiations in progress, one between the buyer and each publisher.
+
+    In this example, the first publisher chooses to accept the proposal as is, while the second wishes to negotiate by sending a counter-offer.
+
+
+    ### Publisher 1 request
+    
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 123' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, partner_id: 1234, "response": "accept" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    ### Publisher 2 request
+    
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 456' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, partner_id: 1234, "price": "2.99" "terms": "Try harder bro" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    ## 3. Respond to the results.
+
+    The buyer will be notified of the responses, and will also see the first response has created an Active Deal in GET `/deals/active` route. The deal will now be complete and ready to bid on, pending start date, if any.
+
+    The second response is available in Negotiated Deals via the GET `/deals/negotiations` route.
+
+    The buyer can now respond on the second response by sending a PUT request to `/deals/negotiations`, choosing to accept, reject, or counter-offer. The full details are available in the [Negotiate a Deal](TODO - link) workflow.
+
+    In our example the buyer chooses to reject Publisher 2's counter-offer due to a high price.
+
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, partner_id: 456, "response": "reject", "terms": "Too high!" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    ## 4. Ending Negotiation
+
+    As with other negotiation cases, it ends when each party has accepted or rejected the current negotiation state.
+
+    In our case with two publishers, each negotiation will end when the buyer and the individual publisher have both responded with accept or reject requests to that negotiation.
+
+    The negotiation with Publisher 1 ended when they accepted the initial offer.
+
+    We assume that the Publisher 2 doesn't wish to send new counter-offers, and they send a 'reject' request, confirming they wish to end the negotiation.
+
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 456' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, partner_id: 1234, "response": "reject" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
