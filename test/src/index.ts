@@ -30,3 +30,8 @@ if (!directory) {
             Bootstrap.shutdown();
         });
 }
+
+process.on('SIGINT', () => {
+        console.log('Shutting down gracefully');
+        Bootstrap.crash();
+});

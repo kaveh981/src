@@ -1,5 +1,5 @@
 # The suffix to append to the name of backed up tables
-suffix: backup
+suffix: _backup
 
 # Tables list that will be backed up and restored
 tables:
