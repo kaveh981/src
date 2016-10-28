@@ -1,0 +1,6 @@
+---
+- input: 123
+- input: 'Index<a>Exchange'
+- input: 'Index<b/>Exchange'
+- input: '<c>'
+- input: '<d/>'

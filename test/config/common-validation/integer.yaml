@@ -3,12 +3,11 @@
 - input: AAAA
 - input: -12
 - input: 12-
-  expect: 400
-- input: ~~~~
+- input: '~~~~'
 - input: 0
 - input: 1.123
 - input: true
-- input: undefined
-- input: "undefined"
-  
-
+- input:
+  - 1
+- input:
+    id: 2
