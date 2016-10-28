@@ -82,7 +82,8 @@ function NegotiationDeals(router: express.Router): void {
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate the request's parameters syntax
-        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest', { sanitizeString: true, fillDefaults: true });
+        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest',
+                                { sanitizeString: true, fillDefaults: true, removeNull: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -92,12 +93,12 @@ function NegotiationDeals(router: express.Router): void {
         let responseType: string = req.body.response;
 
         let negotiationFields = JSON.parse(JSON.stringify({
-            startDate: req.body['start_date'] || undefined,
-            endDate: req.body['end_date'] || undefined,
-            price: req.body['price'] || undefined,
-            impressions: req.body['impressions'] || undefined,
-            budget: req.body['budget'] || undefined,
-            terms: req.body['terms'] || undefined
+            startDate: req.body['start_date'],
+            endDate: req.body['end_date'],
+            price: req.body['price'],
+            impressions: req.body['impressions'],
+            budget: req.body['budget'],
+            terms: req.body['terms']
         }));
 
         // Confirm that the user sent fields consistent with negotiation / acceptance-rejection
@@ -121,6 +122,7 @@ function NegotiationDeals(router: express.Router): void {
             buyerID = Number(req.ixmUserInfo.id);
             publisherID = Number(req.body.partner_id);
         }
+
         Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`);
 
         // Confirm that the proposal is available and belongs to this publisher
