@@ -36,6 +36,12 @@ interface IValidationOptions {
 
     /** Force defaults only on specific errors */
     forceOnError?: string[];
+
+    /** Sanitize strings to lowercase and trim trailing whitespace */
+    sanitizeString?: boolean;
+
+    /** Sanitize integers by converting strings to numbers */
+    sanitizeIntegers?: boolean;
 }
 
 /**
@@ -175,8 +181,18 @@ class RamlTypeValidator {
             node.properties.forEach((property) => {
 
                 // Fill defaults for properties if fillDefault is true.
-                if (opts.fillDefaults && !obj[property.key] && typeof property.default !== 'undefined') {
+                if (opts.fillDefaults && typeof obj[property.key] === 'undefined' && typeof property.default !== 'undefined') {
                     obj[property.key] = property.default;
+                }
+
+                // Sanitize string to lower case if desired
+                if (opts.sanitizeString && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize integers to numbers
+                if (opts.sanitizeIntegers && typeof obj[property.key] === 'string' && validator.isInt(obj[property.key])) {
+                    obj[property.key] = Number(obj[property.key]);
                 }
 
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
@@ -258,7 +274,7 @@ class RamlTypeValidator {
                  * Verify numbers
                  */
                 case 'number':
-                    if (isNaN(Number(valueString))) {
+                    if (typeof value !== 'number' || isNaN(Number(valueString))) {
                         errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
                     } else {
                         // Verify number facets
@@ -276,7 +292,7 @@ class RamlTypeValidator {
                  * Verify strings
                  */
                 case 'string':
-                    if (typeof value === 'object') {
+                    if (typeof value !== 'string') {
                         errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
                     } else {
                         // Verify string facets
