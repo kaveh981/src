@@ -253,11 +253,14 @@ class DatabasePopulator {
         newDealNegotiationData.buyerID = buyerID;
 
         let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
+        
         newDealNegotiationData.negotiationID = newDealNegotiationIds[0];
 
-        let selection = await this.dbm.select('modifyDate').from('ixmDealNegotiations')
+        let selection = await this.dbm.select('createDate', 'modifyDate').from('ixmDealNegotiations')
                                     .where('negotiationID', newDealNegotiationData.negotiationID);
+
         newDealNegotiationData.modifyDate = selection[0].modifyDate;
+        newDealNegotiationData.createDate = selection[0].createDate;
 
         Log.debug(`Created new negotiation, ID: ${newDealNegotiationData.negotiationID}`);
 

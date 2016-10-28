@@ -95,6 +95,7 @@ class NegotiatedDealModel {
      */
     public toPayload(): any {
         let payload: any = {
+            proposal_id: this.proposedDeal.id,
             publisher_id: this.publisherID,
             publisher_contact: this.publisherInfo.toContactPayload(),
             buyer_id: this.buyerID,

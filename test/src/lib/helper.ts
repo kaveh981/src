@@ -53,6 +53,7 @@ class Helper {
 
     public static dealNegotiationToPayload (dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
                                             publisher: INewPubData, buyer: INewBuyerData) {
+
         return {
             proposal_id: proposal.proposal.proposalID,
             publisher_id: publisher.user.userID,
@@ -80,8 +81,8 @@ class Helper {
             price: dealNegotiation.price,
             deal_section_id: proposal.sectionIDs,
             currency: 'USD',
-            created_at: (new Date(dealNegotiation.createDate)).toISOString(),
-            modified_at: (new Date(dealNegotiation.modifyDate)).toISOString()
+            created_at: dealNegotiation.createDate.toISOString(),
+            modified_at: dealNegotiation.modifyDate.toISOString()
         };
     }
 
