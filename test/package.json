@@ -8,7 +8,7 @@
     "postinstall": "./node_modules/.bin/typings install",
     "tape": "./node_modules/.bin/ts-node node_modules/.bin/tape",
     "tslint": "./node_modules/.bin/tslint -e./typings/** -e./node_modules/** './**/*.ts'",
-    "build": "./node_modules/.bin/tsc && cp -rf config build/.",
+    "build": "rm -rf ./build && ./node_modules/.bin/tsc && cp -rf config build/.",
     "prestart": "npm run build",
     "start": "node build/src/index.js",
     "dgen": "./node_modules/.bin/ts-node ./src/bin/dgen.ts",
