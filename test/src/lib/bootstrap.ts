@@ -51,6 +51,18 @@ class Bootstrap {
         return databaseManager.shutdown();
     }
 
+    public static crash() {
+        let crashDBM = new DatabaseManager(config);
+        let crashDataSetup = new DataSetup(crashDBM, config);
+        databaseManager.shutdown();
+        setTimeout(() => {
+            crashDBM.initialize()
+                .then(() => { return crashDataSetup.restoreTables(); })
+                .then(() => { return crashDBM.shutdown(); })
+                .then(() => { process.exit(0); });
+        }, 10);
+    }
+
 }
 
 export { Bootstrap }

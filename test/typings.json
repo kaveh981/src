@@ -7,7 +7,7 @@
     "fs-finder": "registry:dt/fs-finder#1.8.0+20160317120654",
     "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
     "knex": "registry:dt/knex#0.0.0+20160923124117",
-    "node": "registry:dt/node#6.0.0+20160928143418",
+    "node": "registry:dt/node#6.0.0+20161019125345",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
   },
   "dependencies": {
