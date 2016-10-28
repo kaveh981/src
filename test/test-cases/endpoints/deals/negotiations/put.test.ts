@@ -54,7 +54,7 @@ export let ATW_CO_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetu
  /*
  * @case    - The user does not provide any negotiation fields or a response.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_GENERAL_1
+ * @label   - ATW_API_NEGOTIATION_GENERAL_01
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
@@ -81,7 +81,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
 /*
  * @case    - The user supplies a negotiation field along with the response field.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_GENERAL_2
+ * @label   - ATW_API_NEGOTIATION_GENERAL_02
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
@@ -110,7 +110,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_02 (assert: test.Test) {
 /*
  * @case    - The user does not supply a proposalID.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_PROPOSALID_1
+ * @label   - ATW_API_NEGOTIATION_PROPOSALID_01
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
@@ -745,7 +745,7 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -773,7 +773,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_2_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_02_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -810,7 +810,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_2_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_02_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -854,7 +854,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_2_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_3_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_03_ (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -886,7 +886,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_3_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_4 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -925,7 +925,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_4 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -957,7 +957,7 @@ export async function ATW_API_NEGOTIATION_BUYER_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_2_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -1001,7 +1001,7 @@ export async function ATW_API_NEGOTIATION_BUYER_2_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1039,7 +1039,7 @@ export async function ATW_API_NEGOTIATION_BUYER_2_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_4 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(3);
@@ -1081,7 +1081,7 @@ export async function ATW_API_NEGOTIATION_BUYER_4 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_1_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -1131,7 +1131,7 @@ export async function ATW_API_NEGOTIATION_STATE_1_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -1188,7 +1188,7 @@ export async function ATW_API_NEGOTIATION_STATE_2_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_3_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1232,7 +1232,7 @@ export async function ATW_API_NEGOTIATION_STATE_3_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_3_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1275,7 +1275,7 @@ export async function ATW_API_NEGOTIATION_STATE_3_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_4_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1305,7 +1305,7 @@ export async function ATW_API_NEGOTIATION_STATE_4_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_4_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1335,7 +1335,7 @@ export async function ATW_API_NEGOTIATION_STATE_4_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1363,7 +1363,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_2_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1391,7 +1391,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1417,7 +1417,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_2 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_3 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1447,7 +1447,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_3 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_4_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1477,7 +1477,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_4_1 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_4_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
