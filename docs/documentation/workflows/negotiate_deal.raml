@@ -5,11 +5,11 @@
 
     This example shows a basic deal negotiation workflow in Index Market. In this case, there are two parties involved – one publisher and one buyer. The buyer is choosing to negotiate on an available proposal. The following steps are taken:
 
-    1. List available deals to buy
-    2. Send a counter-offer on a selected deal
-    3. Receive a response from negotiation partner
-    4. Respond to the results.
-    5. Ending negotiation
+        1. List available deals to buy
+        2. Send a counter-offer on a selected deal
+        3. Receive a response from negotiation partner
+        4. Respond to the results.
+        5. End negotiation
 
     Before starting, make sure you've obtained an OAuth token in the [authorization workflow](#TODO: link to auth WF).
 
@@ -103,11 +103,11 @@
     $ curl -X PUT \
         -H 'X-Auth-ID: 1234' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 123, "price": 1.49", end-date: "2017-02-10", "terms": "Pending approval from the boss. How is your mother doing, by the way?" }' \
+        -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.49", "end_date": "2017-02-10", "terms": "Pending approval from the boss. How is your mother doing, by the way?" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
-    On success, a Negotiated Deal object is returned, containing the proposed updates. A reference to the original proposal is included for reference.
+    On success, a Negotiated Deal object is returned, containing the proposed updates. An ID for the original proposal is included for reference.
 
     ### Example Response
 
@@ -163,11 +163,11 @@
      $ curl -X PUT \
         -H 'X-Auth-ID: 1234' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 1234, "response": "accept" }' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
-    Notification will be sent of the acceptance, and the deal become active. It will be available to bid on, pending start date if applicable, and will be appear in results from the GET `deals/active` route.
+    Notification will be sent of the acceptance, and the deal become active. It will be available to bid on, pending start date if applicable, and will appear in results from the GET `deals/active` route.
     ## ii. Reject the counter-offer
 
     If the publisher is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
@@ -178,7 +178,7 @@
      $ curl -X PUT \
         -H 'X-Auth-ID: 1234' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 1234, "response": "reject" }' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
@@ -196,7 +196,7 @@
     $ curl -X PUT \
         -H 'X-Auth-ID: 1234' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 123, "price": 1.59", end-date: "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
+        -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
@@ -212,7 +212,7 @@
 
     ### Both parties accept
 
-    Sending a counter-offer implies acceptance of the terms described in that counter-offer by the sender. When the other party accepts, the deal is considered settled and moves to an Active Deal.
+    Sending a counter-offer implies acceptance of the terms described in that counter-offer by the sender. When the other party accepts, the deal is considered settled and moves to an [Active Deal](TODO - link to active deal).
 
     An active deal will no longer be available on the GET `/deals/negotiations` route, but will be available on the GET `/deals/active` route.
 
