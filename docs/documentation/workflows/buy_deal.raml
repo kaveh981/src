@@ -22,7 +22,9 @@
         https://market.indexexchange.com/ixm/v1/deals/proposals
     ```
 
-    A list of available deal proposals will be returned. The list can optionally be filtered by any of the available filters described in the [deal proposals route](#TODO: link to route). If not filtered, the deals returned will be limited to the pagination maximum. 
+    A list of available deal proposals will be returned. The list can optionally be filtered by any of the available filters described in the [deal proposals route](#TODO: link to route). 
+
+    If the number of available deals exeeds the pagination maximum, only the pagination maximum number of deals will be returned. A pagination object will be attached indicating the requested maximum objects, and the current page offset.
 
     ### Example response
 
@@ -83,8 +85,11 @@
                 "modified_at": "2016-04-14T14:00:00Z"
             }                
 
-        ]
-        "pagination": null #TODO: add this
+        ],
+        "pagination": {
+            "limit": 250,
+            "offset": 1
+        }
     }
     ```
 
