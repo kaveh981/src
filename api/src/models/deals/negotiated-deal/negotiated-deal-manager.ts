@@ -45,11 +45,12 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<NegotiatedDealModel> {
 
         let rows = await this.databaseManager.select('negotiationID as id', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
-                'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
-            .from('ixmDealNegotiations')
-            .where('proposalID', proposalID)
-            .andWhere('buyerID', buyerID)
-            .andWhere('publisherID', publisherID);
+                                                     'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate',
+                                                     'modifyDate', 'budget', 'impressions')
+                                             .from('ixmDealNegotiations')
+                                             .where('proposalID', proposalID)
+                                             .andWhere('buyerID', buyerID)
+                                             .andWhere('publisherID', publisherID);
 
         if (!rows[0]) {
             return;
@@ -72,10 +73,10 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: any): Promise<NegotiatedDealModel[]> {
 
         let rows = await this.databaseManager.select('proposalID', 'publisherID')
-                    .from('ixmDealNegotiations')
-                    .where('buyerID', buyerID)
-                    .limit(Number(pagination.limit))
-                    .offset(Number(pagination.offset));
+                                             .from('ixmDealNegotiations')
+                                             .where('buyerID', buyerID)
+                                             .limit(Number(pagination.limit))
+                                             .offset(Number(pagination.offset));
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
@@ -132,10 +133,10 @@ class NegotiatedDealManager {
 
         // Get the id and set it in the negotiated deal object.
         let negotiationInserted = (await transaction.select('negotiationID', 'modifyDate')
-                                                             .from('ixmDealNegotiations')
-                                                             .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                                             .andWhere('buyerID', negotiatedDeal.buyerID)
-                                                             .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+                                                    .from('ixmDealNegotiations')
+                                                    .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                    .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                    .andWhere('publisherID', negotiatedDeal.publisherID))[0];
 
         negotiatedDeal.id = negotiationInserted.negotiationID;
         negotiatedDeal.modifyDate = negotiationInserted.modifyDate;
@@ -245,10 +246,10 @@ class NegotiatedDealManager {
 
         // Get the id and set it in the negotiated deal object.
         let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
-                                                             .from('ixmDealNegotiations')
-                                                             .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                                             .andWhere('buyerID', negotiatedDeal.buyerID)
-                                                             .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+                                                   .from('ixmDealNegotiations')
+                                                   .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                   .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                   .andWhere('publisherID', negotiatedDeal.publisherID))[0];
 
         negotiatedDeal.id = negotiationUpdated.negotiationID;
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;

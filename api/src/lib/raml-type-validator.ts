@@ -120,6 +120,7 @@ class RamlTypeValidator {
                 Log.error(err);
                 throw err;
             });
+
     }
 
     /**
@@ -130,6 +131,7 @@ class RamlTypeValidator {
      * @return An array of errors, if there are any.
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
+
         let typeObject = this.types[type];
 
         if (!typeObject) {
@@ -138,6 +140,7 @@ class RamlTypeValidator {
         }
 
         return this.validateNode(obj, typeObject, type, opts);
+
     }
 
     /**
@@ -150,6 +153,7 @@ class RamlTypeValidator {
      * @returns An array of errors, if there are any.
      */
     private validateNode(obj: any, node: any, path: string, opts: IValidationOptions = {}): IValidationError[] {
+
         let errors: IValidationError[] = [];
 
         // If the value is undefined, we are missing it.
@@ -215,6 +219,7 @@ class RamlTypeValidator {
         }
 
         return errors;
+
     }
 
     /**
@@ -225,6 +230,7 @@ class RamlTypeValidator {
      * @returns The errors if the value cannot be cast to node.
      */
     private validateNodeType(value: any, node: any, path: string): IValidationError[] {
+
         let types = node.type.join(' | ').split(' | ');
         let valueString = typeof value === 'object' ? JSON.stringify(value) : value.toString();
         let errorList: IValidationError[] = [];
@@ -424,6 +430,7 @@ class RamlTypeValidator {
         }
 
         return errorList;
+
     }
 
     /**
@@ -435,6 +442,7 @@ class RamlTypeValidator {
      * @returns A standardized error object.
      */
     private createError(error: string, value: string, node: any, path: string): IValidationError {
+
         let errorMessage = error;
 
         if (this.templates[error]) {
@@ -449,6 +457,7 @@ class RamlTypeValidator {
             message: errorMessage,
             path: path
         };
+
     }
 
     /** 
@@ -458,6 +467,7 @@ class RamlTypeValidator {
      * @returns True if errorList contains one of the errors from errors.
      */
     private containsErrors(errorList: IValidationError[], errors: string[]): boolean {
+
         for (let i = 0; i < errorList.length; i++) {
             for (let j = 0; j < errors.length; j++) {
                 if (errors[j] === errorList[i].error) {
@@ -466,6 +476,7 @@ class RamlTypeValidator {
             }
         }
         return false;
+
     }
 
 }
