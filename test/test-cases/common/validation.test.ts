@@ -26,26 +26,27 @@ function validationTest(route: string, verb: string, setup: Function, validation
 
     let tests = [];
 
-    // loop trough params
+    // loop trough request body params
     for (let property in validationParams) {
 
         if (validationParams.hasOwnProperty(property)) {
 
             let cases = configLoader.get(`common-validation/${validationParams[property].type}`);
             if (validationParams[property].extraCases && validationParams[property].extraCases.length > 0) {
-                cases.concat(validationParams[property].extraCases);
+                cases = cases.concat(validationParams[property].extraCases);
             }
 
+            // create a function that has all the api calls for invalid cases we provide
             let testFunction = async (t: test.Test) => {
                 let setupRes = await setup();
                 let requestParams = parseRequestParams(validationParams, setupRes);
                 t.plan(cases.length);
-                // loop through configs
+                // loop through cases
                 for (let i = 0; i < cases.length; i++) {
 
                     requestParams[property] = cases[i].input;
                     let res = await apiRequest[verb.toLowerCase()](route, requestParams, setupRes.userID);
-                    t.equal(res.status, cases[i].expect ? cases[i].expect : 400);
+                    t.equal(res.status, cases[i].expect || 400);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {
                         await dataSetup.clearTables();
