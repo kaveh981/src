@@ -740,12 +740,12 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
 
 /*
  * @case    - Publisher start a negotiation with its own proposal.
- * @label   - ATW_API_negotiation_publisher
+ * @expect  - 403 Forbidden, publisher cannot start a new negotiation on its own proposal
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_publisher_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -768,12 +768,12 @@ export async function ATW_API_negotiation_publisher_1 (assert: test.Test) {
 
 /*
  * @case    - Publisher send a negotiation to a buyer.
- * @label   - ATW_API_negotiation_publisher_2_1
+ * @expect  - 200 OK, negotiated field changes
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_publisher_2_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_2_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -805,12 +805,12 @@ export async function ATW_API_negotiation_publisher_2_1 (assert: test.Test) {
 
 /*
  * @case    - Publisher send second offer before buyer reply
- * @label   - ATW_API_negotiation_publisher_2_2	
+ * @expect  - 403 Forbidden, publisher out of turn
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_publisher_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_2_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -821,18 +821,20 @@ export async function ATW_API_negotiation_publisher_2_2 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
+
     let buyerRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         terms: 'i am a goose'
     };
     await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+
     let pubRequestBody1 = {
             proposal_id: proposalObj.proposal.proposalID,
             partner_id: buyer.user.userID,
             terms: 'no you are a duck'
     };
-    apiRequest.put(route, pubRequestBody1, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
 
     /** Test */
     let pubRequestBody2 = {
@@ -847,12 +849,12 @@ export async function ATW_API_negotiation_publisher_2_2 (assert: test.Test) {
 
  /*
  * @case    - A publisher sends an offer for other pub's proposal.
- * @label   - ATW_API_negotiation_publisher_3_2
+ * @expect  - 403 Forbidden, pub cannot negotiate with other pubs
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_publisher_3_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_3_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -869,7 +871,7 @@ export async function ATW_API_negotiation_publisher_3_2 (assert: test.Test) {
     let pubRequestBody = {
             proposal_id: proposalObj.proposal.proposalID,
             partner_id: publisher.user.userID,
-            terms: 'Hello other pub'
+            terms: 'hello other pub'
     };
     let response = await apiRequest.put(route, pubRequestBody, annoyingPublisher.user.userID);
 
@@ -878,29 +880,37 @@ export async function ATW_API_negotiation_publisher_3_2 (assert: test.Test) {
 }
 
  /*
- * @case    - Publisher starts a negotiation on its own proposal
- * @label   - ATW_API_negotiation_publisher_4
+ * @case    - Publisher sends offer to a negotiation with a wrong buyerID
+ * @expect  - 403 Forbidden, publisher cannot start negotiation on its own proposal
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_publisher_4 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_4 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let innocentBuyer = await databasePopulator.createBuyer(DSP_ID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'active' });
 
     /** Test */
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+
     let pubRequestBody = {
             proposal_id: proposalObj.proposal.proposalID,
-            partner_id: publisher.user.userID,
-            terms: 'I have no idea what I am doing'
+            partner_id: innocentBuyer.user.userID,
+            terms: 'i have no idea what I am doing'
     };
     let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
 
@@ -910,12 +920,12 @@ export async function ATW_API_negotiation_publisher_4 (assert: test.Test) {
 
  /*
  * @case    - Buyer sends an offer to a proposal
- * @label   - ATW_API_negotiation_buyer_1
+ * @expect  - 200 OK, negotiated filed changes
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_buyer_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -942,12 +952,12 @@ export async function ATW_API_negotiation_buyer_1 (assert: test.Test) {
 
 /*
  * @case    - Buyer send a getotiation to an existing negotiation
- * @label   - ATW_API_negotiation_buyer_2_1
+ * @expect  - 200 OK, negotiated filed changes
  * @route   - PUT deals/active
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_buyer_2_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_2_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -986,12 +996,12 @@ export async function ATW_API_negotiation_buyer_2_1 (assert: test.Test) {
 
  /*
  * @case    - Buyer sends an offer to a negotiation before publisher reply to its previous offer
- * @label   - ATW_API_negotiation_buyer_2_2
+ * @expect  - 403 Forbidden, buyer out of turn
  * @route   - PUT deals/negotiaitons
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_negotiation_buyer_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_2_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1024,12 +1034,12 @@ export async function ATW_API_negotiation_buyer_2_2 (assert: test.Test) {
 
  /*
  * @case    - Different buyers negotiate on the same proposal do not effect each other.
- * @label   - ATW_API_negotiation_buyer_4
+ * @expect  - 200 OK, another negotiation created
  * @route   - PUT deals/negotiaitons
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_buyer_4 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_BUYER_4 (assert: test.Test) {
 
     /** Setup */
     assert.plan(3);
@@ -1066,12 +1076,12 @@ export async function ATW_API_negotiation_buyer_4 (assert: test.Test) {
 
  /*
  * @case    - Buyer still can reopen the negotiation after pub rejected.
- * @label   - ATW_API_negotiation_state_1_1
+ * @expect  - 200 OK, buyer status accepted, pub status active
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_1_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_1_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -1116,12 +1126,12 @@ export async function ATW_API_negotiation_state_1_1 (assert: test.Test) {
 
 /*
  * @case    - Pub still can reopen the negotiation after buyer rejected.
- * @label   - ATW_API_negotiation_state_2_2
+ * @expect  - 200 OK, buyer status active, pub status accepted
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_2_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_2_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -1173,12 +1183,12 @@ export async function ATW_API_negotiation_state_2_2 (assert: test.Test) {
 
 /*
  * @case    - Buyer send an offer to an accepted negotiation
- * @label   - ATW_API_negotiation_state_3_1
+ * @expect  - 403 Forbidden, buyer cannot send an offer to an accepted negotiaiton
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_3_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_3_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1217,12 +1227,12 @@ export async function ATW_API_negotiation_state_3_1 (assert: test.Test) {
 
 /*
  * @case    - Publisher send an offer to an accepted negotiation
- * @label   - ATW_API_negotiation_state_3_2
+ * @expect  - 403 Forbidden, pub cannot send an offer to an accepted negotiation
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_3_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_3_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1260,12 +1270,12 @@ export async function ATW_API_negotiation_state_3_2 (assert: test.Test) {
 
 /*
  * @case    - Buyer try to reject a negotiation that doesn't exist
- * @label   - ATW_API_negotiation_state_4_1
+ * @expect  - 403 Forbidden, cannot reject a negotiation that doesn't exist
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_4_1 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_4_1 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1290,12 +1300,12 @@ export async function ATW_API_negotiation_state_4_1 (assert: test.Test) {
 
 /*
  * @case    - Publisher try to reject a negotiation that doesn't exist
- * @label   - ATW_API_negotiation_state_4_2
+ * @expect  - 403 Forbidden, cannot reject a negotiation that doesn't exist
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
-export async function ATW_API_negotiation_state_4_2 (assert: test.Test) {
+export async function ATW_API_NEGOTIATION_STATE_4_2 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -1320,9 +1330,9 @@ export async function ATW_API_negotiation_state_4_2 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer to a proposal that doesn't exist.
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_1
+ * @expect  - 404 Not Found, cannot found a non-existing proposal
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_1 (assert: test.Test) {
@@ -1348,9 +1358,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_1 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer with a non-numeric proposal id	
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_2_1
+ * @expect  - 400 Bad Request, proposal id has to be a number
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_2_1 (assert: test.Test) {
@@ -1376,9 +1386,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_1 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer with no proposal id.	
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_2_2
+ * @expect  - 400 Bad Request, a request has to have a proposal id
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_2_2 (assert: test.Test) {
@@ -1402,9 +1412,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_2_2 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer for an inactive proposal.		
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_3
+ * @expect  - 403 Forbidden, cannot negotiate on an inactive proposal
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_3 (assert: test.Test) {
@@ -1432,9 +1442,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_3 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer for an invalid proposal (no active sections). 	
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_4_1
+ * @expect  - Forbidden, sections have to be active
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_4_1 (assert: test.Test) {
@@ -1462,9 +1472,9 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_4_1 (assert: test.Test) {
 
 /*
  * @case    - The buyer sends a counter-offer for an invalid proposal (no active sites). 	
- * @label   - ATW_API_NEGOTIATION_PROPOSAL_4_2
+ * @expect  - 403 Forbidden, sites has to be active
  * @route   - PUT deals/negotiations
- * @status  - goose
+ * @status  - working
  * @tags    - put, negotiaitons, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_4_2 (assert: test.Test) {
