@@ -58,8 +58,10 @@ class Bootstrap {
         setTimeout(() => {
             crashDBM.initialize()
                 .then(() => { return crashDataSetup.restoreTables(); })
-                .then(() => { return crashDBM.shutdown(); })
-                .then(() => { process.exit(0); });
+                .then(() => {
+                    crashDBM.shutdown();
+                    process.exit(0);
+                });
         }, 10);
     }
 
