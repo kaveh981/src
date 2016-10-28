@@ -38,13 +38,15 @@ class SettledDealManager {
     public async fetchSettledDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<SettledDealModel> {
 
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
-                    'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID', 'createDate', 'modifyDate')
-                .from('rtbDeals')
-                .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
-                .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
-                .where('buyerID', buyerID)
-                .where('publisherID', publisherID);
+                                                     'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
+                                                     'createDate', 'modifyDate')
+                                             .from('rtbDeals')
+                                             .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
+                                             .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .where('ixmDealNegotiations.proposalID', proposalID)
+                                             .where('buyerID', buyerID)
+                                             .where('publisherID', publisherID);
 
         if (!rows[0]) {
             return;
@@ -70,11 +72,12 @@ class SettledDealManager {
         let settledDeals: SettledDealModel[] = [];
 
         let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
-                .from('ixmDealNegotiations')
-                .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
-                .where('ixmDealNegotiations.buyerID', buyerID)
-                .limit(pagination.limit)
-                .offset(pagination.offset);
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .where('ixmDealNegotiations.buyerID', buyerID)
+                                             .limit(pagination.limit)
+                                             .offset(pagination.offset);
 
         for (let i = 0; i < rows.length; i++) {
             let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);

@@ -30,22 +30,21 @@ class BuyerManager {
      * @param userId - The userID of the buyer we want information from.
      * @returns A promise for a new buyer model.
      */
-    public async fetchBuyerFromId(id: number): Promise<BuyerModel> {
+    public async fetchBuyerFromId(userID: number): Promise<BuyerModel> {
 
-        let buyerObject = new BuyerModel();
-
-        let rows = await this.databaseManager.select('dspID')
-                .from('ixmBuyers')
-                .where('userID', id);
-
+        let rows = await this.databaseManager.select('dspID').from('ixmBuyers').where('userID', userID);
         let dsps = rows.map((row) => { return row.dspID; });
-        buyerObject.dspIDs = dsps;
+        let userInfo = await this.userManager.fetchUserFromId(userID);
 
-        let userInfo = await this.userManager.fetchUserFromId(id);
-        buyerObject.userInfo = userInfo;
-        buyerObject.userID = id;
+        if (!userInfo || !rows[0]) {
+            return;
+        }
 
-        return buyerObject;
+        return new BuyerModel({
+            dspIDs: dsps,
+            userInfo: userInfo,
+            userID: userID
+        });
 
     }
 }

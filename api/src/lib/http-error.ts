@@ -7,6 +7,7 @@
  * @returns A crafted error object for consumption by error-handler.
  */
 function HTTPError(message: string, details: any = '') {
+
     let error = new Error();
 
     error['name'] = message;
@@ -14,6 +15,7 @@ function HTTPError(message: string, details: any = '') {
     error['details'] = details;
 
     return error;
+
 }
 
 export { HTTPError };

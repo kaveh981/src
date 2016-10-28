@@ -26,11 +26,11 @@ class UserManager {
     public async fetchUserFromId(userID: number): Promise<UserModel> {
 
         let rows = await this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
-                'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone')
-                .from('users')
-                .innerJoin('userTypes', 'userType', '=', 'userTypeID')
-                .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
-                .where('userID', userID);
+                                                     'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone')
+                                             .from('users')
+                                             .innerJoin('userTypes', 'userType', '=', 'userTypeID')
+                                             .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
+                                             .where('userID', userID);
 
         return new UserModel(rows[0]);
 

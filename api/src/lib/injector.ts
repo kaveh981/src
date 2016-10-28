@@ -12,11 +12,13 @@ class Injector {
      * @returns - The object with that name.
      */
     public request<T>(name: string): T {
+
         if (!this.singletonMap[name]) {
             throw new Error(`No object with name ${name} was loaded.`);
         }
 
         return this.singletonMap[name];
+
     }
 
     /** 
@@ -25,11 +27,13 @@ class Injector {
      * @param name - The name to give the singleton you're storing.
      */
     public put(singleton: any, name: string): void {
+
         if (this.singletonMap[name]) {
             throw new Error(`An object with name ${name} already exists.`);
         }
 
         this.singletonMap[name] = singleton;
+
     }
 }
 
