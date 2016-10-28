@@ -27,7 +27,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-const Log: Logger = new Logger('ACTD');
+const Log: Logger = new Logger('NEGO');
 
 /**
  * Function that takes care of all /deals/negotiation routes  
