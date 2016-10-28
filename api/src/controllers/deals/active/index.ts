@@ -46,15 +46,11 @@ function ActiveDeals(router: express.Router): void {
         };
 
         let validationErrors = validator.validateType(pagination, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'] });
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
-
-        // Convert from strings (query) to integers
-        pagination.limit = Number(pagination.limit);
-        pagination.offset = Number(pagination.offset);
 
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmUserInfo.id);
