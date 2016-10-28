@@ -59,6 +59,9 @@ class Server {
                 // Uncaught exception handler
                 uncaughtException: (err) => {
                     Log.fatal(err);
+
+                    // CRASH
+                    process.exit(1);
                 },
                 // Kraken parses short-stop before onconfig is called... WAI?
                 onconfig: (config, callback) => {
