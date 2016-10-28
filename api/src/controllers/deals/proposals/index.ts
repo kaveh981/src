@@ -17,7 +17,7 @@ const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealM
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
-const Log: Logger = new Logger('DEAL');
+const Log: Logger = new Logger('PROP');
 
 /**
  * Function that takes care of /deals route
@@ -64,6 +64,35 @@ function Proposals(router: express.Router): void {
             res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
             res.sendError('200_NO_PROPOSALS');
+        }
+
+    } catch (error) { next(error); } });
+
+    /**
+     * GET request to get a specific proposal using the proposal ID. The function first makes sure the requested proposal is accessible,
+     * then it returns it if successful.
+     */
+    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        let proposalID = Number(req.params.proposalID);
+
+        // Validate the parameter
+        let validationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Fetch the desired proposal
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
+        if (!proposal || (proposal.status === 'deleted' && proposal.ownerID !== Number(req.ixmUserInfo.id))) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        } else if (proposal.status === 'paused' && proposal.ownerID !== Number(req.ixmUserInfo.id)) {
+            throw HTTPError('403');
+        } else {
+            res.sendPayload(proposal);
         }
 
     } catch (error) { next(error); } });
