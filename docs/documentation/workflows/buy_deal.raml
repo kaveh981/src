@@ -108,7 +108,7 @@
         https://market.indexexchange.com/ixm/v1/deals/active
     ```
 
-    On success, the deal is made active and will be available to bid on from the start date, if any. The returned deal object will include an `external_id`, which can be used as a reference or identifier in other systems.
+    On success, the deal is made active and will be available to bid on from the start date, if any. The returned deal object will include a unique `external_id`, which can be used as a reference or identifier in other systems.
 
     ### Example Response
 
@@ -120,6 +120,7 @@
             {
                 
                 "id": 888,
+                "external_id": "DEAL-4-U-BB",
                 "publisher_id": [123],
                 "site_id": [111,222],
                 "deal_section_id": [4321, 9876],
