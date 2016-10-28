@@ -114,7 +114,7 @@ class NegotiatedDealModel {
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
-        
+
         return payload;
     }
 
