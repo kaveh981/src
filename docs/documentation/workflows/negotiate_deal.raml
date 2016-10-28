@@ -1,0 +1,225 @@
+#%RAML 1.0 DocumentationItem
+	
+	title: Workflow - Negotiate a Deal
+	content: |
+
+    This example shows a basic deal negotiation workflow in Index Market. In this case, there are two parties involved – one publisher and one buyer. The buyer is choosing to negotiate on an available proposal. The following steps are taken:
+
+        1. List available deals to buy
+        2. Send a counter-offer on a selected deal
+        3. Receive a response from negotiation partner
+        4. Respond to the results.
+        5. End negotiation
+
+    Before starting, make sure you've obtained an OAuth token in the [authorization workflow](#TODO: link to auth WF).
+
+    ## 1. List available deals to buy
+
+    To list all available deals, send a GET request to the `/deals/proposals` endpoint. A collection of [deal proposals](#TODO: link to proposal definition) will be returned.
+
+    ### Example Request
+    ```
+    $ curl -X GET \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        https://market.indexexchange.com/ixm/v1/deals/proposals
+    ```
+
+    A list of available deal proposals will be returned. The list can optionally be filtered by any of the available filters described in the [deal proposals route](#TODO: link to route). If not filtered, the deals returned will be limited to the pagination maximum. 
+
+    ### Example response
+
+    ```
+    {
+        "code": 200,
+        "message": "Is your daddy a dealer, cause you're dope to me?"
+        "data": [
+            {
+                "id": 999,
+                "publisher_id": [123],
+                "site_id": [111,222],
+                "deal_section_id": [4321, 9876],
+                "name": "Superfab Ultradeal",
+                "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+                "status": "active",
+                "start_date": "2016-09-09",
+                "end_date": "2016-10-10",
+                "price": 1.99,
+                "impressions": 8,
+                "budget": 9999999.99,
+                "currency": "USD",
+                "auction_type": 1,
+                "contact": {
+                    "title": "Captain",
+                    "name": "Jimdex Exchange",
+                    "email": "jimdex.exchange@indexexchange.com",
+                    "phone": "666 666 6665"
+                },
+                "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+                "created_at": "2016-04-04T04:00:00Z",
+                "modified_at": "2016-04-14T14:00:00Z"
+            },
+            {
+                
+                "id": 888,
+                "publisher_id": [123],
+                "site_id": [111,222],
+                "deal_section_id": [4321, 9876],
+                "name": "Superfab Ultradeal",
+                "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+                "status": "active",
+                "start_date": "2016-09-09",
+                "end_date": "2016-10-10",
+                "price": 1.99,
+                "impressions": 8,
+                "budget": 9999999.99,
+                "currency": "USD",
+                "auction_type": 1,
+                "contact": {
+                    "title": "Captain",
+                    "name": "Jimdex Exchange",
+                    "email": "jimdex.exchange@indexexchange.com",
+                    "phone": "666 666 6665"
+                },
+                "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
+                "created_at": "2016-04-04T04:00:00Z",
+                "modified_at": "2016-04-14T14:00:00Z"
+            }                
+
+        ]
+        "pagination": null #TODO: add this
+    }
+    ```
+
+    ## 2. Send a counter-offer on a selected deal
+
+    From the returned proposals, the publisher likes the look of the second one – ID 888 – but wish to negotiate further. They send a counter offer via a PUT request to `/deals/negotiation`. The body contains a Deal Negotiation JSON object, with the fields they wish to offer a counter-proposal on. Any fields they don't wish to adjust are omitted.
+
+    The `terms` field may be used for extra information or communication.
+
+    ### Example Request
+
+    ```
+    $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.49", "end_date": "2017-02-10", "terms": "Pending approval from the boss. How is your mother doing, by the way?" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    On success, a Negotiated Deal object is returned, containing the proposed updates. An ID for the original proposal is included for reference.
+
+    ### Example Response
+
+    ```
+    {
+        "code": 200,
+        "message": "Is your daddy a dealer, cause you're dope to me.",
+        "data": [
+            {
+                "proposal_id": 999,
+                "partner_id": 666,
+                "deal_section_id": [4321, 9876],
+                "name": "Superfab Ultradeal",
+                "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+                "start_date": "2016-09-09",
+                "end_date": "2017-02-10",
+                "price": 1.49,
+                "impressions": 8,
+                "budget": 9999999.99,
+                "currency": "USD",
+                "auction_type": "first",
+                "partner_contact": {
+                    "title": "Lord",
+                    "name": "Humungus",
+                    "email": "ayatollah@rockandrollah.com",
+                    "phone": "999 999 9998"
+                }
+                "terms": "Pending approval from the boss. How is your mother doing, by the way?",
+                "created_at": "2016-04-04T04:00:00Z",
+                "modified_at": "2016-04-14T14:00:00Z"
+            }
+        ]
+    }
+    ```
+
+    The Negotiated Deal will now be returned in a GET request to `/deals/negotiations` by our user. This can be used for reference, or to check the current state of the negotiation resulting from the publisher's response.
+
+    ## 3. Receive a response from negotiation partner
+
+    At this point, the publisher has three options:
+
+        i. Accept the counter-offer as is
+        ii. Reject the counter-offer
+        iii. Respond with a new counter-offer
+
+    ### i. Accept the  counter-offer as is
+
+    If the publisher is happy with the new terms, they respond to the same route with a PUT request containing only the relevant IDs and a response field.
+
+    ### Example acceptance request
+    
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    Notification will be sent of the acceptance, and the deal become active. It will be available to bid on, pending start date if applicable, and will appear in results from the GET `deals/active` route.
+    ## ii. Reject the counter-offer
+
+    If the publisher is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
+
+    ### Example acceptance request
+    
+    ```
+     $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    Notification will be sent of the rejection. The status of the deal does not change at this point. The Negotiated Deal is still available from the GET `/deals/negotiations` route, with the rejection status.
+
+    The buyer may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the publisher will be able to respond on them as before.
+
+    ## iii. Respond with a new counter-offer
+
+    If the publisher isn't completely happy with the terms in the counter-offer, they can choose to send their own counter-offer. They PUT to `/deals/negotiations` in a similar fashion.
+
+    ### Example request
+
+    ```
+    $ curl -X PUT \
+        -H 'X-Auth-ID: 1234' \
+        -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+        -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
+        https://market.indexexchange.com/ixm/v1/deals/negotiations
+    ```
+
+    The buyer will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.
+
+    ## 4. Respond to the results.
+
+    The buyer now has the same choice as the publisher – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
+
+    ## 5. Ending Negotiation
+
+    Negotiation end when both parties have chosen to accept or reject the current state of the negotiation. 
+
+    ### Both parties accept
+
+    Sending a counter-offer implies acceptance of the terms described in that counter-offer by the sender. When the other party accepts, the deal is considered settled and moves to an [Active Deal](TODO - link to active deal).
+
+    An active deal will no longer be available on the GET `/deals/negotiations` route, but will be available on the GET `/deals/active` route.
+
+    The deal will be available for bidding, pending the start date, if any.
+
+    ### Both parties reject
+
+    If a counter-offer has been rejected, the sender can choose to end negotiation by also sending a `reject` response. In this case negotiation is considered closed. The deal will no longer be available via the GET `/deals/negotiations` route.
+
+    An open proposal will remain open, and new negotiation can commence on it.
