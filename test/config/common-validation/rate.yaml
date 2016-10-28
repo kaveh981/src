@@ -1,0 +1,17 @@
+---
+- input: ''
+- input: ['2.34']
+- input: ['2e1']
+- input: '2f'
+- input: '2e1'
+- input: '2.340'
+- input: '2.345'
+- input: '-1.23'
+- input: '0.00'
+- input: '100000.00'
+- input: '?'
+- input: '1.?'
+- input:
+    id: 1.2
+- input:
+    - 1.2
