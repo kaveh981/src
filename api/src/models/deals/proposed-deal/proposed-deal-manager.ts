@@ -34,10 +34,10 @@ class ProposedDealManager {
     public async fetchProposedDealFromId(proposalID: number): Promise<ProposedDealModel> {
 
         let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'name', 'description', 'status',
-                    'accessMode', 'startDate', 'endDate', 'price', 'impressions', 'budget', 'auctionType', 'terms', 'createDate',
-                    'modifyDate')
-                .from('ixmDealProposals')
-                .where('proposalID', proposalID);
+                                                     'accessMode', 'startDate', 'endDate', 'price', 'impressions',
+                                                     'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
+                                             .from('ixmDealProposals')
+                                             .where('proposalID', proposalID);
 
         if (!rows[0]) {
             return;
@@ -65,9 +65,11 @@ class ProposedDealManager {
     public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
 
         let proposals = [];
-        let rows = await this.databaseManager.select('proposalID').from('ixmDealProposals').where('status', proposalStatus)
-                    .limit(pagination.limit)
-                    .offset(pagination.offset);
+        let rows = await this.databaseManager.select('proposalID')
+                                             .from('ixmDealProposals')
+                                             .where('status', proposalStatus)
+                                             .limit(pagination.limit)
+                                             .offset(pagination.offset);
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);
@@ -86,14 +88,14 @@ class ProposedDealManager {
     public async fetchSectionsFromProposalId(proposalID: number): Promise<string[]> {
 
         let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
-                    .from('ixmProposalSectionMappings')
-                    .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
-                    .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
-                    .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                    .where('ixmProposalSectionMappings.proposalID', proposalID)
-                    .andWhere('rtbSections.status', 'A')
-                    .andWhere('sites.status', 'A')
-                    .groupBy('id');
+                                             .from('ixmProposalSectionMappings')
+                                             .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
+                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .where('ixmProposalSectionMappings.proposalID', proposalID)
+                                             .andWhere('rtbSections.status', 'A')
+                                             .andWhere('sites.status', 'A')
+                                             .groupBy('id');
 
         return rows.map((row) => { return row.id; });
 

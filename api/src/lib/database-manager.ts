@@ -33,10 +33,10 @@ export class DatabaseManager {
      * @returns Empty promise which resolves once the database connection is established.
      */
     public initialize(): Promise<{}> {
+        return new Promise((resolve, reject) => {
 
-        Log.info(`Initializing database connection to ${this.config.getVar('DB_DATABASE')}@${this.config.getVar('DB_HOST')}...`);
+            Log.info(`Initializing database connection to ${this.config.getVar('DB_DATABASE')}@${this.config.getVar('DB_HOST')}...`);
 
-        return new Promise((resolve: Function, reject: Function) => {
             let databaseConfig: Knex.Config = {
                 client: 'mysql',
                 connection: {
@@ -73,21 +73,18 @@ export class DatabaseManager {
                     resolve();
                 })
                 .catch((err: Error) => {
+                    Log.error(err);
                     reject(err);
                 });
-        })
-        .catch((err: Error) => {
-            Log.warn('Database failed to connect.');
-            Log.error(err);
-            throw err;
-        });
 
+        });
     }
 
     /**
      * Close down the database connection. If the client pool is open, destroys it.
      */
     public shutdown(): void {
+
         Log.info('Shutting down the DatabaseManager...');
 
         if (this.clientPool) {
@@ -96,6 +93,7 @@ export class DatabaseManager {
         }
 
         Log.info('DatabaseManager has been shutdown.');
+
     }
 
 };

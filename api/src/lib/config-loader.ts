@@ -30,13 +30,15 @@ class ConfigLoader {
      * @returns The value of the environment variable requested. Throws error if it is not configured.
      */
     public getVar(variable: string, optional?: boolean): string {
+
         let value: string = process.env[variable];
 
-        if (!value && !optional) {
+        if (typeof value === 'undefined' && !optional) {
             throw new Error(`Environment variable "${variable}" has not been configured.`);
         }
 
         return value;
+
     }
 
     /**
@@ -45,11 +47,13 @@ class ConfigLoader {
      * @returns A JSON object containing the configuration information.
      */
     public get(config: string): any {
+
         if (!this.configMap[config]) {
             this.loadConfig(config + '.yaml');
         }
 
         return this.configMap[config];
+
     }
 
     /**
@@ -57,11 +61,13 @@ class ConfigLoader {
      * @param filename - The name of the file to load from the file system.
      */
     private loadConfig(filename: string): void {
+
         let filepath = path.join(this.configFolder, filename);
         let fileContent = fs.readFileSync(filepath).toString();
         let configContent = yaml.safeLoad(fileContent);
 
         this.configMap[filename.split('.yaml')[0]] = configContent;
+
     }
 
 }

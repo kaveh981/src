@@ -30,17 +30,19 @@ class PublisherManager {
      * @param userId - The userID of the Publisher we want information from.
      * @returns A promise for a new Publisher model.
      */
-    public async fetchPublisherFromId(id: number): Promise<PublisherModel> {
-        /** Currently doing nothing, this fucntion should be called unless we add somehing to pub model */
-        let pubObject = new PublisherModel();
+    public async fetchPublisher(userID: number): Promise<PublisherModel> {
 
-        let userInfo = await this.userManager.fetchUserFromId(id);
+        let userInfo = await this.userManager.fetchUserFromId(userID);
 
-        if (userInfo) {
-            pubObject.userInfo = userInfo;
-            pubObject.userID = id;
-            return pubObject;
+        if (!userInfo) {
+            return;
         }
+
+        return new PublisherModel({
+            userInfo: userInfo,
+            userID: userID
+        });
+
     }
 }
 
