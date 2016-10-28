@@ -1,9 +1,9 @@
 #%RAML 1.0 DocumentationItem
     
-    title: Workflow - Offer a new deal to specific parties (Targeted Deal)
+    title: Workflow - Offer a new deal to specific parties (Targeted Proposal)
     content: |
 
-    This example shows how a new deal can be offered to specific parties. A Targeted Deal won't be available to view in the marketplace by anybody other than the involved parties. Once a Targeted Deal has been completed (by acceptance or rejection), it will be closed. 
+    This example shows how a new deal can be offered to specific parties. A Targeted Proposal won't be available to view in the marketplace by anybody other than the involved parties. Once a Targeted Proposal has been completed (by acceptance or rejection), it will be closed. 
 
     In the example, a buyer will offer a deal to two publishers. Note however that offering deals is symmetric – publishers can offer deals to one or more buyers as well. In this example the buyer will offer a deal to two publishers; the relationship is one to many from the sender to recipients – one buyer or publisher can send a proposal to one or more counterparts. 
 
@@ -18,7 +18,7 @@
 
     To create a proposal, a request is sent to the PUT `/deals/proposals` route. To target the proposal to specific publishers, the buyer includes `publisher_id` values in the body.
 
-    The buyer may propose to include specific sites and/or sections belonging to the publishers if they wish to propose specific placement targeting. They may also omit it to leave it to the publisher's discretion.
+    The buyer may propose to include specific [sites](TODO - link to sites) and/or [sections](TODO - link to sections) belonging to the publishers if they wish to propose specific placement targeting. They may also omit it to leave it to the publisher's discretion.
 
     Contact information will be associated from the buyer account's default, or the `contact` field may be included to override the default.
 
@@ -68,7 +68,7 @@
      $ curl -X PUT \
         -H 'X-Auth-ID: 123' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 1234, "response": "accept" }' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
@@ -78,7 +78,7 @@
      $ curl -X PUT \
         -H 'X-Auth-ID: 456' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 1234, "price": "2.99" "terms": "Try harder bro" }' \
+        -d '{ "proposal_id": 888, "partner_id": 1234, "price": "2.99" "terms": "Try harder bro" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
@@ -96,7 +96,7 @@
      $ curl -X PUT \
         -H 'X-Auth-ID: 1234' \
         -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-        -d '{ "proposal_id": 888, partner_id: 456, "response": "reject", "terms": "Too high!" }' \
+        -d '{ "proposal_id": 888, "partner_id": 456, "response": "reject", "terms": "Too high!" }' \
         https://market.indexexchange.com/ixm/v1/deals/negotiations
     ```
 
