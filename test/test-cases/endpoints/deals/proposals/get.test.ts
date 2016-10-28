@@ -2,19 +2,19 @@
 
 import * as test from 'tape';
 
-import { authenticationTest } from '../../common/auth.test';
-import { paginationTest } from '../../common/pagination.test';
+import { authenticationTest } from '../../../common/auth.test';
+import { paginationTest } from '../../../common/pagination.test';
 
-import { Injector } from '../../../src/lib/injector';
-import { APIRequestManager } from '../../../src/lib/request-manager';
-import { DatabasePopulator } from '../../../src/lib/database-populator';
-import { Helper } from '../../../src/lib/helper';
+import { Injector } from '../../../../src/lib/injector';
+import { APIRequestManager } from '../../../../src/lib/request-manager';
+import { DatabasePopulator } from '../../../../src/lib/database-populator';
+import { Helper } from '../../../../src/lib/helper';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
 /** Test constants */
-const route = 'deals';
+const route = 'deals/proposals';
 
 async function authDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
