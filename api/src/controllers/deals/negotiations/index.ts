@@ -76,6 +76,57 @@ function NegotiationDeals(router: express.Router): void {
 
     } catch (error) { next(error); } });
 
+    /*
+     * GET Request for both users, buyers and publishers, to get a list of deal negotiations by providing a 
+     * proposalID for a proposal that is   
+     */
+    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        // Validate proposalID
+        let regexp = /\d+/;
+        let proposalID = parseInt(req.params.proposalID, 10);
+
+        if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > Math.pow(2, 24) - 1) {
+            res.sendError('404_PROPOSAL_NOT_FOUND');
+            // Log.debug("REGEX FAILLLLLL");
+        }
+
+        // Validate Proposal 
+        let userID = Number(req.ixmUserInfo.id);
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (typeof proposal === 'undefined' || proposal.status === 'deleted') { // maybe create a proposal.exists function in prop manager
+            res.sendError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        if (proposal.status === 'paused' || proposal.ownerID !== userID) { // maybe create another function in prop manager
+            res.sendError('403_NOT_FORSALE');
+        }
+
+        // Validate pagination parameters
+        let pagination = {
+            limit: req.query.limit,
+            offset: req.query.offset
+        };
+
+        let validationErrors = validator.validateType(pagination, 'Pagination',
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
+        }
+
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealFromProposalId(userID, proposalID);
+
+        if (negotiatedDeals.length > 0) {
+            res.sendPayload( negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+        } else {
+            res.sendError('200_NO_PROPOSAL_NEGOTIAITIONS');
+        }
+
+    } catch (error) { next(error); } });
+
+
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */

@@ -90,6 +90,35 @@ class NegotiatedDealManager {
     }
 
     /**
+     * Get proposalID specific deal negotiation from proposal and buyer id 
+     * @param buyerID - The id of the buyer of the negotiation.
+     * @returns A list of negotiated deal objects.
+     */
+    public async fetchNegotiatedDealFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
+
+        let rows = await this.databaseManager.select('publisherID')
+                                             .from('ixmDealNegotiations')
+                                             .where(function() {
+                                                 this.where('buyerID', userID)
+                                                 .orWhere('publisherID', userID);
+                                             })
+                                             .andWhere('proposalID', proposalID);
+
+        if (!rows[0]) {
+            return;
+        }
+
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
+
+        for (let i = 0; i < rows.length; i++) {
+                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, userID, rows[i].publisherID);
+                negotiatedDealArray.push(negotiatedDeal);
+        }
+
+        return negotiatedDealArray;
+    }
+
+    /**
      * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
      * @param negotiatedDeal - The negotiated deal to insert.
      * @param transation - A knex transaction object to use.
