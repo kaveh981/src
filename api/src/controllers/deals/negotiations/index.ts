@@ -88,7 +88,6 @@ function NegotiationDeals(router: express.Router): void {
 
         if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > Math.pow(2, 24) - 1) {
             res.sendError('404_PROPOSAL_NOT_FOUND');
-            Log.debug("REGEX FAILLLLLL");
             return;
         }
 
@@ -96,12 +95,12 @@ function NegotiationDeals(router: express.Router): void {
         let userID = Number(req.ixmUserInfo.id);
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (typeof proposal === 'undefined' || proposal.status === 'deleted') { // maybe create a proposal.exists function in prop manager
+        if (typeof proposal === 'undefined' || proposal.status === 'deleted') {
             res.sendError('404_PROPOSAL_NOT_FOUND');
             return;
         }
 
-        if (proposal.status === 'paused' || proposal.ownerID !== userID) { // maybe create another function in prop manager
+        if (proposal.status === 'paused' || proposal.ownerID !== userID) {
             res.sendError('403_NOT_FORSALE');
             return;
         }
