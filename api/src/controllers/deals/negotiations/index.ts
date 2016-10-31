@@ -28,6 +28,7 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('NEGO');
+const mediumInt: number = Math.pow(2, 24) - 1;
 
 /**
  * Function that takes care of all /deals/negotiation routes  
@@ -86,22 +87,16 @@ function NegotiationDeals(router: express.Router): void {
         let regexp = /\d+/;
         let proposalID = parseInt(req.params.proposalID, 10);
 
-        if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > Math.pow(2, 24) - 1) {
+        if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > mediumInt) {
             res.sendError('404_PROPOSAL_NOT_FOUND');
             return;
         }
 
-        // Validate Proposal 
-        let userID = Number(req.ixmUserInfo.id);
+        // Check proposal exists based on proposalID
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (typeof proposal === 'undefined' || proposal.status === 'deleted') {
+        if (typeof proposal === 'undefined') {
             res.sendError('404_PROPOSAL_NOT_FOUND');
-            return;
-        }
-
-        if (proposal.status === 'paused' || proposal.ownerID !== userID) {
-            res.sendError('403_NOT_FORSALE');
             return;
         }
 
@@ -118,6 +113,7 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
+        let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealFromProposalId(userID, proposalID);
 
         if (negotiatedDeals.length > 0) {
