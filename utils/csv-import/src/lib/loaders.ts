@@ -16,6 +16,7 @@ class Loader {
     /** Hash-map of already loaded files */
     protected map: {} = {};
 
+    /** Logger instance specific to each loader instance */
     protected logger: Logger;
 
     constructor(folder: string, name: string) {
@@ -72,7 +73,7 @@ class ConfigLoader extends Loader {
     }
 
     /**
-     * Load the configuration from this.configFolder/filename, and store it in the configMap.
+     * Load the configuration from config/filename, and store it in the configMap.
      * @param filename - The name of the file to load from the file system.
      */
     private loadConfig(filename: string): void {
@@ -91,16 +92,23 @@ class ConfigLoader extends Loader {
 /** CsvLoader class - Loads  */
 class CsvLoader extends Loader {
 
-    /** Constructs an instance of CsvLoader
-     *  Depends on: ConfigLoader
-     *  @param configLoader - the configLoader singleton instance to use as dependency
+    /** 
+     * Constructs an instance of CsvLoader
+     * Assigns folder property to the path specified by CSV_DIR environment variable
+     * Depends on: ConfigLoader
+     * @param configLoader - the configLoader singleton instance to use as dependency
      */
     constructor(configLoader: ConfigLoader) {
         let folder = configLoader.getEnvironmentVariable('CSV_DIR');
         super(folder, 'CSVL');
     }
 
-    public getProposals(name: string) {
+    /**
+     * Gets proposals from a file, contained in the CSV_DIR path
+     * @param name - the name of the csv file without the .csv extension
+     * @returns {IProposal[]}
+     */
+    public getProposals(name: string): IProposal[] {
 
         if (!this.map[name]) {
             let parsedCsv = this.getCsv(name);
@@ -110,6 +118,11 @@ class CsvLoader extends Loader {
         return this.map[name];
     }
 
+    /**
+     * Gets an object of parsed csv file
+     * @param name - the name of the csv file without the file extension
+     * @returns {any}
+     */
     public getCsv(name: string) {
 
         if (!this.map[name]) {
@@ -119,6 +132,11 @@ class CsvLoader extends Loader {
         return this.map[name];
     }
 
+    /**
+     * Parses an input string in csv format into an object
+     * @param input - csv string in which the first row defines the column names
+     * @returns {any}
+     */
     private parseCsv(input: string) {
         let csvParserOptions = {
             columns: true,
@@ -128,6 +146,10 @@ class CsvLoader extends Loader {
         return csv(input, csvParserOptions);
     }
 
+    /**
+     * Loads csv file and puts it to has-map of loaded csv files
+     * @param name - the file name without the .csv file extension
+     */
     private loadCsvFile(name: string) {
         try {
             this.map[name] = this.parseCsv(super.loadFile(name + '.csv'));
@@ -136,9 +158,13 @@ class CsvLoader extends Loader {
         }
     }
 
+    /**
+     * Sanitises an array of proposal-like objects to conform with the IProposal Interface
+     * @param parsedCsv - an array of proposal-like objects parsed from a csv file
+     * @returns {IProposal[]}
+     */
     private parseProposals(parsedCsv: IProposal[]): IProposal[] {
-        let proposals = parsedCsv.map((proposal: any) => {
-            console.log(typeof proposal.sectionIDs);
+        return parsedCsv.map((proposal: any) => {
             if (typeof proposal.sectionIDs === 'string') {
                 proposal.sectionIDs = proposal.sectionIDs.replace(' ', '');
             }
@@ -149,8 +175,6 @@ class CsvLoader extends Loader {
 
             return proposal;
         });
-
-        return proposals;
     }
 
 }
