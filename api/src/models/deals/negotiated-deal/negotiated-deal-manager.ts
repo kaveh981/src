@@ -90,7 +90,7 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get proposalID specific deal negotiation from proposal and buyer id 
+     * Get proposalID specific deal negotiation from proposal and user id 
      * @param userID - The user id of one of the negotiating parties
      * @param proposalID - The id of the proposal being negotiated
      * @returns A list of negotiated deal objects.
