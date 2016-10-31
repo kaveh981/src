@@ -124,7 +124,6 @@ function NegotiationDeals(router: express.Router): void {
 
     } catch (error) { next(error); } });
 
-
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */
