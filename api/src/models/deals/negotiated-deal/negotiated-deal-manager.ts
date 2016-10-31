@@ -91,9 +91,9 @@ class NegotiatedDealManager {
 
     /**
      * Get proposalID specific deal negotiation from proposal and buyer id 
-     * @param userID - The id of the buyer of the negotiation.
+     * @param userID - The user id of one of the negotiating parties
      * @param proposalID - The id of the proposal being negotiated
-     * @returns A list of negotiated deal objects   .
+     * @returns A list of negotiated deal objects.
      */
     public async fetchNegotiatedDealsFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
 
