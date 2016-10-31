@@ -84,20 +84,18 @@ function NegotiationDeals(router: express.Router): void {
     router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate proposalID
-        let regexp = /\d+/;
-        let proposalID = parseInt(req.params.proposalID, 10);
+        let proposalID = Number(req.params.proposalID);
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
 
-        if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > mediumInt) {
-            res.sendError('404_PROPOSAL_NOT_FOUND');
-            return;
+        if (proposalValidationErrors.length > 0 || proposalID < 0 || proposalID > mediumInt) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         // Check proposal exists based on proposalID
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (typeof proposal === 'undefined') {
-            res.sendError('404_PROPOSAL_NOT_FOUND');
-            return;
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         // Validate pagination parameters
@@ -114,12 +112,12 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let userID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealFromProposalId(userID, proposalID);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
 
-        if (negotiatedDeals.length > 0) {
+        if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload( negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
-            res.sendError('200_NO_NEGOTIAITIONS');
+            throw HTTPError('200_NO_NEGOTIAITIONS');
         }
 
     } catch (error) { next(error); } });

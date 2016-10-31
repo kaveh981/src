@@ -94,9 +94,9 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the negotiation.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
+    public async fetchNegotiatedDealsFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
 
-        let rows = await this.databaseManager.select('publisherID')
+        let rows = await this.databaseManager.select('publisherID', 'buyerID')
                                              .from('ixmDealNegotiations')
                                              .where(function() {
                                                  this.where('buyerID', userID)
@@ -111,7 +111,7 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < rows.length; i++) {
-                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, userID, rows[i].publisherID);
+                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
                 negotiatedDealArray.push(negotiatedDeal);
         }
 
