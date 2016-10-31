@@ -77,8 +77,7 @@ function NegotiationDeals(router: express.Router): void {
     } catch (error) { next(error); } });
 
     /*
-     * GET Request for both users, buyers and publishers, to get a list of deal negotiations by providing a 
-     * proposalID for a proposal that is   
+     * GET Request for both users, buyers and publishers, to get a list of deal negotiations by providing a proposalID
      */
     router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
