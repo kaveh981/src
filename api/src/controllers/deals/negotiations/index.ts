@@ -88,7 +88,8 @@ function NegotiationDeals(router: express.Router): void {
 
         if (!req.params.proposalID.match(regexp) || proposalID < 0 || proposalID > Math.pow(2, 24) - 1) {
             res.sendError('404_PROPOSAL_NOT_FOUND');
-            // Log.debug("REGEX FAILLLLLL");
+            Log.debug("REGEX FAILLLLLL");
+            return;
         }
 
         // Validate Proposal 
@@ -97,10 +98,12 @@ function NegotiationDeals(router: express.Router): void {
 
         if (typeof proposal === 'undefined' || proposal.status === 'deleted') { // maybe create a proposal.exists function in prop manager
             res.sendError('404_PROPOSAL_NOT_FOUND');
+            return;
         }
 
         if (proposal.status === 'paused' || proposal.ownerID !== userID) { // maybe create another function in prop manager
             res.sendError('403_NOT_FORSALE');
+            return;
         }
 
         // Validate pagination parameters
@@ -121,7 +124,7 @@ function NegotiationDeals(router: express.Router): void {
         if (negotiatedDeals.length > 0) {
             res.sendPayload( negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
-            res.sendError('200_NO_PROPOSAL_NEGOTIAITIONS');
+            res.sendError('200_NO_NEGOTIAITIONS');
         }
 
     } catch (error) { next(error); } });
