@@ -76,6 +76,50 @@ function NegotiationDeals(router: express.Router): void {
 
     } catch (error) { next(error); } });
 
+    /*
+     * GET Request for both users, buyers and publishers, to get a list of deal negotiations by providing a proposalID
+     */
+    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        // Validate proposalID
+        let proposalID = Number(req.params.proposalID);
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+
+        if (proposalValidationErrors.length > 0) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Check proposal exists based on proposalID
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Validate pagination parameters
+        let pagination = {
+            limit: req.query.limit,
+            offset: req.query.offset
+        };
+
+        let paginationValidationErrors = validator.validateType(pagination, 'Pagination',
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+
+        if (paginationValidationErrors.length > 0) {
+            throw HTTPError('400', paginationValidationErrors);
+        }
+
+        let userID = Number(req.ixmUserInfo.id);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
+
+        if (negotiatedDeals && negotiatedDeals.length > 0) {
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+        } else {
+            throw HTTPError('200_NO_NEGOTIAITIONS');
+        }
+
+    } catch (error) { next(error); } });
+
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */
