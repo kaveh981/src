@@ -12,12 +12,14 @@ en-US:
     
     # 400 Status Code Messages
     400: Malformed request.
+    400_MISSING_NEG_FIELD: At least one field must be provided for a counter-offer.
+    400_EXTRA_NEG_FIELD: No negotiation field can be provided along with given response.
     
     # 401 Status Code Messages
     401: Unauthorized.
     401_INVALID_HEADER: Authentication header is invalid.
     401_NO_HEADER: Authentication header not provided.
-    401_NOT_IXMBUYER: 'Provided user ID is not an Index Market Buyer. If you would like access, please contact your.mom@indexexchange.com'
+    401_NOT_IXMUSER: 'Provided user ID is not an Index Market User. If you would like access, please contact your.mom@indexexchange.com'
     401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
     401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
 
@@ -26,6 +28,12 @@ en-US:
     403_NOT_FORSALE: Proposal is not available for purchase.
     403_PROPOSAL_BOUGHT: Proposal has already been accepted.
     403_PROPOSAL_IN_NEGOTIATION: Proposal is in negotiation.
+    403_BAD_PROPOSAL: The proposal does not match the provided partner.
+    403_CANNOT_START_NEGOTIATION: Cannot start a negotiation on your own proposal.
+    403_OTHER_REJECTED: The partner rejected this negotiation, the proposal cannot be bought as is.
+    403_OUT_OF_TURN: The partner did not reply to your previous offer.
+    403_NO_NEGOTIATION: You cannot accept or reject a negotiation which hasn't yet started.
+    403_NO_CHANGE: At least one negotiation field must be different than current offer.
 
     # 404 Status Code Messages
     404: Not found.

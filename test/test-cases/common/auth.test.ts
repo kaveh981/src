@@ -46,10 +46,10 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
 
     await setup();
 
-    let publisher = await databasePopulator.createPublisher();
+    let user = await databasePopulator.createUser({ userType: 1 });
 
     /** Test */
-    let response = await apiRequest[verb](route, {}, publisher.user.userID);
+    let response = await apiRequest[verb](route, {}, user.userID);
 
     assert.equal(response.status, 401);
 

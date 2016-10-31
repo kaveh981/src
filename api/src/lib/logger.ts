@@ -53,6 +53,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public fatal(err: string | Error): IMessage {
+
         let errorMessage = this.log(err.toString(), 5);
 
         if (typeof err !== 'string') {
@@ -60,6 +61,7 @@ class Logger {
         }
 
         return errorMessage;
+
     }
 
     /**
@@ -69,6 +71,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public error(err: string | Error): IMessage {
+
         let errorMessage = this.log(err.toString(), 4);
 
         if (typeof err !== 'string') {
@@ -76,6 +79,7 @@ class Logger {
         }
 
         return errorMessage;
+
     }
 
     /**
@@ -122,6 +126,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public log(text: string, level: number = 2): IMessage {
+
         // We only need to configure the logger once we log, this prevents annoying dependencies.
         if (!loggerConfig) {
             this.configureLoggers();
@@ -129,7 +134,9 @@ class Logger {
 
         let message: IMessage = this.createMessage(this.name, level, text);
         this.outputLog(message);
+
         return message;
+
     }
 
     /**
@@ -137,14 +144,30 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= loggerConfig['consoleLevel'] && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+
+        let override = loggerConfig['sourceOverrides'][message.ORIGIN];
+        let displayMessage = message.LEVEL >= loggerConfig['consoleLevel'];
+        let writeMessage = message.LEVEL >= loggerConfig['filewriteLevel'];
+
+        if (override && message.LEVEL < override['consoleLevel']) {
+            displayMessage = false;
+        }
+
+        if (override && message.LEVEL < override['filewriteLevel']) {
+            writeMessage = false;
+        }
+
+        if (displayMessage) {
             let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
             console.log(chalk[color](msg));
         }
 
-        writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        if (writeMessage) {
+            writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        }
+
     }
 
     /**
@@ -155,6 +178,7 @@ class Logger {
      * @returns The JSON formatted message.
      */
     private createMessage(origin: string, logLevel: number, message: string): IMessage {
+
         let date: Date = new Date();
 
         return {
@@ -165,17 +189,20 @@ class Logger {
             ORIGIN: origin,
             MESSAGE: message
         };
+
     }
 
     /**
      * Set up configuration for all the loggers.
      */
     private configureLoggers(): void {
+
         loggerConfig = Injector.request<ConfigLoader>('ConfigLoader').get('logger');
 
         writeStreams = loggerConfig['outputFiles'].map((file: string) => {
             return this.createLogWriteStream(file);
         });
+
     }
 
     /** 
@@ -184,6 +211,7 @@ class Logger {
      * @returns An fs.WriteStream for the filename specified.
      */
     private createLogWriteStream(filename: string): fs.WriteStream {
+
         let logFile: string = path.join(__dirname, '../', filename);
         let logFolder: string = path.dirname(logFile);
 
@@ -192,6 +220,7 @@ class Logger {
         }
 
         return fs.createWriteStream(logFile, { flags: 'a' });
+
     }
 
 };

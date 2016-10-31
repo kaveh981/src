@@ -36,6 +36,18 @@ interface IValidationOptions {
 
     /** Force defaults only on specific errors */
     forceOnError?: string[];
+
+    /** Sanitize strings to lowercase and trim trailing whitespace */
+    sanitizeString?: boolean;
+
+    /** Sanitize integers by converting strings to numbers */
+    sanitizeIntegers?: boolean;
+
+    /** Sanitize booleans by converting strings to bools */
+    sanitizeBooleans?: boolean;
+
+    /** Remove keys which are null */
+    removeNull?: boolean;
 }
 
 /**
@@ -114,6 +126,7 @@ class RamlTypeValidator {
                 Log.error(err);
                 throw err;
             });
+
     }
 
     /**
@@ -124,6 +137,7 @@ class RamlTypeValidator {
      * @return An array of errors, if there are any.
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
+
         let typeObject = this.types[type];
 
         if (!typeObject) {
@@ -132,6 +146,7 @@ class RamlTypeValidator {
         }
 
         return this.validateNode(obj, typeObject, type, opts);
+
     }
 
     /**
@@ -144,6 +159,7 @@ class RamlTypeValidator {
      * @returns An array of errors, if there are any.
      */
     private validateNode(obj: any, node: any, path: string, opts: IValidationOptions = {}): IValidationError[] {
+
         let errors: IValidationError[] = [];
 
         // If the value is undefined, we are missing it.
@@ -175,8 +191,28 @@ class RamlTypeValidator {
             node.properties.forEach((property) => {
 
                 // Fill defaults for properties if fillDefault is true.
-                if (opts.fillDefaults && !obj[property.key] && typeof property.default !== 'undefined') {
+                if (opts.fillDefaults && typeof obj[property.key] === 'undefined' && typeof property.default !== 'undefined') {
                     obj[property.key] = property.default;
+                }
+
+                // Sanitize string to lower case if desired
+                if (opts.sanitizeString && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize integers to numbers
+                if (opts.sanitizeIntegers && typeof obj[property.key] === 'string' && validator.isInt(obj[property.key])) {
+                    obj[property.key] = Number(obj[property.key]);
+                }
+
+                // Sanitize booleans
+                if (opts.sanitizeBooleans && typeof obj[property.key] === 'string' && validator.isBoolean(obj[property.key])) {
+                    obj[property.key] = Boolean(obj[property.key]);
+                }
+
+                // Remove null values
+                if (opts.removeNull && obj[property.key] === null) {
+                    delete obj[property.key];
                 }
 
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
@@ -199,6 +235,7 @@ class RamlTypeValidator {
         }
 
         return errors;
+
     }
 
     /**
@@ -209,6 +246,7 @@ class RamlTypeValidator {
      * @returns The errors if the value cannot be cast to node.
      */
     private validateNodeType(value: any, node: any, path: string): IValidationError[] {
+
         let types = node.type.join(' | ').split(' | ');
         let valueString = typeof value === 'object' ? JSON.stringify(value) : value.toString();
         let errorList: IValidationError[] = [];
@@ -239,7 +277,7 @@ class RamlTypeValidator {
                  * Verify booleans
                  */
                 case 'boolean':
-                    if (!validator.isBoolean(valueString)) {
+                    if (typeof value !== 'boolean' || !validator.isBoolean(valueString)) {
                         errors.push(this.createError('TYPE_BOOL_INVALID', valueString, node, path));
                     }
                 break;
@@ -258,7 +296,7 @@ class RamlTypeValidator {
                  * Verify numbers
                  */
                 case 'number':
-                    if (isNaN(Number(valueString))) {
+                    if (typeof value !== 'number' || isNaN(Number(valueString))) {
                         errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
                     } else {
                         // Verify number facets
@@ -276,7 +314,7 @@ class RamlTypeValidator {
                  * Verify strings
                  */
                 case 'string':
-                    if (typeof value === 'object') {
+                    if (typeof value !== 'string') {
                         errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
                     } else {
                         // Verify string facets
@@ -408,6 +446,7 @@ class RamlTypeValidator {
         }
 
         return errorList;
+
     }
 
     /**
@@ -419,6 +458,7 @@ class RamlTypeValidator {
      * @returns A standardized error object.
      */
     private createError(error: string, value: string, node: any, path: string): IValidationError {
+
         let errorMessage = error;
 
         if (this.templates[error]) {
@@ -433,6 +473,7 @@ class RamlTypeValidator {
             message: errorMessage,
             path: path
         };
+
     }
 
     /** 
@@ -442,6 +483,7 @@ class RamlTypeValidator {
      * @returns True if errorList contains one of the errors from errors.
      */
     private containsErrors(errorList: IValidationError[], errors: string[]): boolean {
+
         for (let i = 0; i < errorList.length; i++) {
             for (let j = 0; j < errors.length; j++) {
                 if (errors[j] === errorList[i].error) {
@@ -450,6 +492,7 @@ class RamlTypeValidator {
             }
         }
         return false;
+
     }
 
 }

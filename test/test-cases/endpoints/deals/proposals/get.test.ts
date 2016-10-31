@@ -2,19 +2,19 @@
 
 import * as test from 'tape';
 
-import { authenticationTest } from '../../common/auth.test';
-import { paginationTest } from '../../common/pagination.test';
+import { authenticationTest } from '../../../common/auth.test';
+import { paginationTest } from '../../../common/pagination.test';
 
-import { Injector } from '../../../src/lib/injector';
-import { APIRequestManager } from '../../../src/lib/request-manager';
-import { DatabasePopulator } from '../../../src/lib/database-populator';
-import { Helper } from '../../../src/lib/helper';
+import { Injector } from '../../../../src/lib/injector';
+import { APIRequestManager } from '../../../../src/lib/request-manager';
+import { DatabasePopulator } from '../../../../src/lib/database-populator';
+import { Helper } from '../../../../src/lib/helper';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
 /** Test constants */
-const route = 'deals';
+const route = 'deals/proposals';
 
 async function authDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
@@ -30,6 +30,12 @@ async function paginationDatabaseSetup() {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
 }
 
+/**
+ * Create a proposal. Function should allow successive calls to create new proposals without problems.
+ * @param proposal - The proposal object.
+ * @param [publisher] - The publisher object that will own the proposal.
+ * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ */
 async function createProposal(publisher: INewPubData) {
     if (typeof publisher === 'undefined') {
         publisher = await databasePopulator.createPublisher();
@@ -48,7 +54,6 @@ async function createProposal(publisher: INewPubData) {
  * @status  - working
  * @tags    - get, deals, auth
  */
-/** Generic Authentication Tests */
 export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup);
 
 /*
@@ -58,7 +63,6 @@ export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup)
  * @status  - working
  * @tags    - get, deals, auth
  */
-/** Generic Pagination Tests */
 export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup, createProposal);
 
  /*

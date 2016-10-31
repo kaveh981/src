@@ -9,9 +9,10 @@ httpOptions:
 # Usertype names of usertypes allowed to access IXM
 allowedUserTypes:
     - IXMB
+    - IXMP
 
 # The header which contains the access token
-header: X-IXM-BuyerId
+header: X-IXM-UserId
 
 # A switch for allowing public use of API
 public: true

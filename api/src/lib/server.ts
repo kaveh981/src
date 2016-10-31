@@ -33,10 +33,12 @@ class Server {
      * @returns Promise which resolves on connection, rejects on error.
      */
     public async initialize(): Promise<void> {
+
         let krakenConfig = await this.createHandlers(this.config.get('kraken'));
         let port = await this.startServer(krakenConfig);
 
         Log.info(`Server has started successfully, listening on port ${port}.`);
+
     }
 
     /** 
@@ -46,6 +48,7 @@ class Server {
      */
     private startServer(krakenConfig: any): Promise<any> {
         return new Promise((resolve, reject) => {
+
             let app: any = express();
             let port: string = this.config.getVar('SERVER_PORT');
 
@@ -56,6 +59,9 @@ class Server {
                 // Uncaught exception handler
                 uncaughtException: (err) => {
                     Log.fatal(err);
+
+                    // CRASH
+                    process.exit(1);
                 },
                 // Kraken parses short-stop before onconfig is called... WAI?
                 onconfig: (config, callback) => {
@@ -90,6 +96,7 @@ class Server {
             });
 
             server.listen(port);
+
         });
     }
 
@@ -100,6 +107,7 @@ class Server {
     */
     private createHandlers(config: any): Promise<any> {
         return new Promise((resolve, reject) => {
+
             let resolver = shortstop.create();
 
             resolver.use('path', handlers.path(path.join(__dirname, this.config.get('server')['baseDirectory'])));
@@ -112,6 +120,7 @@ class Server {
                     resolve(data);
                 }
             });
+
         });
     }
 

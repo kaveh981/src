@@ -6,34 +6,36 @@ import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
 import { UserManager } from '../models/user/user-manager';
-import { BuyerManager } from '../models/buyer/buyer-manager';
+import { UserModel } from '../models/user/user-model';
+import { HTTPError } from '../lib/http-error';
 
 const userManager = Injector.request<UserManager>('UserManager');
-const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const authConfig = config.get('auth');
 
 const Log = new Logger('AUTH');
 
-/** Verify if the token is legitimate, and is an IXM buyer */
-async function verifyToken(token: string): Promise<string> {
+/** Identify if the user is legitimate, and is an IXM user */
+async function identifyUser(token: string): Promise<UserModel> {
+    if (!Number(token)) {
+        throw HTTPError('401_NOT_IXMUSER');
+    }
 
-        if (!Number(token)) {
-            return '401_NOT_IXMBUYER';
-        }
+    // Right now the "token" is just the user id.
+    let userInfo = await userManager.fetchUserFromId(Number(token));
 
-        // Right now the "token" is just the user id.
-        let userInfo = await userManager.fetchUserFromId(Number(token));
+    // User not found or not an IXM buyer
+    if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
 
-        // User not found or not an IXM buyer
-        if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
-            return '401_NOT_IXMBUYER';
-        } else if (userInfo.status !== 'A') {
-            return '401_NOT_ACTIVE';
-        }
+        throw HTTPError('401_NOT_IXMUSER');
 
-        return 'OK';
+    } else if (userInfo.status !== 'A') {
+
+        throw HTTPError('401_NOT_ACTIVE');
+    }
+
+    return userInfo;
 
 }
 
@@ -41,7 +43,7 @@ async function verifyToken(token: string): Promise<string> {
  * Temporary authentication handler. Simply extracts userId from the configured header and inserts into ixmBuyerInfo
  * if the userId corresponds to an ixmBuyer.
  */
-async function AuthHandler (req: express.Request, res: express.Response, next: Function) {
+async function AuthHandler (req: express.Request, res: express.Response, next: Function) { try {
 
     let accessToken = req.get(authConfig['header']);
 
@@ -50,15 +52,9 @@ async function AuthHandler (req: express.Request, res: express.Response, next: F
         return;
     }
 
-    let verificationStatus = await verifyToken(accessToken);
+    req.ixmUserInfo = await identifyUser(accessToken);
+    next();
 
-    if (verificationStatus !== 'OK') {
-        res.sendError(verificationStatus);
-    } else {
-        req.ixmBuyerInfo = await buyerManager.fetchBuyerFromId(Number(accessToken));
-        next();
-    }
-
-}
+} catch (error) { next(error); } };
 
 module.exports = () => { return AuthHandler; };

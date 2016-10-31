@@ -47,6 +47,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         let msg = JSON.stringify(message);
+
         res.set({
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(msg)
@@ -110,8 +111,10 @@ function augmentResponse(res: express.Response): void {
  * The augmentation middleware, simply calls augmentResponse on the response object.
  */
 function ResponseAugmenter(req: express.Request, res: express.Response, next: Function): void {
+
     augmentResponse(res);
     next();
+
 }
 
 module.exports = () => { return ResponseAugmenter; };

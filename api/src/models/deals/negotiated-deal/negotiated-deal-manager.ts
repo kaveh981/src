@@ -1,5 +1,7 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../../lib/database-manager';
 import { Logger } from '../../../lib/logger';
 import { NegotiatedDealModel } from './negotiated-deal-model';
@@ -34,20 +36,21 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get a negotation from the primary id keys.
+     * Get a negotation from the primary id keys: proposalID, buyerID, publisherID.
      * @param proposalID - The id of the original proposed deal.
      * @param buyerID - The id of the buyer of the negotiation.
      * @param publisherID - The id of the publisher of the negotiation.
-     * @returns A negotiated deal object.
+     * @returns A negotiated deal object or nothing if none can be found.
      */
     public async fetchNegotiatedDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<NegotiatedDealModel> {
 
         let rows = await this.databaseManager.select('negotiationID as id', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
-                'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
-            .from('ixmDealNegotiations')
-            .where('proposalID', proposalID)
-            .andWhere('buyerID', buyerID)
-            .andWhere('publisherID', publisherID);
+                                                     'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate',
+                                                     'modifyDate', 'budget', 'impressions')
+                                             .from('ixmDealNegotiations')
+                                             .where('proposalID', proposalID)
+                                             .andWhere('buyerID', buyerID)
+                                             .andWhere('publisherID', publisherID);
 
         if (!rows[0]) {
             return;
@@ -70,10 +73,10 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: any): Promise<NegotiatedDealModel[]> {
 
         let rows = await this.databaseManager.select('proposalID', 'publisherID')
-                    .from('ixmDealNegotiations')
-                    .where('buyerID', buyerID)
-                    .limit(Number(pagination.limit))
-                    .offset(Number(pagination.offset));
+                                             .from('ixmDealNegotiations')
+                                             .where('buyerID', buyerID)
+                                             .limit(Number(pagination.limit))
+                                             .offset(Number(pagination.offset));
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
@@ -87,16 +90,61 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
-     * @param negotiatedDeal - The negotiated deal to insert.
+     * Get proposalID specific deal negotiation from proposal and user id 
+     * @param userID - The user id of one of the negotiating parties
+     * @param proposalID - The id of the proposal being negotiated
+     * @returns A list of negotiated deal objects.
      */
-    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel) {
+    public async fetchNegotiatedDealsFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
 
-        if (negotiatedDeal.id) {
-            throw new Error('A negotiated deal with that id already exists.');
+        let rows = await this.databaseManager.select('publisherID', 'buyerID')
+                                             .from('ixmDealNegotiations')
+                                             .where(function() {
+                                                 this.where('buyerID', userID)
+                                                 .orWhere('publisherID', userID);
+                                             })
+                                             .andWhere('proposalID', proposalID);
+
+        if (!rows[0]) {
+            return;
         }
 
-        await this.databaseManager.insert({
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
+
+        for (let i = 0; i < rows.length; i++) {
+                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
+                negotiatedDealArray.push(negotiatedDeal);
+        }
+
+        return negotiatedDealArray;
+    }
+
+    /**
+     * Insert a new negotiated deal into the database, fails if the negotiated deal already has an id or else populates the id.
+     * @param negotiatedDeal - The negotiated deal to insert.
+     * @param transation - A knex transaction object to use.
+     */
+    public async insertNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction) {
+
+        if (negotiatedDeal.id) {
+            throw new Error('Cannot insert a negotiated deal with an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertNegotiatedDeal(negotiatedDeal, trx);
+            });
+            return;
+        }
+
+        // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
+        if (!negotiatedDeal.createDate) {
+            let date: Date = new Date();
+            negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
+        }
+
+        await transaction.insert({
             proposalID: negotiatedDeal.proposedDeal.id,
             publisherID: negotiatedDeal.publisherID,
             buyerID: negotiatedDeal.buyerID,
@@ -114,12 +162,14 @@ class NegotiatedDealManager {
         }).into('ixmDealNegotiations');
 
         // Get the id and set it in the negotiated deal object.
-        let negotiationId = (await this.databaseManager.select('negotiationID').from('ixmDealNegotiations')
-                                      .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                      .andWhere('buyerID', negotiatedDeal.buyerID)
-                                      .andWhere('publisherID', negotiatedDeal.publisherID))[0].negotiationID;
+        let negotiationInserted = (await transaction.select('negotiationID', 'modifyDate')
+                                                    .from('ixmDealNegotiations')
+                                                    .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                    .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                    .andWhere('publisherID', negotiatedDeal.publisherID))[0];
 
-        negotiatedDeal.id = negotiationId;
+        negotiatedDeal.id = negotiationInserted.negotiationID;
+        negotiatedDeal.modifyDate = negotiationInserted.modifyDate;
 
     }
 
@@ -155,9 +205,91 @@ class NegotiatedDealManager {
     }
 
     /**
+     * Create a new negotiation between a buyer and a sender.
+     * @param proposedDeal - The proposed deal model this is based off of.
+     * @param buyerID - The buyer id for the buyer of this negotiation.
+     * @param publisherID - The id of the publisher for this negotiation.
+     * @param sender - The person who is creating this counter-offer.
+     * @param negotiationFields - The fields to use as the negotiation terms.
+     * @returns A negotiated deal model with the appropriate fields updated.
+     */
+    public async createNegotiationFromProposedDeal(
+        proposedDeal: ProposedDealModel, buyerID: number, publisherID: number, sender: 'buyer' | 'publisher', negotiationFields: any = {}) {
+
+        let negotiatedDeal = new NegotiatedDealModel({
+            buyerID: buyerID,
+            buyerInfo: await this.userManager.fetchUserFromId(buyerID),
+            publisherID: publisherID,
+            publisherInfo: await this.userManager.fetchUserFromId(publisherID),
+            publisherStatus: sender === 'publisher' ? 'accepted' : 'active',
+            buyerStatus: sender === 'buyer' ? 'accepted' : 'active',
+            sender: sender,
+            createDate: this.dateToMysqlTimestamp(new Date()),
+            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            proposedDeal: proposedDeal,
+            startDate: negotiationFields.startDate || proposedDeal.startDate,
+            endDate: negotiationFields.endDate || proposedDeal.endDate,
+            price: negotiationFields.price || proposedDeal.price,
+            impressions: negotiationFields.impressions || proposedDeal.impressions,
+            budget: negotiationFields.budget || proposedDeal.budget,
+            terms: negotiationFields.terms || proposedDeal.terms
+        });
+
+        return negotiatedDeal;
+    }
+
+    /**
+     * Update a negotiation with new parameters sent in the request and return new modifyDate
+     * @param negotiatedDeal - The negotiated deal to update.
+     * @param transaction - An optional transaction to use. 
+     */
+    public async updateNegotiatedDeal (negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction): Promise<string> {
+
+        if (!negotiatedDeal.id) {
+            throw new Error('Cannot update a negotiated deal without an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.updateNegotiatedDeal(negotiatedDeal, trx);
+            });
+            return;
+        }
+
+        await transaction.from('ixmDealNegotiations').update({
+            proposalID: negotiatedDeal.proposedDeal.id,
+            publisherID: negotiatedDeal.publisherID,
+            buyerID: negotiatedDeal.buyerID,
+            price: negotiatedDeal.price,
+            startDate: negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate,
+            budget: negotiatedDeal.budget,
+            impressions: negotiatedDeal.impressions,
+            terms: negotiatedDeal.terms,
+            sender: negotiatedDeal.sender,
+            pubStatus: negotiatedDeal.publisherStatus,
+            buyerStatus: negotiatedDeal.buyerStatus,
+            createDate: negotiatedDeal.createDate,
+            modifyDate: negotiatedDeal.modifyDate
+        }).where('negotiationID', negotiatedDeal.id);
+
+        // Get the id and set it in the negotiated deal object.
+        let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
+                                                   .from('ixmDealNegotiations')
+                                                   .where('proposalID', negotiatedDeal.proposedDeal.id)
+                                                   .andWhere('buyerID', negotiatedDeal.buyerID)
+                                                   .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+
+        negotiatedDeal.id = negotiationUpdated.negotiationID;
+        negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
+
+    }
+
+    /**
      * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
      * @param date - The date in ISO format
-     * @returns A strign with the date in the format of yyyy-mm-dd hh:mm:ss
+     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
      */
     private dateToMysqlTimestamp(date: string | Date): string {
 

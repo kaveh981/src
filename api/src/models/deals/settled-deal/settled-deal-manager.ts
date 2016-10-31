@@ -1,6 +1,7 @@
 'use strict';
 
 import * as crypto from 'crypto';
+import * as knex from 'knex';
 
 import { SettledDealModel } from './settled-deal-model';
 import { DatabaseManager } from '../../../lib/database-manager';
@@ -37,13 +38,15 @@ class SettledDealManager {
     public async fetchSettledDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<SettledDealModel> {
 
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
-                    'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID', 'createDate', 'modifyDate')
-                .from('rtbDeals')
-                .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
-                .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
-                .where('buyerID', buyerID)
-                .where('publisherID', publisherID);
+                                                     'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
+                                                     'createDate', 'modifyDate')
+                                             .from('rtbDeals')
+                                             .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
+                                             .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .where('ixmDealNegotiations.proposalID', proposalID)
+                                             .where('buyerID', buyerID)
+                                             .where('publisherID', publisherID);
 
         if (!rows[0]) {
             return;
@@ -69,11 +72,12 @@ class SettledDealManager {
         let settledDeals: SettledDealModel[] = [];
 
         let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
-                .from('ixmDealNegotiations')
-                .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
-                .where('ixmDealNegotiations.buyerID', buyerID)
-                .limit(pagination.limit)
-                .offset(pagination.offset);
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .where('ixmDealNegotiations.buyerID', buyerID)
+                                             .limit(pagination.limit)
+                                             .offset(pagination.offset);
 
         for (let i = 0; i < rows.length; i++) {
             let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
@@ -107,11 +111,20 @@ class SettledDealManager {
     /**
      * Insert a new settled deal into the database, fails if the settled deal already has an id or else populates the id.
      * @param settledDeal - The settled deal to insert.
+     * @param transaction - A transaction object to use.
      */
-    public async insertSettledDeal(settledDeal: SettledDealModel) {
+    public async insertSettledDeal(settledDeal: SettledDealModel, transaction?: knex.Transaction) {
 
         if (settledDeal.id) {
-            throw new Error('A deal with that id already exists.');
+            throw new Error('Cannot insert a settled deal with an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertSettledDeal(settledDeal, trx);
+            });
+            return;
         }
 
         let externalDealID;
@@ -126,46 +139,42 @@ class SettledDealManager {
         let negotiatedDeal = settledDeal.negotiatedDeal;
         let proposedDeal = negotiatedDeal.proposedDeal;
 
-        // Begin a database transaction.
-        await this.databaseManager.transaction(async (trx) => {
+        // Begin database queries
+        await transaction.insert({
+            userID: proposedDeal.ownerID,
+            dspID: settledDeal.dspID,
+            name: proposedDeal.name,
+            auctionType: proposedDeal.auctionType,
+            rate: negotiatedDeal.price,
+            status: settledDeal.status[0].toUpperCase(),
+            startDate: negotiatedDeal.startDate === null ? '0000-00-00' : negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate === null ? '0000-00-00' : negotiatedDeal.endDate,
+            externalDealID: externalDealID,
+            priority: 5,
+            openMarket: 0,
+            noPayoutMode: 0,
+            manualApproval: 1
+        }).into('rtbDeals');
 
-            await trx.insert({
-                userID: proposedDeal.ownerID,
-                dspID: settledDeal.dspID,
-                name: proposedDeal.name,
-                auctionType: proposedDeal.auctionType,
-                rate: negotiatedDeal.price,
-                status: settledDeal.status[0].toUpperCase(),
-                startDate: negotiatedDeal.startDate,
-                endDate: negotiatedDeal.endDate,
-                externalDealID: externalDealID,
-                priority: 5,
-                openMarket: 0,
-                noPayoutMode: 0,
-                manualApproval: 1
-            }).into('rtbDeals');
+        // Get newly created deal id
+        let dealID = (await transaction.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
 
-            // Get newly created deal id
-            let dealID = (await trx.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
+        settledDeal.id = dealID;
+        settledDeal.externalDealID = externalDealID;
 
-            settledDeal.id = dealID;
-            settledDeal.externalDealID = externalDealID;
+        // Insert into deal section mapping
+        for (let i = 0; i < proposedDeal.sections.length; i++) {
+            await transaction.insert({
+                dealID: dealID,
+                sectionID: proposedDeal.sections[i]
+            }).into('rtbDealSections');
+        }
 
-            // Insert into deal section mapping
-            for (let i = 0; i < proposedDeal.sections.length; i++) {
-                await trx.insert({
-                    dealID: dealID,
-                    sectionID: proposedDeal.sections[i]
-                }).into('rtbDealSections');
-            }
-
-            // Insert proposal deal mapping
-            await trx.insert({
-                negotiationID: negotiatedDeal.id,
-                dealID: dealID
-            }).into('ixmNegotiationDealMappings');
-
-        });
+        // Insert proposal deal mapping
+        await transaction.insert({
+            negotiationID: negotiatedDeal.id,
+            dealID: dealID
+        }).into('ixmNegotiationDealMappings');
 
     }
 

@@ -87,8 +87,8 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     let response = await apiRequest[verb](route, {'limit': 1}, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.equal(response.body.data, [entity1Payload]);
-    assert.equal(response.body.pagination.limit, 1);
+    assert.deepEqual(response.body.data, [entity1Payload]);
+    assert.deepEqual(response.body.pagination, {limit: 1, offset: 0});
 
     let cases = [
         {input: 2, expect: {limit: 2, data: [entity1Payload, entity2Payload]}},
@@ -101,8 +101,8 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
         response = await apiRequest[verb](route, {'limit': caseObject.input}, buyer.user.userID);
 
         assert.equal(response.status, 200);
-        assert.equal(response.body.data, caseObject.expect.data);
-        assert.equal(response.body.pagination.limit, caseObject.expect.limit);
+        assert.deepEqual(response.body.data, caseObject.expect.data);
+        assert.deepEqual(response.body.pagination, {limit: caseObject.expect.limit, offset: 0});
     }
 
 }
@@ -183,16 +183,16 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
 
     /** Test */
     let cases = [
-        {input: 0, expect: {offset: 0, data: [entity1Payload]}},
+        {input: 0, expect: {offset: 0, data: [entity1Payload, entity2Payload]}},
         {input: 1, expect: {offset: 1, data: [entity2Payload]}}
     ];
 
     for (let caseObject of cases) {
-        let response = await apiRequest[verb](route, {'offset': caseObject.input, 'limit': 1}, buyer.user.userID);
+        let response = await apiRequest[verb](route, {'offset': caseObject.input}, buyer.user.userID);
 
         assert.equal(response.status, 200);
-        assert.equal(response.body.data, caseObject.expect.data);
-        assert.equal(response.body.pagination.offset, caseObject.expect.offset);
+        assert.deepEqual(response.body.data, caseObject.expect.data);
+        assert.deepEqual(response.body.pagination, {limit: 250, offset: caseObject.expect.offset});
     }
 
 }

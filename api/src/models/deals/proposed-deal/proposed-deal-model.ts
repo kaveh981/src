@@ -101,11 +101,13 @@ class ProposedDealModel {
      */
     private formatDate(dateString: string | Date) {
 
-        dateString = dateString.toString();
+        if (!dateString) {
+            return undefined;
+        }
 
         let date = new Date(dateString.toString());
 
-        if (dateString.includes('0000-00-00')) {
+        if (dateString.toString().includes('0000-00-00')) {
             return '0000-00-00';
         }
 
@@ -115,7 +117,6 @@ class ProposedDealModel {
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
-
     }
 
 }

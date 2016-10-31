@@ -10,7 +10,7 @@
     "postinstall": "typings install",
     "tape": "ts-node node_modules/tape/bin/tape",
     "test": "npm run tape e2e/deals/get.ts",
-    "tslint": "tslint -e./typings/** -e./node_modules/** ./**/*.ts",
+    "tslint": "tslint -e./typings/** -e./node_modules/** './**/*.ts'",
     "dgen": "ts-node ./bin/dgen.ts"
   },
   "dependencies": {
