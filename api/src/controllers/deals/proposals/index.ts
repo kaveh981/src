@@ -53,9 +53,12 @@ function Proposals(router: express.Router): void {
                 continue;
             }
 
-            let owner = await userManager.fetchUserFromId(activeProposal.ownerID);
-
-            if (activeProposal.isAvailable() && owner.status === 'A') {
+            let owner = activeProposal.ownerInfo;
+            let user = req.ixmUserInfo;
+            // The proposal must be a valid purschaseable proposal, its owner must be active, and the user viewing 
+            // it must either be its owner or a user that's not the same type as its owner (publishers can't view other 
+            // publisher's proposals, and the same applies to buyers)
+            if (activeProposal.isAvailable() && owner.status === 'A' && (owner.id === user.id || owner.userType !== user.userType)) {
                 proposedDeals.push(activeProposal);
             }
         }
@@ -89,7 +92,8 @@ function Proposals(router: express.Router): void {
         // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
         if (!proposal || (proposal.status === 'deleted' && proposal.ownerID !== Number(req.ixmUserInfo.id))) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        } else if (proposal.status === 'paused' && proposal.ownerID !== Number(req.ixmUserInfo.id)) {
+        } else if (proposal.ownerID !== Number(req.ixmUserInfo.id)
+                && (proposal.status === 'paused' || proposal.ownerInfo.userType === req.ixmUserInfo.userType)) {
             throw HTTPError('403');
         } else {
             res.sendPayload(proposal);
