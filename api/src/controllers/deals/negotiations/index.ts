@@ -28,7 +28,6 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('NEGO');
-const mediumInt: number = Math.pow(2, 24) - 1;
 
 /**
  * Function that takes care of all /deals/negotiation routes  
@@ -87,7 +86,7 @@ function NegotiationDeals(router: express.Router): void {
         let proposalID = Number(req.params.proposalID);
         let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
 
-        if (proposalValidationErrors.length > 0 || proposalID < 0 || proposalID > mediumInt) {
+        if (proposalValidationErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
