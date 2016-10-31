@@ -103,11 +103,11 @@ function NegotiationDeals(router: express.Router): void {
             offset: req.query.offset
         };
 
-        let validationErrors = validator.validateType(pagination, 'Pagination',
+        let paginationValidationErrors = validator.validateType(pagination, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
-        if (validationErrors.length > 0) {
-            throw HTTPError('400', validationErrors);
+        if (paginationValidationErrors.length > 0) {
+            throw HTTPError('400', paginationValidationErrors);
         }
 
         let userID = Number(req.ixmUserInfo.id);
