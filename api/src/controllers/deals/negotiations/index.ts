@@ -114,7 +114,7 @@ function NegotiationDeals(router: express.Router): void {
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload( negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
             throw HTTPError('200_NO_NEGOTIAITIONS');
         }
