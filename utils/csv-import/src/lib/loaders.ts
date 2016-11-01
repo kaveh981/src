@@ -89,7 +89,7 @@ class ConfigLoader extends Loader {
 
 }
 
-/** CsvLoader class - Loads  */
+/** CsvLoader class - Loads and parses a string of comma-separated-values (CSV) */
 class CsvLoader extends Loader {
 
     /** 
@@ -147,7 +147,7 @@ class CsvLoader extends Loader {
     }
 
     /**
-     * Loads csv file and puts it to has-map of loaded csv files
+     * Loads csv file and puts it to hash-map of loaded csv files
      * @param name - the file name without the .csv file extension
      */
     private loadCsvFile(name: string) {
