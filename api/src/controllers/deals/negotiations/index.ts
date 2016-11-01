@@ -126,22 +126,28 @@ function NegotiationDeals(router: express.Router): void {
     router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate parameters
-        let validationErrors = validator.validateType(req.params, 'SpecificNegotiationParemeter');
+        let proposalID = Number(req.params.proposalID);
+        let partnerID = Number(req.params.partnerID);
+
+        let parameters = {
+            proposal_id: proposalID,
+            partner_id: partnerID
+        };
+
+        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameter');
 
         if (validationErrors.length > 0) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
 
         // Check proposal and partner existence
-        let proposalID = Number(req.params.proposalID);
-        let partnerID = Number(req.params.partnerID);
-
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-        let partner = await userManager.fetchUserFromId(partnerID);
 
         if (!proposal) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
+
+        let partner = await userManager.fetchUserFromId(partnerID);
 
         if (!partner) {
             throw HTTPError('404_PARTNER_NOT_FOUND');
