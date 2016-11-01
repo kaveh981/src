@@ -97,7 +97,8 @@ function Proposals(router: express.Router): void {
         if (proposal.ownerID !== Number(req.ixmUserInfo.id)) {
             if (proposal.status === 'deleted') {
                 throw HTTPError('404_PROPOSAL_NOT_FOUND');
-            } else if (!proposal.isAvailable() || proposal.ownerInfo.userType === req.ixmUserInfo.userType) {
+            } else if (!proposal.isAvailable() || proposal.ownerInfo.status !== 'A'
+                    || proposal.ownerInfo.userType === req.ixmUserInfo.userType) {
                 throw HTTPError('403');
             }
         }
