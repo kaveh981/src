@@ -342,7 +342,7 @@ function NegotiationDeals(router: express.Router): void {
 
                 if (fieldChanged) {
                     Log.trace(`Fields have changed, updating negotiation.`);
-      //              await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
+                    await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
                 } else {
                     throw HTTPError('403_NO_CHANGE');
                 }
