@@ -19,7 +19,7 @@ en-US:
     401: Unauthorized.
     401_INVALID_HEADER: Authentication header is invalid.
     401_NO_HEADER: Authentication header not provided.
-    401_NOT_IXMUSER: 'Provided user ID is not an Index Market User. If you would like access, please contact your.mom@indexexchange.com'
+    401_NOT_IXM_USER: 'Provided user ID is not an Index Market User. If you would like access, please contact your.mom@indexexchange.com'
     401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
     401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
 
@@ -34,10 +34,15 @@ en-US:
     403_OUT_OF_TURN: The partner did not reply to your previous offer.
     403_NO_NEGOTIATION: You cannot accept or reject a negotiation which hasn't yet started.
     403_NO_CHANGE: At least one negotiation field must be different than current offer.
+    403_PARTNER_NOT_IXM_USER: Partner not ixm user.
+    403_PARTNER_NOT_ACTIVE: Partner already dead
+    403_PARTNER_INVALID_USER_TYPE: Partner cannot be a goose.
 
     # 404 Status Code Messages
     404: Not found.
     404_PROPOSAL_NOT_FOUND: Proposal not found.
+    404_PARTNER_NOT_FOUND: Partner not found.
+    404_NEGOTIATION_NOT_FOUND: Negotiation not found.
 
     # 500 Status Code Messages
     500: Internal server error.
