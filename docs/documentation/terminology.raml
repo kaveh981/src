@@ -1,69 +1,66 @@
-#% RAML 1.0 DocumentationItem
+ |
 
-	title: Index Market Terminology
-	content: |
+            #### Deals & Index Market Deal Lifecycle
 
-	## Deals & Index Market Deal Lifecycle
+            Deals are an agreed upon set of terms to purchase inventory on one or more of a publisher's sites. Deals in Index Market go through up to three stages:
 
-	Deals are an agreed upon set of terms to purchase inventory on one or more of a publisher's sites. Deals in Index Market go through up to three stages:
+                1. Proposal
+                2. Negotiation
+                3. Active Deal
 
-		1. Proposal
-		2. Negotiation
-		3. Active Deal
+            Which stages depends on the purchasing case: proposals can be bought as initially offered – "Buy now" – or go through a negotiation phase.
 
-	Which stages depends on the purchasing case: proposals can be bought as initially offered – "Buy now" – or go through a negotiation phase.
-
-	For more details on each stage, see the following definitions.
+            For more details on each stage, see the following definitions.
 
 
-	## Proposals
+            #### Proposals
 
-	Proposals are deal terms available to purchase. Price, date, and other deal terms have been created for a set of inventory, but no negotiation has occured, and the deal terms have not been agreed on between two parties.
+            Proposals are deal terms available to purchase. Price, date, and other deal terms have been created for a set of inventory, but no negotiation has occured, and the deal terms have not been agreed on between two parties.
 
-	Open proposals may be created on the marketplace by publishers in order to showcase their inventory and make deals available for purchase. These proposals will be available to browse on the marketplace, and can receive negotiation or purchase offers from any buyer. It is up to the publisher's discretion which offers to respond to.
+            Open proposals may be created on the marketplace by publishers in order to showcase their inventory and make deals available for purchase. These proposals will be available to browse on the marketplace, and can receive negotiation or purchase offers from any buyer. It is up to the publisher's discretion which offers to respond to.
 
-	Proposals may also be created by buyers or publishers to be offered to specific parties. As an example, a buyer interested in a specific publisher's inventory may create a proposal and include that publisher's ID. This proposal will not appear on the marketplace, but the targeted parties will receive notification and can respond to the offer. Publishers may also target their proposals to particular buyers. One or more parties may be targeted in a proposal.
+            Proposals may also be created by buyers or publishers to be offered to specific parties. As an example, a buyer interested in a specific publisher's inventory may create a proposal and include that publisher's ID. This proposal will not appear on the marketplace, but the targeted parties will receive notification and can respond to the offer. Publishers may also target their proposals to particular buyers. One or more parties may be targeted in a proposal.
 
-	### Example Proposal
+            ##### Example Proposal
 
-	See Types / Proposal # TODO: figure out how to link sections
+            See [Types / Proposal](TODO: figure out how to link sections)
 
-	## Negotiation
+            #### Negotiation
 
-	Negotiation is the phase in which two parties come to agreement on the exact terms of the deal. Negotiation begins when a "counter-offer" is sent in a response to a proposal. The counter-offer contains values for one or more of the negotiable fields:
+            Negotiation is the phase in which two parties come to agreement on the exact terms of the deal. Negotiation begins when a "counter-offer" is sent in a response to a proposal. The counter-offer contains values for one or more of the negotiable fields:
 
-		- `price`
-		- `start_date`
-		- `end_date`
-		- `impressions`
-		- `budget`
-	
-	Values for these fields suggest new values for the deal, and once agreed upon, will override the equivalent value in the proposal.
+                - `price`
+                - `start_date`
+                - `end_date`
+                - `impressions`
+                - `budget`
+            
+            Values for these fields suggest new values for the deal, and once agreed upon, will override the equivalent value in the proposal.
 
-	The counter-offer can optionally include the `terms` field. The terms field is a text field used for general terms and conditions, and can be used for including additonal information and communications.
+            The counter-offer can optionally include the `terms` field. The terms field is a text field used for general terms and conditions, and can be used for including additonal information and communications.
 
-	Multiple counter-offers can be sent during negotiation: after receiving a counter-offer, the other party in the negotiation can choose to respond with their own counter-offer, or they can accept or reject the counter-offer they've received.
+            Multiple counter-offers can be sent during negotiation: after receiving a counter-offer, the other party in the negotiation can choose to respond with their own counter-offer, or they can accept or reject the counter-offer they've received.
 
-	Negotiation is always one-to-one between a buyer and a publisher. In the case where a proposal involved more than one publisher or buyer, individual negotiations will occur between each buyer-publisher pair.
+            Negotiation is always one-to-one between a buyer and a publisher. In the case where a proposal involved more than one publisher or buyer, individual negotiations will occur between each buyer-publisher pair.
 
-	### Example Negotiation
+            ##### Example Negotiation
 
-	See Types / Negotiation # TODO: figure out how to link this
+            See [Types / Negotiation](TODO: figure out how to link this)
 
-	## Active deals
+            #### Active deals
 
-	An active deal is an agreed-upon deal ready for bidding. Deals become active under the following circumstances:
+            An active deal is an agreed-upon deal ready for bidding. Deals become active under the following circumstances:
 
-		- A buyer chooses to buy an available proposal without negotiation
-		- The targeted party in an offered proposal accepts the propsal without negotiation
-		- Both parties in a negotiation accept the current terms
+                - A buyer chooses to buy an available proposal without negotiation
+                - The targeted party in an offered proposal accepts the propsal without negotiation
+                - Both parties in a negotiation accept the current terms
 
-	The deal may have a start date in the future, in which case bidding will only become possible on that date.
+            The deal may have a start date in the future, in which case bidding will only become possible on that date.
 
-	Modifications to the deal are not possible at this point. To modify deal terms, a new deal must be agreed on through a new proposal and/or negotiation, depending on the circumstances.
+            Modifications to the deal are not possible at this point. To modify deal terms, a new deal must be agreed on through a new proposal and/or negotiation, depending on the circumstances.
 
-	Active deals may be cancelled at any point by either party.
+            Active deals may be cancelled at any point by either party.
 
-	### Example Active Deal
+            ##### Example Active Deal
 
-	See Types / Active # TODO: figure out how to link this
+            See [Types / Active](TODO: figure out how to link this)
