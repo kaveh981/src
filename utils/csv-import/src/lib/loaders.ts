@@ -66,7 +66,7 @@ class ConfigLoader extends Loader {
      */
     public get(config: string): any {
         if (!this.map[config]) {
-            this.loadConfig(config + '.yaml');
+            this.loadConfig(config);
         }
 
         return this.map[config];
@@ -74,17 +74,17 @@ class ConfigLoader extends Loader {
 
     /**
      * Load the configuration from config/filename, and store it in the configMap.
-     * @param filename - The name of the file to load from the file system.
+     * @param name - The name of the file to load from the file system.
      */
-    private loadConfig(filename: string): void {
+    private loadConfig(name: string): void {
         let fileContents;
         try {
-            fileContents = super.loadFile(filename);
+            fileContents = super.loadFile(name + '.yaml');
         } catch (e) {
             this.logger.error(e);
         }
 
-        this.map[filename.split('.yaml')[0]] = yaml.safeLoad(fileContents);
+        this.map[name] = yaml.safeLoad(fileContents);
     }
 
 }
@@ -179,4 +179,25 @@ class CsvLoader extends Loader {
 
 }
 
-export { ConfigLoader, CsvLoader };
+class SchemaLoader extends Loader {
+
+    constructor(schemasPath: string = '../../schemas') {
+        super(schemasPath, 'SLOA');
+    }
+
+    public getSchema(name: string) {
+        if (!this.map[name]) {
+            this.loadSchema(name);
+        }
+
+        return this.map[name];
+    }
+
+    private loadSchema(name: string) {
+        let fileContents = super.loadFile(name + '.yaml');
+
+        this.map[name] = yaml.safeLoad(fileContents);
+    }
+}
+
+export { ConfigLoader, CsvLoader, SchemaLoader };
