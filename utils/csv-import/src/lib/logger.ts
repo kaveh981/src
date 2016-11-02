@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as chalk from 'chalk';
 
 import { Injector } from './injector';
-import { ConfigLoader } from './loaders';
+import { ConfigLoader } from './config-loader';
 
 /** Configuration from ./config/logger.json */
 let loggerConfig: any;

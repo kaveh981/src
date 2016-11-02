@@ -5,7 +5,8 @@ import ZSchema = require('z-schema');
 
 /** Lib */
 import { Logger } from './logger';
-import { ConfigLoader, SchemaLoader } from './loaders';
+import { ConfigLoader } from './config-loader';
+import { SchemaLoader } from './schema-loader';
 
 /**
  * Validator class - Validates parsed entities against standard JSON schemas
@@ -31,6 +32,7 @@ class Validator {
      */
     constructor(configLoader: ConfigLoader, schemaLoader: SchemaLoader) {
         let config = configLoader.get('validator');
+
         this.loader = schemaLoader;
         this.validatorOptions = config.validatorOptions;
         this.validator = new ZSchema(this.validatorOptions);
@@ -44,12 +46,14 @@ class Validator {
      * @returns {boolean} - true if valid, false if invalid
      */
     public validateProposals(jsonArray: any[], schema: any = this.loader.getSchema('proposalArray')) {
+
         if (this.validator.validate(jsonArray, schema)) {
             return true;
         } else {
             this.logger.error(JSON.stringify(this.validator.getLastErrors(), undefined, 4));
             return false;
         }
+
     }
 
 }
