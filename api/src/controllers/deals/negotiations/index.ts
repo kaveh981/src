@@ -83,7 +83,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate proposalID
         let proposalID = Number(req.params.proposalID);
-        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameters');
 
         if (proposalValidationErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
@@ -155,16 +155,16 @@ function NegotiationDeals(router: express.Router): void {
 
         // Check partner user group and status
         if (partner.userGroup !== 'Index Market') {
-            throw HTTPError('403_PARTNER_NOT_IXM_USER');
+            throw HTTPError('403_PARTNER_NOT_IXMUSER');
         }
 
         if (partner.status !== 'A') {
-            throw HTTPError('403_PATNER_NOT_ACTIVE');
+            throw HTTPError('403_PARTNER_NOT_ACTIVE');
         }
 
         // Check if request sender and partner are in the same type
         if (partner.userType === req.ixmUserInfo.userType) {
-            throw HTTPError('403_PARTNER_INVALID_USER_TYPE');
+            throw HTTPError('403_PARTNER_INVALID_USERTYPE');
         }
 
         let buyerID: number;
@@ -182,7 +182,7 @@ function NegotiationDeals(router: express.Router): void {
         if (negotiatedDeal) {
             res.sendPayload(negotiatedDeal);
         } else {
-            throw HTTPError('200_NO_NEGOTIAITIONS');
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
 
     } catch (error) { next(error); } });
