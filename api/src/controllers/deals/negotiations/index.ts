@@ -83,7 +83,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate proposalID
         let proposalID = Number(req.params.proposalID);
-        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameters');
 
         if (proposalValidationErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
@@ -116,6 +116,73 @@ function NegotiationDeals(router: express.Router): void {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
         } else {
             throw HTTPError('200_NO_NEGOTIAITIONS');
+        }
+
+    } catch (error) { next(error); } });
+
+    /**
+     * Get specific negotiation from proposal id and partner id
+     */
+    router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        // Validate parameters
+        let proposalID = Number(req.params.proposalID);
+        let partnerID = Number(req.params.partnerID);
+
+        let parameters = {
+            proposal_id: proposalID,
+            partner_id: partnerID
+        };
+
+        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters');
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
+        }
+
+        // Check proposal and partner existence
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        let partner = await userManager.fetchUserFromId(partnerID);
+
+        if (!partner) {
+            throw HTTPError('404_PARTNER_NOT_FOUND');
+        }
+
+        // Check partner user group and status
+        if (partner.userGroup !== 'Index Market') {
+            throw HTTPError('403_PARTNER_NOT_IXMUSER');
+        }
+
+        if (partner.status !== 'A') {
+            throw HTTPError('403_PARTNER_NOT_ACTIVE');
+        }
+
+        // Check if request sender and partner are in the same type
+        if (partner.userType === req.ixmUserInfo.userType) {
+            throw HTTPError('403_PARTNER_INVALID_USERTYPE');
+        }
+
+        let buyerID: number;
+        let publisherID: number;
+
+        if (partner.userType === 'IXMB') {
+            buyerID = Number(partner.id);
+            publisherID = Number(req.ixmUserInfo.id);
+        } else if (partner.userType === 'IXMP') {
+            buyerID = Number(req.ixmUserInfo.id);
+            publisherID = Number(partner.id);
+        }
+
+        let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+        if (negotiatedDeal) {
+            res.sendPayload(negotiatedDeal);
+        } else {
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
 
     } catch (error) { next(error); } });
