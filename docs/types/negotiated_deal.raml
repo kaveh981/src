@@ -50,13 +50,13 @@ properties:
         type: date-only
         required: false
         displayName: Start Date
-        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal is set to start immediately on acceptance.
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
         example: 2016-09-09
     end_date:
         type: date-only
         required: false # should we omit date for 'ongoing'? Or?
         displayName: End Date
-        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal does not expire.
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
         example: 2016-10-10
     auction_type:
         type: string
