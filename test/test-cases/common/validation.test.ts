@@ -19,8 +19,8 @@ const dataSetup = Injector.request<DataSetup>('DataSetup');
  * @param route - The route that we are calling.
  * @param verb - The verb that we are using for the api.
  * @param setup - The setup function that populate required tables.
- * @param validationParams - The api request body parameters with their respected options.
- * @param uriParams - An object that has the parameters we want to send in the route uri with their respected options.
+ * @param validationParams - The api request body parameters with their respective options.
+ * @param uriParams - An object that has the parameters we want to send in the route uri with their respective options.
  * @returns an array of test cases functions.
  */
 function validationTest(route: string, verb: string, setup: Function, validationParams: {}, uriParams?: {}) {
@@ -90,7 +90,6 @@ function validationTest(route: string, verb: string, setup: Function, validation
                 let routeParam = route;
                 t.plan(cases.length);
                 // loop through cases
-                console.log('qqqqq' + JSON.stringify(validUriParams));
                 for (let i = 0; i < cases.length; i++) {
                     // Check if the invalid param is an array we do this work around 
                     // because array concatination with array removes the square brackets      
