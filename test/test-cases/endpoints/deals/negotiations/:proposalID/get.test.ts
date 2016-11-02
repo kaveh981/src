@@ -40,8 +40,8 @@ export let ATW_DN_GET_AUTH = authenticationTest(route + '/1', 'get', commonDatab
 /*
  * @case    - Proposal ID is provided and is a valid number 
  * @expect  - 200 - 1 Deal Negotiation Object returned 
- * @route   - GET deals/negotiations/x
- * @status  - In progress
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing (publisher contact info failure) 
  * @tags    - 
  */
 
@@ -68,8 +68,8 @@ export async function ATW_DNP_GET_01 (assert: test.Test) {
 /*
  * @case    - Proposal ID provided is alphanumeric 
  * @expect  - 404_PROPOSAL_NOT_FOUND 
- * @route   - GET deals/negotiations/1a
- * @status  - In progress
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID + 'a'
+ * @status  - passing
  * @tags    - 
  */
 
@@ -95,8 +95,8 @@ export async function ATW_DNP_GET_02 (assert: test.Test) {
 /*
  * @case    - Proposal ID provided is negative 
  * @expect  - 404_PROPOSAL_NOT_FOUND 
- * @route   - GET deals/negotiations/-1
- * @status  - In progress
+ * @route   - GET deals/negotiations/-proposal.proposal.proposalID
+ * @status  - passing
  * @tags    - 
  */
 
@@ -122,12 +122,12 @@ export async function ATW_DNP_GET_03 (assert: test.Test) {
  * @case    - Proposal ID provided is larger than (2^24 - 1) 
  * @expect  - 404_PROPOSAL_NOT_FOUND 
  * @route   - GET deals/negotiations/Math.pow(2, 24)
- * @status  - In progress
+ * @status  - passing
  * @tags    - 
  */
 
 export async function ATW_DNP_GET_04 (assert: test.Test) {
-    
+
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
@@ -148,8 +148,8 @@ export async function ATW_DNP_GET_04 (assert: test.Test) {
 /*
  * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
  * @expect  - 404_PROPOSAL_NOT_FOUND 
- * @route   - GET deals/negotiations/x
- * @status  - In progress
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID - 1
+ * @status  - passing
  * @tags    - 
  */
 
@@ -175,8 +175,8 @@ export async function ATW_DNP_GET_05 (assert: test.Test) {
 /*
  * @case    - Buyer is not related to Deal Negotiations concerning Proposal specified  
  * @expect  - 200_NO_NEGOTIATIONS 
- * @route   - GET deals/negotiations/x
- * @status  - In progress
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - passing
  * @tags    - 
  */
 
@@ -202,9 +202,9 @@ export async function ATW_DNP_GET_06 (assert: test.Test) {
 /*
  * @case    - Publisher is not related to Deal Negotiations concerning Proposal specified  
  * @expect  - 200_NO_NEGOTIATIONS 
- * @route   - GET deals/negotiations/x
- * @status  - In progress
- * @tags    - 
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing (not supported)
+ * @tags    - pub, perspective
  */
 
 export async function ATW_DNP_GET_07 (assert: test.Test) {
@@ -229,8 +229,8 @@ export async function ATW_DNP_GET_07 (assert: test.Test) {
 /*
  * @case    - Proposal exists but Negotiation not started 
  * @expect  - 200_NO_NEGOTIATIONS 
- * @route   - GET deals/negotiations/x
- * @status  - In progress
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - passing
  * @tags    - 
  */
 
