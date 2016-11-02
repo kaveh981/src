@@ -134,7 +134,7 @@ function NegotiationDeals(router: express.Router): void {
             partner_id: partnerID
         };
 
-        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameter');
+        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters');
 
         if (validationErrors.length > 0) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
