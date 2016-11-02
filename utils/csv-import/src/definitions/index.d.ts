@@ -4,8 +4,8 @@ interface IProposal {
     description: string;
     status: 'active' | 'paused' | 'deleted';
     accessMode: number;
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     price: number;
     impressions: number;
     budget: number;
