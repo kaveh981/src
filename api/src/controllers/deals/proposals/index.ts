@@ -89,15 +89,21 @@ function Proposals(router: express.Router): void {
         // Fetch the desired proposal
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
-        if (!proposal || (proposal.status === 'deleted' && proposal.ownerID !== Number(req.ixmUserInfo.id))) {
+        if (!proposal) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        } else if (proposal.ownerID !== Number(req.ixmUserInfo.id)
-                && (proposal.status === 'paused' || proposal.ownerInfo.userType === req.ixmUserInfo.userType)) {
-            throw HTTPError('403');
-        } else {
-            res.sendPayload(proposal);
         }
+
+        // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
+        if (proposal.ownerID !== Number(req.ixmUserInfo.id)) {
+            if (proposal.status === 'deleted') {
+                throw HTTPError('404_PROPOSAL_NOT_FOUND');
+            } else if (!proposal.isAvailable() || proposal.ownerInfo.status !== 'A'
+                    || proposal.ownerInfo.userType === req.ixmUserInfo.userType) {
+                throw HTTPError('403');
+            }
+        }
+
+        res.sendPayload(proposal);
 
     } catch (error) { next(error); } });
 

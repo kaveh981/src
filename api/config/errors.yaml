@@ -34,10 +34,15 @@ en-US:
     403_OUT_OF_TURN: The partner did not reply to your previous offer.
     403_NO_NEGOTIATION: You cannot accept or reject a negotiation which hasn't yet started.
     403_NO_CHANGE: At least one negotiation field must be different than current offer.
+    403_PARTNER_NOT_IXMUSER: Provided partner ID is not an Index Market User.
+    403_PARTNER_NOT_ACTIVE: Partner is not active
+    403_PARTNER_INVALID_USERTYPE: Provided partner ID has a invalid user type.
 
     # 404 Status Code Messages
     404: Not found.
     404_PROPOSAL_NOT_FOUND: Proposal not found.
+    404_PARTNER_NOT_FOUND: Partner not found.
+    404_NEGOTIATION_NOT_FOUND: Negotiation not found.
 
     # 500 Status Code Messages
     500: Internal server error.
