@@ -90,9 +90,20 @@ function validationTest(route: string, verb: string, setup: Function, validation
                 let routeParam = route;
                 t.plan(cases.length);
                 // loop through cases
+                console.log('qqqqq' + JSON.stringify(validUriParams));
                 for (let i = 0; i < cases.length; i++) {
+                    // Check if the invalid param is an array we do this work around 
+                    // because array concatination with array removes the square brackets      
+                    if (Object.prototype.toString.call(cases[i].input) === '[object Array]') {
+                        validUriParams[param] = '[' + cases[i].input + ']';
+                        // Check if the invalid param is an empty string we do this work around 
+                        // because  concatination with empty string removes the qutations
+                    } else if (!cases[i].input) {
+                        validUriParams[param] = '""';
+                    } else {
+                        validUriParams[param] = cases[i].input;
+                    }
 
-                    validUriParams[param] = cases[i].input;
                     routeParam = route;
                     for (let validParam in validUriParams) {
 
@@ -101,7 +112,7 @@ function validationTest(route: string, verb: string, setup: Function, validation
                         }
                     }
                     let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.userID);
-                    t.equal(res.status, cases[i].expect || 400);
+                    t.equal(res.status, cases[i].expect || 404);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {
                         await dataSetup.clearTables();
