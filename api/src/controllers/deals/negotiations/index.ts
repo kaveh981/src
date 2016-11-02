@@ -180,7 +180,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         if (negotiatedDeal) {
-            res.sendPayload(negotiatedDeal);
+            res.sendPayload(negotiatedDeal.toPayload());
         } else {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
