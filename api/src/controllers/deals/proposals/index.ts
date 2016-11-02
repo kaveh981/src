@@ -103,7 +103,7 @@ function Proposals(router: express.Router): void {
             }
         }
 
-        res.sendPayload(proposal);
+        res.sendPayload(proposal.toPayload());
 
     } catch (error) { next(error); } });
 
