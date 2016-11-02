@@ -13,6 +13,11 @@ properties:
         required: true
         displayName: Publisher ID(s)
         description: The IDs of the publishers involved in the deal
+    site_id:
+        type: integer[]
+        required: true
+        displayName: Site ID(s)
+        description: The IDs of the sites involved in the deal
     # publisher_name:
     #     type: string[]
     #     required: false
@@ -73,7 +78,7 @@ properties:
         description: Three-letter currency code for the deal.
         example: USD
     auction_type:
-        type: integer
+        type: string
         required: true
         displayName: Auction Type,
         description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
