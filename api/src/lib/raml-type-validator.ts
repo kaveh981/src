@@ -42,6 +42,12 @@ interface IValidationOptions {
 
     /** Sanitize integers by converting strings to numbers */
     sanitizeIntegers?: boolean;
+
+    /** Sanitize booleans by converting strings to bools */
+    sanitizeBooleans?: boolean;
+
+    /** Remove keys which are null */
+    removeNull?: boolean;
 }
 
 /**
@@ -199,6 +205,16 @@ class RamlTypeValidator {
                     obj[property.key] = Number(obj[property.key]);
                 }
 
+                // Sanitize booleans
+                if (opts.sanitizeBooleans && typeof obj[property.key] === 'string' && validator.isBoolean(obj[property.key])) {
+                    obj[property.key] = Boolean(obj[property.key]);
+                }
+
+                // Remove null values
+                if (opts.removeNull && obj[property.key] === null) {
+                    delete obj[property.key];
+                }
+
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
 
                 // If there are errors, and we force defaults, reassign.
@@ -261,7 +277,7 @@ class RamlTypeValidator {
                  * Verify booleans
                  */
                 case 'boolean':
-                    if (!validator.isBoolean(valueString)) {
+                    if (typeof value !== 'boolean' || !validator.isBoolean(valueString)) {
                         errors.push(this.createError('TYPE_BOOL_INVALID', valueString, node, path));
                     }
                 break;

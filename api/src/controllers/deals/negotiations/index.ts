@@ -27,7 +27,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-const Log: Logger = new Logger('ACTD');
+const Log: Logger = new Logger('NEGO');
 
 /**
  * Function that takes care of all /deals/negotiation routes  
@@ -76,13 +76,125 @@ function NegotiationDeals(router: express.Router): void {
 
     } catch (error) { next(error); } });
 
+    /*
+     * GET Request for both users, buyers and publishers, to get a list of deal negotiations by providing a proposalID
+     */
+    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        // Validate proposalID
+        let proposalID = Number(req.params.proposalID);
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameters');
+
+        if (proposalValidationErrors.length > 0) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Check proposal exists based on proposalID
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Validate pagination parameters
+        let pagination = {
+            limit: req.query.limit,
+            offset: req.query.offset
+        };
+
+        let paginationValidationErrors = validator.validateType(pagination, 'Pagination',
+                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+
+        if (paginationValidationErrors.length > 0) {
+            throw HTTPError('400', paginationValidationErrors);
+        }
+
+        let userID = Number(req.ixmUserInfo.id);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
+
+        if (negotiatedDeals && negotiatedDeals.length > 0) {
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+        } else {
+            throw HTTPError('200_NO_NEGOTIAITIONS');
+        }
+
+    } catch (error) { next(error); } });
+
+    /**
+     * Get specific negotiation from proposal id and partner id
+     */
+    router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        // Validate parameters
+        let proposalID = Number(req.params.proposalID);
+        let partnerID = Number(req.params.partnerID);
+
+        let parameters = {
+            proposal_id: proposalID,
+            partner_id: partnerID
+        };
+
+        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters');
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
+        }
+
+        // Check proposal and partner existence
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        let partner = await userManager.fetchUserFromId(partnerID);
+
+        if (!partner) {
+            throw HTTPError('404_PARTNER_NOT_FOUND');
+        }
+
+        // Check partner user group and status
+        if (partner.userGroup !== 'Index Market') {
+            throw HTTPError('403_PARTNER_NOT_IXMUSER');
+        }
+
+        if (partner.status !== 'A') {
+            throw HTTPError('403_PARTNER_NOT_ACTIVE');
+        }
+
+        // Check if request sender and partner are in the same type
+        if (partner.userType === req.ixmUserInfo.userType) {
+            throw HTTPError('403_PARTNER_INVALID_USERTYPE');
+        }
+
+        let buyerID: number;
+        let publisherID: number;
+
+        if (partner.userType === 'IXMB') {
+            buyerID = Number(partner.id);
+            publisherID = Number(req.ixmUserInfo.id);
+        } else if (partner.userType === 'IXMP') {
+            buyerID = Number(req.ixmUserInfo.id);
+            publisherID = Number(partner.id);
+        }
+
+        let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+        if (negotiatedDeal) {
+            res.sendPayload(negotiatedDeal);
+        } else {
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
+        }
+
+    } catch (error) { next(error); } });
+
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate the request's parameters syntax
-        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest', { sanitizeString: true, fillDefaults: true });
+        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest',
+                                { sanitizeString: true, fillDefaults: true, removeNull: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -92,12 +204,12 @@ function NegotiationDeals(router: express.Router): void {
         let responseType: string = req.body.response;
 
         let negotiationFields = JSON.parse(JSON.stringify({
-            startDate: req.body['start_date'] || undefined,
-            endDate: req.body['end_date'] || undefined,
-            price: req.body['price'] || undefined,
-            impressions: req.body['impressions'] || undefined,
-            budget: req.body['budget'] || undefined,
-            terms: req.body['terms'] || undefined
+            startDate: req.body['start_date'],
+            endDate: req.body['end_date'],
+            price: req.body['price'],
+            impressions: req.body['impressions'],
+            budget: req.body['budget'],
+            terms: req.body['terms']
         }));
 
         // Confirm that the user sent fields consistent with negotiation / acceptance-rejection
@@ -121,6 +233,7 @@ function NegotiationDeals(router: express.Router): void {
             buyerID = Number(req.ixmUserInfo.id);
             publisherID = Number(req.body.partner_id);
         }
+
         Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`);
 
         // Confirm that the proposal is available and belongs to this publisher

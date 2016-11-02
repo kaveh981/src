@@ -96,7 +96,7 @@ class ProposedDealManager {
                                              .andWhere('rtbSections.status', 'A')
                                              .andWhere('sites.status', 'A')
                                              .groupBy('id');
- 
+
         return rows.map((row) => { return row.id; });
 
     }
