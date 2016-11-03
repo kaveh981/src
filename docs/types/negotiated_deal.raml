@@ -6,90 +6,90 @@ description: |
 
     All negotiation is 1-1 between a publisher and a buyer. In the case of a proposal offered to multiple parties on either side, individual negotiation states are created for each publisher/buyer pair.
 properties:
-    proposal_id:
-        type: integer
-        required: true
-        displayName: Proposal ID
-        description: A reference to the proposal this negotiation is occurring on
-    partner_id:
-        type: integer
-        required: true
-        displayName: Partner ID
-        description: The unique identifier for the negotiating partner. Will be a publisher ID if request originates from a buyer, or a buyer ID if request originates from a publisher.
-    partner_contact:
-        type: !include contact.raml
-        required: true
-        displayName: Partner Contact Information
-        description: Contact information for the partner involved in this negotiation. As with the partner_id, this is a publisher ID if requested by a buyer, or vice-versa.
-    description:
-        type: string
-        required: false
-        displayName: Description
-        description: The description of the deal, from the original deal proposal
-    terms:
-        type: string
-        required: false
-        displayName: Terms & Conditions
-        description: The terms & conditions for the deal - extra information describing the deal.
-    impressions:
-        type: number
-        required: false
-        displayName: Impressions
-        description: The projected amount of impressions for the package
-    budget:
-        type: number
-        required: false
-        displayName: Budget
-        description: The projected amount to be spent by the buyer
-    name:
-        type: string
-        required: true
-        displayName: Name
-        description: Name of the deal
-    start_date:
-        type: date-only
-        required: false
-        displayName: Start Date
-        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
-        example: 2016-09-09
-    end_date:
-        type: date-only
-        required: false # should we omit date for 'ongoing'? Or?
-        displayName: End Date
-        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
-        example: 2016-10-10
     auction_type:
         type: string
         required: true
         displayName: Auction Type,
         description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
         enum: ['first','second','fixed']
-    price:
+    budget:
         type: number
+        required: false
+        displayName: Budget
+        description: The projected amount to be spent by the buyer
+    created_at:
+        type: datetime
         required: true
-        displayName: Deal Price
-        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
-    deal_section_id: # ? Provide API paths to access ?
-        type: integer[]
-        required: true
-        displayName: Deal Section Id(s)
-        description: An array of Deal Section IDs, indicating which sections will be active in this deal.
+        displayName: Created At
+        description: The timestamp the negotiation was created at. RFC3339 format, UTC.
     currency:
         type: string
         required: true
         displayName: Currency
         description: Three-letter currency code for the deal.
         example: USD
-    created_at:
-        type: datetime
+    deal_section_id: # ? Provide API paths to access ?
+        type: integer[]
         required: true
-        displayName: Created At
-        description: The timestamp the negotiation was created at. RFC3339 format, UTC.
+        displayName: Deal Section Id(s)
+        description: An array of Deal Section IDs, indicating which sections will be active in this deal.
+    description:
+        type: string
+        required: false
+        displayName: Description
+        description: The description of the deal, from the original deal proposal.
+    end_date:
+        type: date-only
+        required: false # should we omit date for 'ongoing'? Or?
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
+    impressions:
+        type: number
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package
+        example: 2016-10-10
     modified_at:
         type: datetime
         required: true
         displayName: Modified At
         description: The timestamp the negotiation was last modified at. RFC3339 format, UTC.
+    name:
+        type: string
+        required: true
+        displayName: Name
+        description: Name of the deal.
+    partner_contact:
+        type: !include contact.raml
+        required: true
+        displayName: Partner Contact Information
+        description: Contact information for the partner involved in this negotiation. As with the partner_id, this is a publisher ID if requested by a buyer, or vice-versa.
+    partner_id:
+        type: integer
+        required: true
+        displayName: Partner ID
+        description: The unique identifier for the negotiating partner. Will be a publisher ID if request originates from a buyer, or a buyer ID if request originates from a publisher.
+    price:
+        type: number
+        required: true
+        displayName: Deal Price
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
+    proposal_id:
+        type: integer
+        required: true
+        displayName: Proposal ID
+        description: A reference to the proposal this negotiation is occurring on.
+    start_date:
+        type: date-only
+        required: false
+        displayName: Start Date
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
+        example: 2016-09-09
+    terms:
+        type: string
+        required: false
+        displayName: Terms & Conditions
+        description: The terms & conditions for the deal - extra information describing the deal.
     example: |
     {
         "proposal_id": 999,
@@ -109,7 +109,7 @@ properties:
             "name": "Humungus",
             "email": "ayatollah@rockandrollah.com",
             "phone": "999 999 9998"
-        }
+        },
         "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
         "created_at": "2016-04-04T04:00:00Z",
         "modified_at": "2016-04-14T14:00:00Z"
