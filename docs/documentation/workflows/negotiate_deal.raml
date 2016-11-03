@@ -160,7 +160,7 @@
              $ curl -X PUT \
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 666, "response": "accept" }' \
+                -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
@@ -175,13 +175,13 @@
              $ curl -X PUT \
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 666, "response": "reject" }' \
+                -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
             Notification will be sent of the rejection. The status of the deal does not change at this point. The Negotiated Deal is still available from the GET `/deals/negotiations` route, with the rejection status.
 
-            The user may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the partner will be able to respond on them as before.
+            The buyer may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the partner will be able to respond on them as before.
 
             #### iii. Respond with a new counter-offer
 
@@ -193,15 +193,15 @@
             $ curl -X PUT \
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 666, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
+                -d '{ "proposal_id": 888, "partner_id": 1234, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
-            The user will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.
+            The buyer will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.
 
             #### 4. Respond to the results.
 
-            The user now has the same choice as the partner – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
+            The buyer now has the same choice as the partner – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
 
             #### 5. Ending Negotiation
 
