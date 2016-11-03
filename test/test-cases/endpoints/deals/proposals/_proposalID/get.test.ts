@@ -25,7 +25,7 @@ async function databaseSetup() {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID, proposal_id: proposal.proposal.proposalID };
+    return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
 }
 
 /**
@@ -68,9 +68,8 @@ export let ATW_PA_GET_SP_VALIDATION = validationTest(
     databaseSetup,
     {},
     {
-        proposal_id: {
-            type: 'integer',
-            extraCases: [{ input: 16777215, expect: 404 }, { input: 16777216, expect: 404 }]
+        proposalID: {
+            type: 'integer'
         }
     }
 );
