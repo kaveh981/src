@@ -59,6 +59,27 @@ export let ATW_DNPP_GET_VALIDATION =  validationTest(route, 'get', commonDatabas
     }
 });
 
+export async function ATW_API_DNPP_GET_01(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let buyerID = await generateBuyerID();
+    let publisherID = await generatePublisherID();
+    let proposalID = await generateProposalID(publisherID);
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+
+    let buyerPath = await buildPath(proposalID, publisherID);
+    let publisherPath = await buildPath(proposalID, buyerID);
+
+    /** Test */
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    assert.equal(pubResponse.status, 200);
+
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    assert.equal(buyerResponse.status, 200);
+ }
+
 /*
  * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
  * @expect  - 404 NOT FOUND
@@ -66,7 +87,7 @@ export let ATW_DNPP_GET_VALIDATION =  validationTest(route, 'get', commonDatabas
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_01(assert: test.Test) {
+export async function ATW_API_DNPP_GET_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -93,7 +114,7 @@ export async function ATW_API_DNPP_GET_01(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_02(assert: test.Test) {
+export async function ATW_API_DNPP_GET_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -122,7 +143,7 @@ export async function ATW_API_DNPP_GET_02(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_03(assert: test.Test) {
+export async function ATW_API_DNPP_GET_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -151,7 +172,7 @@ export async function ATW_API_DNPP_GET_03(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_04(assert: test.Test) {
+export async function ATW_API_DNPP_GET_05(assert: test.Test) {
 
    /** Setup */
     assert.plan(4);
@@ -188,7 +209,7 @@ export async function ATW_API_DNPP_GET_04(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_05(assert: test.Test) {
+export async function ATW_API_DNPP_GET_06(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -218,7 +239,7 @@ export async function ATW_API_DNPP_GET_05(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_06(assert: test.Test) {
+export async function ATW_API_DNPP_GET_07(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -250,7 +271,7 @@ export async function ATW_API_DNPP_GET_06(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_07_01(assert: test.Test) {
+export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -275,7 +296,7 @@ export async function ATW_API_DNPP_GET_07_01(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_07_02(assert: test.Test) {
+export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -301,7 +322,7 @@ export async function ATW_API_DNPP_GET_07_02(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
+export async function ATW_API_DNPP_GET_09_01(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -327,7 +348,7 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
+export async function ATW_API_DNPP_GET_09_02(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -352,7 +373,7 @@ export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_09(assert: test.Test) {
+export async function ATW_API_DNPP_GET_10(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
