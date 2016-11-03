@@ -43,9 +43,9 @@
                         "end_date": "2016-10-10",
                         "price": 1.99,
                         "impressions": 8,
-                        "budget": 9999999.99,
+                        "budget": 999999,
                         "currency": "USD",
-                        "auction_type": 1,
+                        "auction_type": "first",
                         "contact": {
                             "title": "Captain",
                             "name": "Jimdex Exchange",
@@ -69,9 +69,9 @@
                         "end_date": "2016-10-10",
                         "price": 1.99,
                         "impressions": 8,
-                        "budget": 9999999.99,
+                        "budget": 999999,
                         "currency": "USD",
-                        "auction_type": 1,
+                        "auction_type": "first",
                         "contact": {
                             "title": "Captain",
                             "name": "Jimdex Exchange",
@@ -90,7 +90,7 @@
 
             #### 2. Send a counter-offer on a selected deal
 
-            From the returned proposals, the publisher likes the look of the second one – ID 888 – but wish to negotiate further. They send a counter offer via a PUT request to `/deals/negotiation`. The body contains a Deal Negotiation JSON object, with the fields they wish to offer a counter-proposal on. Any fields they don't wish to adjust are omitted.
+            From the returned proposals, the publisher likes the look of the second one – ID 888 – but wishes to negotiate further. They send a counter offer via a PUT request to `/deals/negotiation`. The body contains a Deal Negotiation JSON object, with the fields they wish to offer a counter-proposal on. Any fields they don't wish to adjust are omitted.
 
             The `terms` field may be used for extra information or communication.
 
@@ -114,8 +114,8 @@
                 "message": "Is your daddy a dealer, cause you're dope to me.",
                 "data": [
                     {
-                        "proposal_id": 999,
-                        "partner_id": 666,
+                        "proposal_id": 888,
+                        "partner_id": 123,
                         "deal_section_id": [4321, 9876],
                         "name": "Superfab Ultradeal",
                         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
@@ -123,15 +123,15 @@
                         "end_date": "2017-02-10",
                         "price": 1.49,
                         "impressions": 8,
-                        "budget": 9999999.99,
+                        "budget": 999999,
                         "currency": "USD",
                         "auction_type": "first",
-                        "partner_contact": {
-                            "title": "Lord",
-                            "name": "Humungus",
-                            "email": "ayatollah@rockandrollah.com",
-                            "phone": "999 999 9998"
-                        }
+                        "contact": {
+                            "title": "Captain",
+                            "name": "Jimdex Exchange",
+                            "email": "jimdex.exchange@indexexchange.com",
+                            "phone": "666 666 6665"
+                        },
                         "terms": "Pending approval from the boss. How is your mother doing, by the way?",
                         "created_at": "2016-04-04T04:00:00Z",
                         "modified_at": "2016-04-14T14:00:00Z"
@@ -144,7 +144,7 @@
 
             #### 3. Receive a response from negotiation partner
 
-            At this point, the publisher has three options:
+            At this point, the partner has three options:
 
                 i. Accept the counter-offer as is
                 ii. Reject the counter-offer
@@ -152,36 +152,36 @@
 
             ##### i. Accept the  counter-offer as is
 
-            If the publisher is happy with the new terms, they respond to the same route with a PUT request containing only the relevant IDs and a response field.
+            If the partner is happy with the new terms, they respond to the same route with a PUT request containing only the relevant IDs and a response field.
 
             ##### Example acceptance request
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
+                -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
+                -d '{ "proposal_id": 888, "partner_id": 666, "response": "accept" }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
-            Notification will be sent of the acceptance, and the deal become active. It will be available to bid on, pending start date if applicable, and will appear in results from the GET `deals/active` route.
+            Notification will be sent of the acceptance, and the deal becomes active. It will be available to bid on, pending start date if applicable, and will appear in results from the GET `deals/active` route.
             #### ii. Reject the counter-offer
 
-            If the publisher is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
+            If the partner is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
 
             ##### Example acceptance request
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
+                -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
+                -d '{ "proposal_id": 888, "partner_id": 666, "response": "reject" }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
             Notification will be sent of the rejection. The status of the deal does not change at this point. The Negotiated Deal is still available from the GET `/deals/negotiations` route, with the rejection status.
 
-            The buyer may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the publisher will be able to respond on them as before.
+            The user may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the partner will be able to respond on them as before.
 
             #### iii. Respond with a new counter-offer
 
@@ -191,17 +191,17 @@
 
             ```
             $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
+                -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
+                -d '{ "proposal_id": 888, "partner_id": 666, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
                 https://market.indexexchange.com/ixm/v1/deals/negotiations
             ```
 
-            The buyer will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.
+            The user will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.
 
             #### 4. Respond to the results.
 
-            The buyer now has the same choice as the publisher – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
+            The user now has the same choice as the partner – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
 
             #### 5. Ending Negotiation
 
