@@ -41,8 +41,8 @@ export let ATW_DN_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', commo
  * @case    - Proposal ID is provided and is a valid number 
  * @expect  - 200 - 1 Deal Negotiation Object returned 
  * @route   - GET deals/negotiations/proposal.proposal.proposalID
- * @status  - failing (publisher contact info failure) 
- * @tags    - 
+ * @status  - failing 
+ * @tags    - contact
  */
 
 export async function ATW_DNP_GET_01 (assert: test.Test) {
@@ -176,11 +176,11 @@ export async function ATW_DNP_GET_05 (assert: test.Test) {
  * @case    - Another Proposal (proposal2) concerning the user exists
  * @expect  - 200 - only the proposal specified is shown
  * @route   - GET deals/negotiations/proposal.proposal.proposalID
- * @status  - 
- * @tags    - 
+ * @status  - failing 
+ * @tags    - contact
  */
 
-export async function ATW_DNP_GET_05_01 (assert: test.Test) {
+export async function ATW_DNP_GET_06 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -208,11 +208,11 @@ export async function ATW_DNP_GET_05_01 (assert: test.Test) {
  * @case    - Multiple Deal Negotations with the same proposal exist concerning different buyers 
  * @expect  - 200 - only the user's Deal Negotiations are shown
  * @route   - GET deals/negotiations/proposal.proposal.proposalID
- * @status  - 
- * @tags    - 
+ * @status  - failing
+ * @tags    - contact
  */
 
-export async function ATW_DNP_GET_05_02 (assert: test.Test) {
+export async function ATW_DNP_GET_07 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -238,11 +238,11 @@ export async function ATW_DNP_GET_05_02 (assert: test.Test) {
  * @case    - Multiple Deal Negotations with the same proposal concerning different publishers  
  * @expect  - 200 - only the user's Deal Negotiations are shown
  * @route   - GET deals/negotiations/proposal.proposal.proposalID
- * @status  - 
+ * @status  - failing
  * @tags    - pub, perspective
  */
 
-export async function ATW_DNP_GET_05_03 (assert: test.Test) {
+export async function ATW_DNP_GET_08 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -272,7 +272,7 @@ export async function ATW_DNP_GET_05_03 (assert: test.Test) {
  * @tags    - 
  */
 
-export async function ATW_DNP_GET_06 (assert: test.Test) {
+export async function ATW_DNP_GET_09 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -299,7 +299,7 @@ export async function ATW_DNP_GET_06 (assert: test.Test) {
  * @tags    - pub, perspective
  */
 
-export async function ATW_DNP_GET_07 (assert: test.Test) {
+export async function ATW_DNP_GET_10 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -319,14 +319,14 @@ export async function ATW_DNP_GET_07 (assert: test.Test) {
 }
 
 /*
- * @case    - Proposal exists but Negotiation not started 
+ * @case    - Proposal exists but Negotiation does not exist 
  * @expect  - 200_NO_NEGOTIATIONS 
  * @route   - GET deals/negotiations/proposal.proposal.proposalID
  * @status  - passing
  * @tags    - 
  */
 
-export async function ATW_DNP_GET_08 (assert: test.Test) {
+export async function ATW_DNP_GET_11 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -342,8 +342,15 @@ export async function ATW_DNP_GET_08 (assert: test.Test) {
     assert.deepEqual(response.body['data'], [], "No Data Returned");
 }
 
-// SHOW DN EVEN WHEN DIFFERENT BUYER/PUB STATUSES STARTING NOW UNTIL END 
-export async function ATW_DNP_GET_09 (assert: test.Test) {
+/*
+ * @case    - Publisher has deleted the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway 
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_12 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -364,7 +371,15 @@ export async function ATW_DNP_GET_09 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_10 (assert: test.Test) {
+/*
+ * @case    - Publisher has rejected the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_13 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -385,7 +400,15 @@ export async function ATW_DNP_GET_10 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_11 (assert: test.Test) {
+/*
+ * @case    - Publisher has accepted the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_14 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -406,7 +429,15 @@ export async function ATW_DNP_GET_11 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_12 (assert: test.Test) {
+/*
+ * @case    - Buyer has deleted the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_15 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -427,7 +458,15 @@ export async function ATW_DNP_GET_12 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_13 (assert: test.Test) {
+/*
+ * @case    - Buyer has rejected the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_16 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -448,7 +487,15 @@ export async function ATW_DNP_GET_13 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_14 (assert: test.Test) {
+/*
+ * @case    - Buyer has accepted the deal negotiation 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_17 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -469,8 +516,15 @@ export async function ATW_DNP_GET_14 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-// deal negotiation has "not yet started"
-export async function ATW_DNP_GET_15 (assert: test.Test) {
+/*
+ * @case    - Deal Negotiation has not started, datewise 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_18 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -492,8 +546,15 @@ export async function ATW_DNP_GET_15 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-// deal negotiation has ended
-export async function ATW_DNP_GET_16 (assert: test.Test) {
+/*
+ * @case    - Deal Negotiation has ended (datewise) 
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_19 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -515,11 +576,15 @@ export async function ATW_DNP_GET_16 (assert: test.Test) {
                      "1 DN Returned");
 }
 
+/*
+ * @case    - Proposal is paused (status)
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
 
-
-////// proposal statuses
-
-export async function ATW_DNP_GET_17 (assert: test.Test) {
+export async function ATW_DNP_GET_20 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -540,7 +605,15 @@ export async function ATW_DNP_GET_17 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-export async function ATW_DNP_GET_18 (assert: test.Test) {
+/*
+ * @case    - Proposal has been deleted (status)
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_21 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -561,9 +634,15 @@ export async function ATW_DNP_GET_18 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-// proposal owner inactive 
+/*
+ * @case    - Proposal owner is inactive
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
 
-export async function ATW_DNP_GET_19 (assert: test.Test) {
+export async function ATW_DNP_GET_22 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -582,8 +661,15 @@ export async function ATW_DNP_GET_19 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-// proposal has expired
-export async function ATW_DNP_GET_20 (assert: test.Test) {
+/*
+ * @case    - Proposal has expired (datewise)
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_23 (assert: test.Test) {
 
     assert.plan(2);
 
@@ -605,8 +691,15 @@ export async function ATW_DNP_GET_20 (assert: test.Test) {
                      "1 DN Returned");
 }
 
-// proposal has not yet started
-export async function ATW_DNP_GET_21 (assert: test.Test) {
+/*
+ * @case    - Proposal has not yet started (datewise)
+ * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @route   - GET deals/negotiations/proposal.proposal.proposalID
+ * @status  - failing
+ * @tags    - contact
+ */
+
+export async function ATW_DNP_GET_24 (assert: test.Test) {
 
     assert.plan(2);
 
