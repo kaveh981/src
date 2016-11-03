@@ -811,3 +811,30 @@ export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
     assert.equals(response.status, 403);
 
 }
+
+/*
+ * @case    - There is no proposal available
+ * @setup   - create dsp, create buyer, create publisher, create site , create section
+ *  and send a proposalID that does not exist.
+ * @expect  - 404.
+ * @route   - GET deals/proposal/:proposal_id
+ * @status  - working
+ * @tags    - get, proposal
+ */
+export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${5}`, {}, publisher.user.userID);
+
+    assert.equals(response.status, 404);
+
+}
