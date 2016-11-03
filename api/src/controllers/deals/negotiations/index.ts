@@ -83,7 +83,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate proposalID
         let proposalID = Number(req.params.proposalID);
-        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameters');
+        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
 
         if (proposalValidationErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
