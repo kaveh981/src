@@ -96,7 +96,7 @@ export async function IXM_API_PROPOSAL_GET_SP_01(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
 
     /** Test */
-    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user.userID);
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher));
@@ -132,7 +132,7 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
 }
 
 /*
- * @case    - User is not the owner and has a the same type as the owner
+ * @case    - User is not the owner and has the same type as the owner
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal 
  * and set publisher as the owner and the user.
  * @expect  - 200.
@@ -146,16 +146,16 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
+    let publisher2 = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
 
     /** Test */
-    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher2.user.userID);
 
-    assert.equals(response.status, 200);
+    assert.equals(response.status, 403);
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher));
 }
 
