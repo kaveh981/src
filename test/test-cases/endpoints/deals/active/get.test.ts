@@ -23,7 +23,7 @@ const VERB = 'get';
  * @param [publisher] - The publisher object that will own the settled deal.
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createActiveDeal(publisher: INewPubData) {
+async function createSettledDeal(publisher: INewPubData) {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     if (typeof publisher === 'undefined') {
@@ -32,8 +32,10 @@ async function createActiveDeal(publisher: INewPubData) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-    let activeDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+    let negotiation = await databasePopulator.createDealNegotiation(
+            proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let activeDeal = await databasePopulator.createSettledDeal(
+            publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
     return Helper.settledDealToPayload(activeDeal, negotiation, proposal, publisher, buyer);
 }
@@ -45,7 +47,7 @@ async function createActiveDeal(publisher: INewPubData) {
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, createActiveDeal);
+export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, createSettledDeal);
 
 /*
  * @case    - Different pagination parameters are attempted.
@@ -54,7 +56,7 @@ export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, createActiveDea
  * @status  - commented out (must restructure common pagination suite)
  * @tags    - get, deals, auth
  */
-//export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationDatabaseSetup, createProposal);
+// export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationDatabaseSetup, createSettledDeal);
 
  /*
  * @case    - Proposal is still in negotiation, no rtbDeals entry present
@@ -132,8 +134,10 @@ export async function IXM_API_DA_GET_03 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-    let settledDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
