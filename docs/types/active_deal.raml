@@ -3,46 +3,38 @@
 type: object
 description: An object describing an active deal in the system. The deal has been purchased and is available to bid on. Will include metrics to track deal performance.
 properties:
-    proposal_id:
-        type: integer
-        required: true
-        displayName: Proposal ID
-        description: The ID for the proposal this deal came from.
-    external_id:
+    auction_type:
         type: string
-        required: false
-        displayName: External Deal ID
-        description: A string that can be used to identify the deal in external systems
-    publisher_id:
-        type: integer[]
         required: true
-        displayName: Publisher ID(s)
-        description: The IDs of the publishers involved in the deal
-    publisher_contact:
-        type: Contact[]
+        displayName: Auction Type,
+        description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
+        enum: ['first','second','fixed']
+    budget:
+        type: number
         required: false
-        displayName: Publisher contact information
-        description: The contact information of publishers involved in the deal
-    buyer_id:
-        type: integer[]
-        required: true
-        displayName: Buyer ID(s)
-        description: The IDs of the buyers involved in the deal
+        displayName: Budget
+        description: The projected amount to be spent by the buyer.
     buyer_contact:
         type: Contact[]
         required: false
         displayName: Buyer contact information
-        description: The contact information of buyers involved in the deal
-    name:
-        type: string
-        required: true
-        displayName: Name
-        description: Name of the deal
-    dsp_id:
+        description: The contact information of buyers involved in the deal.
+    buyer_id:
         type: integer[]
         required: true
-        displayName: DSP ID(s)
-        description: An array of DSP IDs involved in the deal
+        displayName: Buyer ID(s)
+        description: The IDs of the buyers involved in the deal.
+    created_at:
+        type: datetime
+        required: true
+        displayName: Created At
+        description: The timestamp the deal was created at. RFC3339 format, UTC.
+    currency:
+        type: string
+        required: true
+        displayName: Currency
+        description: Three-letter currency code for the deal.
+        example: USD
     deal_section_id: # ? Provide API paths to access ?
         type: integer[]
         required: true
@@ -53,6 +45,52 @@ properties:
         required: false
         displayName: Description
         description: A description of the deal.
+    dsp_id:
+        type: integer[]
+        required: true
+        displayName: DSP ID(s)
+        description: An array of DSP IDs involved in the deal
+    end_date:
+        type: date-only
+        required: false # should we omit date for 'ongoing'? Or?
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
+        example: 2016-10-10
+    external_id:
+        type: string
+        required: false
+        displayName: External Deal ID
+        description: A string that can be used to identify the deal in external systems
+    impressions:
+        type: number
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package
+    modified_at:
+        type: datetime
+        required: true
+        displayName: Modified At
+        description: The timestamp the deal was last modified at. RFC3339 format, UTC.
+    name:
+        type: string
+        required: true
+        displayName: Name
+        description: Name of the deal
+    proposal_id:
+        type: integer
+        required: true
+        displayName: Proposal ID
+        description: The ID for the proposal this deal came from.
+    publisher_id:
+        type: integer[]
+        required: true
+        displayName: Publisher ID(s)
+        description: The IDs of the publishers involved in the deal
+    publisher_contact:
+        type: Contact[]
+        required: false
+        displayName: Publisher contact information
+        description: The contact information of publishers involved in the deal
     status:
         type: string
         required: true
@@ -65,39 +103,6 @@ properties:
         displayName: Start Date
         description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
         example: 2016-09-09
-    end_date:
-        type: date-only
-        required: false # should we omit date for 'ongoing'? Or?
-        displayName: End Date
-        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
-        example: 2016-10-10
-    price:
-        type: number
-        required: true
-        displayName: Deal Price
-        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
-    impressions:
-        type: number
-        required: false
-        displayName: Impressions
-        description: The projected amount of impressions for the package
-    budget:
-        type: number
-        required: false
-        displayName: Budget
-        description: The projected amount to be spent by the buyer
-    currency:
-        type: string
-        required: true
-        displayName: Currency
-        description: Three-letter currency code for the deal.
-        example: USD
-    auction_type:
-        type: integer
-        required: true
-        displayName: Auction Type,
-        description: The auction type - 1 = First Price, 2 = Second Price, 3 = Fixed Rate
-        enum: [1,2,3] # Use integer or string values? Strings clearer, ints are what system uses
     # contact:
     #     type: !include contact.raml
     #     required: true
@@ -108,36 +113,37 @@ properties:
         required: false
         displayName: Terms & Conditions
         description: The terms & conditions for the deal - extra information describing the deal.
-    created_at:
-        type: datetime
-        required: true
-        displayName: Created At
-        description: The timestamp the deal was created at. RFC3339 format, UTC.
-    modified_at:
-        type: datetime
-        required: true
-        displayName: Modified At
-        description: The timestamp the deal was last modified at. RFC3339 format, UTC.
-# example: |
-#     {
-#         "id": 666,
-#         "external_id": "DEAL-4-U-BB",
-#         "publisher_id": [654321],
-#         "site_id": [111,222],
-#         "deal_section_id": [4321, 9876],
-#         "dsp_id": [66],
-#         "name": "Is good deal, yes? You don't like good deals?",
-#         "price": 6.66,
-#         "impressions": 9999,
-#         "currency": "ZAR",
-#         "auction_type": 2,
-#         "status": "active",
-#         "start_date": "1999-12-31",
-#         "end_date": "2026-06-06",
-#         "contact": {
-#             "title": "Lord",
-#             "name": "Humungus",
-#             "email": "ayatollah@rockandrollah.com",
-#             "phone": "999 999 9998"
-#         }
-#     }
+example: |
+    {
+        "id": 666,
+        "publisher_id": [654321],
+        "publisher_contact": {
+            "title": "Captain",
+            "name": "Jimdex Exchange",
+            "email": "jimdex.exchange@indexexchange.com",
+            "phone": "666 666 6665"
+        },
+        "buyer_id": 666,
+        "buyer_contact": {
+            "title": "Lord",
+            "name": "Humungus",
+            "email": "ayatollah@rockandrollah.com",
+            "phone": "999 999 9998"
+        },
+        "dsp_id": [66],
+        "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+        "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+        "impressions": 9999,
+        "budget": 9999999.99,
+        "name": "Is good deal, yes? You don't like good deals?",
+        "external_id": "DEAL-4-U-BB",
+        "start_date": "1999-12-31",
+        "end_date": "2026-06-06",
+        "status": "active",
+        "auction_type": 2,
+        "price": 6.66,
+        "deal_section_id": [4321, 9876],
+        "currency": "ZAR",
+        "created_at": "2016-04-04T04:00:00Z",
+        "modified_at": "2016-04-14T14:00:00Z"
+    }
