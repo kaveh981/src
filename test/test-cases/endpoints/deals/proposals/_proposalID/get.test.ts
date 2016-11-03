@@ -56,7 +56,7 @@ export let ATW_PA_GET_SP_AUTH = authenticationTest(route, 'get', databaseSetup);
 
 /*
  * @case    - Common validation cases for proposalID.
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and apply common validation method.
+ * @setup   - create proposal and apply common validation method.
  * @expect  - Validations tests to pass.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -76,7 +76,7 @@ export let ATW_PA_GET_SP_VALIDATION = validationTest(
 
 /*
  * @case    - The user is the owner of proposal
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal 
+ * @setup   - create publisher, create site, create section, create proposal 
  * and set the owner and user both as publisher or both as buyer .
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -88,8 +88,6 @@ export async function IXM_API_PROPOSAL_GET_SP_01(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -133,7 +131,7 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
 
 /*
  * @case    - User is not the owner and has the same type as the owner
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal 
+ * @setup   - create publisher, create site, create section, create proposal 
  * and set publisher as the owner and the user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -145,7 +143,6 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
     let publisher = await databasePopulator.createPublisher();
     let publisher2 = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -245,7 +242,7 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
 
 /*
  * @case    - ProposalID is deleted and user is the owner
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to deleted and
+ * @setup   - create publisher, create site, create section, create proposal and set it's status to deleted and
  *  set publisher as the owner as well as the user. 
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -257,8 +254,6 @@ export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -302,7 +297,7 @@ export async function IXM_API_PROPOSAL_GET_SP_08(assert: test.Test) {
 
 /*
  * @case    - ProposalID is paused and user is the owner
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to paused and 
+ * @setup   - create publisher, create site, create section, create proposal and set it's status to paused and 
  * set publisher as the owner as well as the user. 
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -314,8 +309,6 @@ export async function IXM_API_PROPOSAL_GET_SP_09(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -358,7 +351,7 @@ export async function IXM_API_PROPOSAL_GET_SP_10(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is today and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today and
+ * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today and
  *  set the owner as publisher as well as user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -370,8 +363,6 @@ export async function IXM_API_PROPOSAL_GET_SP_11(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -409,7 +400,7 @@ export async function IXM_API_PROPOSAL_GET_SP_12(assert: test.Test) {
         { endDate: currentDate });
 
     /** Test */
-    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user.userID);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher));
@@ -418,7 +409,7 @@ export async function IXM_API_PROPOSAL_GET_SP_12(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is earlier than today and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today - 5 and
+ * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today - 5 and
  *  set the owner as publisher as well as user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -430,8 +421,6 @@ export async function IXM_API_PROPOSAL_GET_SP_13(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -477,7 +466,7 @@ export async function IXM_API_PROPOSAL_GET_SP_14(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is earlier than today and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to today - 5 
+ * @setup   - create publisher, create site, create section, create proposal and set it's startDate to today - 5 
  * and set the owner as publisher as well as user.
  * @expect  - 2000.
  * @route   - GET deals/proposal/:proposal_id
@@ -489,8 +478,6 @@ export async function IXM_API_PROPOSAL_GET_SP_15(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -537,7 +524,7 @@ export async function IXM_API_PROPOSAL_GET_SP_16(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is later than today and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to
+ * @setup   - create publisher, create site, create section, create proposal and set it's startDate to
  *  today + 5 and set the owner as publisher as well as user. 
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -549,8 +536,6 @@ export async function IXM_API_PROPOSAL_GET_SP_17(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -597,7 +582,7 @@ export async function IXM_API_PROPOSAL_GET_SP_18(assert: test.Test) {
 
 /*
  * @case    - Some sections are no longer active and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create a deactive section, create proposal with
+ * @setup   - create publisher, create site, create section, create a deactive section, create proposal with
  *  active and deactive section set publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -609,8 +594,6 @@ export async function IXM_API_PROPOSAL_GET_SP_19(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -659,7 +642,7 @@ export async function IXM_API_PROPOSAL_GET_SP_20(assert: test.Test) {
 
 /*
  * @case    - There is no active section and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site, create a deactive section, create proposal with the deactive section
+ * @setup   - create publisher, create site, create a deactive section, create proposal with the deactive section
  *  set publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -671,8 +654,6 @@ export async function IXM_API_PROPOSAL_GET_SP_21(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], { status: 'D' });
@@ -716,7 +697,7 @@ export async function IXM_API_PROPOSAL_GET_SP_22(assert: test.Test) {
 
 /*
  * @case    - Some sites are no longer active and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create site,create a deactive site , create section with active and deactive 
+ * @setup   - create publisher, create site,create a deactive site , create section with active and deactive 
  * sites, create proposal and set the publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -728,8 +709,6 @@ export async function IXM_API_PROPOSAL_GET_SP_23(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site1 = await databasePopulator.createSite(publisher.publisher.userID);
     let site2 = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
@@ -780,7 +759,7 @@ export async function IXM_API_PROPOSAL_GET_SP_24(assert: test.Test) {
 
 /*
  * @case    - There is no active site and the owner is the user
- * @setup   - create dsp, create buyer, create publisher, create a deactive site , create section with  deactive site, create proposal
+ * @setup   - create publisher, create a deactive site , create section with  deactive site, create proposal
  *  and set the publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposal/:proposal_id
@@ -792,13 +771,10 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID],
-        { startDate: new Date(currentDate.setDate(currentDate.getDate() + 5)) });
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
