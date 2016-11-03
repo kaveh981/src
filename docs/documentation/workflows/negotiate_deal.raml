@@ -144,7 +144,7 @@
 
             #### 3. Receive a response from negotiation partner
 
-            At this point, the partner has three options:
+            At this point, the publisher has three options:
 
                 i. Accept the counter-offer as is
                 ii. Reject the counter-offer
@@ -152,7 +152,7 @@
 
             ##### i. Accept the  counter-offer as is
 
-            If the partner is happy with the new terms, they respond to the same route with a PUT request containing only the relevant IDs and a response field.
+            If the publisher is happy with the new terms, they respond to the same route with a PUT request containing only the relevant IDs and a response field.
 
             ##### Example acceptance request
             
@@ -167,7 +167,7 @@
             Notification will be sent of the acceptance, and the deal becomes active. It will be available to bid on, pending start date if applicable, and will appear in results from the GET `deals/active` route.
             #### ii. Reject the counter-offer
 
-            If the partner is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
+            If the publisher is not happy with the new terms, but does not wish to respond with terms of their own, they can reject the offer. To do this, they send a PUT request with `"response": "reject"`
 
             ##### Example acceptance request
             
@@ -181,7 +181,7 @@
 
             Notification will be sent of the rejection. The status of the deal does not change at this point. The Negotiated Deal is still available from the GET `/deals/negotiations` route, with the rejection status.
 
-            The buyer may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the partner will be able to respond on them as before.
+            The buyer may choose to end the negotiation at this point, or try again. New counter-offers can be sent via the PUT `/deals/negotiations` route, and the publisher will be able to respond on them as before.
 
             #### iii. Respond with a new counter-offer
 
@@ -201,7 +201,7 @@
 
             #### 4. Respond to the results.
 
-            The buyer now has the same choice as the partner – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
+            The buyer now has the same choice as the publisher – whether to accept, reject, or respond with a new counter-offer. Steps 2 & 3 will continue as long as both parties continue to negotiate.
 
             #### 5. Ending Negotiation
 
