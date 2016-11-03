@@ -4,6 +4,7 @@ import * as test from 'tape';
 
 import { authenticationTest } from '../../../../../common/auth.test';
 import { paginationTest } from '../../../../../common/pagination.test';
+import { validationTest } from '../../../../../common/validation.test';
 
 import { Injector } from '../../../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../../../src/lib/request-manager';
@@ -28,217 +29,35 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID);
+    let setupResponse = {userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID};
+    return setupResponse;
 }
+
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
- * @route   - GET deals/negotiations
+ * @route   - GET deals/negotiations/:proposalID/:partnerID
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+export let ATW_DNPP_GET_AUTH = authenticationTest(route + '/1/1', 'get', commonDatabaseSetup);
 
 /*
- * @case    - proposal_id and partner_id are both valid	
- * @expect  - 200 OK, deal negotiation object returned
+ * @case    - The buyer attempts to pass in parameters.
+ * @expect  - validation tests to pass.
  * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
+ * @status  - passing
+ * @tags    - get, deals, auth
  */
-export async function ATW_API_DNPP_GET_01(assert: test.Test) {
+export let ATW_DNPP_GET_VALIDATION =  validationTest(route, 'get', commonDatabaseSetup, {}, {
+    proposalID: {
+        type: 'integer'
+    },
 
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-
-    let buyerPath = await buildPath(proposalID, publisherID);
-    let publisherPath = await buildPath(proposalID, buyerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 200);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 200);
-}
-
-/*
- * @case    - ProposalID provided is alphanumeric	
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_02(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidProposalID = 'WRONG404';
-
-    let buyerPath = await buildPath(invalidProposalID, publisherID);
-    let publisherPath = await buildPath(invalidProposalID, buyerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
-
-/*
- * @case    - Proposal ID provided is negative		
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_03(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidProposalID = -1024;
-
-    let buyerPath = await buildPath(invalidProposalID, publisherID);
-    let publisherPath = await buildPath(invalidProposalID, buyerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
-
-/*
- * @case    - Proposal ID provided is larger than (2^24 - 1)			
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_04(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidProposalID = Math.pow(2, 24);
-
-    let buyerPath = await buildPath(invalidProposalID, publisherID);
-    let publisherPath = await buildPath(invalidProposalID, buyerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
-
-/*
- * @case    - PartnerID provided is alphanumeric			
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_05(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidPartnerID = 'WRONG404';
-
-    let buyerPath = await buildPath(proposalID, invalidPartnerID);
-    let publisherPath = await buildPath(proposalID, invalidPartnerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
-
-/*
- * @case    - Partner ID provided is negative			
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_06(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidPartnerID = -1024;
-
-    let buyerPath = await buildPath(proposalID, invalidPartnerID);
-    let publisherPath = await buildPath(proposalID, invalidPartnerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
-
-/*
- * @case    - Partner ID provided is larger than (2^24 - 1)	
- * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
- * @status  - working
- * @tags    - get, negotiaitons, deals
- */
-export async function ATW_API_DNPP_GET_07(assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let invalidPartnerID = Math.pow(2, 24);
-
-    let buyerPath = await buildPath(proposalID, invalidPartnerID);
-    let publisherPath = await buildPath(proposalID, invalidPartnerID);
-
-    /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 404);
-}
+    partnerID: {
+        type: 'integer'
+    }
+});
 
 /*
  * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
@@ -247,7 +66,7 @@ export async function ATW_API_DNPP_GET_07(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_08(assert: test.Test) {
+export async function ATW_API_DNPP_GET_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -274,7 +93,7 @@ export async function ATW_API_DNPP_GET_08(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_09(assert: test.Test) {
+export async function ATW_API_DNPP_GET_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -303,7 +122,7 @@ export async function ATW_API_DNPP_GET_09(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_10(assert: test.Test) {
+export async function ATW_API_DNPP_GET_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -332,7 +151,7 @@ export async function ATW_API_DNPP_GET_10(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_11(assert: test.Test) {
+export async function ATW_API_DNPP_GET_04(assert: test.Test) {
 
    /** Setup */
     assert.plan(4);
@@ -369,7 +188,7 @@ export async function ATW_API_DNPP_GET_11(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_12(assert: test.Test) {
+export async function ATW_API_DNPP_GET_05(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -399,7 +218,7 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_13(assert: test.Test) {
+export async function ATW_API_DNPP_GET_06(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -431,7 +250,7 @@ export async function ATW_API_DNPP_GET_13(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_14_01(assert: test.Test) {
+export async function ATW_API_DNPP_GET_07_01(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -456,7 +275,7 @@ export async function ATW_API_DNPP_GET_14_01(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_14_02(assert: test.Test) {
+export async function ATW_API_DNPP_GET_07_02(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -482,7 +301,7 @@ export async function ATW_API_DNPP_GET_14_02(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_15_01(assert: test.Test) {
+export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -508,7 +327,7 @@ export async function ATW_API_DNPP_GET_15_01(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_15_02(assert: test.Test) {
+export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -533,7 +352,7 @@ export async function ATW_API_DNPP_GET_15_02(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_16(assert: test.Test) {
+export async function ATW_API_DNPP_GET_09(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
