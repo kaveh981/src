@@ -90,7 +90,7 @@ types:
             is: [ auth_required ]
             description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
-                type: Deal # This shouldn't really be Deal. Deal represents a response object.
+                type: Deal
             responses:
                 201: # 201 = "Created"
     /negotiations:
