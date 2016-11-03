@@ -21,7 +21,7 @@ documentation:
         content: !include documentation/workflows/buy_deal.raml
     -   title: Workflow - Negotiate a Deal
         content: !include documentation/workflows/negotiate_deal.raml
-    -   title:  Workflow - Offer a new deal to specific parties (Targeted Proposal)
+    -   title: Workflow - Offer a new deal to specific parties (Targeted Proposal)
         content: !include documentation/workflows/target_deal.raml
 
 ################################
@@ -67,7 +67,6 @@ types:
     ActiveDeal:     !include types/active_deal.raml
     NegotiatedDeal: !include types/negotiated_deal.raml
     Response:       !include types/response.raml
-    QueryPaging:    !include types/query_paging.raml
 
 ################################
 # Route Definitions
@@ -88,9 +87,10 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         put:
+            is: [ auth_required ]
             description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
-                type: Deal
+                type: Deal # This shouldn't really be Deal. Deal represents a response object.
             responses:
                 201: # 201 = "Created"
     /negotiations:
@@ -114,7 +114,7 @@ types:
             description: |
                 Send a counter-offer for, accept, or reject an existing deal in negotiation. Only allowed if the other negotiating party was the last to send an offer. 
 
-                The request will be processed according to fields in the body JSON object. An object containing only proposal_id, partner_id and status fields will accept or reject the negotiation accordingly.
+                The request will be processed according to fields in the body JSON object. An object containing only the proposal_id, partner_id and status fields will accept or reject the negotiation accordingly.
 
                 An object containing one or more of the negotiable deal fields will update the current negotiation state to the sent terms. Original proposal terms will be preserved.
             body:
