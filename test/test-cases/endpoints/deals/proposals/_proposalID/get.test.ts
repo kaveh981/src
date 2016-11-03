@@ -829,8 +829,6 @@ export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${5}`, {}, publisher.user.userID);
