@@ -10,20 +10,10 @@ properties:
         description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
         enum: ['first','second','fixed']
     budget:
-        type: number
+        type: integer
         required: false
         displayName: Budget
         description: The projected amount to be spent by the buyer.
-    buyer_contact:
-        type: Contact[]
-        required: false
-        displayName: Buyer contact information
-        description: The contact information of buyers involved in the deal.
-    buyer_id:
-        type: integer[]
-        required: true
-        displayName: Buyer ID(s)
-        description: The IDs of the buyers involved in the deal.
     created_at:
         type: datetime
         required: true
@@ -35,24 +25,19 @@ properties:
         displayName: Currency
         description: Three-letter currency code for the deal.
         example: USD
-    deal_section_id: # ? Provide API paths to access ?
-        type: integer[]
-        required: true
-        displayName: Deal Section Id(s)
-        description: An array of Deal Section IDs, indicating which sections will be active in this deal.
     description:
         type: string
         required: false
         displayName: Description
         description: A description of the deal.
     dsp_id:
-        type: integer[]
+        type: integer
         required: true
         displayName: DSP ID(s)
         description: An array of DSP IDs involved in the deal
     end_date:
         type: date-only
-        required: false # should we omit date for 'ongoing'? Or?
+        required: false
         displayName: End Date
         description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
         example: 2016-10-10
@@ -62,10 +47,15 @@ properties:
         displayName: External Deal ID
         description: A string that can be used to identify the deal in external systems
     impressions:
-        type: number
+        type: integer
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package
+    inventory:
+        type: integer[] # TODO will be full objects
+        required: true
+        displayName: Deal Section Id(s)
+        description: An array of Deal Section IDs, indicating which sections will be active in this deal.
     modified_at:
         type: datetime
         required: true
@@ -81,33 +71,36 @@ properties:
         required: true
         displayName: Proposal ID
         description: The ID for the proposal this deal came from.
-    publisher_id:
-        type: integer[]
+    partner_id:
+        type: integer
         required: true
         displayName: Publisher ID(s)
         description: The IDs of the publishers involved in the deal
-    publisher_contact:
-        type: Contact[]
+    partner_contact:
+        type: Contact
         required: false
         displayName: Publisher contact information
         description: The contact information of publishers involved in the deal
+    price:
+        type: number
+        required: true
+        displayName: Deal Price
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.) Dollars with two decimal cents.
+        example: 1.99
+        min: 0.01
+        max: 655.35
     status:
         type: string
         required: true
         displayName: Status
-        description: The deal's current status. May be one of... # ? what are the list of statuses?
-        enum: ["active", "paused", "deleted"] # ? See above - this will be the field values list
+        description: The deal's current status.
+        enum: ["active", "inactive"] # TODO More to add?
     start_date:
         type: date-only
         required: false
         displayName: Start Date
         description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
         example: 2016-09-09
-    # contact:
-    #     type: !include contact.raml
-    #     required: true
-    #     displayName: Contact Information
-    #     description: The primary contact information for the deal
     terms:
         type: string
         required: false
@@ -116,33 +109,26 @@ properties:
 example: |
     {
         "proposal_id": 666,
-        "publisher_id": [654321],
-        "publisher_contact": {
-            "title": "Captain",
-            "name": "Jimdex Exchange",
-            "email": "jimdex.exchange@indexexchange.com",
-            "phone": "666 666 6665"
-        },
-        "buyer_id": 666,
-        "buyer_contact": {
+        "partner_id": 654321,
+        "partner_contact": {
             "title": "Lord",
             "name": "Humungus",
             "email": "ayatollah@rockandrollah.com",
             "phone": "999 999 9998"
         },
-        "dsp_id": [66],
+        "dsp_id": 66,
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
         "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
         "impressions": 9999,
-        "budget": 9999999.99,
+        "budget": 9999999,
         "name": "Is good deal, yes? You don't like good deals?",
         "external_id": "DEAL-4-U-BB",
         "start_date": "1999-12-31",
         "end_date": "2026-06-06",
         "status": "active",
-        "auction_type": 2,
+        "auction_type": "second",
         "price": 6.66,
-        "deal_section_id": [4321, 9876],
+        "inventory": [4321, 9876],
         "currency": "ZAR",
         "created_at": "2016-04-04T04:00:00Z",
         "modified_at": "2016-04-14T14:00:00Z"
