@@ -13,7 +13,7 @@
 
             #### 1. Create a targeted proposal
 
-            To create a proposal, a request is sent to the PUT `/deals/proposals` route. To target the proposal to specific publishers, the buyer includes `publisher_id` values in the body.
+            To create a proposal, a request is sent to the PUT `/deals/proposals` route. To target the proposal to specific publishers, the buyer includes `partner_id` values in the body.
 
             The buyer may propose to include specific [sites](TODO - link to sites) and/or [sections](TODO - link to sections) belonging to the publishers if they wish to propose specific placement targeting. They may also omit it to leave it to the publisher's discretion.
 
@@ -27,9 +27,8 @@
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ 
                         "id": 999,
-                        "publisher_id": [123, 456],
-                        "site_id": [111,222],
-                        "deal_section_id": [4321, 9876],
+                        "partner_id": [123, 456],
+                        "inventory": [4321, 9876],
                         "name": "Superfab Ultradeal",
                         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
                         "start_date": "2016-09-09",
