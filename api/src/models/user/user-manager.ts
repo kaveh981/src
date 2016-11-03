@@ -32,6 +32,9 @@ class UserManager {
                                              .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
                                              .where('userID', userID);
 
+        if (!rows[0]) {
+            return;
+        }
         return new UserModel(rows[0]);
 
     }
