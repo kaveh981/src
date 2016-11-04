@@ -69,7 +69,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -113,7 +113,7 @@ function NegotiationDeals(router: express.Router): void {
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
             throw HTTPError('200_NO_NEGOTIAITIONS');
         }
@@ -180,7 +180,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         if (negotiatedDeal) {
-            res.sendPayload(negotiatedDeal.toPayload());
+            res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
         } else {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
@@ -329,7 +329,7 @@ function NegotiationDeals(router: express.Router): void {
 
                     Log.trace(`New deal created with id ${settledDeal.id}.`);
 
-                    res.sendPayload(settledDeal.toPayload());
+                    res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
                 });
 
                 return;
@@ -350,7 +350,7 @@ function NegotiationDeals(router: express.Router): void {
             }
         }
 
-        res.sendPayload(currentNegotiation.toPayload());
+        res.sendPayload(currentNegotiation.toPayload(req.ixmUserInfo.userType));
 
     } catch (error) { next(error); } });
 }
