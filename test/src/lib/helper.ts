@@ -24,15 +24,16 @@ class Helper {
      * @param publisher - The publisher object that owns the proposal.
      * @returns The expected payload for that proposal.
      */
-    public static proposalToPayload(proposal: INewProposalData, publisher: INewPubData) {
+    public static proposalToPayload(proposal: INewProposalData, partner: INewUserData) {
+
         return {
             auction_type: proposal.proposal.auctionType,
             budget: proposal.proposal.budget,
             contact: {
                 title: 'Warlord',
-                name: publisher.user.firstName + ' ' + publisher.user.lastName,
-                email: publisher.user.emailAddress,
-                phone: publisher.user.phone
+                name: partner.firstName + ' ' + partner.lastName,
+                email: partner.emailAddress,
+                phone: partner.phone
             },
             created_at: proposal.proposal.createDate.toISOString(),
             currency: 'USD',
