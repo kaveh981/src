@@ -6,7 +6,7 @@ description: |
 
     All negotiation is 1-1 between a publisher and a buyer. In the case of a proposal offered to multiple parties on either side, individual negotiation states are created for each publisher/buyer pair.
 properties:
-    auction_type:
+    auction_type: # TODO move into proposal object
         type: string
         required: true
         displayName: Auction Type,
@@ -22,13 +22,13 @@ properties:
         required: true
         displayName: Created At
         description: The timestamp the negotiation was created at. RFC3339 format, UTC.
-    currency:
+    currency: # TODO move into proposal object
         type: string
         required: true
         displayName: Currency
         description: Three-letter currency code for the deal.
         example: USD
-    description:
+    description: # TODO move into proposal object
         type: string
         required: false
         displayName: Description
@@ -44,7 +44,7 @@ properties:
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package.
-    inventory:
+    inventory: # TODO move into proposal object
         type: integer[] # TODO will be full objects
         required: true
         displayName: Inventory Section Id(s)
@@ -54,21 +54,16 @@ properties:
         required: true
         displayName: Modified At
         description: The timestamp the negotiation was last modified at. RFC3339 format, UTC.
-    name:
+    name: # TODO move into proposal object
         type: string
         required: true
         displayName: Name
         description: Name of the deal.
-    partner_contact:
-        type: !include contact.raml
+    partner:
+        type: object # TODO specific type with id and contact
         required: true
-        displayName: Partner Contact Information
-        description: Contact information for the partner involved in this negotiation. As with the partner_id, this is a publisher ID if requested by a buyer, or vice-versa.
-    partner_id:
-        type: integer
-        required: true
-        displayName: Partner ID
-        description: The unique identifier for the negotiating partner. Will be a publisher ID if request originates from a buyer, or a buyer ID if request originates from a publisher.
+        displayName: Partner
+        description: The partner involved in this negotiation. Will be a publisher if request originates from a buyer, or a buyer if request originates from a publisher.
     price:
         type: number
         required: true
@@ -102,26 +97,28 @@ properties:
     example: |
     {
         "proposal": {
-            "id": 999
+            "id": 999,
+            "name": "Superfab Ultradeal",
+            "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+            "auction_type": "first",
+            "inventory": [4321, 9876],
+            "currency": "USD"
         },
-        "partner_id": 666,
         "status": "waiting_on_partner",
-        "inventory": [4321, 9876],
-        "name": "Superfab Ultradeal",
-        "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
         "start_date": "2016-09-09",
         "end_date": "2016-10-10",
         "price": 1.99,
         "impressions": 8,
         "budget": 9999999,
-        "currency": "USD",
-        "auction_type": "first",
-        "partner_contact": {
-            "title": "Lord",
-            "name": "Humungus",
-            "email": "ayatollah@rockandrollah.com",
-            "phone": "999 999 9998"
-        },
+        "partner": {
+            "id": 666,
+            "contact": {
+                "title": "Lord",
+                "name": "Humungus",
+                "email": "ayatollah@rockandrollah.com",
+                "phone": "999 999 9998"
+            }
+        }
         "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
         "created_at": "2016-04-04T04:00:00Z",
         "modified_at": "2016-04-14T14:00:00Z"

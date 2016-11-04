@@ -58,7 +58,7 @@ function ActiveDeals(router: express.Router): void {
         let activeDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
 
         if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(); }), pagination);
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
             res.sendError('200_NO_DEALS');
         }
@@ -116,7 +116,7 @@ function ActiveDeals(router: express.Router): void {
             let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
             await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-            res.sendPayload(settledDeal.toPayload());
+            res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
         });
 
     } catch (error) { next(error); } });

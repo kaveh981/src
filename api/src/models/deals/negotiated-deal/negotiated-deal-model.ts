@@ -93,18 +93,27 @@ class NegotiatedDealModel {
     /**
      * Return payload formated object
      */
-    public toPayload(): any {
+    public toPayload(userType: string): any {
+        let partner = {
+            id: this.publisherID,
+            contact: this.publisherInfo.toContactPayload()
+        };
+
+        if (userType !== 'IXMB') {
+            partner.id = this.buyerID;
+            partner.contact = this.buyerInfo.toContactPayload();
+        }
+
         let payload: any = {
-            proposal_id: this.proposedDeal.id,
-            publisher_id: this.publisherID,
-            publisher_contact: this.publisherInfo.toContactPayload(),
-            buyer_id: this.buyerID,
-            buyer_contact: this.buyerInfo.toContactPayload(),
-            description: this.proposedDeal.description,
-            name: this.proposedDeal.name,
-            auction_type: this.proposedDeal.auctionType,
-            deal_section_id: this.proposedDeal.sections,
-            currency: this.proposedDeal.currency,
+            proposal: {
+                id: this.proposedDeal.id,
+                name: this.proposedDeal.name,
+                description: this.proposedDeal.description,
+                auction_type: this.proposedDeal.auctionType,
+                inventory: this.proposedDeal.sections,
+                currency: this.proposedDeal.currency
+            },
+            partner: partner,
             terms: this.terms || undefined,
             impressions: this.impressions || undefined,
             budget: this.budget || undefined,

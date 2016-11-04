@@ -38,7 +38,7 @@ class UserModel {
         return {
             title: this.title,
             name: this.firstName + ' ' + this.lastName,
-            email_address: this.emailAddress,
+            email: this.emailAddress,
             phone: this.phone
         };
     }
