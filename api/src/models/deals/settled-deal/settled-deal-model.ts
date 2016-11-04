@@ -39,29 +39,38 @@ class SettledDealModel {
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */
-    public toPayload(): any {
+    public toPayload(userType: string): any {
+        let partner = {
+            id: this.negotiatedDeal.publisherID,
+            contact: this.negotiatedDeal.publisherInfo.toContactPayload()
+        };
+
+        if (userType !== 'IXMB') {
+            partner.id = this.negotiatedDeal.buyerID;
+            partner.contact = this.negotiatedDeal.buyerInfo.toContactPayload();
+        }
+
         if (this.isIXMDeal) {
             // IXM deals have more information
             return {
-                proposal_id: this.negotiatedDeal.proposedDeal.id,
-                publisher_id: this.negotiatedDeal.publisherID,
-                publisher_contact: this.negotiatedDeal.publisherInfo.toContactPayload(),
-                buyer_id: this.negotiatedDeal.buyerID,
-                buyer_contact: this.negotiatedDeal.buyerInfo.toContactPayload(),
+                proposal: {
+                    id: this.negotiatedDeal.proposedDeal.id,
+                    name: this.negotiatedDeal.proposedDeal.name,
+                    description: this.negotiatedDeal.proposedDeal.description,
+                },
+                partner: partner,
                 dsp_id: this.dspID,
-                description: this.negotiatedDeal.proposedDeal.description,
                 terms: this.negotiatedDeal.terms,
                 impressions: this.negotiatedDeal.impressions,
                 budget: this.negotiatedDeal.budget,
-                name: this.negotiatedDeal.proposedDeal.name,
+                auction_type: this.negotiatedDeal.proposedDeal.auctionType,
+                inventory: this.negotiatedDeal.proposedDeal.sections,
+                currency: this.negotiatedDeal.proposedDeal.currency,
                 external_id: this.externalDealID,
                 start_date: this.formatDate(this.negotiatedDeal.startDate),
                 end_date: this.formatDate(this.negotiatedDeal.endDate),
                 status: this.status,
-                auction_type: this.negotiatedDeal.proposedDeal.auctionType,
                 price: this.negotiatedDeal.price,
-                deal_section_id: this.negotiatedDeal.proposedDeal.sections,
-                currency: this.negotiatedDeal.proposedDeal.currency,
                 created_at: (new Date(this.createDate)).toISOString(),
                 modified_at: (new Date(this.modifyDate)).toISOString()
             };
@@ -72,16 +81,13 @@ class SettledDealModel {
                 status: this.status,
                 external_id: this.externalDealID,
 
-                publisher_id: this.negotiatedDeal.publisherID,
-                publisher_contact: this.negotiatedDeal.publisherInfo.toContactPayload(),
-                buyer_id: this.negotiatedDeal.buyerID,
-                buyer_contact: this.negotiatedDeal.buyerInfo.toContactPayload(),
+                partner: partner,
                 price: this.negotiatedDeal.price,
                 start_date: this.negotiatedDeal.startDate,
                 end_date: this.negotiatedDeal.endDate,
 
                 auction_type: this.negotiatedDeal.proposedDeal.auctionType,
-                deal_section_id: this.negotiatedDeal.proposedDeal.sections,
+                inventory: this.negotiatedDeal.proposedDeal.sections,
                 currency: this.negotiatedDeal.proposedDeal.currency,
                 name: this.negotiatedDeal.proposedDeal.name
             };

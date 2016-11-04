@@ -75,7 +75,7 @@ class ProposedDealModel {
 
         return {
             id: this.id,
-            publisher_id: this.ownerID,
+            owner_id: this.ownerID,
             contact: this.ownerInfo.toContactPayload(),
             name: this.name,
             status: this.status,
@@ -90,7 +90,7 @@ class ProposedDealModel {
             terms: this.terms,
             created_at: (new Date(this.createDate)).toISOString(),
             modified_at: (new Date(this.modifyDate)).toISOString(),
-            deal_section_id: this.sections
+            inventory: this.sections
         };
 
     }
