@@ -477,9 +477,7 @@ export async function ATW_API_DNPP_GET_13(assert: test.Test) {
     let site = await databasePopulator.createSite(publisherID);
     let section = await databasePopulator.createSection(publisherID, [site.siteID]);
     let passedDate = new Date(currentDate.setDate(currentDate.getDate() - 5));
-    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID],
-                            {endDate: new Date(currentDate.setDate(currentDate.getDate() - 5))});
-
+    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID], {endDate: passedDate});
     let proposalID = proposalObj.proposal.proposalID;
     let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
     let buyerPath = buildPath(proposalID, publisherID);
