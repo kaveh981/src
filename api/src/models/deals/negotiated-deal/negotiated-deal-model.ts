@@ -97,18 +97,12 @@ class NegotiatedDealModel {
         let partner;
 
         if (userType === 'IXMB') {
-            partner = {
-                id: this.publisherID,
-                contact: this.publisherInfo.toContactPayload()
-            };
+            partner = { id: this.publisherID, contact: this.publisherInfo.toContactPayload() };
         } else {
-            partner = {
-                id: this.buyerID,
-                contact: this.buyerInfo.toContactPayload()
-            };
+            partner = { id: this.buyerID, contact: this.buyerInfo.toContactPayload() };
         }
 
-        let payload: any = {
+        return {
             proposal: {
                 id: this.proposedDeal.id,
                 name: this.proposedDeal.name,
@@ -128,7 +122,6 @@ class NegotiatedDealModel {
             modified_at: (new Date(this.modifyDate)).toISOString()
         };
 
-        return payload;
     }
 
     /** 
@@ -153,6 +146,7 @@ class NegotiatedDealModel {
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+
     }
 }
 
