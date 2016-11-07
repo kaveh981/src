@@ -1,0 +1,34 @@
+#%RAML 1.0 DataType
+
+type: object
+description: |
+        An object describing a deal section, specifying what inventory is available for a deal.
+
+        The section may consist of one or more of:
+            - Site URLs
+            - Ad Units
+            - Country restrictions
+            - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
+
+        A section may have one of several matching modes, indicated in the `match_type` field:
+            - `site`: Match the whole site. Other restrictions such as Ad Units may apply.
+            - `full`: Match the included `url` exactly
+            - `partial`: Partial match on `url` - will match any URLs below that. E.g. `https://spamlords.com/clickbait` will also match `https://spamlords.com/clickbait/one-weird-trick`
+properties:
+    id:
+        type: integer
+        required: true
+        displayName: Section ID
+        description: The unique identifier for the section.
+    name:
+        type: string
+        required: true
+        displayName: Section Name
+        description: A descriptive name for the section
+example: |
+    {
+        "id": 898,
+        "name": "click_dealy_leaderboard_cuz_we_luv_u",
+        "match_type": "site",
+        ""
+    }
