@@ -430,6 +430,6 @@ async function generateProposalID(publisherID: number) {
 /**
  * Build get specific negotiation URL /:proposalID/:partnerID
  */
-function buildPath(proposalID: any, partnerID: any) {
+function buildPath(proposalID: number, partnerID: number) {
     return route + '/' + proposalID + '/' + partnerID;
 }
