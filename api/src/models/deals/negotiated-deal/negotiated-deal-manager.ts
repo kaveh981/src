@@ -8,6 +8,7 @@ import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
+import { Helper } from '../../../lib/helper';
 
 const Log: Logger = new Logger('ACTD');
 
@@ -144,8 +145,7 @@ class NegotiatedDealManager {
 
         // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
         if (!negotiatedDeal.createDate) {
-            let date: Date = new Date();
-            negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
+            negotiatedDeal.createDate = Helper.currentDate();
         }
 
         await transaction.insert({
@@ -193,8 +193,8 @@ class NegotiatedDealManager {
             publisherStatus: 'accepted',
             buyerStatus: 'accepted',
             sender: 'buyer',
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
             startDate: proposedDeal.startDate,
             endDate: proposedDeal.endDate,
@@ -228,8 +228,8 @@ class NegotiatedDealManager {
             publisherStatus: sender === 'publisher' ? 'accepted' : 'active',
             buyerStatus: sender === 'buyer' ? 'accepted' : 'active',
             sender: sender,
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
             startDate: negotiationFields.startDate || proposedDeal.startDate,
             endDate: negotiationFields.endDate || proposedDeal.endDate,
@@ -290,25 +290,6 @@ class NegotiatedDealManager {
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
 
     }
-
-    /**
-     * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
-     * @param date - The date in ISO format
-     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
-     */
-    private dateToMysqlTimestamp(date: string | Date): string {
-
-        date = new Date(date);
-
-        return date.getFullYear() + '-' +
-            ('00' + (date.getMonth() + 1)).slice(-2) + '-' +
-            ('00' + date.getDate()).slice(-2) + ' ' +
-            ('00' + date.getHours()).slice(-2) + ':' +
-            ('00' + date.getMinutes()).slice(-2) + ':' +
-            ('00' + date.getSeconds()).slice(-2);
-
-    }
-
 }
 
 export { NegotiatedDealManager };
