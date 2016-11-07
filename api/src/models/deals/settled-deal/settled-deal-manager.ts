@@ -1,10 +1,10 @@
 'use strict';
 
-import * as crypto from 'crypto';
 import * as knex from 'knex';
 
 import { SettledDealModel } from './settled-deal-model';
 import { DatabaseManager } from '../../../lib/database-manager';
+import { Helper } from '../../../lib/helper';
 import { NegotiatedDealManager } from '../negotiated-deal/negotiated-deal-manager';
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
@@ -55,7 +55,7 @@ class SettledDealManager {
         let settledDealObject = new SettledDealModel(rows[0]);
 
         settledDealObject.negotiatedDeal = await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
-        settledDealObject.status = this.statusLetterToWord(settledDealObject.status);
+        settledDealObject.status = Helper.statusLetterToWord(settledDealObject.status);
 
         return settledDealObject;
 
@@ -99,8 +99,8 @@ class SettledDealManager {
         let settledDeal = new SettledDealModel({
             status: 'active',
             dspID: dspID,
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
             negotiatedDeal: negotiatedDeal
         });
 
@@ -132,8 +132,8 @@ class SettledDealManager {
         if (settledDeal.externalDealID) {
             externalDealID = settledDeal.externalDealID;
         } else {
-            externalDealID =
-                `ixm-${settledDeal.negotiatedDeal.proposedDeal.id}-${this.encrypt(settledDeal.negotiatedDeal.buyerID.toString())}`;
+            externalDealID = Helper.generateExternalDealId(settledDeal.negotiatedDeal.proposedDeal.id,
+                                                           settledDeal.negotiatedDeal.buyerID, settledDeal.negotiatedDeal.publisherID);
         }
 
         let negotiatedDeal = settledDeal.negotiatedDeal;
@@ -147,8 +147,8 @@ class SettledDealManager {
             auctionType: proposedDeal.auctionType,
             rate: negotiatedDeal.price,
             status: settledDeal.status[0].toUpperCase(),
-            startDate: negotiatedDeal.startDate === null ? '0000-00-00' : negotiatedDeal.startDate,
-            endDate: negotiatedDeal.endDate === null ? '0000-00-00' : negotiatedDeal.endDate,
+            startDate: negotiatedDeal.startDate || '0000-00-00',
+            endDate: negotiatedDeal.endDate || '0000-00-00',
             externalDealID: externalDealID,
             priority: 5,
             openMarket: 0,
@@ -176,55 +176,6 @@ class SettledDealManager {
             dealID: dealID
         }).into('ixmNegotiationDealMappings');
 
-    }
-
-    /**
-     * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
-     * @param date - The date in ISO format
-     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
-     */
-    private dateToMysqlTimestamp(date: string | Date): string {
-
-        date = new Date(date);
-        return date.getFullYear() + '-' +
-            ('00' + (date.getMonth() + 1)).slice(-2) + '-' +
-            ('00' + date.getDate()).slice(-2) + ' ' +
-            ('00' + date.getHours()).slice(-2) + ':' +
-            ('00' + date.getMinutes()).slice(-2) + ':' +
-            ('00' + date.getSeconds()).slice(-2);
-
-    }
-
-    /**
-     * Encrypt
-     * @param text - The text to encrypt.
-     * @returns A string with text encrypted.
-     */
-    private encrypt(text: string) {
-
-        let cipher = crypto.createCipher('aes-256-ctr', 'only geese eat rats');
-        let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
-        encrypted += cipher.final('hex');
-        return encrypted;
-
-    }
-
-    /**
-     * Convert a single letter status to a word.
-     * @param status - The letter to convert.
-     * @returns The word.
-     */
-    private statusLetterToWord(status: string): 'active' | 'deleted' | 'paused' {
-        switch (status) {
-            case 'A':
-                return 'active';
-            case 'D':
-                return 'deleted';
-            case 'P':
-                return 'paused';
-            default:
-                return;
-        }
     }
 
 }
