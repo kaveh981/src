@@ -52,8 +52,8 @@ properties:
         displayName: Impressions
         description: The projected amount of impressions for the package.
         example: USD
-        min: 0
-        max: 16777215
+        minimum: 0
+        maximum: 16777215
     inventory: # ? Provide API paths to access ?
         type: integer[]
         required: true
@@ -76,8 +76,8 @@ properties:
         displayName: Deal Price
         description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.) Dollars with two decimal cents.
         example: 1.99
-        min: 0.01
-        max: 655.35
+        minimum: 0.01
+        maximum: 655.35
     owner_id:
         type: integer
         required: true

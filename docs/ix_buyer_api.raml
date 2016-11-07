@@ -98,6 +98,13 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal.
+                    minimum: 1
+                    maximum: 16777215
             get:
                 is: [ auth_required ]
                 description: Retrieve a specific proposal by its unique ID from Index Market.
@@ -150,6 +157,13 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal whose negotiations are requested.
+                    minimum: 1
+                    maximum: 16777215
             get:
                 is: [ auth_required, pageable ]
                 description: Retrieve all negotiations associated with a specific proposal ID involving the current user.
@@ -165,6 +179,13 @@ types:
                     500: # 500 = "Internal Server Error" something done broke
             /partner:
                 /{partner_id}:
+                    uriParameters:
+                        partner_id:
+                            type: integer
+                            required: true
+                            description: The unique identifier of the partner
+                            minimum: 1
+                            maximum: 16777215
                     get:
                         is: [ auth_required ]
                         description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
@@ -211,9 +232,57 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 404: # 404 = "Not found" provided proposal ID does not exist in the database
                 500: # 500 = "Internal Server Error" something done broke
-
+        /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal whose deal(s) is/are requested.
+                    minimum: 1
+                    maximum: 16777215
+            get:
+                is: [ auth_required, pageable ]
+                description: Retrieve all active deals associated with a specific proposal ID involving the current user.
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            /partner:
+                /{partner_id}:
+                    uriParameters:
+                        partner_id:
+                            type: integer
+                            required: true
+                            description: The unique identifier of the partner
+                            minimum: 1
+                            maximum: 16777215
+                    get:
+                        is: [ auth_required ]
+                        description: Retrieve a specific active deal associated with a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                            body:
+                                application/json:
+                                    type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" deal/proposal/partner does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
 /users:
     /{user_id}:
+        uriParameters:
+            user_id:
+                type: integer
+                required: true
+                description: The unique identifier of the user
+                minimum: 1
+                maximum: 16777215
         get:
             is: [ auth_required ]
             description: Retrieve contact information for a user by id.
