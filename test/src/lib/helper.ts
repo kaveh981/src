@@ -53,7 +53,7 @@ class Helper {
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-        user: INewUserData) {
+        partner: INewUserData) {
         return {
             proposal: {
                 id: proposal.proposal.proposalID,
@@ -69,12 +69,12 @@ class Helper {
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
             partner: {
-                id: user.userID,
+                id: partner.userID,
                 contact: {
                     title: 'Warlord',
-                    name: user.firstName + ' ' + user.lastName,
-                    email: user.emailAddress,
-                    phone: user.phone
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
                 }
             },
             terms: dealNegotiation.terms,
