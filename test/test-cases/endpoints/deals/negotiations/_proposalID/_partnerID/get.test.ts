@@ -19,6 +19,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 /** Test constants */
 const route = 'deals/negotiations';
 const DSP_ID = 1;
+const currentDate: Date = new Date();
 
 async function commonDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
@@ -373,7 +374,7 @@ export async function ATW_API_DNPP_GET_09_02(assert: test.Test) {
 }
 
 /*
- * @case    - Proposal exists, but not Negotiation started		
+ * @case    - Proposal exists, but no Negotiation started		
  * @expect  - 404 NOT FOUND
  * @route   - GET deals/negotiations/:proposalID/:partnerID
  * @status  - working
@@ -397,6 +398,99 @@ export async function ATW_API_DNPP_GET_10(assert: test.Test) {
 
     let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
     assert.equal(buyerResponse.status, 404);
+}
+
+/*
+ * @case    - Nogotiation exists on an paused proposal 		
+ * @expect  - 200 OK
+ * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_11(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let buyerID = await generateBuyerID();
+    let publisherID = await generatePublisherID();
+    let site = await databasePopulator.createSite(publisherID);
+    let section = await databasePopulator.createSection(publisherID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID], {status: 'paused'});
+    let proposalID = proposalObj.proposal.proposalID;
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherID);
+    let publisherPath = buildPath(proposalID, buyerID);
+
+    /** Test */
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    assert.equal(pubResponse.status, 200);
+
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    assert.equal(buyerResponse.status, 200);
+}
+
+/*
+ * @case    - Nogotiation exists on an deleted proposal 		
+ * @expect  - 200 OK
+ * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_12(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let buyerID = await generateBuyerID();
+    let publisherID = await generatePublisherID();
+    let site = await databasePopulator.createSite(publisherID);
+    let section = await databasePopulator.createSection(publisherID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID], {status: 'deleted'});
+    let proposalID = proposalObj.proposal.proposalID;
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherID);
+    let publisherPath = buildPath(proposalID, buyerID);
+
+    /** Test */
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    assert.equal(pubResponse.status, 200);
+
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    assert.equal(buyerResponse.status, 200);
+}
+
+/*
+ * @case    - Nogotiation exists on an expired proposal 		
+ * @expect  - 200 OK
+ * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_13(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let buyerID = await generateBuyerID();
+    let publisherID = await generatePublisherID();
+    let site = await databasePopulator.createSite(publisherID);
+    let section = await databasePopulator.createSection(publisherID, [site.siteID]);
+    let passedDate = new Date(currentDate.setDate(currentDate.getDate() - 5));
+    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID],
+                            {endDate: new Date(currentDate.setDate(currentDate.getDate() - 5))});
+
+    let proposalID = proposalObj.proposal.proposalID;
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherID);
+    let publisherPath = buildPath(proposalID, buyerID);
+
+    /** Test */
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    assert.equal(pubResponse.status, 200);
+
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    assert.equal(buyerResponse.status, 200);
 }
 
 /**
