@@ -1,6 +1,7 @@
 'use strict';
 
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
+import { Helper } from '../../../lib/helper';
 
 class SettledDealModel {
 
@@ -13,9 +14,9 @@ class SettledDealModel {
     /** The dsp ID corresponding to this deal */
     public dspID: number;
     /** Create date of the deal */
-    public createDate: string;
+    public createDate: Date;
     /** Modified date of the deal */
-    public modifyDate: string;
+    public modifyDate: Date;
 
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
@@ -44,15 +45,9 @@ class SettledDealModel {
         let partner;
 
         if (userType === 'IXMB') {
-            partner = {
-                id: this.negotiatedDeal.publisherID,
-                contact: this.negotiatedDeal.publisherInfo.toContactPayload()
-            };
+            partner = { id: this.negotiatedDeal.publisherID, contact: this.negotiatedDeal.publisherInfo.toContactPayload() };
         } else {
-            partner = {
-                id: this.negotiatedDeal.buyerID,
-                contact: this.negotiatedDeal.buyerInfo.toContactPayload()
-            };
+            partner = { id: this.negotiatedDeal.buyerID, contact: this.negotiatedDeal.buyerInfo.toContactPayload() };
         }
 
         if (this.isIXMDeal) {
@@ -72,12 +67,12 @@ class SettledDealModel {
                 inventory: this.negotiatedDeal.proposedDeal.sections,
                 currency: this.negotiatedDeal.proposedDeal.currency,
                 external_id: this.externalDealID,
-                start_date: this.formatDate(this.negotiatedDeal.startDate),
-                end_date: this.formatDate(this.negotiatedDeal.endDate),
+                start_date: Helper.formatDate(this.negotiatedDeal.startDate),
+                end_date: Helper.formatDate(this.negotiatedDeal.endDate),
                 status: this.status,
                 price: this.negotiatedDeal.price,
-                created_at: (new Date(this.createDate)).toISOString(),
-                modified_at: (new Date(this.modifyDate)).toISOString()
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString()
             };
         } else {
             // Non-ixm deals have less information
@@ -97,32 +92,6 @@ class SettledDealModel {
                 name: this.negotiatedDeal.proposedDeal.name
             };
         }
-
-    }
-
-    /** 
-     * Format the dates to yyyy-mm-dd
-     * @param dateString - The date as a string.
-     */
-    private formatDate(dateString: string | Date) {
-
-        if (!dateString) {
-            return;
-        }
-
-        let date = new Date(dateString.toString());
-
-        if (dateString.toString().includes('0000-00-00')) {
-            return '0000-00-00';
-        }
-
-        if (date.toString() === 'Invalid Date') {
-            throw new Error('Invalid date provided.');
-        }
-
-        const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
-
-        return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
 
     }
 
