@@ -117,6 +117,7 @@ class ProposedDealModel {
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+
     }
 
 }

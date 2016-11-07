@@ -40,6 +40,7 @@ class SettledDealModel {
      * @returns - The model as specified in the API.
      */
     public toPayload(userType: string): any {
+
         let partner;
 
         if (userType === 'IXMB') {
@@ -96,6 +97,7 @@ class SettledDealModel {
                 name: this.negotiatedDeal.proposedDeal.name
             };
         }
+
     }
 
     /** 
@@ -105,7 +107,7 @@ class SettledDealModel {
     private formatDate(dateString: string | Date) {
 
         if (!dateString) {
-            return undefined;
+            return;
         }
 
         let date = new Date(dateString.toString());
@@ -119,7 +121,9 @@ class SettledDealModel {
         }
 
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
+
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+
     }
 
 }
