@@ -136,9 +136,10 @@ export async function ATW_API_DNPP_GET_03(assert: test.Test) {
     let invalidBuyerPath = buildPath(invalidBuyer.user.userID, publisherID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(invalidBuyerPath, {}, invalidBuyer.user.userID);
-    assert.equal(pubResponse.status, 404);
+    let invalidBuyerResponse = await apiRequest.get(invalidBuyerPath, {}, invalidBuyer.user.userID);
+    assert.equal(invalidBuyerResponse.status, 404);
 
+    // For reference, make sure API works correctly 
     let buyerResponse = await apiRequest.get(validBuyerPath, {}, buyerID);
     assert.equal(buyerResponse.status, 200);
 }
@@ -153,7 +154,7 @@ export async function ATW_API_DNPP_GET_03(assert: test.Test) {
 export async function ATW_API_DNPP_GET_04(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(1);
 
     let buyerID = await generateBuyerID();
     let publisherID = await generatePublisherID();
@@ -161,15 +162,12 @@ export async function ATW_API_DNPP_GET_04(assert: test.Test) {
     let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
     let invalidPublisher = await databasePopulator.createPublisher();
 
-    let validPublisherPath = buildPath(proposalID, publisherID);
-    let invalidPublisherPath = buildPath(invalidPublisher.user.userID, publisherID);
+    let validPublisherPath = buildPath(proposalID, buyerID);
+    let invalidPublisherPath = buildPath(invalidPublisher.user.userID, buyerID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(invalidPublisherPath, {}, invalidPublisher.user.userID);
-    assert.equal(pubResponse.status, 404);
-
-    let buyerResponse = await apiRequest.get(validPublisherPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 200);
+    let invalidPubResponse = await apiRequest.get(invalidPublisherPath, {}, invalidPublisher.user.userID);
+    assert.equal(invalidPubResponse.status, 404);
 }
 
 /*
@@ -196,6 +194,7 @@ export async function ATW_API_DNPP_GET_05(assert: test.Test) {
     let invalidPublisherPath = buildPath(proposalID, publisherID + 10);
 
     /** Test */
+    // For reference, make sure API works correctly 
     let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
     assert.equal(pubResponse.status, 200);
 
