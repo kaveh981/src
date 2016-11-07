@@ -25,8 +25,7 @@
             $ curl -X PUT \
                 -H 'X-Auth-ID: 1234' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                -d '{ 
-                        "id": 999,
+                -d '{
                         "partner_id": [123, 456],
                         "inventory": [4321, 9876],
                         "name": "Superfab Ultradeal",
@@ -84,7 +83,7 @@
 
             The second response is available in Negotiated Deals via the GET `/deals/negotiations` route.
 
-            The buyer can now respond on the second response by sending a PUT request to `/deals/negotiations`, choosing to accept, reject, or counter-offer. The full details are available in the [Negotiate a Deal](TODO - link) workflow.
+            The buyer can now respond to the second response by sending a PUT request to `/deals/negotiations`, choosing to accept, reject, or counter-offer. The full details are available in the [Negotiate a Deal](TODO - link) workflow.
 
             In our example the buyer chooses to reject Publisher 2's counter-offer due to a high price.
 

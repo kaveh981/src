@@ -89,11 +89,27 @@ types:
                 500: # 500 = "Internal Server Error" something done broke
         put:
             is: [ auth_required ]
-            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
+            description: Create a deal proposal in the IX system. Partner(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
                 type: Deal
             responses:
                 201: # 201 = "Created"
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        /{proposal_id}:
+            get:
+                is: [ auth_required ]
+                description: Retrieve a specific proposal by its unique ID from Index Market.
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided package ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
     /negotiations:
         get:
             is: [ auth_required, pageable ]
@@ -133,6 +149,33 @@ types:
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
+        /{proposal_id}:
+            get:
+                is: [ auth_required, pageable ]
+                description: Retrieve all negotiations associated with a specific proposal ID involving the current user.
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            /{partner_id}:
+                get:
+                    is: [ auth_required ]
+                    description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
+                    responses:
+                        200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                        401: # 401 = "Unauthorized" authentication has failed or was not provided
+                        403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                        404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
+                        500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
             is: [ auth_required, pageable ]
@@ -165,7 +208,7 @@ types:
                 400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                404: # 404 = "Not found" provided package ID does not exist in the database
+                404: # 404 = "Not found" provided proposal ID does not exist in the database
                 500: # 500 = "Internal Server Error" something done broke
 
 /users:
