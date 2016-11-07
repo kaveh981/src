@@ -83,4 +83,12 @@
 
             The publisher can now respond to the second response by sending a PUT request to `/deals/negotiations`, choosing to accept, reject, or counter-offer. The full details are available in the [Negotiate a Deal](TODO - link) workflow.
 
-            In our example, the publisher chooses to reject Buyer 2's counter-offer due to a high price.
+            In our example, the publisher chooses to reject Buyer 2's counter-offer and decides to simply end negotiations because they will not accept any offers other than the original terms.
+
+            ```
+             $ curl -X PUT \
+                -H 'X-Auth-ID: 123' \
+                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -d '{ "proposal_id": 888, partner_id: 456, "response": "reject" }' \
+                https://market.indexexchange.com/ixm/v1/deals/negotiations
+            ```
