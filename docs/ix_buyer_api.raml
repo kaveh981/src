@@ -163,19 +163,20 @@ types:
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
                     404: # 404 = "Not found" provided proposal does not exist in the database
                     500: # 500 = "Internal Server Error" something done broke
-            /{partner_id}:
-                get:
-                    is: [ auth_required ]
-                    description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
-                    responses:
-                        200: # 200 = "OK"
-                        body:
-                            application/json:
-                                type: Response
-                        401: # 401 = "Unauthorized" authentication has failed or was not provided
-                        403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                        404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
-                        500: # 500 = "Internal Server Error" something done broke
+            /partner:
+                /{partner_id}:
+                    get:
+                        is: [ auth_required ]
+                        description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                            body:
+                                application/json:
+                                    type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
             is: [ auth_required, pageable ]
