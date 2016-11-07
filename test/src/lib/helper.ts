@@ -21,7 +21,7 @@ class Helper {
     /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
-     * @param publisher - The publisher object that owns the proposal.
+     * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
     public static proposalToPayload(proposal: INewProposalData, owner: INewUserData) {
