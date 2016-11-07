@@ -94,14 +94,18 @@ class NegotiatedDealModel {
      * Return payload formated object
      */
     public toPayload(userType: string): any {
-        let partner = {
-            id: this.publisherID,
-            contact: this.publisherInfo.toContactPayload()
-        };
+        let partner;
 
-        if (userType !== 'IXMB') {
-            partner.id = this.buyerID;
-            partner.contact = this.buyerInfo.toContactPayload();
+        if (userType === 'IXMB') {
+            partner = {
+                id: this.publisherID,
+                contact: this.publisherInfo.toContactPayload()
+            };
+        } else {
+            partner = {
+                id: this.buyerID,
+                contact: this.buyerInfo.toContactPayload()
+            };
         }
 
         let payload: any = {

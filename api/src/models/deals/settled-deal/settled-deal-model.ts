@@ -40,14 +40,18 @@ class SettledDealModel {
      * @returns - The model as specified in the API.
      */
     public toPayload(userType: string): any {
-        let partner = {
-            id: this.negotiatedDeal.publisherID,
-            contact: this.negotiatedDeal.publisherInfo.toContactPayload()
-        };
+        let partner;
 
-        if (userType !== 'IXMB') {
-            partner.id = this.negotiatedDeal.buyerID;
-            partner.contact = this.negotiatedDeal.buyerInfo.toContactPayload();
+        if (userType === 'IXMB') {
+            partner = {
+                id: this.negotiatedDeal.publisherID,
+                contact: this.negotiatedDeal.publisherInfo.toContactPayload()
+            };
+        } else {
+            partner = {
+                id: this.negotiatedDeal.buyerID,
+                contact: this.negotiatedDeal.buyerInfo.toContactPayload()
+            };
         }
 
         if (this.isIXMDeal) {
