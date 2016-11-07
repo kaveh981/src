@@ -110,7 +110,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let userID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromProposalId(userID, proposalID);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
@@ -179,6 +179,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+
         if (negotiatedDeal) {
             res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
         } else {
