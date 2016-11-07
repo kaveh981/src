@@ -53,14 +53,16 @@ class Helper {
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-    user: INewUserData) {
+        user: INewUserData) {
         return {
-            id: proposal.proposal.proposalID,
-            name: proposal.proposal.name,
-            description: proposal.proposal.description,
-            auction_type: proposal.proposal.auctionType,
-            inventory: proposal.sectionIDs,
-            currency: 'USD',
+            proposal: {
+                id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
+                description: proposal.proposal.description,
+                auction_type: proposal.proposal.auctionType,
+                inventory: proposal.sectionIDs,
+                currency: 'USD'
+            },
             start_date: Helper.formatDate(dealNegotiation.startDate),
             end_date: Helper.formatDate(dealNegotiation.endDate),
             price: dealNegotiation.price,
