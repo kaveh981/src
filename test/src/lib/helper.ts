@@ -53,30 +53,7 @@ class Helper {
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-        publisher: INewPubData, buyer: INewBuyerData) {
-        let partner = {};
-        if (dealNegotiation.sender === 'buyer') {
-            partner = {
-                id: buyer.user.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: buyer.user.firstName + ' ' + buyer.user.lastName,
-                    email: buyer.user.emailAddress,
-                    phone: buyer.user.phone
-                }
-            };
-        } else {
-            partner = {
-                id: publisher.user.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: publisher.user.firstName + ' ' + publisher.user.lastName,
-                    email: publisher.user.emailAddress,
-                    phone: publisher.user.phone
-                }
-            };
-        }
-
+    user: INewUserData) {
         return {
             id: proposal.proposal.proposalID,
             name: proposal.proposal.name,
@@ -89,7 +66,15 @@ class Helper {
             price: dealNegotiation.price,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
-            partner: partner,
+            partner: {
+                id: user.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: user.firstName + ' ' + user.lastName,
+                    email: user.emailAddress,
+                    phone: user.phone
+                }
+            },
             terms: dealNegotiation.terms,
             created_at: dealNegotiation.createDate.toISOString(),
             modified_at: dealNegotiation.modifyDate.toISOString()
