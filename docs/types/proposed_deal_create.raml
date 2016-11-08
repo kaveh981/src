@@ -1,12 +1,11 @@
 #%RAML 1.0 DataType
 
 type: object
-description: An object describing a deal available to buy on a deal section
-properties:
+description: An object describing the request body needed to create a new proposal
     auction_type:
         type: string
         required: true
-        displayName: Auction Type
+        displayName: Auction Type,
         description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate.
         enum: ['first','second','fixed']
     budget:
@@ -16,20 +15,14 @@ properties:
         description: The projected amount to be spent by the buyer.
     contact:
         type: Contact
-        required: true
+        required: false
         displayName: Contact Information    
-        description: The primary contact information for the proposal's owner.
-    created_at:
-        type: datetime
-        required: true
-        displayName: Created At
-        description: The timestamp the deal was created at. RFC3339 format, UTC.
+        description: The primary contact information for the proposal's owner. Overrides default user contact info if provided.
     currency:
         type: string
         required: true
         displayName: Currency
         description: Three-letter currency code for the deal.
-        example: USD
     description:
         type: string
         required: false
@@ -38,32 +31,23 @@ properties:
         maxLength: 255
     end_date:
         type: date-only
-        required: false # should we omit date for 'ongoing'? Or?
+        required: false
         displayName: End Date
         description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
         example: 2016-10-10
-    id:
-        type: integer
-        required: true
-        displayName: Proposal ID
-        description: The unique identifier for the proposal.
     impressions:
         type: integer
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package.
+        example: USD
         minimum: 0
         maximum: 16777215
-    inventory: # ? Provide API paths to access ?
+    inventory:
         type: integer[]
         required: true
         displayName: Inventory Section Id(s)
         description: An array of Inventory Section IDs, indicating which sections will be active in this deal.
-    modified_at:
-        type: datetime
-        required: true
-        displayName: Modified At
-        description: The timestamp the deal was last modified at. RFC3339 format, UTC.
     name:
         type: string
         required: true
@@ -78,23 +62,12 @@ properties:
         example: 1.99
         minimum: 0.01
         maximum: 655.35
-    owner_id:
-        type: integer
-        required: true
-        displayName: Owner ID
-        description: The IDs of the proposal's creator.
     start_date:
         type: date-only
         required: false
         displayName: Start Date
         description: The start date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal is set to start immediately on acceptance.
         example: 2016-09-09
-    status:
-        type: string
-        required: true
-        displayName: Status
-        description: The deal's current status.
-        enum: ["active", "inactive"]
     terms:
         type: string
         required: false
@@ -103,12 +76,9 @@ properties:
         maxLength: 65535
 example: |
     {
-        "id": 999,
-        "owner_id": 123,
         "inventory": [4321, 9876],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
-        "status": "active",
         "start_date": "2016-09-09",
         "end_date": "2016-10-10",
         "price": 1.99,
@@ -122,7 +92,5 @@ example: |
             "email": "jimdex.exchange@indexexchange.com",
             "phone": "666 666 6665"
         },
-        "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
-        "created_at": "2016-04-04T04:00:00Z",
-        "modified_at": "2016-04-14T14:00:00Z"
+        "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs"
     }

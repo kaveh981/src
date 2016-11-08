@@ -55,19 +55,109 @@ traits:
                 description: For paging, the page offset. This will be multiplied by `limit` to determine the set of results to return.
                 minimum: 1
                 default: 1
+    deal_filterable:
+        queryParameters:
+            auction_type:
+                type: string
+                required: false
+                displayName: Auction Type
+                description: The auction type of the proposal/negotiation/deal. Used to only obtain proposals/negotiations/deals of a specific auction type.
+                enum: ['first','second','fixed']
+            min_price:
+                type: number
+                required: false
+                displayName: Min Price
+                description: Minimum price for returned proposals/negotiations/deals
+                minimum: 0.01
+                maximum: 655.35
+            max_price:
+                type: number
+                required: false
+                displayName: Max Price
+                description: Maximum price for returned proposals/negotiations/deals
+                minimum: 0.01
+                maximum: 655.35
+            min_impressions:
+                type: integer
+                required: false
+                displayName: Min Impressions
+                description: The minimum number of impressions for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            max_impressions:
+                type: integer
+                required: false
+                displayName: Max Impressions
+                description: The maximum number of impressions for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            min_budget:
+                type: integer
+                required: false
+                displayName: Min Budget
+                description: The minimum budget for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            max_budget:
+                type: integer
+                required: false
+                displayName: Max Budget
+                description: The maximum budget for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            currency:
+                type: string
+                required: false
+                displayName: Currency
+                description: Specific currency for returned proposals/negotiations/deals
+            min_start_date:
+                type: date-only
+                required: false
+                displayName: Min Start Date
+                description: The minimum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            max_start_date:
+                type: date-only
+                required: false
+                displayName: Max Start Date
+                description: The maximum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            min_end_date:
+                type: date-only
+                required: false
+                displayName: Min End Date
+                description: The minimum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            max_end_date:
+                type: date-only
+                required: false
+                displayName: Max End Date
+                description: The maximum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            keywords:
+                type: string
+                required: false
+                displayName: Keywords
+                description: A particular set of keywords that must be present in the returned proposals/negotiations/deals' names/descriptions. Multiple words are separated by spaces.
 
+
+################################
+# Annotation Declarations
+################################
+
+annotationTypes:
+    not_implemented: boolean
 
 ################################
 # Object Definitions
 ################################
 
 types:
-    Contact:        !include types/contact.raml
-    ProposedDeal:   !include types/proposed_deal.raml
-    ActiveDeal:     !include types/active_deal.raml
-    NegotiatedDeal: !include types/negotiated_deal.raml
-    Response:       !include types/response.raml
-    Partner:        !include types/partner.raml
+    Contact:                !include types/contact.raml
+    ProposedDeal:           !include types/proposed_deal.raml
+    ActiveDeal:             !include types/active_deal.raml
+    NegotiatedDeal:         !include types/negotiated_deal.raml
+    Response:               !include types/response.raml
+    Partner:                !include types/partner.raml
+    ProposedDealCreate:     !include types/proposed_deal_create.raml
+    NegotiatedDealCreate:   !include types/negotiated_deal_create.raml
+    ActiveDealCreate:       !include types/active_deal_create.raml
 
 ################################
 # Route Definitions
@@ -76,8 +166,22 @@ types:
 /deals:
     /proposals:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or counter-offers sent.
+            queryParameters:
+                # purchaseable:
+                #     type: boolean
+                #     required: false
+                #     displayName: Purchaseable
+                #     description: Flag indicating whether to only return proposals that are purchaseable/negotiable
+                #     default: true
+                owner_id:
+                    type: integer
+                    required: false
+                    displayName: Owner ID
+                    description: The ID owner of the proposal. Used to only obtain proposals that are owned by a specific user.
+                    minimum: 1
+                    maximum: 16777215
             responses:
                 200: # 200 = "OK"
                     body:
@@ -88,16 +192,87 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         put:
+            (not_implemented): true
             is: [ auth_required ]
-            description: Create a deal proposal in the IX system. Publisher(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
+            description: Create a deal proposal in the IX system. Partner(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
-                type: Deal
+                type: ProposedDealCreate
             responses:
                 201: # 201 = "Created"
+                    body:
+                        application/json:
+                            type: Response
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
+        /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal.
+                    minimum: 1
+                    maximum: 16777215
+            get:
+                is: [ auth_required ]
+                description: Retrieve a specific proposal by its unique ID from Index Market.
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            put:
+                (not_implemented): true
+                is: [ auth_required ]
+                description: Edit an already existing proposal in Index Market
+                body:
+                    application/json:
+                        type: ProposedDealCreate
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            delete:
+                (not_implemented): true
+                is: [ auth_required ]
+                description: Delete a specific proposal from Index Market
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
     /negotiations:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal. If no deals in negotiation are found, a 200 response code will still be sent. The data will be empty and the message will state that nothing could be found.
+            queryParameters:
+                partner_id:
+                    type: integer
+                    required: false
+                    displayName: Partner ID
+                    description: The ID of the partner involved in the negotiation. Used to only obtain negotiations with a specific partner.
+                    minimum: 1
+                    maximum: 16777215
+                status:
+                    type: string
+                    required: false
+                    displayName: Status
+                    description: The current status of the negotiation. Used to only obtain negotiations with a specific status.
+                    enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"]
             responses:
                 200: # 200 = "OK"
                     body:
@@ -119,7 +294,7 @@ types:
 
                 An object containing one or more of the negotiable deal fields will update the current negotiation state to the sent terms. Original proposal terms will be preserved.
             body:
-                type: NegotiatedDeal
+                type: NegotiatedDealCreate
             # examples:
             #     counter-offer:  !include examples/resources/deals/put_negotiation_counter-offer.raml
             #     accept:         !include examples/resources/deals/put_negotiation_accept.raml
@@ -133,10 +308,92 @@ types:
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
+        /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal whose negotiations are requested.
+                    minimum: 1
+                    maximum: 16777215
+            get:
+                is: [ auth_required, pageable, deal_filterable ]
+                description: Retrieve all negotiations associated with a specific proposal ID involving the current user.
+                queryParameters:
+                    partner_id:
+                        type: integer
+                        required: false
+                        displayName: Partner ID
+                        description: The ID of the partner involved in the negotiation. Used to only obtain negotiations with a specific partner.
+                        minimum: 1
+                        maximum: 16777215
+                    status:
+                        type: string
+                        required: false
+                        displayName: Status
+                        description: The current status of the negotiation. Used to only obtain negotiations with a specific status.
+                        enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"]
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            /partner:
+                /{partner_id}:
+                    uriParameters:
+                        partner_id:
+                            type: integer
+                            required: true
+                            description: The unique identifier of the partner associated with the specified proposal.
+                            minimum: 1
+                            maximum: 16777215
+                    get:
+                        is: [ auth_required ]
+                        description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                            body:
+                                application/json:
+                                    type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
+                    delete:
+                        (not_implemented): true
+                        is: [ auth_required ]
+                        description: Shortcut for rejecting a specific negotiation using a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                                body:
+                                    application/json:
+                                        type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" provided proposal ID does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve deals that are currently active in the system for the current user.
+            queryParameters:
+                partner_id:
+                    type: integer
+                    required: false
+                    displayName: Partner ID
+                    description: The ID of the partner involved in the deal. Used to only obtain deals with a specific partner.
+                    minimum: 1
+                    maximum: 16777215
+                dsp_id:
+                    type: integer
+                    required: true
+                    displayName: DSP ID
+                    description: DSP ID involved in the deal. Used to only obtain deals associated with a specific DSP.
             responses:
                 200: # 200 = "OK"
                     body:
@@ -150,13 +407,7 @@ types:
             is: [ auth_required ]
             description: Accept a new deal, rendering it active in the system
             body:
-                application/json:
-                    properties:
-                        proposal_id:
-                            type: integer
-                            required: true
-                            minimum: 1
-                            maximum: 16777215
+                type: ActiveDealCreate
             responses:
                 200: # 200 = "OK"
                     body:
@@ -165,17 +416,94 @@ types:
                 400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                404: # 404 = "Not found" provided package ID does not exist in the database
+                404: # 404 = "Not found" provided proposal ID does not exist in the database
                 500: # 500 = "Internal Server Error" something done broke
-
+        /{proposal_id}:
+            uriParameters:
+                proposal_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for the proposal whose deal(s) is/are requested.
+                    minimum: 1
+                    maximum: 16777215
+            get:
+                (not_implemented): true
+                is: [ auth_required, pageable, deal_filterable ]
+                description: Retrieve all active deals associated with a specific proposal ID involving the current user.
+                queryParameters:
+                    partner_id:
+                        type: integer
+                        required: false
+                        displayName: Partner ID
+                        description: The ID of the partner involved in the deal. Used to only obtain deals with a specific partner.
+                        minimum: 1
+                        maximum: 16777215
+                    dsp_id:
+                        type: integer
+                        required: true
+                        displayName: DSP ID
+                        description: DSP ID involved in the deal. Used to only obtain deals associated with a specific DSP.
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            /partner:
+                /{partner_id}:
+                    uriParameters:
+                        partner_id:
+                            type: integer
+                            required: true
+                            description: The unique identifier of the partner associated with the speicfied proposal.
+                            minimum: 1
+                            maximum: 16777215
+                    get:
+                        (not_implemented): true
+                        is: [ auth_required ]
+                        description: Retrieve a specific active deal associated with a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                            body:
+                                application/json:
+                                    type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" deal/proposal/partner does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
+                    delete:
+                        (not_implemented): true
+                        is: [ auth_required ]
+                        description: Shortcut for canceling a specific active deal using a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                                body:
+                                    application/json:
+                                        type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" provided proposal ID does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
 /users:
     /{user_id}:
+        uriParameters:
+            user_id:
+                type: integer
+                required: true
+                description: The unique identifier of the user
+                minimum: 1
+                maximum: 16777215
         get:
+            (not_implemented): true
             is: [ auth_required ]
             description: Retrieve contact information for a user by id.
             responses:
                 200: # 200 = OK
                     body:
                         application/json:
-                            type: Contact
+                            type: Response
                 404: # 404 = User not found.
