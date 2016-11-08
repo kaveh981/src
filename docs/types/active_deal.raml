@@ -57,7 +57,7 @@ properties:
         displayName: Modified At
         description: The timestamp the deal was last modified at. RFC3339 format, UTC.
     partner:
-        type: Partner
+        type: !include partner.raml
         required: true
         displayName: Partner
         description: The partner involved in this deal. Will be a publisher if request originates from a buyer, or a buyer if request originates from a publisher.
