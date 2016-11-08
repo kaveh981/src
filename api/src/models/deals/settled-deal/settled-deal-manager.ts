@@ -101,6 +101,8 @@ class SettledDealManager {
             dspID: dspID,
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
+            startDate: negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate,
             negotiatedDeal: negotiatedDeal
         });
 
