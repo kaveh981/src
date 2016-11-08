@@ -24,7 +24,9 @@ function ErrorHandler(err: Error, req: express.Request, res: express.Response, n
         }
 
     } else {
-        Log.trace(err['message'] || JSON.stringify(err['details']));
+        if (err['message'].trim() || err['details']) {
+            Log.trace(err['message'].trim() || JSON.stringify(err['details']));
+        }
         res.sendError(err['name'], err['details']);
     }
 

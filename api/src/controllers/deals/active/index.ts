@@ -57,6 +57,8 @@ function ActiveDeals(router: express.Router): void {
         let settledDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
+        Log.trace(`Found deals ${JSON.stringify(activeDeals, null, 4)} for buyer ${buyerId}.`);
+
         if (activeDeals.length > 0) {
             res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
@@ -83,6 +85,8 @@ function ActiveDeals(router: express.Router): void {
         let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
+        Log.trace(`Request to buy proposal ${proposalID} for buyer ${buyerID}.`);
+
         if (!proposedDeal || proposedDeal.status === 'deleted') {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
@@ -98,6 +102,8 @@ function ActiveDeals(router: express.Router): void {
         let dealNegotiation: NegotiatedDealModel =
                 await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
+        Log.trace(`Found a negotiation: ${JSON.stringify(dealNegotiation, null, 4)}.`);
+
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
@@ -106,15 +112,21 @@ function ActiveDeals(router: express.Router): void {
             }
         }
 
+        Log.debug(`Creating a new negotiation and inserting into rtbDeals...`);
+
         // Begin transaction
         await databaseManager.transaction(async (transaction) => {
             // Create a new negotiation
             let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
             await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation, transaction);
 
+            Log.trace(`Created accepted negotiation ${JSON.stringify(acceptedNegotiation, null, 4)}`);
+
             // Create the settled deal
             let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
             await settledDealManager.insertSettledDeal(settledDeal, transaction);
+
+            Log.trace(`Created settled deal ${JSON.stringify(settledDeal)}`);
 
             res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
         });

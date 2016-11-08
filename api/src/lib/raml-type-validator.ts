@@ -93,7 +93,7 @@ class RamlTypeValidator {
 
         // No schemas :(
         if (!files[0]) {
-            Log.debug('No schemas found.');
+            Log.info('No schemas found.');
             return;
         }
 
@@ -103,8 +103,8 @@ class RamlTypeValidator {
             let parsedYAML = yaml.safeLoad(fileContent);
 
             for (let key in parsedYAML) {
-                Log.trace('Loading ' + key + '...');
-
+                Log.trace('Reading ' + key + '...');
+                Log.trace(`${JSON.stringify(parsedYAML[key], null, 4)}`);
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
@@ -138,6 +138,8 @@ class RamlTypeValidator {
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
 
+        Log.trace(`Validating ${JSON.stringify(obj, null, 4)} as ${type} with options ${JSON.stringify(opts)}.`);
+
         let typeObject = this.types[type];
 
         if (!typeObject) {
@@ -145,7 +147,11 @@ class RamlTypeValidator {
             return [this.createError('UNKNOWN_TYPE', type, null, '')];
         }
 
-        return this.validateNode(obj, typeObject, type, opts);
+        let errors = this.validateNode(obj, typeObject, type, opts);
+
+        Log.trace(`Had errors ${JSON.stringify(errors, null, 4)}`);
+
+        return errors;
 
     }
 

@@ -18,6 +18,7 @@ const Log = new Logger('AUTH');
 
 /** Identify if the user is legitimate, and is an IXM user */
 async function identifyUser(token: string): Promise<UserModel> {
+
     if (!Number(token)) {
         throw HTTPError('401_NOT_IXMUSER');
     }
@@ -27,11 +28,8 @@ async function identifyUser(token: string): Promise<UserModel> {
 
     // User not found or not an IXM buyer
     if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
-
         throw HTTPError('401_NOT_IXMUSER');
-
     } else if (userInfo.status !== 'A') {
-
         throw HTTPError('401_NOT_ACTIVE');
     }
 

@@ -58,12 +58,15 @@ function NegotiationDeals(router: express.Router): void {
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
+        Log.trace(`Found negotiated deals ${JSON.stringify(negotiatedDeals, null, 4)}`);
+
         for (let i = 0; i < negotiatedDeals.length; i++) {
             let proposal = negotiatedDeals[i].proposedDeal;
             let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
             if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
                 && proposal.isAvailable() && owner.status === 'A' ) {
+                    Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is inactive.`);
                     activeNegotiatedDeals.push(negotiatedDeals[i]);
             }
         }
@@ -111,6 +114,8 @@ function NegotiationDeals(router: express.Router): void {
 
         let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
+
+        Log.trace(`Found negotiated deals ${JSON.stringify(negotiatedDeals, null, 4)}`);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
@@ -179,6 +184,8 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+
+        Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)}`);
 
         if (negotiatedDeal) {
             res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
@@ -282,7 +289,7 @@ function NegotiationDeals(router: express.Router): void {
 
             await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
 
-            Log.debug(`Inserted the new negotiation with ID: ${currentNegotiation.id}`);
+            Log.trace(`Inserted the new negotiation with ID: ${currentNegotiation.id}`);
 
         } else {
 
@@ -317,8 +324,9 @@ function NegotiationDeals(router: express.Router): void {
                     throw HTTPError('403_OTHER_REJECTED');
                 }
 
+                Log.debug(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`);
+
                 await databaseManager.transaction(async (transaction) => {
-                    Log.trace(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`);
 
                     currentNegotiation.update(userType, 'accepted', 'accepted');
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);

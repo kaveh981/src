@@ -1,7 +1,7 @@
 # Logger Configuration
 
 # Default level of messages to write to stdout.
-consoleLevel: 0
+consoleLevel: 1
 
 # Default level of messages to write to files.
 filewriteLevel: 0
@@ -10,11 +10,12 @@ filewriteLevel: 0
 sourceOverrides:
     HTTP:                   # Name of the logger to override.
         consoleLevel: 1     # Console level to override.
-        filewriteLevel: 0   # File write level to override.
+        filewriteLevel: 1   # File write level to override.
 
     DBMA:
         consoleLevel: 1
-        filewriteLevel: 0    
+        filewriteLevel: 1
+        
 
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
