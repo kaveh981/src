@@ -46,7 +46,7 @@ function augmentResponse(res: express.Response): void {
             return;
         }
 
-        Log.trace(`(${res.id}) Responding with message \n${JSON.stringify(message, null, 4)}`);
+        Log.trace(`(${res.id}) Responding with message \n${Log.stringify(message)}`);
 
         let msg = JSON.stringify(message);
 

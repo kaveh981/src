@@ -104,7 +104,7 @@ class RamlTypeValidator {
 
             for (let key in parsedYAML) {
                 Log.trace('Reading ' + key + '...');
-                Log.trace(`${JSON.stringify(parsedYAML[key], null, 4)}`);
+                Log.trace(`${Log.stringify(parsedYAML[key])}`);
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
@@ -112,7 +112,7 @@ class RamlTypeValidator {
         let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
 
         if (parsedAPI.errors().length > 0) {
-            Log.error(JSON.stringify(parsedAPI.errors(), null, 4));
+            Log.error(Log.stringify(parsedAPI.errors()));
             throw new Error('Compilation error in schemas.');
         }
 
@@ -138,7 +138,7 @@ class RamlTypeValidator {
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
 
-        Log.trace(`Validating ${JSON.stringify(obj, null, 4)} as ${type} with options ${JSON.stringify(opts)}.`);
+        Log.trace(`Validating ${Log.stringify(obj)} as ${type} with options ${JSON.stringify(opts)}.`);
 
         let typeObject = this.types[type];
 
@@ -149,7 +149,7 @@ class RamlTypeValidator {
 
         let errors = this.validateNode(obj, typeObject, type, opts);
 
-        Log.trace(`Had errors ${JSON.stringify(errors, null, 4)}`);
+        Log.trace(`Had errors ${Log.stringify(errors)}`);
 
         return errors;
 

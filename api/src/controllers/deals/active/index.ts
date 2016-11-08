@@ -57,7 +57,7 @@ function ActiveDeals(router: express.Router): void {
         let settledDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
-        Log.trace(`Found deals ${JSON.stringify(activeDeals, null, 4)} for buyer ${buyerId}.`, req.id);
+        Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
             res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
@@ -102,7 +102,7 @@ function ActiveDeals(router: express.Router): void {
         let dealNegotiation: NegotiatedDealModel =
                 await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
-        Log.trace(`Found a negotiation: ${JSON.stringify(dealNegotiation, null, 4)}.`, req.id);
+        Log.trace(`Found a negotiation: ${Log.stringify(dealNegotiation)}.`, req.id);
 
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
@@ -120,13 +120,13 @@ function ActiveDeals(router: express.Router): void {
             let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
             await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation, transaction);
 
-            Log.trace(`Created accepted negotiation ${JSON.stringify(acceptedNegotiation, null, 4)}`, req.id);
+            Log.trace(`Created accepted negotiation ${Log.stringify(acceptedNegotiation)}`, req.id);
 
             // Create the settled deal
             let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
             await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-            Log.trace(`Created settled deal ${JSON.stringify(settledDeal)}`, req.id);
+            Log.trace(`Created settled deal ${Log.stringify(settledDeal)}`, req.id);
 
             res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
         });

@@ -223,6 +223,15 @@ class Logger {
 
     }
 
+    /**
+     * Meaningful function for humans to print javascript objects
+     * @param obj - The object to stringify.
+     * @returns A string consisting of the obj properly indented.
+     */
+    public stringify(obj: any) {
+        return JSON.stringify(obj, null, 4);
+    }
+
 };
 
 export { Logger };

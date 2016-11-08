@@ -46,7 +46,7 @@ function Proposals(router: express.Router): void {
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
 
-        Log.trace(`Found proposals ${JSON.stringify(proposedDeals, null, 4)}`, req.id);
+        Log.trace(`Found proposals ${Log.stringify(proposedDeals)}`, req.id);
 
         for (let i = 0; i < activeProposals.length; i++) {
             let activeProposal = activeProposals[i];
@@ -65,7 +65,7 @@ function Proposals(router: express.Router): void {
             }
         }
 
-        Log.trace(`Found purchasable proposals ${JSON.stringify(proposedDeals, null, 4)}`, req.id);
+        Log.trace(`Found purchasable proposals ${Log.stringify(proposedDeals)}`, req.id);
 
         if (proposedDeals.length > 0) {
             res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination);

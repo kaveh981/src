@@ -58,7 +58,7 @@ function NegotiationDeals(router: express.Router): void {
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
-        Log.trace(`Found negotiated deals ${JSON.stringify(negotiatedDeals, null, 4)}`, req.id);
+        Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         for (let i = 0; i < negotiatedDeals.length; i++) {
             let proposal = negotiatedDeals[i].proposedDeal;
@@ -115,7 +115,7 @@ function NegotiationDeals(router: express.Router): void {
         let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
 
-        Log.trace(`Found negotiated deals ${JSON.stringify(negotiatedDeals, null, 4)}`, req.id);
+        Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);

@@ -19,7 +19,7 @@ function HttpLogger(req: express.Request, res: express.Response, next: Function)
     // Log at the end to get the correct status code.
     res.on('finish', () => {
         let msg = `${req.ip} - ${req.method} ${req.url} - ${res.statusCode} - ` +
-                  `${req.get('User-Agent')} - ${JSON.stringify(req.body, null, 4)}`;
+                  `${req.get('User-Agent')} - ${Log.stringify(req.body)}`;
 
         Log.trace(msg, req.id);
     });
