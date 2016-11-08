@@ -117,10 +117,10 @@ export async function IXM_API_DA_GET_02 (assert: test.Test) {
 }
 
  /*
- * @case    - Proposal got accepted and rtbDeals entry is present
- * @expect  - A payload containing the deal data.
+ * @case    - Settled deal start date is in the future
+ * @expect  - No deals returned
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @status  - failing (rtbDeals insertion in setup is not recording the date properly)
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_03 (assert: test.Test) {
@@ -136,8 +136,313 @@ export async function IXM_API_DA_GET_03 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let negotiation = await databasePopulator.createDealNegotiation(
         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID,
+        [section.section.sectionID],
+        negotiation.negotiationID,
+        {
+            startDate: tomorrow
+        });
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - Settled deal end date is in the past
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (rtbDeals insertion in setup is not recording the date properly)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_04 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    let threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID,
+        [section.section.sectionID],
+        negotiation.negotiationID,
+        {
+            startDate: threeDaysAgo,
+            endDate: yesterday
+        });
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - One section linked to the settled deal is deactivated
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (still showing the deal, but we shouldn't be)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_05 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
+    let proposal = await databasePopulator.createProposal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - All sections linked to the settled deal are deactivated
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (still showing the deal, but we shouldn't be)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_06 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
+    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
+    let proposal = await databasePopulator.createProposal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - One site linked to the settled deal is deactivated (section is active)
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (still showing the deal, but we shouldn't be)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_07 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
+    let site2 = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
     let settledDeal = await databasePopulator.createSettledDeal(
         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - All sites linked to the settled deal (through 1 section) are deactivated (section is active)
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (still showing the deal, but we shouldn't be)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_08 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
+    let site2 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - Publisher who created the proposal is now deactivated
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - failing (still showing the deal, but we shouldn't be)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_09 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+    publisher.user.status = 'D';
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - Proposal got accepted and rtbDeals entry of active status is present
+ * @expect  - A payload containing the deal data.
+ * @route   - GET deals/active
+ * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_10 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'A'});
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data[0], Helper.settledDealToPayload(settledDeal, negotiation, proposal, publisher, buyer));
+
+}
+
+ /*
+ * @case    - Proposal got accepted and rtbDeals entry of paused status is present
+ * @expect  - A payload containing the deal data.
+ * @route   - GET deals/active
+ * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_11 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'P'});
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data[0], Helper.settledDealToPayload(settledDeal, negotiation, proposal, publisher, buyer));
+
+}
+
+ /*
+ * @case    - Proposal got accepted and rtbDeals entry of deactivated status is present
+ * @expect  - A payload containing the deal data.
+ * @route   - GET deals/active
+ * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @tags    - get, active, deals
+ */
+export async function IXM_API_DA_GET_12 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'D'});
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);

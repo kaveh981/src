@@ -291,11 +291,16 @@ class DatabasePopulator {
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSectionToSites(sectionID: number, siteIDs: number[]) {
+        let mappings = [];
+
         for (let i = 0; i < siteIDs.length; i += 1) {
             let mapping = {sectionID: sectionID, siteID: siteIDs[i]};
+            mappings.push(mapping);
+        }
 
-            await this.dbm.insert(mapping).into('rtbSiteSections');
+        await this.dbm.insert(mappings).into('rtbSiteSections');
 
+        for (let i = 0; i < siteIDs.length; i += 1) {
             Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
         }
     }
@@ -303,22 +308,22 @@ class DatabasePopulator {
     /**
      * Creates a new entry in rtbDeals based on "new-settleddeal-schema". Inserts into "Viper2.deals",
      * "Viper2.rtbDealSections", "Viper2.ixmNegotiationDealMappings"
-     * @param publisherID {int} - the userID of the deal's publisher
+     * @param userID {int} - the userID of the deal's creator
      * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new deal
      * @param negotiationID {int} - a negotiationID to be mapped to the new deal
      * @param [settledDealFields] {ISettledDeal} - Optional: a new deal object to override random fields
      * @returns {Promise<ISettledDealData>} - Promise which resolves with an object of new deal data
      */
-    public async createSettledDeal(publisherID: number, sectionIDs: number[], negotiationID: number, settledDealFields?: ISettledDeal) {
+    public async createSettledDeal(userID: number, sectionIDs: number[], negotiationID: number, settledDealFields?: ISettledDeal) {
 
         let newSettledDealObj = this.generateDataObject<ISettledDeal>('new-settleddeal-schema');
         let newSettledDeal: ISettledDealData = { settledDeal: newSettledDealObj, sectionIDs: sectionIDs, negotiationID: negotiationID };
 
         if (settledDealFields) {
-            Object.assign(newSettledDeal, settledDealFields);
+            Object.assign(newSettledDeal.settledDeal, settledDealFields);
         }
 
-        newSettledDeal.settledDeal.userID = publisherID;
+        newSettledDeal.settledDeal.userID = userID;
         newSettledDeal.settledDeal.startDate.setHours(0, 0, 0, 0);
         newSettledDeal.settledDeal.endDate.setHours(0, 0, 0, 0);
         newSettledDeal.settledDeal.modifiedDate = new Date();
@@ -345,11 +350,16 @@ class DatabasePopulator {
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSettledDealToSections(dealID: number, sectionIDs: number[]) {
+        let mappings = [];
+
         for (let i = 0; i < sectionIDs.length; i += 1) {
             let mapping = {dealID: dealID, sectionID: sectionIDs[i]};
+            mappings.push(mapping);
+        }
 
-            await this.dbm.insert(mapping).into('rtbDealSections');
+        await this.dbm.insert(mappings).into('rtbDealSections');
 
+        for (let i = 0; i < sectionIDs.length; i += 1) {
             Log.debug(`Mapped dealID ${dealID} to sectionID ${sectionIDs[i]}`);
         }
     }
@@ -357,7 +367,7 @@ class DatabasePopulator {
     /**
      * Creates mapping entry in "Viper2.ixmNegotiationDealMappings"
      * @arg dealID {int} - the dealID of the deal to map
-     * @arg siteIDs {int[]} - an array of siteIDs to map to dealID
+     * @arg negotiationID {int} - a negotiationID to map to dealID
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSettledDealToNegotiation(dealID: number, negotiationID: number) {
