@@ -9,11 +9,6 @@ description: |
             - Ad Units
             - Country restrictions
             - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
-
-        A section may have one of several matching modes, indicated in the `match_type` field:
-            - `site`: Match the whole site. Other restrictions such as Ad Units may apply.
-            - `full`: Match the included `url` exactly
-            - `partial`: Partial match on `url` - will match any URLs below that. E.g. `https://spamlords.com/clickbait` will also match `https://spamlords.com/clickbait/one-weird-trick`
 properties:
     id:
         type: integer
@@ -25,10 +20,75 @@ properties:
         required: true
         displayName: Section Name
         description: A descriptive name for the section
+        maxLength: 255
+    entire_site:
+        type: boolean
+        required: true
+        displayName: Entire Site
+        description: Whether the entire site is included in the deal. If true, the `matches` array will be omitted.
+    matches:
+        type: Match[]
+        required: false
+        displayName: Matches
+        description: A set of matching objects consisting of a `match_type` and `url` to match against
+    coverage:
+        type: integer
+        required: true
+        displayName: Coverage
+        description: The percentage of coverage for the section: 80 = 80% coverage, meaning the deal will serve 80% of impressions.
+    ad_units:
+        type: string[]
+        required: false
+        displayName: Ad Unit Restrictions
+        description: A list of ad units this deal is restricted to. (TODO - insert list or link?). Will be omitted if no restrictions apply.
+    country_restrictions:
+        type: string[]
+        required: false
+        displayName: Country Restrictions
+        description: A list of countries the deal is available in. [ISO 3166 ALPHA-3](http://www.iso.org/iso/home/standards/country_codes.htm) codes. Will be omitted if no country restrictions apply.
+    frequency_restrictions:
+        type: string[]
+        required: false
+        displayName: Frequency (Domain Depth) Restrictions
+        description: |
+            A list of frequency, or domain depth, restrictions. This describes the number of page visits by a single visitor to the same site, and are organized in the following 'buckets'
+                - 1 - 2
+                - 3 - 6
+                - 7 - 14
+                - 15 - 30
+                - 31 - 62
+                - 63 - 126
+                - 127 - 254
+                - 255(max)
 example: |
     {
         "id": 898,
         "name": "click_dealy_leaderboard_cuz_we_luv_u",
-        "match_type": "site",
-        ""
+        "matches": [
+            {
+                "match_type: "partial",
+                "url": "https://spamlords.com/clickbait"
+            }, 
+            {
+                "match_type": "full",
+                "url": "https://spamlords.com/outrage/some-jerk-did-a-thing.html"
+            }
+        ]
+        "coverage": 80,
+        "ad_units": [
+            "728x90",
+            "970x90"
+        ],
+        "country_restrictions": [
+            "RUS",
+            "ZAF"
+        ],
+        "frequency_restrictions": [
+            "1 - 2",
+            "3 - 6"
+        ],
+        "site": {
+            "stuff": "goes in here"
+        }
+
     }
