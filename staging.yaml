@@ -15,7 +15,7 @@ services:
         env: "production"
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: atw-api:$TAG
+    image: pr.indexexchange.com:5000/atw-api:$TAG
     logging:
       driver: "syslog"
       options:
@@ -32,7 +32,7 @@ services:
         env: "production"
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: atw-nginx:$TAG
+    image: pr.indexexchange.com:5000/atw-nginx:$TAG
     logging:
       driver: "syslog"
       options:
