@@ -6,7 +6,7 @@ properties:
     auction_type:
         type: string
         required: true
-        displayName: Auction Type,
+        displayName: Auction Type
         description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate.
         enum: ['first','second','fixed']
     budget:
@@ -29,6 +29,7 @@ properties:
         required: true
         displayName: Currency
         description: Three-letter currency code for the deal.
+        example: USD
     description:
         type: string
         required: false
@@ -51,7 +52,6 @@ properties:
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package.
-        example: USD
         minimum: 0
         maximum: 16777215
     inventory: # ? Provide API paths to access ?

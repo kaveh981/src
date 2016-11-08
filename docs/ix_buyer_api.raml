@@ -55,13 +55,87 @@ traits:
                 description: For paging, the page offset. This will be multiplied by `limit` to determine the set of results to return.
                 minimum: 1
                 default: 1
+    deal_filterable:
+        queryParameters:
+            auction_type:
+                type: string
+                required: false
+                displayName: Auction Type
+                description: The auction type of the proposal/negotiation/deal. Used to only obtain proposals/negotiations/deals of a specific auction type.
+                enum: ['first','second','fixed']
+            min_price:
+                type: number
+                required: false
+                displayName: Min Price
+                description: Minimum price for returned proposals/negotiations/deals
+                minimum: 0.01
+                maximum: 655.35
+            max_price:
+                type: number
+                required: false
+                displayName: Max Price
+                description: Maximum price for returned proposals/negotiations/deals
+                minimum: 0.01
+                maximum: 655.35
+            min_impressions:
+                type: integer
+                required: false
+                displayName: Min Impressions
+                description: The minimum number of impressions for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            max_impressions:
+                type: integer
+                required: false
+                displayName: Max Impressions
+                description: The maximum number of impressions for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            min_budget:
+                type: integer
+                required: false
+                displayName: Min Budget
+                description: The minimum budget for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            max_budget:
+                type: integer
+                required: false
+                displayName: Max Budget
+                description: The maximum budget for returned proposals/negotiations/deals
+                minimum: 1
+                maximum: 16777215
+            currency:
+                type: string
+                required: false
+                displayName: Currency
+                description: Specific currency for returned proposals/negotiations/deals
+            min_start_date:
+                type: date-only
+                required: false
+                displayName: Min Start Date
+                description: The minimum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            max_start_date:
+                type: date-only
+                required: false
+                displayName: Max Start Date
+                description: The maximum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            min_end_date:
+                type: date-only
+                required: false
+                displayName: Min End Date
+                description: The minimum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            max_end_date:
+                type: date-only
+                required: false
+                displayName: Max End Date
+                description: The maximum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
+            keywords:
+                type: string
+                required: false
+                displayName: Keywords
+                description: A particular set of keywords that must be present in the returned proposals/negotiations/deals' names/descriptions. Multiple words are separated by spaces.
 
-
-################################
-# Annotation Declarations
-################################
-
-annotationTypes: !include annotations/type_requirements
 
 ################################
 # Object Definitions
@@ -76,7 +150,7 @@ types:
     Partner:                !include types/partner.raml
     ProposedDealCreate:     !include types/proposed_deal_create.raml
     NegotiatedDealCreate:   !include types/negotiated_deal_create.raml
-    ActiveDealCreate:       !include types/active_deal_create.raml 
+    ActiveDealCreate:       !include types/active_deal_create.raml
 
 ################################
 # Route Definitions
@@ -85,8 +159,22 @@ types:
 /deals:
     /proposals:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or counter-offers sent.
+            queryParameters:
+                # purchaseable:
+                #     type: boolean
+                #     required: false
+                #     displayName: Purchaseable
+                #     description: Flag indicating whether to only return proposals that are purchaseable/negotiable
+                #     default: true
+                owner_id:
+                    type: integer
+                    required: false
+                    displayName: Owner ID
+                    description: The ID owner of the proposal. Used to only obtain proposals that are owned by a specific user.
+                    minimum: 1
+                    maximum: 16777215
             responses:
                 200: # 200 = "OK"
                     body:
@@ -131,8 +219,22 @@ types:
                     500: # 500 = "Internal Server Error" something done broke
     /negotiations:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal. If no deals in negotiation are found, a 200 response code will still be sent. The data will be empty and the message will state that nothing could be found.
+            queryParameters:
+                partner_id:
+                    type: integer
+                    required: false
+                    displayName: Partner ID
+                    description: The ID of the partner involved in the negotiation. Used to only obtain negotiations with a specific partner.
+                    minimum: 1
+                    maximum: 16777215
+                status:
+                    type: string
+                    required: false
+                    displayName: Status
+                    description: The current status of the negotiation. Used to only obtain negotiations with a specific status.
+                    enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"]
             responses:
                 200: # 200 = "OK"
                     body:
@@ -177,8 +279,22 @@ types:
                     minimum: 1
                     maximum: 16777215
             get:
-                is: [ auth_required, pageable ]
+                is: [ auth_required, pageable, deal_filterable ]
                 description: Retrieve all negotiations associated with a specific proposal ID involving the current user.
+                queryParameters:
+                    partner_id:
+                        type: integer
+                        required: false
+                        displayName: Partner ID
+                        description: The ID of the partner involved in the negotiation. Used to only obtain negotiations with a specific partner.
+                        minimum: 1
+                        maximum: 16777215
+                    status:
+                        type: string
+                        required: false
+                        displayName: Status
+                        description: The current status of the negotiation. Used to only obtain negotiations with a specific status.
+                        enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"]
                 responses:
                     200: # 200 = "OK"
                     body:
@@ -195,7 +311,7 @@ types:
                         partner_id:
                             type: integer
                             required: true
-                            description: The unique identifier of the partner associated with the speicfied proposal.
+                            description: The unique identifier of the partner associated with the specified proposal.
                             minimum: 1
                             maximum: 16777215
                     get:
@@ -212,8 +328,21 @@ types:
                             500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
-            is: [ auth_required, pageable ]
+            is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve deals that are currently active in the system for the current user.
+            queryParameters:
+                partner_id:
+                    type: integer
+                    required: false
+                    displayName: Partner ID
+                    description: The ID of the partner involved in the deal. Used to only obtain deals with a specific partner.
+                    minimum: 1
+                    maximum: 16777215
+                dsp_id:
+                    type: integer
+                    required: true
+                    displayName: DSP ID
+                    description: DSP ID involved in the deal. Used to only obtain deals associated with a specific DSP.
             responses:
                 200: # 200 = "OK"
                     body:
@@ -247,8 +376,21 @@ types:
                     minimum: 1
                     maximum: 16777215
             get:
-                is: [ auth_required, pageable ]
+                is: [ auth_required, pageable, deal_filterable ]
                 description: Retrieve all active deals associated with a specific proposal ID involving the current user.
+                queryParameters:
+                    partner_id:
+                        type: integer
+                        required: false
+                        displayName: Partner ID
+                        description: The ID of the partner involved in the deal. Used to only obtain deals with a specific partner.
+                        minimum: 1
+                        maximum: 16777215
+                    dsp_id:
+                        type: integer
+                        required: true
+                        displayName: DSP ID
+                        description: DSP ID involved in the deal. Used to only obtain deals associated with a specific DSP.
                 responses:
                     200: # 200 = "OK"
                     body:
@@ -296,5 +438,5 @@ types:
                 200: # 200 = OK
                     body:
                         application/json:
-                            type: Contact
+                            type: Response
                 404: # 404 = User not found.
