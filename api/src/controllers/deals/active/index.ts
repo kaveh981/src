@@ -78,7 +78,7 @@ function ActiveDeals(router: express.Router): void {
         }
 
         // Check that proposal exists
-        let proposalID: number = req.body.proposalID;
+        let proposalID: number = req.body.proposal_id;
         let buyerID = Number(req.ixmUserInfo.id);
         let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal = await proposedDealManager.fetchProposedDealFromId(proposalID);
