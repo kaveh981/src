@@ -11,21 +11,17 @@ const Log: Logger = new Logger('ROUT');
  */
 function ErrorHandler(err: Error, req: express.Request, res: express.Response, next: Function): void {
 
-    Log.debug(`${err.name || 'Unknown error'} on route ${req.url}.`);
+    Log.debug(`${err.name || 'Unknown error'} on route ${req.url}.`, req.id);
 
-    if (!err['crafted'] ) {
-
-        if (err.message === 'Bad Request') {
-            Log.trace(`Bad request on ${req.url}.`);
-            res.sendError('400');
-        } else {
-            Log.trace(err.stack);
-            res.sendError('500');
-        }
-
+    if (err.message === 'Bad Request') {
+        Log.trace(`Bad request on ${req.url}.`, req.id);
+        res.sendError('400');
+    } else if (!err['crafted'] ) {
+        Log.trace(err.stack, req.id);
+        res.sendError('500');
     } else {
         if (err['message'].trim() || err['details']) {
-            Log.trace(err['message'].trim() || JSON.stringify(err['details']));
+            Log.trace(err['message'].trim() || JSON.stringify(err['details']), req.id);
         }
         res.sendError(err['name'], err['details']);
     }

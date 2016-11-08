@@ -27,7 +27,7 @@ const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
-const Log: Logger = new Logger('ACTD');
+const Log: Logger = new Logger('ROUT');
 
 /**
  * Function that takes care of all /deals/active routes
@@ -57,7 +57,7 @@ function ActiveDeals(router: express.Router): void {
         let settledDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
-        Log.trace(`Found deals ${JSON.stringify(activeDeals, null, 4)} for buyer ${buyerId}.`);
+        Log.trace(`Found deals ${JSON.stringify(activeDeals, null, 4)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
             res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
@@ -85,7 +85,7 @@ function ActiveDeals(router: express.Router): void {
         let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        Log.trace(`Request to buy proposal ${proposalID} for buyer ${buyerID}.`);
+        Log.trace(`Request to buy proposal ${proposalID} for buyer ${buyerID}.`, req.id);
 
         if (!proposedDeal || proposedDeal.status === 'deleted') {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
@@ -102,7 +102,7 @@ function ActiveDeals(router: express.Router): void {
         let dealNegotiation: NegotiatedDealModel =
                 await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
-        Log.trace(`Found a negotiation: ${JSON.stringify(dealNegotiation, null, 4)}.`);
+        Log.trace(`Found a negotiation: ${JSON.stringify(dealNegotiation, null, 4)}.`, req.id);
 
         if (dealNegotiation) {
             if (dealNegotiation.buyerStatus === 'accepted' && dealNegotiation.publisherStatus === 'accepted') {
@@ -112,7 +112,7 @@ function ActiveDeals(router: express.Router): void {
             }
         }
 
-        Log.debug(`Creating a new negotiation and inserting into rtbDeals...`);
+        Log.debug(`Creating a new negotiation and inserting into rtbDeals...`, req.id);
 
         // Begin transaction
         await databaseManager.transaction(async (transaction) => {
@@ -120,13 +120,13 @@ function ActiveDeals(router: express.Router): void {
             let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
             await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation, transaction);
 
-            Log.trace(`Created accepted negotiation ${JSON.stringify(acceptedNegotiation, null, 4)}`);
+            Log.trace(`Created accepted negotiation ${JSON.stringify(acceptedNegotiation, null, 4)}`, req.id);
 
             // Create the settled deal
             let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
             await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-            Log.trace(`Created settled deal ${JSON.stringify(settledDeal)}`);
+            Log.trace(`Created settled deal ${JSON.stringify(settledDeal)}`, req.id);
 
             res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
         });
