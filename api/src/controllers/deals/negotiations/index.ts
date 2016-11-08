@@ -54,8 +54,8 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let buyerID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
+        let userID = Number(req.ixmUserInfo.id);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(userID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < negotiatedDeals.length; i++) {
