@@ -52,9 +52,9 @@ class Logger {
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public fatal(err: string | Error): IMessage {
+    public fatal(err: string | Error, id?: string): IMessage {
 
-        let errorMessage = this.log(err.toString(), 5);
+        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 5);
 
         if (typeof err !== 'string') {
             this.log(err.stack, 0);
@@ -70,9 +70,9 @@ class Logger {
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public error(err: string | Error): IMessage {
+    public error(err: string | Error, id?: string): IMessage {
 
-        let errorMessage = this.log(err.toString(), 4);
+        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 4);
 
         if (typeof err !== 'string') {
             this.log(err.stack, 0);
@@ -87,8 +87,8 @@ class Logger {
      * @param text - A string with the warning message.
      * @returns The JSON formatted message which was written to a file.
      */
-    public warn(text: string): IMessage {
-        return this.log(text, 3);
+    public warn(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 3);
     }
 
     /**
@@ -96,8 +96,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public info(text: string): IMessage {
-        return this.log(text, 2);
+    public info(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 2);
     }
 
     /**
@@ -105,8 +105,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public debug(text: string): IMessage {
-        return this.log(text, 1);
+    public debug(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 1);
     }
 
     /**
@@ -115,8 +115,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public trace(text: string): IMessage {
-        return this.log(text, 0);
+    public trace(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 0);
     }
 
     /** 
@@ -158,7 +158,7 @@ class Logger {
         }
 
         if (displayMessage) {
-            let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
+            let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
             console.log(chalk[color](msg));
@@ -221,6 +221,15 @@ class Logger {
 
         return fs.createWriteStream(logFile, { flags: 'a' });
 
+    }
+
+    /**
+     * Meaningful function for humans to print javascript objects
+     * @param obj - The object to stringify.
+     * @returns A string consisting of the obj properly indented.
+     */
+    public stringify(obj: any) {
+        return JSON.stringify(obj, null, 4);
     }
 
 };

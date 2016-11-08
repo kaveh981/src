@@ -45,11 +45,6 @@ class ProposedDealManager {
 
         let proposalInfo = rows[0];
         proposalInfo.sections = await this.fetchSectionsFromProposalId(proposalID);
-
-        if (proposalInfo.sections.length === 0) {
-            Log.warn(`Package ${proposalInfo.id} has no sections.`);
-        }
-
         proposalInfo.ownerInfo = await this.userManager.fetchUserFromId(proposalInfo.ownerID);
 
         return new ProposedDealModel(proposalInfo);

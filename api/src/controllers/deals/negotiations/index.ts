@@ -27,7 +27,7 @@ const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-const Log: Logger = new Logger('NEGO');
+const Log: Logger = new Logger('ROUT');
 
 /**
  * Function that takes care of all /deals/negotiation routes  
@@ -58,12 +58,15 @@ function NegotiationDeals(router: express.Router): void {
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
+        Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
+
         for (let i = 0; i < negotiatedDeals.length; i++) {
             let proposal = negotiatedDeals[i].proposedDeal;
             let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
             if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
                 && proposal.isAvailable() && owner.status === 'A' ) {
+                    Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
                     activeNegotiatedDeals.push(negotiatedDeals[i]);
             }
         }
@@ -111,6 +114,8 @@ function NegotiationDeals(router: express.Router): void {
 
         let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
+
+        Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
@@ -180,6 +185,8 @@ function NegotiationDeals(router: express.Router): void {
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
 
+        Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)}`, req.id);
+
         if (negotiatedDeal) {
             res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
         } else {
@@ -235,7 +242,7 @@ function NegotiationDeals(router: express.Router): void {
             publisherID = Number(req.body.partner_id);
         }
 
-        Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`);
+        Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`, req.id);
 
         // Confirm that the proposal is available and belongs to this publisher
         let proposalID = Number(req.body.proposal_id);
@@ -247,7 +254,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Confirm that proposal is from the same publisher as negotiation request
         if (targetProposal.ownerID !== publisherID) {
-            Log.trace(`Proposal belongs to ${targetProposal.ownerID}, not to ${publisherID}.`);
+            Log.trace(`Proposal belongs to ${targetProposal.ownerID}, not to ${publisherID}.`, req.id);
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
@@ -282,11 +289,11 @@ function NegotiationDeals(router: express.Router): void {
 
             await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
 
-            Log.debug(`Inserted the new negotiation with ID: ${currentNegotiation.id}`);
+            Log.trace(`Inserted the new negotiation with ID: ${currentNegotiation.id}`, req.id);
 
         } else {
 
-            Log.trace('Found negotiation with ID: ' + currentNegotiation.id);
+            Log.trace('Found negotiation with ID: ' + currentNegotiation.id, req.id);
 
             let otherPartyStatus = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
 
@@ -303,22 +310,23 @@ function NegotiationDeals(router: express.Router): void {
             // If user rejects the negotiation, there is nothing more to do:
             if (responseType === 'reject') {
 
-                Log.trace('User is rejecting the negotiation');
+                Log.trace('User is rejecting the negotiation', req.id);
 
                 currentNegotiation.update(userType, 'rejected', otherPartyStatus);
                 await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
 
             } else if (responseType === 'accept') {
 
-                Log.trace('User is accepting the negotiation');
+                Log.trace('User is accepting the negotiation', req.id);
 
                 // Confirm that the other party hasn't closed the deal
                 if (otherPartyStatus === 'rejected') {
                     throw HTTPError('403_OTHER_REJECTED');
                 }
 
+                Log.debug(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`, req.id);
+
                 await databaseManager.transaction(async (transaction) => {
-                    Log.trace(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`);
 
                     currentNegotiation.update(userType, 'accepted', 'accepted');
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
@@ -328,7 +336,7 @@ function NegotiationDeals(router: express.Router): void {
 
                     await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
-                    Log.trace(`New deal created with id ${settledDeal.id}.`);
+                    Log.trace(`New deal created with id ${settledDeal.id}.`, req.id);
 
                     res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
                 });
@@ -337,12 +345,12 @@ function NegotiationDeals(router: express.Router): void {
 
             } else {
 
-                Log.trace(`User has sent a counter-offer.`);
+                Log.trace(`User has sent a counter-offer.`, req.id);
 
                 let fieldChanged = currentNegotiation.update(userType, 'accepted', 'active', negotiationFields);
 
                 if (fieldChanged) {
-                    Log.trace(`Fields have changed, updating negotiation.`);
+                    Log.trace(`Fields have changed, updating negotiation.`, req.id);
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
                 } else {
                     throw HTTPError('403_NO_CHANGE');
