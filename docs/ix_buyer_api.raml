@@ -58,16 +58,25 @@ traits:
 
 
 ################################
+# Annotation Declarations
+################################
+
+annotationTypes: !include annotations/type_requirements
+
+################################
 # Object Definitions
 ################################
 
 types:
-    Contact:        !include types/contact.raml
-    ProposedDeal:   !include types/proposed_deal.raml
-    ActiveDeal:     !include types/active_deal.raml
-    NegotiatedDeal: !include types/negotiated_deal.raml
-    Response:       !include types/response.raml
-    Partner:        !include types/partner.raml
+    Contact:                !include types/contact.raml
+    ProposedDeal:           !include types/proposed_deal.raml
+    ActiveDeal:             !include types/active_deal.raml
+    NegotiatedDeal:         !include types/negotiated_deal.raml
+    Response:               !include types/response.raml
+    Partner:                !include types/partner.raml
+    ProposedDealCreate:     !include types/proposed_deal_create.raml
+    NegotiatedDealCreate:   !include types/negotiated_deal_create.raml
+    ActiveDealCreate:       !include types/active_deal_create.raml 
 
 ################################
 # Route Definitions
@@ -91,9 +100,12 @@ types:
             is: [ auth_required ]
             description: Create a deal proposal in the IX system. Partner(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
-                type: Deal
+                type: ProposedDealCreate
             responses:
                 201: # 201 = "Created"
+                    body:
+                        application/json:
+                            type: Response
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
@@ -142,7 +154,7 @@ types:
 
                 An object containing one or more of the negotiable deal fields will update the current negotiation state to the sent terms. Original proposal terms will be preserved.
             body:
-                type: NegotiatedDeal
+                type: NegotiatedDealCreate
             # examples:
             #     counter-offer:  !include examples/resources/deals/put_negotiation_counter-offer.raml
             #     accept:         !include examples/resources/deals/put_negotiation_accept.raml
@@ -215,13 +227,7 @@ types:
             is: [ auth_required ]
             description: Accept a new deal, rendering it active in the system
             body:
-                application/json:
-                    properties:
-                        proposal_id:
-                            type: integer
-                            required: true
-                            minimum: 1
-                            maximum: 16777215
+                type: ActiveDealCreate
             responses:
                 200: # 200 = "OK"
                     body:

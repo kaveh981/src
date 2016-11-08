@@ -33,7 +33,7 @@ properties:
         displayName: Modified At
         description: The timestamp the negotiation was last modified at. RFC3339 format, UTC.
     partner:
-        type: !include partner.raml
+        type: Partner
         required: true
         displayName: Partner
         description: The partner involved in this negotiation. Will be a publisher if request originates from a buyer, or a buyer if request originates from a publisher.
