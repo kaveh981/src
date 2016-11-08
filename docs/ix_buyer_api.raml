@@ -217,6 +217,18 @@ types:
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
                     404: # 404 = "Not found" provided package ID does not exist in the database
                     500: # 500 = "Internal Server Error" something done broke
+            delete:
+                is: [ auth_required ]
+                description: Delete a specific proposal from Index Market
+                responses:
+                    200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided package ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
     /negotiations:
         get:
             is: [ auth_required, pageable, deal_filterable ]
