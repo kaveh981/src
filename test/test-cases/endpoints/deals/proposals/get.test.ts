@@ -44,7 +44,7 @@ async function createProposal(publisher: INewPubData) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
-    return Helper.proposalToPayload(proposal, publisher);
+    return Helper.proposalToPayload(proposal, publisher.user);
 }
 
 /*
@@ -88,6 +88,6 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
     let response = await apiRequest.get(route, {limit: 3, offset: 0}, buyer.user.userID);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
 
 }
