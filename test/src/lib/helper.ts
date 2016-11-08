@@ -1,5 +1,12 @@
 'use strict';
 
+import { DatabaseManager } from './database-manager';
+import { Injector } from './injector';
+
+let crypto = require('crypto');
+
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
+
 class Helper {
 
     public static formatDate(dateString: string | Date) {
@@ -81,6 +88,51 @@ class Helper {
             created_at: dealNegotiation.createDate.toISOString(),
             modified_at: dealNegotiation.modifyDate.toISOString()
         };
+    }
+
+    public static async activeDealToPayload(proposal: INewProposalData,
+        partner: INewUserData, buyer: INewBuyerData) {
+        let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
+        let createDate = new Date(dates[0]['createDate']);
+        let modifyDate = new Date(dates[0]['modifyDate']);
+
+        return {
+            proposal: {
+                "id": proposal.proposal.proposalID,
+                "description": proposal.proposal.description,
+                "name": proposal.proposal.name,
+            },
+            partner: {
+                id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
+                }
+            },
+            dsp_id: buyer.dspID,
+            terms: proposal.proposal.terms,
+            impressions: proposal.proposal.impressions,
+            budget: proposal.proposal.budget,
+            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyer.user.userID + '-' + partner.userID)}`,
+            start_date: Helper.formatDate(proposal.proposal.startDate),
+            end_date: Helper.formatDate(proposal.proposal.endDate),
+            status: proposal.proposal.status,
+            auction_type: proposal.proposal.auctionType,
+            price: proposal.proposal.price,
+            inventory: proposal.sectionIDs,
+            currency: 'USD',
+            created_at: createDate.toISOString(),
+            modified_at: modifyDate.toISOString()
+        };
+    }
+
+    public static encrypt(text) {
+        let cipher = crypto.createCipher('aes-256-ctr', 'only geese eat rats');
+        let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        return encrypted;
     }
 
 }
