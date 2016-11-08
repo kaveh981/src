@@ -54,8 +54,8 @@ function ActiveDeals(router: express.Router): void {
 
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmUserInfo.id);
-
-        let activeDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
+        let settledDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
+        let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
         if (activeDeals.length > 0) {
             res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
