@@ -27,23 +27,23 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 }
 
- /*
- * @case    - The buyer attempts to authenticate.
- * @expect  - Authentication tests to pass.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - get, deals, auth
- */
+/*
+* @case    - The buyer attempts to authenticate.
+* @expect  - Authentication tests to pass.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - get, deals, auth
+*/
 export let IXM_API_DEALS_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetup);
 
- /*
- * @case    - The buyer buys a proposal.
- * @expect  - A payload containing the deal data.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_01 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal.
+* @expect  - A payload containing the deal data.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -58,48 +58,9 @@ export async function IXM_API_DEALS_PUT_01 (assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
 
-    let externalDealID = await databaseManager.select('externalDealID').from('rtbDeals');
-    externalDealID = externalDealID[0] && externalDealID[0].externalDealID || 'ghost goose';
-
-    let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
-    let createDate = new Date(dates[0]['createDate']);
-    let modifyDate = new Date(dates[0]['modifyDate']);
-
     assert.equal(response.status, 200);
-
-    assert.deepEqual(response.body['data'][0], {
-        proposal_id: proposal.proposal.proposalID,
-        publisher_id: publisher.user.userID,
-        publisher_contact: {
-            title: 'Warlord',
-            name: publisher.user.firstName + ' ' + publisher.user.lastName,
-            email_address: publisher.user.emailAddress,
-            phone: publisher.user.phone
-        },
-        buyer_id: buyer.user.userID,
-        buyer_contact: {
-            title: 'Warlord',
-            name: buyer.user.firstName + ' ' + buyer.user.lastName,
-            email_address: buyer.user.emailAddress,
-            phone: buyer.user.phone
-        },
-        dsp_id: buyer.dspID,
-        description: proposal.proposal.description,
-        terms: proposal.proposal.terms,
-        impressions: proposal.proposal.impressions,
-        budget: proposal.proposal.budget,
-        name: proposal.proposal.name,
-        external_id: externalDealID,
-        start_date: Helper.formatDate(proposal.proposal.startDate),
-        end_date: Helper.formatDate(proposal.proposal.endDate),
-        status: proposal.proposal.status,
-        auction_type: proposal.proposal.auctionType,
-        price: proposal.proposal.price,
-        deal_section_id: proposal.sectionIDs,
-        currency: 'USD',
-        created_at: createDate.toISOString(),
-        modified_at: modifyDate.toISOString()
-    });
+    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer);
+    assert.deepEqual(response.body['data'][0], expectedResponse);
 
 }
 
@@ -110,7 +71,7 @@ export async function IXM_API_DEALS_PUT_01 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_02 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -121,7 +82,7 @@ export async function IXM_API_DEALS_PUT_02 (assert: test.Test) {
     /** Test */
     let responseNone = await apiRequest.put(route, {}, buyer.user.userID);
     let responseChar = await apiRequest.put(route, { proposalID: 'goose' }, buyer.user.userID);
-    let responseNega = await apiRequest.put(route, { proposalID: -42}, buyer.user.userID);
+    let responseNega = await apiRequest.put(route, { proposalID: -42 }, buyer.user.userID);
     let responseZero = await apiRequest.put(route, { proposalID: 0 }, buyer.user.userID);
 
     assert.equal(responseNone.status, 400);
@@ -138,7 +99,7 @@ export async function IXM_API_DEALS_PUT_02 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_03 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -153,14 +114,14 @@ export async function IXM_API_DEALS_PUT_03 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal that is paused.
- * @expect  - The response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_04 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal that is paused.
+* @expect  - The response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -179,14 +140,14 @@ export async function IXM_API_DEALS_PUT_04 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal that is deleted.
- * @expect  - The response has status code 404.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_05 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal that is deleted.
+* @expect  - The response has status code 404.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_05(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -205,14 +166,14 @@ export async function IXM_API_DEALS_PUT_05 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal that is expired.
- * @expect  - The response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_06 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal that is expired.
+* @expect  - The response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_06(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -223,7 +184,7 @@ export async function IXM_API_DEALS_PUT_06 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [section.section.sectionID], { endDate: new Date('1992-07-29') });
+        [section.section.sectionID], { endDate: new Date('1992-07-29') });
 
     /** Test */
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
@@ -232,14 +193,14 @@ export async function IXM_API_DEALS_PUT_06 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal that expires today.
- * @expect  - The response has status code 200.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_07 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal that expires today.
+* @expect  - The response has status code 200.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_07(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -251,7 +212,7 @@ export async function IXM_API_DEALS_PUT_07 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [section.section.sectionID], { endDate: date });
+        [section.section.sectionID], { endDate: date });
 
     /** Test */
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
@@ -267,7 +228,7 @@ export async function IXM_API_DEALS_PUT_07 (assert: test.Test) {
  * @status  - working
  * @tags    - put, live, deals
  */
-export async function IXM_API_DEALS_PUT_08 (assert: test.Test) {
+export async function IXM_API_DEALS_PUT_08(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -278,7 +239,7 @@ export async function IXM_API_DEALS_PUT_08 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [section.section.sectionID], { startDate: new Date('2999-07-29') });
+        [section.section.sectionID], { startDate: new Date('2999-07-29') });
 
     /** Test */
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
@@ -287,14 +248,14 @@ export async function IXM_API_DEALS_PUT_08 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal that starts today.
- * @expect  - The response has status code 200.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_09 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal that starts today.
+* @expect  - The response has status code 200.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_09(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -306,7 +267,7 @@ export async function IXM_API_DEALS_PUT_09 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [section.section.sectionID], { startDate: date });
+        [section.section.sectionID], { startDate: date });
 
     /** Test */
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
@@ -315,14 +276,14 @@ export async function IXM_API_DEALS_PUT_09 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal twice.
- * @expect  - The first response has status code 200. The second response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_10 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal twice.
+* @expect  - The first response has status code 200. The second response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_10(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -343,14 +304,14 @@ export async function IXM_API_DEALS_PUT_10 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, and attempts to buy it again but it is disabled.
- * @expect  - The first response has status code 200. The second response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_11 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, and attempts to buy it again but it is disabled.
+* @expect  - The first response has status code 200. The second response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_11(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -374,14 +335,14 @@ export async function IXM_API_DEALS_PUT_11 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, and attempts to buy it again but it is paused.
- * @expect  - The first response has status code 200. The second response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_12 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, and attempts to buy it again but it is paused.
+* @expect  - The first response has status code 200. The second response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_12(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -405,14 +366,14 @@ export async function IXM_API_DEALS_PUT_12 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, but one out of two sections are not active.
- * @expect  - The response has status code 200.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_13 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, but one out of two sections are not active.
+* @expect  - The response has status code 200.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_13(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -424,7 +385,7 @@ export async function IXM_API_DEALS_PUT_13 (assert: test.Test) {
     let activeSection = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let pausedSection = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [activeSection.section.sectionID, pausedSection.section.sectionID]);
+        [activeSection.section.sectionID, pausedSection.section.sectionID]);
 
     await databaseManager.from('rtbSections').where('sectionID', pausedSection.section.sectionID).update({ status: 'D' });
 
@@ -435,14 +396,14 @@ export async function IXM_API_DEALS_PUT_13 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, but no sections are active.
- * @expect  - The response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals
- */
-export async function IXM_API_DEALS_PUT_14 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, but no sections are active.
+* @expect  - The response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals
+*/
+export async function IXM_API_DEALS_PUT_14(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -454,7 +415,7 @@ export async function IXM_API_DEALS_PUT_14 (assert: test.Test) {
     let sectionOne = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let sectionTwo = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID,
-                    [sectionOne.section.sectionID, sectionTwo.section.sectionID]);
+        [sectionOne.section.sectionID, sectionTwo.section.sectionID]);
 
     await databaseManager.from('rtbSections').update({ status: 'D' });
 
@@ -465,14 +426,14 @@ export async function IXM_API_DEALS_PUT_14 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, but one out of two sites aren't active.
- * @expect  - The response has status code 200.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals, sites
- */
-export async function IXM_API_DEALS_PUT_15 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, but one out of two sites aren't active.
+* @expect  - The response has status code 200.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals, sites
+*/
+export async function IXM_API_DEALS_PUT_15(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -494,14 +455,14 @@ export async function IXM_API_DEALS_PUT_15 (assert: test.Test) {
 
 }
 
- /*
- * @case    - The buyer buys a proposal, but no sites are active.
- * @expect  - The response has status code 403.
- * @route   - PUT deals/active
- * @status  - working
- * @tags    - put, live, deals, sites
- */
-export async function IXM_API_DEALS_PUT_16 (assert: test.Test) {
+/*
+* @case    - The buyer buys a proposal, but no sites are active.
+* @expect  - The response has status code 403.
+* @route   - PUT deals/active
+* @status  - working
+* @tags    - put, live, deals, sites
+*/
+export async function IXM_API_DEALS_PUT_16(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);

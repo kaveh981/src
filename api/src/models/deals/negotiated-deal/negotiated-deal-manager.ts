@@ -8,6 +8,7 @@ import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
+import { Helper } from '../../../lib/helper';
 
 const Log: Logger = new Logger('ACTD');
 
@@ -57,6 +58,7 @@ class NegotiatedDealManager {
         }
 
         let negotiatedDeal = new NegotiatedDealModel(rows[0]);
+
         negotiatedDeal.proposedDeal = await this.proposedDealManager.fetchProposedDealFromId(proposalID);
         negotiatedDeal.buyerInfo = await this.userManager.fetchUserFromId(negotiatedDeal.buyerID);
         negotiatedDeal.publisherInfo = await this.userManager.fetchUserFromId(negotiatedDeal.publisherID);
@@ -70,7 +72,7 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the negotiation.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: any): Promise<NegotiatedDealModel[]> {
+    public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: any) {
 
         let rows = await this.databaseManager.select('proposalID', 'publisherID')
                                              .from('ixmDealNegotiations')
@@ -81,8 +83,8 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < rows.length; i++) {
-                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
-                negotiatedDealArray.push(negotiatedDeal);
+            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
+            negotiatedDealArray.push(negotiatedDeal);
         }
 
         return negotiatedDealArray;
@@ -95,28 +97,31 @@ class NegotiatedDealManager {
      * @param proposalID - The id of the proposal being negotiated
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromProposalId(userID: number, proposalID: number): Promise<NegotiatedDealModel[]> {
+    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number) {
 
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
         let rows = await this.databaseManager.select('publisherID', 'buyerID')
                                              .from('ixmDealNegotiations')
-                                             .where(function() {
-                                                 this.where('buyerID', userID)
-                                                 .orWhere('publisherID', userID);
+                                             .where({
+                                                 proposalID: proposalID,
+                                                 buyerID: userID
                                              })
-                                             .andWhere('proposalID', proposalID);
+                                             .orWhere({
+                                                 proposalID: proposalID,
+                                                 publisherID: userID
+                                             });
 
         if (!rows[0]) {
             return;
         }
 
-        let negotiatedDealArray: NegotiatedDealModel[] = [];
-
         for (let i = 0; i < rows.length; i++) {
-                let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
-                negotiatedDealArray.push(negotiatedDeal);
+            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
+            negotiatedDealArray.push(negotiatedDeal);
         }
 
         return negotiatedDealArray;
+
     }
 
     /**
@@ -140,8 +145,7 @@ class NegotiatedDealManager {
 
         // Creation timestamp has to be made up - MySQL only takes care of the update timestamp
         if (!negotiatedDeal.createDate) {
-            let date: Date = new Date();
-            negotiatedDeal.createDate = this.dateToMysqlTimestamp(date.toISOString());
+            negotiatedDeal.createDate = Helper.currentDate();
         }
 
         await transaction.insert({
@@ -179,7 +183,7 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the proposal.
      * @returns A NegotiatedDealModel.
      */
-    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, buyerID: number): Promise<NegotiatedDealModel> {
+    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, buyerID: number) {
 
         let negotiatedDeal = new NegotiatedDealModel({
             buyerID: buyerID,
@@ -189,8 +193,8 @@ class NegotiatedDealManager {
             publisherStatus: 'accepted',
             buyerStatus: 'accepted',
             sender: 'buyer',
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
             startDate: proposedDeal.startDate,
             endDate: proposedDeal.endDate,
@@ -224,8 +228,8 @@ class NegotiatedDealManager {
             publisherStatus: sender === 'publisher' ? 'accepted' : 'active',
             buyerStatus: sender === 'buyer' ? 'accepted' : 'active',
             sender: sender,
-            createDate: this.dateToMysqlTimestamp(new Date()),
-            modifyDate: this.dateToMysqlTimestamp(new Date()),
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
             startDate: negotiationFields.startDate || proposedDeal.startDate,
             endDate: negotiationFields.endDate || proposedDeal.endDate,
@@ -236,6 +240,7 @@ class NegotiatedDealManager {
         });
 
         return negotiatedDeal;
+
     }
 
     /**
@@ -243,7 +248,7 @@ class NegotiatedDealManager {
      * @param negotiatedDeal - The negotiated deal to update.
      * @param transaction - An optional transaction to use. 
      */
-    public async updateNegotiatedDeal (negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction): Promise<string> {
+    public async updateNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction) {
 
         if (!negotiatedDeal.id) {
             throw new Error('Cannot update a negotiated deal without an id.');
@@ -285,25 +290,6 @@ class NegotiatedDealManager {
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
 
     }
-
-    /**
-     * Changes the date format to yyyy-mm-dd hh:mm:ss (MySQL datetime format)
-     * @param date - The date in ISO format
-     * @returns A string with the date in the format of yyyy-mm-dd hh:mm:ss
-     */
-    private dateToMysqlTimestamp(date: string | Date): string {
-
-        date = new Date(date);
-
-        return date.getFullYear() + '-' +
-            ('00' + (date.getMonth() + 1)).slice(-2) + '-' +
-            ('00' + date.getDate()).slice(-2) + ' ' +
-            ('00' + date.getHours()).slice(-2) + ':' +
-            ('00' + date.getMinutes()).slice(-2) + ':' +
-            ('00' + date.getSeconds()).slice(-2);
-
-    }
-
 }
 
 export { NegotiatedDealManager };

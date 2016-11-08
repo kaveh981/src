@@ -1,5 +1,12 @@
 'use strict';
 
+import { DatabaseManager } from './database-manager';
+import { Injector } from './injector';
+
+let crypto = require('crypto');
+
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
+
 class Helper {
 
     public static formatDate(dateString: string | Date) {
@@ -39,66 +46,63 @@ class Helper {
     /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
-     * @param publisher - The publisher object that owns the proposal.
+     * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-    public static proposalToPayload(proposal: INewProposalData, publisher: INewPubData) {
+    public static proposalToPayload(proposal: INewProposalData, owner: INewUserData) {
+
         return {
-            id: proposal.proposal.proposalID,
-            publisher_id: proposal.proposal.ownerID,
+            auction_type: proposal.proposal.auctionType,
+            budget: proposal.proposal.budget,
             contact: {
                 title: 'Warlord',
-                name: publisher.user.firstName + ' ' + publisher.user.lastName,
-                email_address: publisher.user.emailAddress,
-                phone: publisher.user.phone
+                name: owner.firstName + ' ' + owner.lastName,
+                email: owner.emailAddress,
+                phone: owner.phone
             },
-            name: proposal.proposal.name,
-            status: proposal.proposal.status,
+            created_at: proposal.proposal.createDate.toISOString(),
             currency: 'USD',
             description: proposal.proposal.description,
-            start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
             end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
-            price: proposal.proposal.price,
+            id: proposal.proposal.proposalID,
             impressions: proposal.proposal.impressions,
-            budget: proposal.proposal.budget,
-            auction_type: proposal.proposal.auctionType,
-            terms: proposal.proposal.terms,
-            created_at: proposal.proposal.createDate.toISOString(),
+            inventory: proposal.sectionIDs,
             modified_at: proposal.proposal.modifyDate.toISOString(),
-            deal_section_id: proposal.sectionIDs
+            name: proposal.proposal.name,
+            price: proposal.proposal.price,
+            owner_id: proposal.proposal.ownerID,
+            start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
+            status: proposal.proposal.status,
+            terms: proposal.proposal.terms,
         };
     }
 
-    public static dealNegotiationToPayload (dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-                                            publisher: INewPubData, buyer: INewBuyerData) {
-
+    public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
+        partner: INewUserData) {
         return {
-            proposal_id: proposal.proposal.proposalID,
-            publisher_id: publisher.user.userID,
-            publisher_contact: {
-                title: 'Warlord',
-                name: publisher.user.firstName + ' ' + publisher.user.lastName,
-                email_address: publisher.user.emailAddress,
-                phone: publisher.user.phone
+            proposal: {
+                id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
+                description: proposal.proposal.description,
+                auction_type: proposal.proposal.auctionType,
+                inventory: proposal.sectionIDs,
+                currency: 'USD'
             },
-            buyer_id: buyer.user.userID,
-            buyer_contact: {
-                title: 'Warlord',
-                name: buyer.user.firstName + ' ' + buyer.user.lastName,
-                email_address: buyer.user.emailAddress,
-                phone: buyer.user.phone
-            },
-            description: proposal.proposal.description,
-            terms: dealNegotiation.terms,
-            impressions: dealNegotiation.impressions,
-            budget: dealNegotiation.budget,
-            name: proposal.proposal.name,
             start_date: Helper.formatDate(dealNegotiation.startDate),
             end_date: Helper.formatDate(dealNegotiation.endDate),
-            auction_type: proposal.proposal.auctionType,
             price: dealNegotiation.price,
-            deal_section_id: proposal.sectionIDs,
-            currency: 'USD',
+            impressions: dealNegotiation.impressions,
+            budget: dealNegotiation.budget,
+            partner: {
+                id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
+                }
+            },
+            terms: dealNegotiation.terms,
             created_at: dealNegotiation.createDate.toISOString(),
             modified_at: dealNegotiation.modifyDate.toISOString()
         };
@@ -117,7 +121,7 @@ class Helper {
      * - buyer_id, buyer_contact
      * @returns - The expected payload
      */
-    public static settledDealToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
+    public static dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
                                         proposal: INewProposalData, publisher: INewPubData, buyer: INewBuyerData) {
         return {
             proposal_id: proposal.proposal.proposalID,
@@ -151,6 +155,51 @@ class Helper {
             currency: 'USD',
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
+    }
+
+    public static async dealsActivePutToPayload(proposal: INewProposalData,
+        partner: INewUserData, buyer: INewBuyerData) {
+        let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
+        let createDate = new Date(dates[0]['createDate']);
+        let modifyDate = new Date(dates[0]['modifyDate']);
+
+        return {
+            proposal: {
+                "id": proposal.proposal.proposalID,
+                "description": proposal.proposal.description,
+                "name": proposal.proposal.name,
+            },
+            partner: {
+                id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
+                }
+            },
+            dsp_id: buyer.dspID,
+            terms: proposal.proposal.terms,
+            impressions: proposal.proposal.impressions,
+            budget: proposal.proposal.budget,
+            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyer.user.userID + '-' + partner.userID)}`,
+            start_date: Helper.formatDate(proposal.proposal.startDate),
+            end_date: Helper.formatDate(proposal.proposal.endDate),
+            status: proposal.proposal.status,
+            auction_type: proposal.proposal.auctionType,
+            price: proposal.proposal.price,
+            inventory: proposal.sectionIDs,
+            currency: 'USD',
+            created_at: createDate.toISOString(),
+            modified_at: modifyDate.toISOString()
+        };
+    }
+
+    public static encrypt(text) {
+        let cipher = crypto.createCipher('aes-256-ctr', 'only geese eat rats');
+        let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        return encrypted;
     }
 
 }

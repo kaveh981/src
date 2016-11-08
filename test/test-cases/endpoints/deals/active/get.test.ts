@@ -37,7 +37,7 @@ async function createSettledDeal(publisher: INewPubData) {
     let activeDeal = await databasePopulator.createSettledDeal(
             publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
-    return Helper.settledDealToPayload(activeDeal, negotiation, proposal, publisher, buyer);
+    return Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, publisher, buyer);
 }
 
 /*
@@ -363,7 +363,7 @@ export async function IXM_API_DA_GET_09 (assert: test.Test) {
  * @case    - Proposal got accepted and rtbDeals entry of active status is present
  * @expect  - A payload containing the deal data.
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @status  - failing (created_at returned, but doesn't come from rtbDeals)
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_10 (assert: test.Test) {
@@ -386,7 +386,7 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data[0], Helper.settledDealToPayload(settledDeal, negotiation, proposal, publisher, buyer));
+    assert.deepEqual(response.body.data[0], Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher, buyer));
 
 }
 
@@ -394,7 +394,7 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
  * @case    - Proposal got accepted and rtbDeals entry of paused status is present
  * @expect  - A payload containing the deal data.
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @status  - failing (created_at returned, but doesn't come from rtbDeals)
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_11 (assert: test.Test) {
@@ -417,7 +417,7 @@ export async function IXM_API_DA_GET_11 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data[0], Helper.settledDealToPayload(settledDeal, negotiation, proposal, publisher, buyer));
+    assert.deepEqual(response.body.data[0], Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher, buyer));
 
 }
 
@@ -425,7 +425,7 @@ export async function IXM_API_DA_GET_11 (assert: test.Test) {
  * @case    - Proposal got accepted and rtbDeals entry of deactivated status is present
  * @expect  - A payload containing the deal data.
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but not from rtbDeals (?) and modified_at is wrong)
+ * @status  - failing (created_at returned, but doesn't come from rtbDeals)
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_12 (assert: test.Test) {
@@ -448,6 +448,6 @@ export async function IXM_API_DA_GET_12 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data[0], Helper.settledDealToPayload(settledDeal, negotiation, proposal, publisher, buyer));
+    assert.deepEqual(response.body.data[0], Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher, buyer));
 
 }
