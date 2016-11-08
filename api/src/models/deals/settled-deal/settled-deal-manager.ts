@@ -39,7 +39,7 @@ class SettledDealManager {
 
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                                                      'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
-                                                     'createDate', 'modifiedDate as modifyDate')
+                                                     'createDate', 'modifiedDate as modifyDate', 'rtbDeals.startDate', 'rtbDeals.endDate')
                                              .from('rtbDeals')
                                              .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
                                              .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
