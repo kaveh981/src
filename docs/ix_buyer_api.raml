@@ -138,6 +138,13 @@ traits:
 
 
 ################################
+# Annotation Declarations
+################################
+
+annotationTypes:
+    not_implemented: boolean
+
+################################
 # Object Definitions
 ################################
 
@@ -185,6 +192,7 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         put:
+            (not_implemented): true
             is: [ auth_required ]
             description: Create a deal proposal in the IX system. Partner(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
@@ -210,24 +218,42 @@ types:
                 description: Retrieve a specific proposal by its unique ID from Index Market.
                 responses:
                     200: # 200 = "OK"
-                    body:
-                        application/json:
-                            type: Response
+                        body:
+                            application/json:
+                                type: Response
                     401: # 401 = "Unauthorized" authentication has failed or was not provided
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                    404: # 404 = "Not found" provided package ID does not exist in the database
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
+                    500: # 500 = "Internal Server Error" something done broke
+            put:
+                (not_implemented): true
+                is: [ auth_required ]
+                description: Edit an already existing proposal in Index Market
+                body:
+                    application/json:
+                        type: ProposedDealCreate
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
                     500: # 500 = "Internal Server Error" something done broke
             delete:
+                (not_implemented): true
                 is: [ auth_required ]
                 description: Delete a specific proposal from Index Market
                 responses:
                     200: # 200 = "OK"
-                    body:
-                        application/json:
-                            type: Response
+                        body:
+                            application/json:
+                                type: Response
                     401: # 401 = "Unauthorized" authentication has failed or was not provided
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                    404: # 404 = "Not found" provided package ID does not exist in the database
+                    404: # 404 = "Not found" provided proposal ID does not exist in the database
                     500: # 500 = "Internal Server Error" something done broke
     /negotiations:
         get:
@@ -338,6 +364,19 @@ types:
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
                             500: # 500 = "Internal Server Error" something done broke
+                    delete:
+                        (not_implemented): true
+                        is: [ auth_required ]
+                        description: Shortcut for rejecting a specific negotiation using a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                                body:
+                                    application/json:
+                                        type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" provided proposal ID does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
     /active:
         get:
             is: [ auth_required, pageable, deal_filterable ]
@@ -388,6 +427,7 @@ types:
                     minimum: 1
                     maximum: 16777215
             get:
+                (not_implemented): true
                 is: [ auth_required, pageable, deal_filterable ]
                 description: Retrieve all active deals associated with a specific proposal ID involving the current user.
                 queryParameters:
@@ -423,6 +463,7 @@ types:
                             minimum: 1
                             maximum: 16777215
                     get:
+                        (not_implemented): true
                         is: [ auth_required ]
                         description: Retrieve a specific active deal associated with a specific proposal ID/partner ID combination for the current user.
                         responses:
@@ -434,6 +475,19 @@ types:
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" deal/proposal/partner does not exist in the database
                             500: # 500 = "Internal Server Error" something done broke
+                    delete:
+                        (not_implemented): true
+                        is: [ auth_required ]
+                        description: Shortcut for canceling a specific active deal using a specific proposal ID/partner ID combination for the current user.
+                        responses:
+                            200: # 200 = "OK"
+                                body:
+                                    application/json:
+                                        type: Response
+                            401: # 401 = "Unauthorized" authentication has failed or was not provided
+                            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                            404: # 404 = "Not found" provided proposal ID does not exist in the database
+                            500: # 500 = "Internal Server Error" something done broke
 /users:
     /{user_id}:
         uriParameters:
@@ -444,6 +498,7 @@ types:
                 minimum: 1
                 maximum: 16777215
         get:
+            (not_implemented): true
             is: [ auth_required ]
             description: Retrieve contact information for a user by id.
             responses:
