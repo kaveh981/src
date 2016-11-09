@@ -16,7 +16,6 @@ class SQLScriptBuilder {
         this.createDate = new Date();
     }
 
-
     /**
      * Build rollout and rollback scripts
      * 
