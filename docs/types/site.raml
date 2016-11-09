@@ -1,0 +1,102 @@
+#%RAML 1.0 DataType
+
+type: object
+description: |
+        A website. What is this, 1992? You need help with your 14.4k modem? Lost your CompuServe account?
+properties:
+    avg_cpm:
+        type: number
+        required: true #?
+        displayName: Average CPM
+        description: The average CPM for impressions on the site
+    category:
+        type: string
+        required: true
+        displayName: Category
+        description: A category describing the site's primary content type
+    description:
+        type: string
+        required: true #?
+        displayName: Description
+        description: A description of the site
+        maxLength: 255
+    id:
+        type: integer
+        required: true
+        displayName: Site ID
+        description: Unique ID for the site
+    impressions:
+        type: string #?
+        required: true #?
+        displayName: Impressions
+        description: Number of monthly impressions for the site
+    inventory:
+        type: object[]
+        required: true
+        displayName: Inventory
+        description: |
+            A collection of objects describing the site's inventory. Each object contains
+                - `ad_unit` The ad unit as a "wxh" string
+                - `video` Boolean describing whether the placement supports video
+                - `devices` An array of devices for the placement one or more of "desktop", "mobile" #? 
+                
+    name:
+        type: string
+        required: true
+        displayName: Name
+        description: The site's name.
+        maxLength: 255
+    uniques:
+        type: string #?
+        required: true #?
+        displayName: Unique Visitors
+        description: The number of unique visitors per month.
+    url:
+        type: string
+        required: true
+        displayName: URL
+        description: The site's main domain or homepage.
+        maxLength: 255
+
+
+
+example: |
+    {
+        "id": 1992,
+        "name": "SpamLords™®©",
+        "url": "https://spamlords.com",
+        "category": "Sports/Wrestling",
+        "impressions": "1.23M",
+        "uniques": "0.98M",
+        "description": "The Old Ones were, the Old Ones are, and the Old Ones shall be. Not in the spaces we know, but between them, They walk serene and primal, undimensioned and to us unseen. Yog-Sothoth knows the gate. Yog-Sothoth is the gate. Yog-Sothoth is the key and guardian of the gate. Past, present, future, all are one in Yog-Sothoth.",
+        "avg_cpm": 3.33,
+        "inventory": [
+            {
+                "ad_unit": "728x90",
+                "video": true,
+                "devices": [ "desktop" ]
+            },
+            {
+                "ad_unit": "728x550",
+                "video": true,
+                "devices": [ "desktop" ]
+            },
+            {
+                "ad_unit": "160x600",
+                "video": false,
+                "devices": [ "desktop" ]
+            },
+            {
+                "ad_unit": "300x600",
+                "video": true,
+                "devices": [ "desktop", "mobile" ]
+            },
+            {
+                "ad_unit": "320x50",
+                "video": true,
+                "devices": [ "mobile" ]
+            }
+        ]
+
+
+    }
