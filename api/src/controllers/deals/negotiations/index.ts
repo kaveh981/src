@@ -202,7 +202,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate the request's parameters syntax
         let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest',
-                                { sanitizeString: true, fillDefaults: true, removeNull: true });
+                                { sanitizeStringEnum: true, fillDefaults: true, removeNull: true, trimStrings: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
