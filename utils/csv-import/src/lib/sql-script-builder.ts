@@ -148,7 +148,10 @@ class SQLScriptBuilder {
     /**
      * Write string to file
      */
-    private writeToFile(path: string, content: string) {
+    private writeToFile(name: string, content: string) {
+        // TODO: Add file path here
+        let path = name;
+
         fs.writeFile(path, content, function(err) {
             if (err) {
                 return console.log(err);
