@@ -4,7 +4,7 @@ ENV=${1:-development}
 echo "Deploying atw-api in $ENV environment"
 
 HERE=$(readlink -f $(dirname $0))
-SRC=$HERE/..
+SRC=$(readlink -f $HERE/..)
 DEST=/opt/atw-api/
 TMP=/tmp/atw-api
 
@@ -30,8 +30,10 @@ cp -rf $TMP/build/src $DEST
 cp -rf $SRC/config $DEST
 cp -rf $SRC/src/schemas $DEST/src
 cp -rf $TMP/node_modules $DEST
-cp -rf $SRC/.env $DEST
 cp -rf $SRC/package.json $DEST
+
+# Deploy secrets if deploying from entrypoint.sh
+test $ENTRY && echo "Copying .env from src (development)" && cp -rf $SRC/.env $DEST
 
 # Remove files from /tmp
 rm -rf /tmp/*
