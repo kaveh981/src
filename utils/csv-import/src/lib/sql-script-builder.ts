@@ -8,23 +8,26 @@ class SQLScriptBuilder {
     private createDate: Date;
 
     constructor() {
+        // TODO: read conf from file
         this.queryBuilder = Knex({client: 'mysql'});
         this.createDate = new Date();
     }
 
+    public async buildScripts(ticketNumber: string, proposals: INewProposalData[]) {
+
+        let insertScript = await this.buildInsertScript(ticketNumber, proposals);
+        this.writeToFile(ticketNumber + "_rollout.sql", insertScript);
+
+        let deleteScript = await this.buildDeleteScript(ticketNumber, proposals);
+        this.writeToFile(ticketNumber + "_rollback.sql", deleteScript);
+    }
+
     public async buildInsertScript(ticketNumber: string, proposals: INewProposalData[]): Promise<string> {
+
         let insertScript: string;
         insertScript = "/* JIRA Ticket Number: " + ticketNumber + " Date of Execution: " + this.createDate + " */\n";
 
-        insertScript += "SET @expected_proposal_insertions = " + proposals.length + ";\n" ;
-
-        let numberOfMappings: number = 0;
-
-        for (let i = 0; i < proposals.length; i += 1) {
-            numberOfMappings += proposals[i].sectionIDs.length;
-        }
-
-        insertScript += "SET @expected_mapping_insertions = " + numberOfMappings + ";\n";
+        insertScript += this.getExpectedChanges(proposals);
 
         insertScript += "TEE /tmp/" + ticketNumber + "_Viper2_rollout.log\n";
 
@@ -41,6 +44,7 @@ class SQLScriptBuilder {
         insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         insertScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
+        // TODO: add if statement to check if final_proposals = existing + expected
         insertScript += "NOTEE";
 
         return insertScript;
@@ -50,13 +54,24 @@ class SQLScriptBuilder {
         let deleteScript: string;
         deleteScript = "/* JIRA Ticket Number: " + ticketNumber + " Date of Execution: " + this.createDate + " */\n";
 
+        deleteScript += this.getExpectedChanges(proposals);
+
+        deleteScript += "TEE /tmp/" + ticketNumber + "_Viper2_rollback.log\n";
+
+        deleteScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+
+        deleteScript += "SET @existing_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+
         deleteScript += "START TRANSACTION;";
 
         for (let i = 0; i < proposals.length; i += 1) {
             deleteScript += await this.buildDeleteQuery(proposals[i].proposal, proposals[i].sectionIDs);
         }
+        deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+        deleteScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        deleteScript += "COMMIT;";
+        // TODO: add if statement to check if final_proposals = existing - expected
+        deleteScript += "NOTEE";
 
         return deleteScript;
     }
@@ -93,5 +108,28 @@ class SQLScriptBuilder {
 
         return query;
 
+    }
+
+    public getExpectedChanges(proposals: INewProposalData[]) {
+        let changes: string = "SET @expected_proposal_changes = " + proposals.length + ";\n" ;
+
+        let numberOfMappings: number = 0;
+
+        for (let i = 0; i < proposals.length; i += 1) {
+            numberOfMappings += proposals[i].sectionIDs.length;
+        }
+
+        changes += "SET @expected_mapping_changes = " + numberOfMappings + ";\n";
+
+        return changes;
+    }
+
+    private writeToFile(path: string, content: string) {
+        let fs = require('fs');
+        fs.writeFile(path, content, function(err) {
+            if (err) {
+                return console.log(err);
+            }
+        });
     }
 }
