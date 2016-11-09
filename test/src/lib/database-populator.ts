@@ -251,6 +251,8 @@ class DatabasePopulator {
         newDealNegotiationData.proposalID = proposalID;
         newDealNegotiationData.publisherID = publisherID;
         newDealNegotiationData.buyerID = buyerID;
+        newDealNegotiationData.startDate.setHours(0, 0, 0, 0);
+        newDealNegotiationData.endDate.setHours(0, 0, 0, 0);
 
         let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
 

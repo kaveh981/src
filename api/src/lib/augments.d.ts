@@ -11,12 +11,21 @@ declare module 'express' {
 
     // Augment the express request object
     interface Request {
+
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
         ixmUserInfo: UserModel;
+
+        /** Request ID */
+        id: string;
+
     }
 
     // Augment the express response object.
     interface Response {
+
+        /** Response Id matching request */
+        id: string;
+
         /**
          * Send an error message in the correct format.
          * @param error - The error code string in ./config/errors.json corresponding to the message.

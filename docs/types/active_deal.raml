@@ -28,8 +28,8 @@ properties:
     dsp_id:
         type: integer
         required: true
-        displayName: DSP ID(s)
-        description: An array of DSP IDs involved in the deal
+        displayName: DSP ID
+        description: The DSP ID involved in the deal
     end_date:
         type: date-only
         required: false
@@ -67,8 +67,8 @@ properties:
         displayName: Deal Price
         description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.) Dollars with two decimal cents.
         example: 1.99
-        min: 0.01
-        max: 655.35
+        minimum: 0.01
+        maximum: 655.35
     proposal:
         type: object
         required: true

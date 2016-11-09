@@ -18,6 +18,11 @@ class SettledDealModel {
     /** Modified date of the deal */
     public modifyDate: Date;
 
+    /** Start date */
+    public startDate: Date | '0000-00-00';
+    /** End date */
+    public endDate: Date | '0000-00-00';
+
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
 
@@ -34,6 +39,20 @@ class SettledDealModel {
         if (initParams) {
             Object.assign(this, initParams);
         }
+    }
+
+    /** 
+     * Returns true if the deal is live
+     * @returns True if the deal is live.
+     */
+    public isActive() {
+
+        let startDate = Helper.formatDate(this.startDate);
+        let endDate = Helper.formatDate(this.endDate);
+        let today = Helper.formatDate(new Date());
+
+        return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00');
+
     }
 
     /**
@@ -67,8 +86,8 @@ class SettledDealModel {
                 inventory: this.negotiatedDeal.proposedDeal.sections,
                 currency: this.negotiatedDeal.proposedDeal.currency,
                 external_id: this.externalDealID,
-                start_date: Helper.formatDate(this.negotiatedDeal.startDate),
-                end_date: Helper.formatDate(this.negotiatedDeal.endDate),
+                start_date: Helper.formatDate(this.startDate),
+                end_date: Helper.formatDate(this.endDate),
                 status: this.status,
                 price: this.negotiatedDeal.price,
                 created_at: this.createDate.toISOString(),

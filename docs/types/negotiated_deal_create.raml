@@ -1,0 +1,67 @@
+#!#%RAML 1.0 DataType
+
+type: object
+description: An object describing the request body when sending a counter-offer to a proposal or existing negotiation
+properties:
+    budget:
+        type: integer
+        required: false
+        displayName: Budget
+        description: The projected amount to be spent by the buyer
+    end_date:
+        type: date-only
+        required: false
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
+        example: 2016-10-10
+    impressions:
+        type: integer
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package.
+    partner_id:
+        type: integer
+        required: true
+        displayName: Partner ID
+        description: The ID of the partner involved in this negotiation.
+    proposal_id:
+        type: integer
+        required: true
+        displayName: Proposal ID
+        description: The unique identifier for the proposal.
+    price:
+        type: number
+        required: false
+        displayName: Deal Price
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
+        example: 1.99
+        minimum: 0.01
+        maximum: 655.35
+    response:
+        type: string
+        required: false
+        displayName: Response
+        description: The type of response being sent. If 'accept' or 'reject', cannot be accompanied by alternate details.
+        enum: ['accept', 'reject', 'counter-offer']
+        default: 'counter-offer'
+    start_date:
+        type: date-only
+        required: false
+        displayName: Start Date
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format.
+    terms:
+        type: string
+        required: false
+        displayName: Terms & Conditions
+        description: The terms & conditions for the deal - extra information describing the deal.
+    example: |
+    {
+        "proposal_id": 999,
+        "partner_id": 666,
+        "start_date": "2016-09-09",
+        "end_date": "2016-10-10",
+        "price": 1.99,
+        "impressions": 8,
+        "budget": 9999999,
+        "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror."
+    }

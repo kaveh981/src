@@ -46,12 +46,15 @@ function augmentResponse(res: express.Response): void {
             return;
         }
 
+        Log.trace(`(${res.id}) Responding with message \n${Log.stringify(message)}`);
+
         let msg = JSON.stringify(message);
 
         res.set({
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(msg)
         });
+
         res.status(statusCode).send(msg);
 
     };

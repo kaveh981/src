@@ -40,11 +40,17 @@ interface IValidationOptions {
     /** Sanitize strings to lowercase and trim trailing whitespace */
     sanitizeString?: boolean;
 
+    /** Sanitize strings that belong to enum types */
+    sanitizeStringEnum?: boolean;
+
     /** Sanitize integers by converting strings to numbers */
     sanitizeIntegers?: boolean;
 
     /** Sanitize booleans by converting strings to bools */
     sanitizeBooleans?: boolean;
+
+    /** Trim trailing whitespace from strings */
+    trimStrings?: boolean;
 
     /** Remove keys which are null */
     removeNull?: boolean;
@@ -93,7 +99,7 @@ class RamlTypeValidator {
 
         // No schemas :(
         if (!files[0]) {
-            Log.debug('No schemas found.');
+            Log.info('No schemas found.');
             return;
         }
 
@@ -103,8 +109,8 @@ class RamlTypeValidator {
             let parsedYAML = yaml.safeLoad(fileContent);
 
             for (let key in parsedYAML) {
-                Log.trace('Loading ' + key + '...');
-
+                Log.trace('Reading ' + key + '...');
+                Log.trace(`${Log.stringify(parsedYAML[key])}`);
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
@@ -112,7 +118,7 @@ class RamlTypeValidator {
         let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
 
         if (parsedAPI.errors().length > 0) {
-            Log.error(JSON.stringify(parsedAPI.errors(), null, 4));
+            Log.error(Log.stringify(parsedAPI.errors()));
             throw new Error('Compilation error in schemas.');
         }
 
@@ -138,6 +144,8 @@ class RamlTypeValidator {
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
 
+        Log.trace(`Validating ${Log.stringify(obj)} as ${type} with options ${JSON.stringify(opts)}.`);
+
         let typeObject = this.types[type];
 
         if (!typeObject) {
@@ -145,7 +153,11 @@ class RamlTypeValidator {
             return [this.createError('UNKNOWN_TYPE', type, null, '')];
         }
 
-        return this.validateNode(obj, typeObject, type, opts);
+        let errors = this.validateNode(obj, typeObject, type, opts);
+
+        Log.trace(`Had errors ${Log.stringify(errors)}`);
+
+        return errors;
 
     }
 
@@ -198,6 +210,16 @@ class RamlTypeValidator {
                 // Sanitize string to lower case if desired
                 if (opts.sanitizeString && typeof obj[property.key] === 'string') {
                     obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize strings to lower case if the key is an enum
+                if (opts.sanitizeStringEnum && typeof obj[property.key] === 'string' && property.enum) {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Trim trailing whitespace from strings
+                if (opts.trimStrings && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim();
                 }
 
                 // Sanitize integers to numbers

@@ -46,6 +46,25 @@ class Helper {
     }
 
     /**
+     * Generate an id consisting of random alpha numeric characters.
+     * @param length - The length of the string to generate.
+     * @returns A string consisting of random alpha numeric characters.
+     */
+    public static generateId(length: number) {
+
+        let allowedChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let id = '';
+
+        for (let i = 0; i < length; i++) {
+            let idx = Math.floor(Math.random() * allowedChars.length);
+            id += allowedChars[idx];
+        }
+
+        return id;
+
+    }
+
+    /**
      * Generates an external deal id.
      * @param proposalId - The proposalId to generate an external deal id for.
      * @param buyerId - The buyer of the deal.

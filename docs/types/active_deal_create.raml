@@ -1,0 +1,14 @@
+#!#%RAML 1.0 DataType
+
+type: object
+description: An object describing the request body when buying a proposal directly (without negotiation)
+properties:
+	proposal_id:
+	    type: integer
+	    required: true
+	    displayName: Proposal ID
+	    description: The unique identifier for the proposal.
+	example: |
+    {
+        "proposal_id": 999
+    }
