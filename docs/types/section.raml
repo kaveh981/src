@@ -10,32 +10,6 @@ description: |
             - Country restrictions
             - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
 properties:
-    id:
-        type: integer
-        required: true
-        displayName: Section ID
-        description: The unique identifier for the section.
-    name:
-        type: string
-        required: true
-        displayName: Section Name
-        description: A descriptive name for the section
-        maxLength: 255
-    entire_site:
-        type: boolean
-        required: true
-        displayName: Entire Site
-        description: Whether the entire site is included in the deal. If true, the `matches` array will be omitted.
-    matches:
-        type: Match[]
-        required: false
-        displayName: Matches
-        description: A set of matching objects consisting of a `match_type` and `url` to match against
-    coverage:
-        type: integer
-        required: true
-        displayName: Coverage
-        description: The percentage of coverage for the section: 80 = 80% coverage, meaning the deal will serve 80% of impressions.
     ad_units:
         type: string[]
         required: false
@@ -46,6 +20,16 @@ properties:
         required: false
         displayName: Country Restrictions
         description: A list of countries the deal is available in. [ISO 3166 ALPHA-3](http://www.iso.org/iso/home/standards/country_codes.htm) codes. Will be omitted if no country restrictions apply.
+    coverage:
+        type: integer
+        required: true
+        displayName: Coverage
+        description: The percentage of coverage for the section: 80 = 80% coverage, meaning the deal will serve 80% of impressions.
+    entire_site:
+        type: boolean
+        required: true
+        displayName: Entire Site
+        description: Whether the entire site is included in the deal. If true, the `matches` array will be omitted.
     frequency_restrictions:
         type: string[]
         required: false
@@ -60,6 +44,22 @@ properties:
                 - 63 - 126
                 - 127 - 254
                 - 255(max)
+    id:
+        type: integer
+        required: true
+        displayName: Section ID
+        description: The unique identifier for the section.
+    matches:
+        type: Match[]
+        required: false
+        displayName: Matches
+        description: A set of matching objects consisting of a `match_type` and `url` to match against
+    name:
+        type: string
+        required: true
+        displayName: Section Name
+        description: A descriptive name for the section
+        maxLength: 255
     site:
         type: Site
         required: true
