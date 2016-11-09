@@ -9,7 +9,7 @@ import { SchemaLoader } from './lib/schema-loader';
 const configLoader = new ConfigLoader();
 Injector.put(configLoader, 'ConfigLoader');
 
-const csvLoader = new CSVLoader(configLoader);
+const csvLoader = new CSVLoader();
 Injector.put(csvLoader, 'CSVLoader');
 
 const schemaLoader = new SchemaLoader();
