@@ -44,4 +44,3 @@ let bcd: INewProposalData = {
     sectionIDs: [82]
 };
 builder.buildScripts("ATW-248", "./", [abc, bcd]);
-
