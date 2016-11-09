@@ -17,7 +17,7 @@ services:
         ENVIRONMENT: $ENVIRONMENT
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: ir.indexexchange.com:5000/atw-api$VERSION
+    image: ir.indexexchange.com:5000/atw-api$APIVERSION
     logging:
       driver: "journald"
       options:
@@ -37,7 +37,7 @@ services:
         ENVIRONMENT: $ENVIRONMENT
         DATE: $DATE
         GIT_COMMIT: $GIT_COMMIT
-    image: ir.indexexchange.com:5000/atw-nginx$VERSION
+    image: ir.indexexchange.com:5000/atw-nginx$NGINXVERSION
     logging:
       driver: "journald"
       options:

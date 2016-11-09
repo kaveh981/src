@@ -32,8 +32,12 @@ cp -rf $SRC/src/schemas $DEST/src
 cp -rf $TMP/node_modules $DEST
 cp -rf $SRC/package.json $DEST
 
-# Deploy secrets if deploying from entrypoint.sh
-test $ENTRY && echo "Copying .env from src (development)" && cp -rf $SRC/.env $DEST
+# Deploy secrets if found. Won't be found during image building, but will be found in workstation deployments when
+# the /src/ dir is mounted to the container.
+test -e $SRC/.env \
+&& echo "Copying .env from src (workstation deployment)" \
+&& cp -rf $SRC/.env $DEST \
+|| echo "Not deploying any secrets (build deployment).."
 
 # Remove files from /tmp
 rm -rf /tmp/*

@@ -8,7 +8,7 @@ services:
   atw-api:
     container_name: "atw-api"
     restart: "always"
-    image: pr.indexexchange.com:5000/atw-api$VERSION
+    image: pr.indexexchange.com:5000/atw-api$APIVERSION
     logging:
       driver: "syslog"
       options:
@@ -19,8 +19,8 @@ services:
       - "/services/ixm/api/.env:/opt/atw-api/.env:ro"
   atw-nginx:
     container_name: "atw-nginx"
-    restart: "no"
-    image: pr.indexexchange.com:5000/atw-nginx$VERSION
+    restart: "always"
+    image: pr.indexexchange.com:5000/atw-nginx$NGINXVERSION
     logging:
       driver: "syslog"
       options:
