@@ -1,6 +1,7 @@
 'use strict';
 
 import * as Knex from 'knex';
+import * as fs from 'fs';
 
 class SQLScriptBuilder {
 
@@ -148,7 +149,6 @@ class SQLScriptBuilder {
      * Write string to file
      */
     private writeToFile(path: string, content: string) {
-        let fs = require('fs');
         fs.writeFile(path, content, function(err) {
             if (err) {
                 return console.log(err);
