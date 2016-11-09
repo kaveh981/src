@@ -40,11 +40,17 @@ interface IValidationOptions {
     /** Sanitize strings to lowercase and trim trailing whitespace */
     sanitizeString?: boolean;
 
+    /** Sanitize strings that belong to enum types */
+    sanitizeStringEnum?: boolean;
+
     /** Sanitize integers by converting strings to numbers */
     sanitizeIntegers?: boolean;
 
     /** Sanitize booleans by converting strings to bools */
     sanitizeBooleans?: boolean;
+
+    /** Trim trailing whitespace from strings */
+    trimStrings?: boolean;
 
     /** Remove keys which are null */
     removeNull?: boolean;
@@ -204,6 +210,16 @@ class RamlTypeValidator {
                 // Sanitize string to lower case if desired
                 if (opts.sanitizeString && typeof obj[property.key] === 'string') {
                     obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize strings to lower case if the key is an enum
+                if (opts.sanitizeStringEnum && typeof obj[property.key] === 'string' && property.enum) {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Trim trailing whitespace from strings
+                if (opts.trimStrings && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim();
                 }
 
                 // Sanitize integers to numbers
