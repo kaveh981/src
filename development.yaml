@@ -13,14 +13,18 @@ services:
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile
-    image: ir.indexexchange.com:5000/atw-api:dev
+      args:
+        ENVIRONMENT: $ENVIRONMENT
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: ir.indexexchange.com:5000/atw-api$VERSION
     logging:
       driver: "journald"
       options:
         tag: "atwater.api"
     networks:
       - atwater
-    entrypoint: "sh /src/docker/scripts/entrypoint.sh"
+    entrypoint: sh /src/docker/scripts/entrypoint.sh $ENVIRONMENT
     volumes:
       - "/src/atwater.git/api/:/src/:ro"
   atw-nginx:
@@ -29,7 +33,11 @@ services:
     build:
       context: ./nginx
       dockerfile: ./docker/Dockerfile
-    image: ir.indexexchange.com:5000/atw-nginx:dev
+      args:
+        ENVIRONMENT: $ENVIRONMENT
+        DATE: $DATE
+        GIT_COMMIT: $GIT_COMMIT
+    image: ir.indexexchange.com:5000/atw-nginx$VERSION
     logging:
       driver: "journald"
       options:
@@ -37,7 +45,7 @@ services:
     networks:
       - atwater
       - internal
-    entrypoint: "sh /src/docker/scripts/entrypoint.sh"
+    entrypoint: sh /src/docker/scripts/entrypoint.sh $ENVIRONMENT
     volumes:
       - "/src/atwater.git/nginx/:/src/:ro"
     ports:

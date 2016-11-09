@@ -8,31 +8,19 @@ services:
   atw-api:
     container_name: "atw-api"
     restart: "always"
-    build:
-      context: ./api
-      dockerfile: ./docker/Dockerfile
-      args:
-        env: "production"
-        DATE: $DATE
-        GIT_COMMIT: $GIT_COMMIT
-    image: pr.indexexchange.com:5000/atw-api:$TAG
+    image: pr.indexexchange.com:5000/atw-api$VERSION
     logging:
       driver: "syslog"
       options:
         tag: "atwater.api"
     networks:
       - atwater
+    volumes:
+      - "/services/ixm/api/.env:/opt/atw-api/.env:ro"
   atw-nginx:
     container_name: "atw-nginx"
-    restart: "always"
-    build:
-      context: ./nginx
-      dockerfile: ./docker/Dockerfile
-      args:
-        env: "production"
-        DATE: $DATE
-        GIT_COMMIT: $GIT_COMMIT
-    image: pr.indexexchange.com:5000/atw-nginx:$TAG
+    restart: "no"
+    image: pr.indexexchange.com:5000/atw-nginx$VERSION
     logging:
       driver: "syslog"
       options:
@@ -41,3 +29,5 @@ services:
       - atwater
     ports:
       - "443:443"
+    volumes:
+      - "/services/ixm/nginx/ssl:/etc/nginx/ssl:ro"
