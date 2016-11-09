@@ -8,15 +8,7 @@
         "description": {
             "faker": "company.catchPhrase"
         },
-        "status": {
-            "chance": {
-                "pickone": [
-                    [
-                        "active"
-                    ]
-                ]
-            }
-        },
+        "status": "active",
         "accessMode": 1,
         "startDate": {
             "faker": "date.recent"

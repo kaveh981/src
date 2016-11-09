@@ -59,7 +59,7 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
     let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 200);
-    let expectedResponse = await Helper.activeDealToPayload(proposal, publisher.user, buyer);
+    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer);
     assert.deepEqual(response.body['data'][0], expectedResponse);
 
 }
