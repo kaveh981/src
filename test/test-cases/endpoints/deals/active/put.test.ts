@@ -56,7 +56,7 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 200);
     let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer);
@@ -81,9 +81,9 @@ export async function IXM_API_DEALS_PUT_02(assert: test.Test) {
 
     /** Test */
     let responseNone = await apiRequest.put(route, {}, buyer.user.userID);
-    let responseChar = await apiRequest.put(route, { proposalID: 'goose' }, buyer.user.userID);
-    let responseNega = await apiRequest.put(route, { proposalID: -42 }, buyer.user.userID);
-    let responseZero = await apiRequest.put(route, { proposalID: 0 }, buyer.user.userID);
+    let responseChar = await apiRequest.put(route, { proposal_id: 'goose' }, buyer.user.userID);
+    let responseNega = await apiRequest.put(route, { proposal_id: -42 }, buyer.user.userID);
+    let responseZero = await apiRequest.put(route, { proposal_id: 0 }, buyer.user.userID);
 
     assert.equal(responseNone.status, 400);
     assert.equal(responseChar.status, 400);
@@ -108,7 +108,7 @@ export async function IXM_API_DEALS_PUT_03(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: 1337 }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: 1337 }, buyer.user.userID);
 
     assert.equal(response.status, 404);
 
@@ -134,7 +134,7 @@ export async function IXM_API_DEALS_PUT_04(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'paused' });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 403);
 
@@ -160,7 +160,7 @@ export async function IXM_API_DEALS_PUT_05(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 404);
 
@@ -187,7 +187,7 @@ export async function IXM_API_DEALS_PUT_06(assert: test.Test) {
         [section.section.sectionID], { endDate: new Date('1992-07-29') });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 403);
 
@@ -215,7 +215,7 @@ export async function IXM_API_DEALS_PUT_07(assert: test.Test) {
         [section.section.sectionID], { endDate: date });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 200);
 
@@ -242,7 +242,7 @@ export async function IXM_API_DEALS_PUT_08(assert: test.Test) {
         [section.section.sectionID], { startDate: new Date('2999-07-29') });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 403);
 
@@ -270,7 +270,7 @@ export async function IXM_API_DEALS_PUT_09(assert: test.Test) {
         [section.section.sectionID], { startDate: date });
 
     /** Test */
-    let response = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(response.status, 200);
 
@@ -296,8 +296,8 @@ export async function IXM_API_DEALS_PUT_10(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
-    let responseTwo = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseTwo = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 200);
     assert.equal(responseTwo.status, 403);
@@ -324,11 +324,11 @@ export async function IXM_API_DEALS_PUT_11(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     await databaseManager.from('rtbDeals').update({ status: 'D' });
 
-    let responseTwo = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseTwo = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 200);
     assert.equal(responseTwo.status, 403);
@@ -355,11 +355,11 @@ export async function IXM_API_DEALS_PUT_12(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     await databaseManager.from('rtbDeals').update({ status: 'P' });
 
-    let responseTwo = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseTwo = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 200);
     assert.equal(responseTwo.status, 403);
@@ -390,7 +390,7 @@ export async function IXM_API_DEALS_PUT_13(assert: test.Test) {
     await databaseManager.from('rtbSections').where('sectionID', pausedSection.section.sectionID).update({ status: 'D' });
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 200);
 
@@ -420,7 +420,7 @@ export async function IXM_API_DEALS_PUT_14(assert: test.Test) {
     await databaseManager.from('rtbSections').update({ status: 'D' });
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 403);
 
@@ -449,7 +449,7 @@ export async function IXM_API_DEALS_PUT_15(assert: test.Test) {
     await databaseManager.from('sites').where('siteID', siteInactive.siteID).update({ status: 'P' });
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 200);
 
@@ -478,7 +478,7 @@ export async function IXM_API_DEALS_PUT_16(assert: test.Test) {
     await databaseManager.from('sites').update({ status: 'D' });
 
     /** Test */
-    let responseOne = await apiRequest.put(route, { proposalID: proposal.proposal.proposalID }, buyer.user.userID);
+    let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
     assert.equal(responseOne.status, 403);
 
