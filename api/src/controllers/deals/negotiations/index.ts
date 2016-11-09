@@ -120,7 +120,7 @@ function NegotiationDeals(router: express.Router): void {
         if (negotiatedDeals && negotiatedDeals.length > 0) {
             res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
-            throw HTTPError('200_NO_NEGOTIAITIONS');
+            throw HTTPError('200_NO_NEGOTIATIONS');
         }
 
     } catch (error) { next(error); } });
