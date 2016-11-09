@@ -14,8 +14,8 @@ class ConfigLoader extends Loader {
      * @param folder - The folder containing config, located relative to the lib module folder.
      */
     constructor(folder: string = '../../config/') {
-        require('dotenv').config();
-        super(folder, 'CONF');
+        require('dotenv').config({ silent: true });
+        super('CONF', folder);
     }
 
     /**

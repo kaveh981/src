@@ -1,6 +1,7 @@
 {
   "globalDependencies": {
     "chalk": "registry:dt/chalk#0.4.0+20160317120654",
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
     "csv-parse": "registry:dt/csv-parse#1.1.0+20160602150508",
     "csv-stringify": "registry:dt/csv-stringify#0.0.0+20160801211411",
     "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
