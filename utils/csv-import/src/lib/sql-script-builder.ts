@@ -3,27 +3,34 @@
 import * as Knex from 'knex';
 import * as fs from 'fs';
 
+/**
+ * Class contains methods to build rollout and rollback SQL script for proposal insertion
+ */
 class SQLScriptBuilder {
 
     private queryBuilder: Knex;
     private createDate: Date;
 
     constructor() {
-        // TODO: read conf from file
         this.queryBuilder = Knex({client: 'mysql'});
         this.createDate = new Date();
     }
 
+
     /**
      * Build rollout and rollback scripts
+     * 
+     * @param {string} ticketNumber JIRA Ticket Number for the csv insertion
+     * @param {string} path Path to store SQL scripts generated
+     * @param {INewProposalData[]} proposals Array of proposal data objects
      */
-    public async buildScripts(ticketNumber: string, proposals: INewProposalData[]) {
+    public async buildScripts(ticketNumber: string, path: string, proposals: INewProposalData[]) {
 
         let insertScript = await this.buildInsertScript(ticketNumber, proposals);
-        this.writeToFile(ticketNumber + "_rollout.sql", insertScript);
+        this.writeToFile(path + ticketNumber + "_rollout.sql", insertScript);
 
         let deleteScript = await this.buildDeleteScript(ticketNumber, proposals);
-        this.writeToFile(ticketNumber + "_rollback.sql", deleteScript);
+        this.writeToFile(path + ticketNumber + "_rollback.sql", deleteScript);
     }
 
     /**
@@ -42,7 +49,7 @@ class SQLScriptBuilder {
         insertScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         insertScript += "SET @existing_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        insertScript += "START TRANSACTION;";
+        insertScript += "START TRANSACTION;\n";
 
         for (let i = 0; i < proposals.length; i += 1) {
             insertScript += await this.buildInsertQuery(proposals[i].proposal, proposals[i].sectionIDs);
@@ -51,8 +58,10 @@ class SQLScriptBuilder {
         insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         insertScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        // TODO: add if statement to check if final_proposals = existing + expected
-        insertScript += "NOTEE";
+        insertScript += "SELECT IF(@final_proposals - @existing_proposals = @expected_proposal_changes,"
+                                + "'Delection check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
+
+        insertScript += "NOTEE\n";
 
         return insertScript;
     }
@@ -73,7 +82,7 @@ class SQLScriptBuilder {
         deleteScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         deleteScript += "SET @existing_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        deleteScript += "START TRANSACTION;";
+        deleteScript += "START TRANSACTION;\n";
 
         for (let i = 0; i < proposals.length; i += 1) {
             deleteScript += await this.buildDeleteQuery(proposals[i].proposal, proposals[i].sectionIDs);
@@ -81,8 +90,10 @@ class SQLScriptBuilder {
         deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         deleteScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        // TODO: add if statement to check if final_proposals = existing - expected
-        deleteScript += "NOTEE";
+        deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes,"
+                                + "'Delection check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
+
+        deleteScript += "NOTEE\n";
 
         return deleteScript;
     }
@@ -96,11 +107,11 @@ class SQLScriptBuilder {
 
         proposal.createDate = this.createDate;
 
-        query = await this.queryBuilder.insert(proposal).into('ixmDealProposals').toString() + ";";
-        query += "SET @last_id = LAST_INSERT_ID();";
+        query = await this.queryBuilder.insert(proposal).into('ixmDealProposals').toString() + ";\n";
+        query += "SET @last_id = LAST_INSERT_ID();\n";
 
         sectionIDs.forEach((sectionID: number) => {
-            query += "INSERT INTO ixmProposalSectionMappings (proposalID, sectionID) VALUES (@last_id, " + sectionID + ");";
+            query += "INSERT INTO ixmProposalSectionMappings (proposalID, sectionID) VALUES (@last_id, " + sectionID + ");\n";
         });
 
         return query;
@@ -148,14 +159,14 @@ class SQLScriptBuilder {
     /**
      * Write string to file
      */
-    private writeToFile(name: string, content: string) {
-        // TODO: Add file path here
-        let path = name;
+    private writeToFile(namePath: string, content: string) {
 
-        fs.writeFile(path, content, function(err) {
+        fs.writeFile(namePath , content, function(err) {
             if (err) {
                 return console.log(err);
             }
         });
     }
 }
+
+export { SQLScriptBuilder }
