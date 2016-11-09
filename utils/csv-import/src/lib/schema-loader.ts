@@ -16,7 +16,7 @@ class SchemaLoader extends Loader {
      * @param schemasPath - Static path to schemas directory. Defaults to "../../schemas"
      */
     constructor(schemasPath: string = '../../schemas') {
-        super(schemasPath, 'SLOA');
+        super('SLOA', schemasPath);
     }
 
     /**
