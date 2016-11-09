@@ -1,13 +1,8 @@
 #!/bin/sh
 
-export TAG=${VERSION:-newest}
+VERSION=${VERSION:-latest}
 
-git fetch --all \
-  && git checkout master \
-  && git pull \
-  && git checkout $TAG \
-  || exit 10
-
+export VERSION=:$VERSION
+export ENVIRONMENT=${ENVIRONMENT:-production}
 export GIT_COMMIT=$(git rev-parse --short HEAD)
 export DATE=`date +%Y-%m-%d`
-
