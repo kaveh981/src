@@ -109,50 +109,43 @@ class Helper {
     }
 
     /**
-     * From settledDeal
-     * - dsp_id, external_id, status, modified_at
-     * From dealNegotiation
-     * - terms, impressions, budget, start_date, end_date, price
-     * From proposal
-     * - proposal_id, description, name, auction_type, deal_section_id
-     * From publisher
-     * - publisher_id, publisher_contact
-     * From buyer
-     * - buyer_id, buyer_contact
-     * @returns - The expected payload
+     * Use created models to compute expected payload from the API
+     * The payload from deals/active GET differs from the response from deals/active PUT
+     * @param settledDeal {ISettledDealData} - rtbDeals entry, associated sectionIDs, associated negotiationID
+     * @param dealNegotiation {IDealNegotiationData} - Negotiated properties of the deal
+     * @param proposal {INewProposalData} - The original proposal
+     * @param partner {INewUserData} - The partner tied to the proposal/deal
+     * @returns - The payload we expect to be returned by the API
      */
     public static dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
-                                        proposal: INewProposalData, publisher: INewPubData, buyer: INewBuyerData) {
+                                        proposal: INewProposalData, partner: INewUserData) {
         return {
-            proposal_id: proposal.proposal.proposalID,
-            publisher_id: publisher.user.userID,
-            publisher_contact: {
-                title: 'Warlord',
-                name: publisher.user.firstName + ' ' + publisher.user.lastName,
-                email_address: publisher.user.emailAddress,
-                phone: publisher.user.phone
+            proposal: {
+                id: proposal.proposal.proposalID,
+                description: proposal.proposal.description,
+                name: proposal.proposal.name
             },
-            buyer_id: buyer.user.userID,
-            buyer_contact: {
-                title: 'Warlord',
-                name: buyer.user.firstName + ' ' + buyer.user.lastName,
-                email_address: buyer.user.emailAddress,
-                phone: buyer.user.phone
+            partner: {
+                id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
+                }
             },
             dsp_id: settledDeal.settledDeal.dspID,
-            description: proposal.proposal.description,
             terms: dealNegotiation.terms,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
-            name: proposal.proposal.name,
-            external_id: settledDeal.settledDeal.externalDealID,
-            start_date: Helper.formatDate(dealNegotiation.startDate),
-            end_date: Helper.formatDate(dealNegotiation.endDate),
-            status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
             auction_type: proposal.proposal.auctionType,
-            price: dealNegotiation.price,
-            deal_section_id: proposal.sectionIDs,
+            inventory: proposal.sectionIDs,
             currency: 'USD',
+            external_id: settledDeal.settledDeal.externalDealID,
+            start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
+            end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
+            status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
+            price: dealNegotiation.price,
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
