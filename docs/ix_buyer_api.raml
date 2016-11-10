@@ -493,6 +493,123 @@ types:
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" provided proposal ID does not exist in the database
                             500: # 500 = "Internal Server Error" something done broke
+/sections:
+    get:
+        (not_implemented): true
+        is: [ auth_required ] #?
+        description: Retrieve a filterable list of sections from the market.
+        queryParameters:
+            ad_units:
+                type: string
+                required: false
+                displayName: Ad Units
+                description: Only return sections that include these ad units. Ad units are defined as strings of format `<w>x<h>`, e.g. `728x90`. Multiple strings separated by spaces.
+                example: 728x90 160x600
+            countries:
+                type: string
+                required: false
+                displayName: Countries
+                description: Only return sections that include these countries. ISO ALPHA-3 country codes, separated by spaces.
+                example: RUS ZAF
+            entire_site:
+                type: boolean
+                required: false
+                displayName: Entire Site
+                description: Only return sections that include the entire site (true), or exclude entire-site sections (false).
+            keywords:
+                type: string
+                required: false
+                displayName: Keywords
+                description: Search the name field for keywords. Multiple keywords separated by spaces.
+                example: beans
+            publisher_id:
+                type: integer
+                required: false
+                displayName: Publisher ID
+                description: Only return sections belonging to the publisher ID.
+            url:
+                type: string
+                required: false
+                displayName: URL
+                description: Only return sections that include the URL or URL fragment in the main site domain (for `entire_site`) or in the `url_matches` array.
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            404: # 404 = "Not found" no results
+            500: # 500
+    put:
+        (not_implemented): true
+        is: [ auth_required ]
+        description: Create a new section in the market.
+        body:
+            type: SectionCreate
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            500: # 500
+        /{section_id}:
+            uriParameters:
+                section_id:
+                    type: integer
+                    required: true
+                    description: The unique identifier for a section.
+                    minimum: 1
+                    maximum: 16777215
+            get:
+                (not_implemented): true
+                is: [ auth_required ] #?
+                description: Retrieve a specific site by ID.
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" nothing found for this ID
+                    500: # 500
+            put:
+                (not_implemented): true
+                is: [ auth_required ]
+                description: Update a specific section by ID.
+                body:
+                    type: SectionCreate
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" no results
+                    500: # 500
+            delete:
+                (not_implemented): true
+                is: [ auth_required ]
+                description: Delete a section by ID.
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    404: # 404 = "Not found" no results
+                    500: # 500
+
 /sites:
     get:
         (not_implemented): true
@@ -529,6 +646,11 @@ types:
                 required: false
                 displayName: Max Uniques
                 description: Only return sites with less than this amount of monthly unique visitors
+            publisher_id:
+                type: integer
+                required: false
+                displayName: Publisher ID
+                description: Only return sites belonging to the publisher ID.
             keywords:
                 type: string
                 required: false
@@ -548,6 +670,8 @@ types:
         (not_implemented): true
         is: [ auth_required ]
         description: Create a new site on the market. Will be subject to approval.
+        body:
+            type: SiteCreate
         responses:
             200: # 200 = "OK"
                 body:
@@ -558,6 +682,13 @@ types:
             403: # 403 = "Forbidden" authentication successful but insufficient permissions
             500: # 500
     /{site_id}:
+        uriParameters:
+            section_id:
+                type: integer
+                required: true
+                description: The unique identifier for a site.
+                minimum: 1
+                maximum: 16777215
         get:
             (not_implemented): true
             is: [ auth_required ] #?
@@ -573,7 +704,9 @@ types:
                 500: # 500
         put:
             (not_implemented): true
-            is: [ auth_required ] #?
+            is: [ auth_required ]
+            body:
+            type: SiteCreate
             description: Update a site by ID
                 responses:
                 200: # 200 = "OK"
@@ -587,7 +720,7 @@ types:
                 500: # 500
         delete:
             (not_implemented): true
-            is: [ auth_required ] #?
+            is: [ auth_required ]
             description: Delete a site.
                 responses:
                 200: # 200 = "OK"

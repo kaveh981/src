@@ -46,6 +46,13 @@ properties:
         displayName: Name
         description: The site's name.
         maxLength: 255
+    publisher_id:
+        type: integer
+        required: true
+        displayName: Publisher ID
+        description: The ID of the publisher who owns this site.
+        minimum: 1
+        maximum: 16777215
     uniques:
         type: string #?
         required: true #?
@@ -63,6 +70,7 @@ properties:
 example: |
     {
         "id": 1992,
+        "publisher_id": 100011,
         "name": "SpamLords™®©",
         "url": "https://spamlords.com",
         "category": "Sports/Wrestling",
