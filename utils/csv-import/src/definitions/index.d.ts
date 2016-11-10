@@ -14,9 +14,5 @@ interface IProposal {
     terms?: string;
     createDate?: Date;
     modifyDate?: Date;
-}
-
-interface INewProposalData {
-    sectionIDs?: number[];
-    proposal?: IProposal;
+    sectionIDs: Number[];
 }
