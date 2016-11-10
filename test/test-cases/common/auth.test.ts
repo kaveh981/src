@@ -35,8 +35,8 @@ async function ATW_AUTH_01 (route: string, verb: string, setup: Function, assert
 
     let pubResponse = await apiRequest[verb](route, {}, publisher.user.userID);
 
-    assert.not(buyerResponse.status, 401);
-    assert.not(buyerResponse.status, 500);
+    assert.not(pubResponse.status, 401);
+    assert.not(pubResponse.status, 500);
 }
 
  /*
