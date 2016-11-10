@@ -26,6 +26,24 @@ class Helper {
     }
 
     /**
+     * Convert a single letter status to a word.
+     * @param status - The letter to convert.
+     * @returns The word.
+     */
+    public static statusLetterToWord(status: string): 'active' | 'deleted' | 'paused' {
+        switch (status) {
+            case 'A':
+                return 'active';
+            case 'D':
+                return 'deleted';
+            case 'P':
+                return 'paused';
+            default:
+                return;
+        }
+    }
+
+    /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
      * @param owner - The user who own's the proposal buyer/publisher.
@@ -90,7 +108,49 @@ class Helper {
         };
     }
 
-    public static async activeDealToPayload(proposal: INewProposalData,
+    /**
+     * Use created models to compute expected payload from the API
+     * The payload from deals/active GET differs from the response from deals/active PUT
+     * @param settledDeal {ISettledDealData} - rtbDeals entry, associated sectionIDs, associated negotiationID
+     * @param dealNegotiation {IDealNegotiationData} - Negotiated properties of the deal
+     * @param proposal {INewProposalData} - The original proposal
+     * @param partner {INewUserData} - The partner tied to the proposal/deal
+     * @returns - The payload we expect to be returned by the API
+     */
+    public static dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
+                                        proposal: INewProposalData, partner: INewUserData) {
+        return {
+            proposal: {
+                id: proposal.proposal.proposalID,
+                description: proposal.proposal.description,
+                name: proposal.proposal.name
+            },
+            partner: {
+                id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
+                }
+            },
+            dsp_id: settledDeal.settledDeal.dspID,
+            terms: dealNegotiation.terms,
+            impressions: dealNegotiation.impressions,
+            budget: dealNegotiation.budget,
+            auction_type: proposal.proposal.auctionType,
+            inventory: proposal.sectionIDs,
+            currency: 'USD',
+            external_id: settledDeal.settledDeal.externalDealID,
+            start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
+            end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
+            status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
+            price: dealNegotiation.price,
+            modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
+        };
+    }
+
+    public static async dealsActivePutToPayload(proposal: INewProposalData,
         partner: INewUserData, buyer: INewBuyerData) {
         let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
         let createDate = new Date(dates[0]['createDate']);

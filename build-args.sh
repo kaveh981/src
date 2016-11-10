@@ -1,13 +1,10 @@
 #!/bin/sh
 
-export TAG=${VERSION:-newest}
+APIVERSION=${1:-latest}
+NGINXVERSION=${2:-latest}
 
-git fetch --all \
-  && git checkout master \
-  && git pull \
-  && git checkout $TAG \
-  || exit 10
-
+export APIVERSION=:$APIVERSION
+export NGINXVERSION=:$NGINXVERSION
+export ENVIRONMENT=${ENVIRONMENT:-production}
 export GIT_COMMIT=$(git rev-parse --short HEAD)
 export DATE=`date +%Y-%m-%d`
-

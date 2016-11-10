@@ -18,7 +18,7 @@ RUN set -ex \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
     done
 
-ENV NODE_VERSION 6.7.0
+ENV NODE_VERSION 6.9.1
 
 RUN \
   curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" && \
@@ -34,18 +34,19 @@ ENV TZ America/Toronto
 RUN mkdir /src && mkdir -p /opt/atw-api
 COPY . /src
 
-ARG env=development
-ENV env $env
+ARG ENVIRONMENT
+ENV ENVIRONMENT ${ENVIRONMENT:-development}
 
-RUN sh /src/bin/deploy.sh $env
-RUN rm -rf /src
+RUN sh /src/bin/deploy.sh $ENVIRONMENT && \
+    rm -rf /src
 
-ENTRYPOINT ["sh", "-c", "/bin/start.sh $env"]
+ENTRYPOINT ["sh", "-c", "/bin/start.sh $ENVIRONMENT"]
 
 # Label img with Commit hash and date at build time
-ARG GIT_COMMIT=dev
-ARG DATE=dev
+ARG GIT_COMMIT
+ARG DATE
 
 LABEL  SERVICE_NAME=atw-api \
-    GIT_COMMIT=$GIT_COMMIT \
-    DATE=$DATE
+    GIT_COMMIT=${GIT_COMMIT:-dev} \
+    DATE=${DATE:-dev} \
+    ENVIRONMENT=$ENVIRONMENT

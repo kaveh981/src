@@ -4,7 +4,7 @@ ENV=${1:-development}
 echo "Deploying atw-api in $ENV environment"
 
 HERE=$(readlink -f $(dirname $0))
-SRC=$HERE/..
+SRC=$(readlink -f $HERE/..)
 DEST=/opt/atw-api/
 TMP=/tmp/atw-api
 
@@ -30,8 +30,14 @@ cp -rf $TMP/build/src $DEST
 cp -rf $SRC/config $DEST
 cp -rf $SRC/src/schemas $DEST/src
 cp -rf $TMP/node_modules $DEST
-cp -rf $SRC/.env $DEST
 cp -rf $SRC/package.json $DEST
+
+# Deploy secrets if found. Won't be found during image building, but will be found in workstation deployments when
+# the /src/ dir is mounted to the container.
+test -e $SRC/.env \
+&& echo "Copying .env from src (workstation deployment)" \
+&& cp -rf $SRC/.env $DEST \
+|| echo "Not deploying any secrets (build deployment).."
 
 # Remove files from /tmp
 rm -rf /tmp/*
