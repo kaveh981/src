@@ -534,9 +534,23 @@ types:
                 body:
                     application/json:
                         type: Response
+            400: # 400 = "Bad Request" use for malformed requests
             401: # 401 = "Unauthorized" authentication has failed or was not provided
             403: # 403 = "Forbidden" authentication successful but insufficient permissions
             404: # 404 = "Not found" provided proposal ID does not exist in the database
+            500: # 500
+    put:
+        (not_implemented): true
+        is: [ auth_required ]
+        description: Create a new site on the market. Will be subject to approval.
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
             500: # 500
     /{site_id}:
         get:
@@ -561,6 +575,7 @@ types:
                     body:
                         application/json:
                             type: Response
+                400: # 400 = "Bad Request" use for malformed requests
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 404: # 404 = "Not found" provided site ID does not exist in the database
