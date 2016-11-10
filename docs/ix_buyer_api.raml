@@ -549,7 +549,7 @@ types:
         body:
             type: SectionCreate
         responses:
-            200: # 200 = "OK"
+            201: # 200 = "Created"
                 body:
                     application/json:
                         type: Response
@@ -568,7 +568,7 @@ types:
             get:
                 (not_implemented): true
                 is: [ auth_required ] #?
-                description: Retrieve a specific site by ID.
+                description: Retrieve a specific section by ID.
                 responses:
                     200: # 200 = "OK"
                         body:
@@ -604,7 +604,6 @@ types:
                         body:
                             application/json:
                                 type: Response
-                    400: # 400 = "Bad Request" use for malformed requests
                     401: # 401 = "Unauthorized" authentication has failed or was not provided
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
                     404: # 404 = "Not found" no results
@@ -664,7 +663,6 @@ types:
             400: # 400 = "Bad Request" use for malformed requests
             401: # 401 = "Unauthorized" authentication has failed or was not provided
             403: # 403 = "Forbidden" authentication successful but insufficient permissions
-            404: # 404 = "Not found" provided proposal ID does not exist in the database
             500: # 500
     put:
         (not_implemented): true
@@ -673,7 +671,7 @@ types:
         body:
             type: SiteCreate
         responses:
-            200: # 200 = "OK"
+            201: # 200 = "Created"
                 body:
                     application/json:
                         type: Response
