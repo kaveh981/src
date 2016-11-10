@@ -17,8 +17,6 @@ items:
             $ref: "#/definitions/varchar255"
         status:
             enum: [active, paused, deleted]
-        accessMode:
-            $ref: "#/definitions/positiveTinyInt"
         startDate:
             $ref: "#/definitions/dateString"
         endDate:
@@ -47,7 +45,7 @@ items:
                 $ref: "#/definitions/positiveMediumInt"
             minItems: 1
             uniqueItems: true
-    required: [ownerID, name, description, status, accessMode, startDate, endDate, price, impressions, budget, auctionType,
+    required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
     terms, createDate, modifyDate, sectionIDs]
 definitions:
     positiveMediumInt:

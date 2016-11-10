@@ -55,7 +55,7 @@ if (!validator.validateProposals(proposals)) {
 
 Log.info('All proposals pass validation. Building SQL script...');
 
-sqlScriptBuilder.buildScripts(file.slice(0, -1), directory, proposals)
+sqlScriptBuilder.buildScripts(file.slice(0, -4), directory, proposals)
     .then(() => {
         Log.info(`Successfully created SQL queries for ${file}.`);
     })
