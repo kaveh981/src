@@ -161,16 +161,17 @@ class SettledDealManager {
             manualApproval: 1
         }).into('rtbDeals');
 
-        // Get newly created deal id
-        let dealID = (await transaction.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
+        // Get newly created deal id and modified date.
+        let row = (await transaction.select('dealID', 'modifiedDate').from('rtbDeals').where('externalDealID', externalDealID))[0];
 
-        settledDeal.id = dealID;
+        settledDeal.id = row.dealID;
         settledDeal.externalDealID = externalDealID;
+        settledDeal.modifyDate = row.modifiedDate;
 
         // Insert into deal section mapping
         for (let i = 0; i < proposedDeal.sections.length; i++) {
             await transaction.insert({
-                dealID: dealID,
+                dealID: row.dealID,
                 sectionID: proposedDeal.sections[i]
             }).into('rtbDealSections');
         }
@@ -178,7 +179,7 @@ class SettledDealManager {
         // Insert proposal deal mapping
         await transaction.insert({
             negotiationID: negotiatedDeal.id,
-            dealID: dealID
+            dealID: row.dealID
         }).into('ixmNegotiationDealMappings');
 
     }

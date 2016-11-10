@@ -383,7 +383,7 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
     let negotiation = await databasePopulator.createDealNegotiation(
         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
     let settledDeal = await databasePopulator.createSettledDeal(
-        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'A'});
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'A', rate: negotiation.price});
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
