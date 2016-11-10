@@ -6,11 +6,11 @@ description: |
 
         The section may consist of one or more of:
             - Site URLs
-            - Ad Units
+            - Ad Unit restrictions
             - Country restrictions
             - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
 properties:
-    ad_units:
+    ad_unit_restrictions:
         type: string[]
         required: false
         displayName: Ad Unit Restrictions
@@ -81,7 +81,7 @@ example: |
             }
         ]
         "coverage": 80,
-        "ad_units": [
+        "ad_unit_restrictions": [
             "728x90",
             "970x90"
         ],
