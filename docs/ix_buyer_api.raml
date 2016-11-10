@@ -488,6 +488,96 @@ types:
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" provided proposal ID does not exist in the database
                             500: # 500 = "Internal Server Error" something done broke
+/sites:
+    get:
+        (not_implemented): true
+        is: [ auth_required ] #?
+        description: Retrieve a filterable list of sites from the market.
+        queryParameters:
+            min_cpm:
+                type: number
+                required: false
+                displayName: Min CPM
+                description: Only return sites with more than this average CPM
+            max_cpm:
+                type: number
+                required: false
+                displayName: Max CPM
+                description: Only return sites with less than this average CPM
+            min_impressions:
+                type: integer
+                required: false
+                displayName: Min Impressions
+                description: Only return sites with more than this amount of monthly impressions
+            max_impressions:
+                type: integer
+                required: false
+                displayName: Max Impressions
+                description: Only return sites with less than this amount of monthly impressions
+            min_uniques:
+                type: integer
+                required: false
+                displayName: Min Uniques
+                description: Only return sites with more than this amount of monthly unique visitors
+            max_uniques:
+                type: integer
+                required: false
+                displayName: Max Uniques
+                description: Only return sites with less than this amount of monthly unique visitors
+            keywords:
+                type: string
+                required: false
+                displayName: Keywords
+                description: Search the name and description fields for these keywords. Multiple keywords separated by spaces.
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            404: # 404 = "Not found" provided proposal ID does not exist in the database
+            500: # 500
+    /{site_id}:
+        get:
+            (not_implemented): true
+            is: [ auth_required ] #?
+            description: Retrieve a specific site by ID
+                responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" provided site ID does not exist in the database
+                500: # 500
+        put:
+            (not_implemented): true
+            is: [ auth_required ] #?
+            description: Update a site by ID
+                responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" provided site ID does not exist in the database
+                500: # 500
+        delete:
+            (not_implemented): true
+            is: [ auth_required ] #?
+            description: Delete a site.
+                responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" provided site ID does not exist in the database
+                500: # 500
 /users:
     /{user_id}:
         uriParameters:
