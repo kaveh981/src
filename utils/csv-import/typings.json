@@ -8,5 +8,8 @@
     "knex": "registry:dt/knex#0.0.0+20160923124117",
     "node": "registry:dt/node#6.0.0+20161019125345",
     "z-schema": "registry:dt/z-schema#3.16.0+20160622084406"
+  },
+  "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.4.1+20160909132857"
   }
 }

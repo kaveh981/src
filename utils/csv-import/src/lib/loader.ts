@@ -23,7 +23,7 @@ class Loader {
         this.logger = new Logger(name);
 
         if (folder) {
-            this.setFolder(folder);
+            this.setFolder(path.join(__dirname, folder));
         }
     }
 
@@ -34,14 +34,14 @@ class Loader {
      */
     public setFolder(folder: string) {
 
-        let folderPath = path.join(__dirname, folder);
+        let folderPath = folder;
 
         if (!fs.existsSync(folderPath)) {
             this.logger.error(`Could not find folder ${folderPath}`);
             return false;
         }
 
-        this.folder = path.join(__dirname, folder);
+        this.folder = folder;
         return true;
 
     }

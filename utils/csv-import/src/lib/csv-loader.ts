@@ -72,7 +72,7 @@ class CSVLoader extends Loader {
     private parseProposals(parsedCsv: IProposal[]): IProposal[] {
 
         return parsedCsv.map((proposal: any) => {
-            proposal.sectionIDs = proposal.sectionIDs.toString().split(',').map(Number);
+            proposal.sectionIDs = proposal.sectionIDs && proposal.sectionIDs.toString().split(',').map(Number);
             proposal.createDate = null;
             proposal.modifyDate = null;
 
