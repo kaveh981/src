@@ -6,18 +6,17 @@ properties:
     match_type:
         type: string
         required: true
-        displayName: URL matching
+        displayName: URL matching type
         description: |
             The behaviour to use for matching the URL:
-                - `site`: Match the whole site. Other restrictions such as Ad Units may apply. The `url` field will be omitted.
                 - `full`: Match the included `url` exactly
                 - `partial`: Partial match on `url` - will match any URLs below that. E.g. `https://spamlords.com/clickbait` will also match `https://spamlords.com/clickbait/one-weird-trick`
         enum: [ 'site', 'full', 'partial' ]
     url:
         type: string
-        required: false
+        required: true
         displayName: URL
-        description: The URL to match against for `full` or `partial` matching. Will be omitted for `match_type` of `site`.
+        description: The URL to match against for `full` or `partial` matching.
 example: |
     {
         "match_type: "partial",

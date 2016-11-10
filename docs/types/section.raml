@@ -29,7 +29,7 @@ properties:
         type: boolean
         required: true
         displayName: Entire Site
-        description: Whether the entire site is included in the deal. If true, the `matches` array will be omitted.
+        description: Whether the entire site is included in the deal. If true, the `url_matches` array will be omitted.
     frequency_restrictions:
         type: string[]
         required: false
@@ -49,11 +49,11 @@ properties:
         required: true
         displayName: Section ID
         description: The unique identifier for the section.
-    matches:
-        type: Match[]
+    url_matches:
+        type: UrlMatch[]
         required: false
         displayName: Matches
-        description: A set of matching objects consisting of a `match_type` and `url` to match against
+        description: A set of matching objects consisting of a `match_type` and `url` to match against. See [UrLMatch]( TODO link )
     name:
         type: string
         required: true
@@ -69,7 +69,8 @@ example: |
     {
         "id": 898,
         "name": "click_dealy_leaderboard_cuz_we_luv_u",
-        "matches": [
+        "entire_site": false,
+        "url_matches": [
             {
                 "match_type: "partial",
                 "url": "https://spamlords.com/clickbait"
