@@ -22,6 +22,10 @@ class SettledDealModel {
     public startDate: Date | '0000-00-00';
     /** End date */
     public endDate: Date | '0000-00-00';
+    /** Price */
+    public price: number;
+    /** Deal Priority */
+    public priority: number;
 
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
@@ -89,6 +93,7 @@ class SettledDealModel {
                 start_date: Helper.formatDate(this.startDate),
                 end_date: Helper.formatDate(this.endDate),
                 status: this.status,
+                priority: this.priority,
                 price: this.negotiatedDeal.price,
                 created_at: this.createDate.toISOString(),
                 modified_at: this.modifyDate.toISOString()
