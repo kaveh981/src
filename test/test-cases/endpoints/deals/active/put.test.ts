@@ -67,7 +67,7 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
                                             .where({
                                                 proposalID: proposal.proposal.proposalID,
                                                 publisherID: publisher.user.userID,
-                                                buyerID: buyer.user.userID 
+                                                buyerID: buyer.user.userID
                                             });
 
     assert.equal(response.status, 200);
