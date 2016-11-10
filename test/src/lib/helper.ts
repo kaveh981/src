@@ -145,14 +145,27 @@ class Helper {
             start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
             end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
             status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
-            price: dealNegotiation.price,
+            price: settledDeal.settledDeal.rate,
+            priority: settledDeal.settledDeal.priority,
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
 
     public static async dealsActivePutToPayload(proposal: INewProposalData,
         partner: INewUserData, buyer: INewBuyerData) {
-        let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
+        let dates = await databaseManager.select('createDate', 'modifyDate')
+                                         .from('ixmDealNegotiations')
+                                         .where({
+                                             proposalID: proposal.proposal.proposalID,
+                                             publisherID: partner.userID,
+                                             buyerID: buyer.user.userID
+                                         })
+                                         .orWhere({
+                                             proposalID: proposal.proposal.proposalID,
+                                             buyerID: partner.userID,
+                                             publisherID: buyer.user.userID
+                                         });
+
         let createDate = new Date(dates[0]['createDate']);
         let modifyDate = new Date(dates[0]['modifyDate']);
 
@@ -181,6 +194,7 @@ class Helper {
             status: proposal.proposal.status,
             auction_type: proposal.proposal.auctionType,
             price: proposal.proposal.price,
+            priority: 5,
             inventory: proposal.sectionIDs,
             currency: 'USD',
             created_at: createDate.toISOString(),

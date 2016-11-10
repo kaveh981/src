@@ -144,7 +144,8 @@ export async function IXM_API_DA_GET_03 (assert: test.Test) {
         [section.section.sectionID],
         negotiation.negotiationID,
         {
-            startDate: tomorrow
+            startDate: tomorrow,
+            rate: negotiation.price
         });
 
     /** Test */
@@ -187,7 +188,8 @@ export async function IXM_API_DA_GET_04 (assert: test.Test) {
         negotiation.negotiationID,
         {
             startDate: threeDaysAgo,
-            endDate: yesterday
+            endDate: yesterday,
+            rate: negotiation.price
         });
 
     /** Test */
