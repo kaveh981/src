@@ -26,7 +26,7 @@ properties:
         displayName: Site ID
         description: Unique ID for the site
     impressions:
-        type: string #?
+        type: integer
         required: true #?
         displayName: Impressions
         description: Number of monthly impressions for the site
@@ -46,8 +46,15 @@ properties:
         displayName: Name
         description: The site's name.
         maxLength: 255
+    publisher_id:
+        type: integer
+        required: true
+        displayName: Publisher ID
+        description: The ID of the publisher who owns this site.
+        minimum: 1
+        maximum: 16777215
     uniques:
-        type: string #?
+        type: integer
         required: true #?
         displayName: Unique Visitors
         description: The number of unique visitors per month.
@@ -63,11 +70,12 @@ properties:
 example: |
     {
         "id": 1992,
+        "publisher_id": 100011,
         "name": "SpamLords™®©",
         "url": "https://spamlords.com",
         "category": "Sports/Wrestling",
-        "impressions": "1.23M",
-        "uniques": "0.98M",
+        "impressions": 1230000,
+        "uniques": 980000,
         "description": "The Old Ones were, the Old Ones are, and the Old Ones shall be. Not in the spaces we know, but between them, They walk serene and primal, undimensioned and to us unseen. Yog-Sothoth knows the gate. Yog-Sothoth is the gate. Yog-Sothoth is the key and guardian of the gate. Past, present, future, all are one in Yog-Sothoth.",
         "avg_cpm": 3.33,
         "inventory": [
