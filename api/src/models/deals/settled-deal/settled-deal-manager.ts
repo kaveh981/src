@@ -39,7 +39,8 @@ class SettledDealManager {
 
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                                                      'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
-                                                     'createDate', 'modifiedDate as modifyDate', 'rtbDeals.startDate', 'rtbDeals.endDate')
+                                                     'createDate', 'modifiedDate as modifyDate', 'rtbDeals.startDate', 'rtbDeals.endDate',
+                                                     'rtbDeals.rate as price', 'priority')
                                              .from('rtbDeals')
                                              .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
                                              .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
@@ -103,6 +104,8 @@ class SettledDealManager {
             modifyDate: Helper.currentDate(),
             startDate: negotiatedDeal.startDate,
             endDate: negotiatedDeal.endDate,
+            price: negotiatedDeal.price,
+            priority: 5,
             negotiatedDeal: negotiatedDeal
         });
 
@@ -147,27 +150,28 @@ class SettledDealManager {
             dspID: settledDeal.dspID,
             name: proposedDeal.name,
             auctionType: proposedDeal.auctionType,
-            rate: negotiatedDeal.price,
+            rate: settledDeal.price,
             status: settledDeal.status[0].toUpperCase(),
-            startDate: negotiatedDeal.startDate || '0000-00-00',
-            endDate: negotiatedDeal.endDate || '0000-00-00',
+            startDate: settledDeal.startDate || '0000-00-00',
+            endDate: settledDeal.endDate || '0000-00-00',
             externalDealID: externalDealID,
-            priority: 5,
+            priority: settledDeal.priority,
             openMarket: 0,
             noPayoutMode: 0,
             manualApproval: 1
         }).into('rtbDeals');
 
-        // Get newly created deal id
-        let dealID = (await transaction.select('dealID').from('rtbDeals').where('externalDealID', externalDealID))[0].dealID;
+        // Get newly created deal id and modified date.
+        let row = (await transaction.select('dealID', 'modifiedDate').from('rtbDeals').where('externalDealID', externalDealID))[0];
 
-        settledDeal.id = dealID;
+        settledDeal.id = row.dealID;
         settledDeal.externalDealID = externalDealID;
+        settledDeal.modifyDate = row.modifiedDate;
 
         // Insert into deal section mapping
         for (let i = 0; i < proposedDeal.sections.length; i++) {
             await transaction.insert({
-                dealID: dealID,
+                dealID: row.dealID,
                 sectionID: proposedDeal.sections[i]
             }).into('rtbDealSections');
         }
@@ -175,7 +179,7 @@ class SettledDealManager {
         // Insert proposal deal mapping
         await transaction.insert({
             negotiationID: negotiatedDeal.id,
-            dealID: dealID
+            dealID: row.dealID
         }).into('ixmNegotiationDealMappings');
 
     }

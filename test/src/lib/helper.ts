@@ -145,16 +145,14 @@ class Helper {
             start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
             end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
             status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
-            price: dealNegotiation.price,
+            price: settledDeal.settledDeal.rate,
+            priority: settledDeal.settledDeal.priority,
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
 
-    public static async dealsActivePutToPayload(proposal: INewProposalData,
-        partner: INewUserData, buyer: INewBuyerData) {
-        let dates = await databaseManager.select('createDate', 'modifyDate').from('ixmDealNegotiations');
-        let createDate = new Date(dates[0]['createDate']);
-        let modifyDate = new Date(dates[0]['modifyDate']);
+    public static dealsActivePutToPayload(proposal: INewProposalData,
+        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date) {
 
         return {
             proposal: {
@@ -163,29 +161,30 @@ class Helper {
                 "name": proposal.proposal.name,
             },
             partner: {
-                id: partner.userID,
+                id: owner.userID,
                 contact: {
                     title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
+                    name: owner.firstName + ' ' + owner.lastName,
+                    email: owner.emailAddress,
+                    phone: owner.phone
                 }
             },
             dsp_id: buyer.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,
             budget: proposal.proposal.budget,
-            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyer.user.userID + '-' + partner.userID)}`,
+            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyer.user.userID + '-' + owner.userID)}`,
             start_date: Helper.formatDate(proposal.proposal.startDate),
             end_date: Helper.formatDate(proposal.proposal.endDate),
             status: proposal.proposal.status,
             auction_type: proposal.proposal.auctionType,
             price: proposal.proposal.price,
+            priority: 5,
             inventory: proposal.sectionIDs,
             currency: 'USD',
-            created_at: createDate.toISOString(),
-            modified_at: modifyDate.toISOString()
+            modified_at: modifiedDate.toISOString()
         };
+
     }
 
     public static encrypt(text) {
