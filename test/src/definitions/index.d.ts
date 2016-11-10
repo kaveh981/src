@@ -106,8 +106,8 @@ interface IProposal {
 }
 
 interface INewProposalData {
-    sectionIDs?: number[];
     proposal?: IProposal;
+    sectionIDs?: number[];
 }
 
 interface IReqOptions {
@@ -162,4 +162,28 @@ interface IDealNegotiationData {
     buyerStatus?: string;
     createDate?: Date;
     modifyDate?: Date;
+}
+
+interface ISettledDeal {
+    dealID?: number;
+    userID?: number;
+    dspID?: number;
+    name?: string;
+    auctionType?: string;
+    rate?: number;
+    status?: string;
+    startDate?: Date;
+    endDate?: Date;
+    modifiedDate?: Date;
+    externalDealID?: string;
+    priority?: number;
+    openMarket?: number;
+    noPayoutMode?: number;
+    manualApproval?: number;
+}
+
+interface ISettledDealData {
+    settledDeal?: ISettledDeal;
+    sectionIDs?: number[];
+    negotiationID?: number;
 }
