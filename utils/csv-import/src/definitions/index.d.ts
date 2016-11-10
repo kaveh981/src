@@ -1,17 +1,18 @@
 interface IProposal {
-    ownerID: number;
-    name: string;
-    description: string;
-    status: 'active' | 'paused' | 'deleted';
-    accessMode: number;
-    startDate: string;
-    endDate: string;
-    price: number;
-    impressions: number;
-    budget: number;
-    auctionType: 'fixed' | 'first' | 'second';
-    terms: string;
-    sectionIDs: number[] | string;
-    createDate: null;
-    modifyDate: null;
+    proposalID?: number;
+    ownerID?: number;
+    name?: string;
+    description?: string;
+    status?: string;
+    accessMode?: number;
+    startDate?: Date;
+    endDate?: Date;
+    price?: number;
+    impressions?: number;
+    budget?: number;
+    auctionType?: string;
+    terms?: string;
+    createDate?: Date;
+    modifyDate?: Date;
+    sectionIDs: Number[];
 }
