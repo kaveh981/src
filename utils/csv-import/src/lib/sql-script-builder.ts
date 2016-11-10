@@ -59,7 +59,7 @@ class SQLScriptBuilder {
         insertScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
         insertScript += "SELECT IF(@final_proposals - @existing_proposals = @expected_proposal_changes,"
-                                + "'Delection check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
+                                + "'Insertion check OK, Please COMMIT', 'Insertion check FAIL, Please ROLLBACK');\n";
 
         insertScript += "NOTEE\n";
 
@@ -91,7 +91,7 @@ class SQLScriptBuilder {
         deleteScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
         deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes,"
-                                + "'Delection check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
+                                + "'Deletion check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
 
         deleteScript += "NOTEE\n";
 
