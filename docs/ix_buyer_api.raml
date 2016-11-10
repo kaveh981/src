@@ -23,6 +23,8 @@ documentation:
         content: !include documentation/workflows/negotiate_deal.raml
     -   title: Workflow - Offer a new deal to specific parties (Targeted Proposal)
         content: !include documentation/workflows/target_deal.raml
+    -   title: Workflow - Create an open proposal (Non-targeted Proposal)
+        content: !include documentation/workflows/create_open_deal.raml
 
 ################################
 # Traits
@@ -158,6 +160,9 @@ types:
     ProposedDealCreate:     !include types/proposed_deal_create.raml
     NegotiatedDealCreate:   !include types/negotiated_deal_create.raml
     ActiveDealCreate:       !include types/active_deal_create.raml
+    Section:                !include types/section.raml
+    UrlMatch:               !include types/url_match.raml
+    Site:                   !include types/site.raml
 
 ################################
 # Route Definitions
