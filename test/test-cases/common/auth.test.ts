@@ -84,7 +84,7 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(8);
 
     await setup();
 
@@ -109,6 +109,9 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     assert.equal(response.status, 401);
 
     response = await apiRequest[verb](route, {}, "() => {}" );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, "3,1415926" );
     assert.equal(response.status, 401);
 
 }
