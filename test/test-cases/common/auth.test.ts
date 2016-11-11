@@ -11,7 +11,7 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
  /*
- * @case    - The user is an IXM User (IXM Buyer or IXM Publisher.
+ * @case    - The user is an IXM User (IXM Buyer or IXM Publisher).
  * @expect  - The response has status code which isn't 500 or 401.
  * @status  - working
  * @tags    - get, auth, buyer
@@ -62,7 +62,7 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
 }
 
  /*
- * @case    - The user id is not an valid (String, Float, Negative, Boolean, Array, Object, Function).
+ * @case    - The user id is not a valid integer (String, Float, Negative, Boolean, Array, Object, Function).
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - get, auth, buyer
@@ -90,10 +90,10 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
     response = await apiRequest[verb](route, {}, [3, 1, 4] );
     assert.equal(response.status, 401);
 
-    response = await apiRequest[verb](route, {}, {goose: 314} );
+    response = await apiRequest[verb](route, {}, { goose: 314 } );
     assert.equal(response.status, 401);
 
-    response = await apiRequest[verb](route, {}, function() {return; } );
+    response = await apiRequest[verb](route, {}, "() => { return; }" );
     assert.equal(response.status, 401);
 }
 
