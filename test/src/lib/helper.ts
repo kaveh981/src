@@ -139,7 +139,7 @@ class Helper {
                     phone: partner.phone
                 }
             },
-            auction_type: proposal.proposal.auctionType,
+            auction_type: settledDeal.settledDeal.auctionType,
             inventory: proposal.sectionIDs,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
