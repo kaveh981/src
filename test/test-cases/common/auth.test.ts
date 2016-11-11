@@ -1,7 +1,6 @@
 'use strict';
 
 import * as test from 'tape';
-import * as request from 'request';
 
 import { Injector } from '../../src/lib/injector';
 import { APIRequestManager } from '../../src/lib/request-manager';
@@ -76,6 +75,7 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
 
     /** Test */
     let response = await apiRequest[verb](route, {}, 'goose bear');
+
     assert.equal(response.status, 401);
 }
 
