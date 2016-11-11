@@ -17,7 +17,7 @@ function ErrorHandler(err: Error, req: express.Request, res: express.Response, n
         Log.trace(`Bad request on ${req.url}.`, req.id);
         res.sendError('400');
     } else if (!err['crafted'] ) {
-        Log.trace(err.stack, req.id);
+        Log.error(err);
         res.sendError('500');
     } else {
         if (err['message'].trim() || err['details']) {

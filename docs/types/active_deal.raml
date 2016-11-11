@@ -19,12 +19,6 @@ properties:
         required: true
         displayName: Created At
         description: The timestamp the deal was created at. RFC3339 format, UTC.
-    currency:
-        type: string
-        required: true
-        displayName: Currency
-        description: Three-letter currency code for the deal.
-        example: USD
     dsp_id:
         type: integer
         required: true
@@ -75,7 +69,7 @@ properties:
         displayName: Proposal
         description: The original proposal the deal is based on.
         properties:
-            id:
+            proposal_id:
                 type: integer
                 required: true
                 displayName: Proposal ID
@@ -90,6 +84,12 @@ properties:
                 required: false
                 displayName: Description
                 description: The description of the deal, from the original deal proposal.
+                currency:
+            type: string
+                required: true
+                displayName: Currency
+                description: Three-letter currency code for the deal.
+                example: USD
     status:
         type: string
         required: true
@@ -110,12 +110,13 @@ properties:
 example: |
     {
         "proposal": {
-            "id": 666,
+            "proposal_id": 666,
             "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
-            "name": "Is good deal, yes? You don't like good deals?"
+            "name": "Is good deal, yes? You don't like good deals?",
+            "currency": "ZAR"
         },
         "partner": {
-            "id": 654321,
+            "partner_id": 654321,
             "contact": {
                 "title": "Lord",
                 "name": "Humungus",
@@ -134,7 +135,6 @@ example: |
         "auction_type": "second",
         "price": 6.66,
         "inventory": [4321, 9876],
-        "currency": "ZAR",
         "created_at": "2016-04-04T04:00:00Z",
         "modified_at": "2016-04-14T14:00:00Z"
     }
