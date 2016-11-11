@@ -34,8 +34,8 @@ class ProposedDealManager {
     public async fetchProposedDealFromId(proposalID: number): Promise<ProposedDealModel> {
 
         let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'name', 'description', 'status',
-                                                     'accessMode', 'startDate', 'endDate', 'price', 'impressions',
-                                                     'budget', 'auctionType', 'terms', 'createDate', 'modifyDate')
+                                                     'startDate', 'endDate', 'price', 'impressions', 'budget',
+                                                     'auctionType', 'terms', 'createDate', 'modifyDate')
                                              .from('ixmDealProposals')
                                              .where('proposalID', proposalID);
 

@@ -17,7 +17,6 @@
                 ]
             }
         },
-        "accessMode": 1,
         "startDate": {
             "faker": "date.recent"
         },
@@ -48,7 +47,6 @@
         "name",
         "description",
         "status",
-        "accessMode",
         "startDate",
         "endDate",
         "price",

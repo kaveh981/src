@@ -3,7 +3,6 @@ interface IProposal {
     name: string;
     description: string;
     status: 'active' | 'paused' | 'deleted';
-    accessMode: number;
     startDate: string;
     endDate: string;
     price: number;
