@@ -4,7 +4,6 @@ interface IProposal {
     name?: string;
     description?: string;
     status?: string;
-    accessMode?: number;
     startDate?: Date;
     endDate?: Date;
     price?: number;
