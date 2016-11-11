@@ -92,7 +92,7 @@ class Helper {
                 inventory: proposal.sectionIDs,
                 currency: 'USD'
             },
-            status: Helper.setPayloadStatus(dealNegotiation, partner.userType),
+            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
             start_date: Helper.formatDate(dealNegotiation.startDate),
             end_date: Helper.formatDate(dealNegotiation.endDate),
             price: dealNegotiation.price,
@@ -202,7 +202,7 @@ class Helper {
      /**
      * Determines the status to return to the user based on buyer and publisher status
      */
-    private static setPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
+    private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
 
         if (partnerType === 23) {
             if (dealNegotiation.buyerStatus === 'active') {
