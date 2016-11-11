@@ -94,7 +94,7 @@ properties:
         required: true
         displayName: Status
         description: The current status of the negotiation. Indicates whether the negotiation is currently waiting on on the user making the request, the negotiating partner, or… ? # TODO any other statuses
-        enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"] # TODO list, internal statuses?
+        enum: ["waiting_on_partner", "waiting_on_you", "rejected_by_partner", "rejected_by_you", "accepted"] # TODO list, internal statuses?
     terms:
         type: string
         required: false
