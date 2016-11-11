@@ -296,14 +296,25 @@ function NegotiationDeals(router: express.Router): void {
             Log.trace('Found negotiation with ID: ' + currentNegotiation.id, req.id);
 
             let otherPartyStatus = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
+            let currentNegotiationStatus = userType === 'buyer' ? currentNegotiation.buyerStatus : currentNegotiation.publisherStatus;
 
             // Check that proposal has not been bought yet
             if (currentNegotiation.buyerStatus === 'accepted' && currentNegotiation.publisherStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
             }
 
+            // Check if the negotiation has been rejected by any party
+            if (otherPartyStatus === 'rejected') {
+                throw HTTPError('403_OTHER_REJECTED');
+            }
+
+            // Check if you have already rejected
+            if (currentNegotiationStatus === 'rejected') {
+                throw HTTPError('403_ALREADY_REJECTED');
+            }
+
             // Check if the user is out of turn
-            if (currentNegotiation.sender === userType && otherPartyStatus !== 'rejected') {
+            if (currentNegotiation.sender === userType && responseType !== 'reject') {
                 throw HTTPError('403_OUT_OF_TURN');
             }
 
@@ -318,11 +329,6 @@ function NegotiationDeals(router: express.Router): void {
             } else if (responseType === 'accept') {
 
                 Log.trace('User is accepting the negotiation', req.id);
-
-                // Confirm that the other party hasn't closed the deal
-                if (otherPartyStatus === 'rejected') {
-                    throw HTTPError('403_OTHER_REJECTED');
-                }
 
                 Log.debug(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`, req.id);
 
