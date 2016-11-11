@@ -30,13 +30,14 @@ en-US:
     403_PROPOSAL_IN_NEGOTIATION: Proposal is in negotiation.
     403_BAD_PROPOSAL: The proposal does not match the provided partner.
     403_CANNOT_START_NEGOTIATION: Cannot start a negotiation on your own proposal.
-    403_OTHER_REJECTED: The partner rejected this negotiation, the proposal cannot be bought as is.
+    403_OTHER_REJECTED: The partner rejected this negotiation, negotiation is no longer possible. Please contact the partner directly.
     403_OUT_OF_TURN: The partner did not reply to your previous offer.
     403_NO_NEGOTIATION: You cannot accept or reject a negotiation which hasn't yet started.
     403_NO_CHANGE: At least one negotiation field must be different than current offer.
     403_PARTNER_NOT_IXMUSER: Provided partner ID is not an Index Market User.
     403_PARTNER_NOT_ACTIVE: Partner is not active
     403_PARTNER_INVALID_USERTYPE: Provided partner ID has a invalid user type.
+    403_ALREADY_REJECTED: You have already rejected this negotiation, please contact the partner to continue negotiation.
 
     # 404 Status Code Messages
     404: Not found.

@@ -197,6 +197,37 @@ class Helper {
         return encrypted;
     }
 
+     /**
+     * Determines the status to return to the user based on buyer and publisher status
+     */
+    private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
+
+        if (partnerType === 23) {
+            if (dealNegotiation.buyerStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (dealNegotiation.buyerStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (dealNegotiation.pubStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (dealNegotiation.pubStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        } else {
+            if (dealNegotiation.pubStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (dealNegotiation.pubStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (dealNegotiation.buyerStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (dealNegotiation.buyerStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        }
+
+        return 'accepted';
+
+    }
+
 }
 
 export { Helper };
