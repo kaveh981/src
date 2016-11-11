@@ -101,6 +101,17 @@ class Helper {
 
     }
 
+    public static matchTypeToWord(matchType: number) {
+        switch (matchType) {
+            case 1:
+                return 'full';
+            case 2:
+                return 'partial';
+            default:
+                throw new Error(`Unknown match type: ${matchType}`);
+        }
+    }
+
 };
 
 export { Helper };

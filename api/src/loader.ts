@@ -20,6 +20,8 @@ import { PublisherManager } from './models/publisher/publisher-manager';
 import { ProposedDealManager } from './models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from './models/deals/negotiated-deal/negotiated-deal-manager';
 import { SettledDealManager } from './models/deals/settled-deal/settled-deal-manager';
+import { DealSectionManager } from './models/deal-section/deal-section-manager';
+import { SiteManager } from './models/site/site-manager';
 
 /** Dependency Resolution */
 const config = new ConfigLoader('../../config');
@@ -51,3 +53,9 @@ Injector.put(negotiatedDealManager, 'NegotiatedDealManager');
 
 const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager);
 Injector.put(settledDealManager, 'SettledDealManager');
+
+const siteManager = new SiteManager(databaseManager);
+Injector.put(siteManager, 'SiteManager');
+
+const dealSectionManager = new DealSectionManager(databaseManager, siteManager);
+Injector.put(dealSectionManager, 'DealSectionManager');
