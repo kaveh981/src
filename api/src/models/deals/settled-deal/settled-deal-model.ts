@@ -22,6 +22,14 @@ class SettledDealModel {
     public startDate: Date | '0000-00-00';
     /** End date */
     public endDate: Date | '0000-00-00';
+    /** Price */
+    public price: number;
+    /** Deal Priority */
+    public priority: number;
+    /** Auction Type */
+    public auctionType: string;
+    /** Section Ids */
+    public sections: number[];
 
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
@@ -64,53 +72,34 @@ class SettledDealModel {
         let partner;
 
         if (userType === 'IXMB') {
-            partner = { id: this.negotiatedDeal.publisherID, contact: this.negotiatedDeal.publisherInfo.toContactPayload() };
+            partner = this.negotiatedDeal.publisherInfo.toPayload('partner_id');
         } else {
-            partner = { id: this.negotiatedDeal.buyerID, contact: this.negotiatedDeal.buyerInfo.toContactPayload() };
+            partner = this.negotiatedDeal.buyerInfo.toPayload('partner_id');
         }
 
-        if (this.isIXMDeal) {
-            // IXM deals have more information
-            return {
-                proposal: {
-                    id: this.negotiatedDeal.proposedDeal.id,
-                    name: this.negotiatedDeal.proposedDeal.name,
-                    description: this.negotiatedDeal.proposedDeal.description,
-                },
-                partner: partner,
-                dsp_id: this.dspID,
-                terms: this.negotiatedDeal.terms,
-                impressions: this.negotiatedDeal.impressions,
-                budget: this.negotiatedDeal.budget,
-                auction_type: this.negotiatedDeal.proposedDeal.auctionType,
-                inventory: this.negotiatedDeal.proposedDeal.sections,
-                currency: this.negotiatedDeal.proposedDeal.currency,
-                external_id: this.externalDealID,
-                start_date: Helper.formatDate(this.startDate),
-                end_date: Helper.formatDate(this.endDate),
-                status: this.status,
-                price: this.negotiatedDeal.price,
-                created_at: this.createDate.toISOString(),
-                modified_at: this.modifyDate.toISOString()
-            };
-        } else {
-            // Non-ixm deals have less information
-            return {
-                dsp_id: this.dspID,
-                status: this.status,
-                external_id: this.externalDealID,
-
-                partner: partner,
-                price: this.negotiatedDeal.price,
-                start_date: this.negotiatedDeal.startDate,
-                end_date: this.negotiatedDeal.endDate,
-
-                auction_type: this.negotiatedDeal.proposedDeal.auctionType,
-                inventory: this.negotiatedDeal.proposedDeal.sections,
-                currency: this.negotiatedDeal.proposedDeal.currency,
-                name: this.negotiatedDeal.proposedDeal.name
-            };
-        }
+        return {
+            proposal: {
+                proposal_id: this.negotiatedDeal.proposedDeal.id,
+                description: this.negotiatedDeal.proposedDeal.description,
+                name: this.negotiatedDeal.proposedDeal.name,
+                currency: this.negotiatedDeal.proposedDeal.currency
+            },
+            partner: partner,
+            dsp_id: this.dspID,
+            terms: this.negotiatedDeal.terms,
+            impressions: this.negotiatedDeal.impressions,
+            auction_type: this.auctionType,
+            budget: this.negotiatedDeal.budget,
+            external_id: this.externalDealID,
+            start_date: Helper.formatDate(this.startDate),
+            end_date: Helper.formatDate(this.endDate),
+            status: this.status,
+            priority: this.priority,
+            inventory: this.sections,
+            price: this.negotiatedDeal.price,
+            created_at: this.createDate.toISOString(),
+            modified_at: this.modifyDate.toISOString()
+        };
 
     }
 

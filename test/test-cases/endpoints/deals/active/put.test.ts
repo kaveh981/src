@@ -58,8 +58,20 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
+    let modifiedDate = await databaseManager.select('modifiedDate')
+                                            .from('rtbDeals')
+                                            .join('ixmNegotiationDealMappings', 'rtbDeals.dealID',
+                                                  'ixmNegotiationDealMappings.negotiationID')
+                                            .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
+                                                  'ixmNegotiationDealMappings.negotiationID')
+                                            .where({
+                                                proposalID: proposal.proposal.proposalID,
+                                                publisherID: publisher.user.userID,
+                                                buyerID: buyer.user.userID
+                                            });
+
     assert.equal(response.status, 200);
-    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer);
+    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer, modifiedDate[0].modifiedDate);
     assert.deepEqual(response.body['data'][0], expectedResponse);
 
 }
