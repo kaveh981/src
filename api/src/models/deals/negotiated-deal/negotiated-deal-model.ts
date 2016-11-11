@@ -99,20 +99,13 @@ class NegotiatedDealModel {
         let partner;
 
         if (userType === 'IXMB') {
-            partner = { id: this.publisherID, contact: this.publisherInfo.toContactPayload() };
+            partner = this.publisherInfo.toPayload('partner_id');
         } else {
-            partner = { id: this.buyerID, contact: this.buyerInfo.toContactPayload() };
+            partner = this.buyerInfo.toPayload('partner_id');
         }
 
         return {
-            proposal: {
-                id: this.proposedDeal.id,
-                name: this.proposedDeal.name,
-                description: this.proposedDeal.description,
-                auction_type: this.proposedDeal.auctionType,
-                inventory: this.proposedDeal.sections,
-                currency: this.proposedDeal.currency
-            },
+            proposal: this.proposedDeal.toSubPayload(),
             partner: partner,
             terms: this.terms,
             impressions: this.impressions,

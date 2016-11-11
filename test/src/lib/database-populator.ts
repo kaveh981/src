@@ -217,7 +217,6 @@ class DatabasePopulator {
         newProposal.proposal.createDate = this.currentMidnightDate();
         newProposal.proposal.startDate.setHours(0, 0, 0, 0);
         newProposal.proposal.endDate.setHours(0, 0, 0, 0);
-        newProposal.proposal.accessMode = 1;
 
         let proposalID = await this.dbm.insert(newProposal.proposal, 'proposalID').into('ixmDealProposals');
         Log.debug(`Created proposal ID: ${proposalID[0]}`);

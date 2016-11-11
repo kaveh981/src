@@ -35,12 +35,23 @@ class UserModel {
      * Craft the contact information as payload
      */
     public toContactPayload(): any {
+
         return {
             title: this.title,
             name: this.firstName + ' ' + this.lastName,
             email: this.emailAddress,
             phone: this.phone
         };
+
+    }
+
+    public toPayload(userIdKey: string = 'id') {
+
+        return {
+            [userIdKey]: this.id,
+            contact: this.toContactPayload()
+        };
+
     }
 }
 
