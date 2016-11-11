@@ -10,7 +10,7 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
  /*
- * @case    - The buyer is an IXM Buyer.
+ * @case    - The user is an IXM User (IXM Buyer or IXM Publisher).
  * @expect  - The response has status code which isn't 500 or 401.
  * @status  - working
  * @tags    - get, auth, buyer
@@ -18,23 +18,28 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 async function ATW_AUTH_01 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(4);
 
     await setup();
 
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
 
     /** Test */
-    let response = await apiRequest[verb](route, {}, buyer.user.userID);
+    let buyerResponse = await apiRequest[verb](route, {}, buyer.user.userID);
 
-    assert.not(response.status, 401);
-    assert.not(response.status, 500);
+    assert.not(buyerResponse.status, 401);
+    assert.not(buyerResponse.status, 500);
 
+    let pubResponse = await apiRequest[verb](route, {}, publisher.user.userID);
+
+    assert.not(pubResponse.status, 401);
+    assert.not(pubResponse.status, 500);
 }
 
  /*
- * @case    - The user is not an IXM Buyer.
+ * @case    - The user is not an IXM User.
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - get,auth,buyer
@@ -56,7 +61,7 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
 }
 
  /*
- * @case    - The buyer id is not an integer.
+ * @case    - The user id is not a valid integer (String, Float, Negative, Boolean, Array, Object, Function).
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - get, auth, buyer
@@ -72,11 +77,10 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
     let response = await apiRequest[verb](route, {}, 'goose bear');
 
     assert.equal(response.status, 401);
-
 }
 
  /*
- * @case    - The buyer id is not supplied.
+ * @case    - The user id is not supplied.
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - get, auth, buyer
@@ -92,7 +96,6 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     let response = await apiRequest[verb](route, {});
 
     assert.equal(response.status, 401);
-
 }
 
 /**
