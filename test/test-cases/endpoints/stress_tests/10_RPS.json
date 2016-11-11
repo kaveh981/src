@@ -1,0 +1,72 @@
+{
+  "config": {
+    "target": "https://10.6.20.36/ixm",
+    "phases": [
+      {"duration": 120, "arrivalRate": 10}
+    ],
+    "processor": "./converter.js",
+    "payload": [{
+      "path": "./users_and_proposals.csv",
+      "fields": ["proposalID", "buyer", "pub"], 
+      "order": "sequence"
+    }]
+  },
+  "scenarios": [
+    {
+      "name": "Main Flow",
+      "flow": [
+        {"get": {
+            "url": "/deals/proposals/{{ proposalID }}",   
+            "headers": {
+                "X-IXM-UserId": "{{ buyer }}"
+                }   
+            }
+        },
+         
+        {"put": {
+          "url": "/deals/negotiations",
+          "beforeRequest": "stringToNumber",
+          "headers": {
+              "X-IXM-UserId": "{{ buyer }}" 
+            },
+          "json": {"proposal_id": "{{ proposalID }}", "partner_id": "{{ pub }}", "terms": "THESE ARE MY NEW TERMS"}
+         }
+        },
+         
+        {"get": {
+            "url": "/deals/negotiations/{{ proposalID }}/{{ buyer }}",  
+            "headers": {
+                "X-IXM-UserId": "{{ pub }}"
+                }   
+            }
+        },
+         
+        {"put": {
+          "url": "/deals/negotiations", 
+          "beforeRequest": "stringToNumber",
+          "headers": {
+              "X-IXM-UserId": "{{ pub }}"  
+            },
+          "json": {"proposal_id": "{{ proposalID }}", "partner_id": "{{ buyer }}", "response": "accept"}
+         }
+        },
+         
+        {"get": {
+            "url": "/deals/negotiations/{{ proposalID }}/{{ pub }}", 
+            "headers": {
+                "X-IXM-UserId": "{{ buyer }}" 
+                }   
+            }
+        },
+         
+        {"get": { 
+            "url": "/deals/active",  
+            "headers": {
+                "X-IXM-UserId": "{{ buyer }}"
+                }   
+            }
+        }
+      ]
+    }
+  ]
+}
