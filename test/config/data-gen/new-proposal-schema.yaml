@@ -9,7 +9,6 @@
             "faker": "company.catchPhrase"
         },
         "status": "active",
-        "accessMode": 1,
         "startDate": {
             "faker": "date.recent"
         },
@@ -40,7 +39,6 @@
         "name",
         "description",
         "status",
-        "accessMode",
         "startDate",
         "endDate",
         "price",
