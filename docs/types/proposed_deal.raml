@@ -42,11 +42,6 @@ properties:
         displayName: End Date
         description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
         example: 2016-10-10
-    id:
-        type: integer
-        required: true
-        displayName: Proposal ID
-        description: The unique identifier for the proposal.
     impressions:
         type: integer
         required: false
@@ -70,6 +65,11 @@ properties:
         displayName: Name
         description: Name of the deal.
         maxLength: 255
+    owner:
+        type: owner
+        require: true
+        displayName: owner
+        description: Information about the owner of this proposal.
     price:
         type: number
         required: true
@@ -78,11 +78,11 @@ properties:
         example: 1.99
         minimum: 0.01
         maximum: 655.35
-    owner_id:
+    proposal_id:
         type: integer
         required: true
-        displayName: Owner ID
-        description: The IDs of the proposal's creator.
+        displayName: Proposal ID
+        description: The unique identifier for the proposal.
     start_date:
         type: date-only
         required: false
@@ -103,8 +103,7 @@ properties:
         maxLength: 65535
 example: |
     {
-        "id": 999,
-        "owner_id": 123,
+        "proposal_id": 999,
         "inventory": [4321, 9876],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
@@ -116,11 +115,14 @@ example: |
         "budget": 9999999,
         "currency": "USD",
         "auction_type": "first",
-        "contact": {
-            "title": "Captain",
-            "name": "Jimdex Exchange",
-            "email": "jimdex.exchange@indexexchange.com",
-            "phone": "666 666 6665"
+        "owner": {
+            "owner_id": 123
+            "contact": {
+                "title": "Captain",
+                "name": "Jimdex Exchange",
+                "email": "jimdex.exchange@indexexchange.com",
+                "phone": "666 666 6665"
+            }
         },
         "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
         "created_at": "2016-04-04T04:00:00Z",

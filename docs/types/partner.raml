@@ -3,7 +3,7 @@
 type: object
 description: An object containing information about a deal partner, which may be a buyer or publisher involved in a negotiation or active deal.
 properties:
-    id:
+    partner_id:
         type: integer
         required: true
         displayName: Partner ID
@@ -15,7 +15,7 @@ properties:
         description: Contact information for the partner involved in this negotiation.
 example: |
     {
-        "id": 123,
+        "partner_id": 123,
         "contact": {
             "title": "Captain",
             "name": "Jimdex Exchange",
