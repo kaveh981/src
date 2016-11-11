@@ -68,36 +68,14 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
 
     await setup();
 
-    /** Test */
-    let response = await apiRequest[verb](route, {}, 'goose bear');
-
-    assert.equal(response.status, 401);
-
-}
-
- /*
- * @case    - The buyer id is not supplied.
- * @expect  - The response has status code 401.
- * @status  - working
- * @tags    - get, auth, buyer
- */
-async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
-
-    /** Setup */
-    assert.plan(8);
-
-    await setup();
-
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let anotherBuyer = await databasePopulator.createBuyer(dsp.dspID);
 
     /** Test */
-    let response = await apiRequest[verb](route, {});
+    let response = await apiRequest[verb](route, {}, 'goose bear');
 
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, 3.1415926 );
+     response = await apiRequest[verb](route, {}, 3.1415926 );
     assert.equal(response.status, 401);
 
     response = await apiRequest[verb](route, {}, -1 );
@@ -116,6 +94,28 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     assert.equal(response.status, 401);
 
     response = await apiRequest[verb](route, {}, buyer.user.userID.toString() + "," + anotherBuyer.user.userID.toString());
+    assert.equal(response.status, 401);
+
+    assert.equal(response.status, 401);
+
+}
+
+ /*
+ * @case    - The buyer id is not supplied.
+ * @expect  - The response has status code 401.
+ * @status  - working
+ * @tags    - get, auth, buyer
+ */
+async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
+
+    /** Setup */
+    assert.plan(8);
+
+    await setup();
+
+    /** Test */
+    let response = await apiRequest[verb](route, {});
+
     assert.equal(response.status, 401);
 }
 
