@@ -128,6 +128,7 @@ class Helper {
                 proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
+                currency: 'USD'
             },
             partner: {
                 partner_id: partner.userID,
@@ -140,7 +141,6 @@ class Helper {
             },
             auction_type: proposal.proposal.auctionType,
             inventory: proposal.sectionIDs,
-            currency: 'USD',
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
             impressions: dealNegotiation.impressions,
@@ -162,7 +162,8 @@ class Helper {
             proposal: {
                 proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
-                description: proposal.proposal.description
+                description: proposal.proposal.description,
+                currency: 'USD'
             },
             partner: {
                 partner_id: owner.userID,
@@ -175,7 +176,6 @@ class Helper {
             },
             auction_type: proposal.proposal.auctionType,
             inventory: proposal.sectionIDs,
-            currency: 'USD',
             dsp_id: buyer.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,

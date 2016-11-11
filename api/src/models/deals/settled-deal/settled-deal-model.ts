@@ -81,13 +81,13 @@ class SettledDealModel {
             proposal: {
                 proposal_id: this.negotiatedDeal.proposedDeal.id,
                 description: this.negotiatedDeal.proposedDeal.description,
-                name: this.negotiatedDeal.proposedDeal.name
+                name: this.negotiatedDeal.proposedDeal.name,
+                currency: this.negotiatedDeal.proposedDeal.currency
             },
             partner: partner,
             dsp_id: this.dspID,
             terms: this.negotiatedDeal.terms,
             impressions: this.negotiatedDeal.impressions,
-            currency: this.negotiatedDeal.proposedDeal.currency,
             auction_type: this.auctionType,
             budget: this.negotiatedDeal.budget,
             external_id: this.externalDealID,
