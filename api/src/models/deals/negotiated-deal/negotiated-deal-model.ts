@@ -104,27 +104,18 @@ class NegotiatedDealModel {
             partner = this.buyerInfo.toPayload('partner_id');
         }
 
-        let negotiationFields = {
+        return {
+            proposal: this.proposedDeal.toPayload(),
+            partner: partner,
             terms: this.terms,
             impressions: this.impressions,
             budget: this.budget,
             price: this.price,
             start_date: Helper.formatDate(this.startDate),
             end_date: Helper.formatDate(this.endDate),
-        };
-
-        for (let key in negotiationFields) {
-            if (negotiationFields[key] === this.proposedDeal.toPayload()[key]) {
-                negotiationFields[key] = null;
-            }
-        }
-
-        return Object.assign (negotiationFields, {
-            proposal: this.proposedDeal.toPayload(),
-            partner: partner,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
-        });
+        };
 
     }
 
