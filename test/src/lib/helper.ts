@@ -147,12 +147,13 @@ class Helper {
             status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
             price: settledDeal.settledDeal.rate,
             priority: settledDeal.settledDeal.priority,
+            created_at: (new Date(settledDeal.settledDeal.createDate)).toISOString(),
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
 
     public static dealsActivePutToPayload(proposal: INewProposalData,
-        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date) {
+        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date, createDate: Date) {
 
         return {
             proposal: {
@@ -182,6 +183,7 @@ class Helper {
             priority: 5,
             inventory: proposal.sectionIDs,
             currency: 'USD',
+            created_at: createDate.toISOString(),
             modified_at: modifiedDate.toISOString()
         };
 

@@ -341,6 +341,9 @@ class DatabasePopulator {
         await this.mapSettledDealToSections(newSettledDeal.settledDeal.dealID, newSettledDeal.sectionIDs);
         await this.mapSettledDealToNegotiation(newSettledDeal.settledDeal.dealID, newSettledDeal.negotiationID);
 
+        let createdDateObj = await this.dbm.select('createDate').from('ixmNegotiationDealMappings').where('dealID', dealID[0]);
+        newSettledDeal.settledDeal.createDate = createdDateObj[0].createDate;
+
         return newSettledDeal;
 
     }
