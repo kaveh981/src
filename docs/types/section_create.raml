@@ -67,11 +67,11 @@ properties:
         description: The ID of the publisher who owns the site the section is associated with.
         minimum: 1
         maximum: 16777215
-    site:
-        type: Site
+    sites:
+        type: Site[]
         required: true
         displayName: Site
-        description: A [Site]( link ) object describing the site this deal is active on.
+        description: An array of one or more [Site]( link ) objects describing the site(s) this deal is active on.
 example: |
     {
         "id": 898,
@@ -101,42 +101,44 @@ example: |
             "1 - 2",
             "3 - 6"
         ],
-        "site": {
-            "id": 1992,
-            "publisher_id": 100011,
-            "name": "SpamLords™®©",
-            "url": "https://spamlords.com",
-            "category": "Sports/Wrestling",
-            "impressions": 1230000,
-            "uniques": 980000,
-            "description": "The Old Ones were, the Old Ones are, and the Old Ones shall be. Not in the spaces we know, but between them, They walk serene and primal, undimensioned and to us unseen. Yog-Sothoth knows the gate. Yog-Sothoth is the gate. Yog-Sothoth is the key and guardian of the gate. Past, present, future, all are one in Yog-Sothoth.",
-            "avg_cpm": 3.33,
-            "inventory": [
-                {
-                    "ad_unit": "728x90",
-                    "video": true,
-                    "devices": [ "desktop" ]
-                },
-                {
-                    "ad_unit": "728x550",
-                    "video": true,
-                    "devices": [ "desktop" ]
-                },
-                {
-                    "ad_unit": "160x600",
-                    "video": false,
-                    "devices": [ "desktop" ]
-                },
-                {
-                    "ad_unit": "300x600",
-                    "video": true,
-                    "devices": [ "desktop", "mobile" ]
-                },
-                {
-                    "ad_unit": "320x50",
-                    "video": true,
-                    "devices": [ "mobile" ]
-                }
-            ]
-        }
+        "sites": [
+            {
+                "id": 1992,
+                "publisher_id": 100011,
+                "name": "SpamLords™®©",
+                "url": "https://spamlords.com",
+                "category": "Sports/Wrestling",
+                "impressions": 1230000,
+                "uniques": 980000,
+                "description": "The Old Ones were, the Old Ones are, and the Old Ones shall be. Not in the spaces we know, but between them, They walk serene and primal, undimensioned and to us unseen. Yog-Sothoth knows the gate. Yog-Sothoth is the gate. Yog-Sothoth is the key and guardian of the gate. Past, present, future, all are one in Yog-Sothoth.",
+                "avg_cpm": 3.33,
+                "inventory": [
+                    {
+                        "ad_unit": "728x90",
+                        "video": true,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "728x550",
+                        "video": true,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "160x600",
+                        "video": false,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "300x600",
+                        "video": true,
+                        "devices": [ "desktop", "mobile" ]
+                    },
+                    {
+                        "ad_unit": "320x50",
+                        "video": true,
+                        "devices": [ "mobile" ]
+                    }
+                ]
+            }
+        ]
     }
