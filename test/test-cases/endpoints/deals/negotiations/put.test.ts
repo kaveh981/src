@@ -1076,7 +1076,7 @@ export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
 
  /*
  * @case    - Buyer cannot reopen the negotiation after pub rejected.
- * @expect  - 200 OK, buyer status accepted, pub status active
+ * @expect  - 403, buyer status accepted, pub status rejected
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
@@ -1125,7 +1125,7 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
 
 /*
  * @case    - Pub cannot reopen the negotiation after buyer rejected.
- * @expect  - 200 OK, buyer status active, pub status accepted
+ * @expect  - 403, buyer status rejected, pub status accepted
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiaitons, deals
@@ -1500,7 +1500,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
 
 /**
  * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
- * @expect  - 200
+ * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
  * @status  - 
  * @tags    - put, negotiations, deals, reject
@@ -1541,7 +1541,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
 
 /**
  * @case    - The publisher can reject a negotiation out of turn, but cannot reject again.
- * @expect  - 200
+ * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
  * @status  - 
  * @tags    - put, negotiations, deals, reject
