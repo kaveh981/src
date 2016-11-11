@@ -173,6 +173,7 @@ interface ISettledDeal {
     status?: string;
     startDate?: Date;
     endDate?: Date;
+    createDate?: Date;
     modifiedDate?: Date;
     externalDealID?: string;
     priority?: number;
