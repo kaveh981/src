@@ -40,11 +40,12 @@ class SettledDealManager {
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                                                      'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
                                                      'createDate', 'modifiedDate as modifyDate', 'rtbDeals.startDate', 'rtbDeals.endDate',
-                                                     'rtbDeals.rate as price', 'priority')
+                                                     'rtbDeals.rate as price', 'priority', 'rtbDeals.auctionType', 'sectionID as sections')
                                              .from('rtbDeals')
                                              .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
                                              .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
                                                    'ixmNegotiationDealMappings.negotiationID')
+                                             .join('rtbDealSections', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
                                              .where('ixmDealNegotiations.proposalID', proposalID)
                                              .where('buyerID', buyerID)
                                              .where('publisherID', publisherID);
@@ -55,6 +56,7 @@ class SettledDealManager {
 
         let settledDealObject = new SettledDealModel(rows[0]);
 
+        settledDealObject.sections = rows.map((row) => { return Number(row.sections); });
         settledDealObject.negotiatedDeal = await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         settledDealObject.status = Helper.statusLetterToWord(settledDealObject.status);
 
@@ -105,6 +107,8 @@ class SettledDealManager {
             startDate: negotiatedDeal.startDate,
             endDate: negotiatedDeal.endDate,
             price: negotiatedDeal.price,
+            auctionType: negotiatedDeal.proposedDeal.auctionType,
+            sections: negotiatedDeal.proposedDeal.sections,
             priority: 5,
             negotiatedDeal: negotiatedDeal
         });
@@ -149,7 +153,7 @@ class SettledDealManager {
             userID: proposedDeal.ownerID,
             dspID: settledDeal.dspID,
             name: proposedDeal.name,
-            auctionType: proposedDeal.auctionType,
+            auctionType: settledDeal.auctionType,
             rate: settledDeal.price,
             status: settledDeal.status[0].toUpperCase(),
             startDate: settledDeal.startDate || '0000-00-00',
@@ -172,7 +176,7 @@ class SettledDealManager {
         for (let i = 0; i < proposedDeal.sections.length; i++) {
             await transaction.insert({
                 dealID: row.dealID,
-                sectionID: proposedDeal.sections[i]
+                sectionID: settledDeal.sections[i]
             }).into('rtbDealSections');
         }
 

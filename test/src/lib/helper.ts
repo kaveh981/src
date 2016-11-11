@@ -54,34 +54,38 @@ class Helper {
         return {
             auction_type: proposal.proposal.auctionType,
             budget: proposal.proposal.budget,
-            contact: {
-                title: 'Warlord',
-                name: owner.firstName + ' ' + owner.lastName,
-                email: owner.emailAddress,
-                phone: owner.phone
+            owner: {
+                owner_id: owner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: owner.firstName + ' ' + owner.lastName,
+                    email: owner.emailAddress,
+                    phone: owner.phone
+                }
             },
             created_at: proposal.proposal.createDate.toISOString(),
             currency: 'USD',
             description: proposal.proposal.description,
             end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
-            id: proposal.proposal.proposalID,
+            proposal_id: proposal.proposal.proposalID,
             impressions: proposal.proposal.impressions,
             inventory: proposal.sectionIDs,
             modified_at: proposal.proposal.modifyDate.toISOString(),
             name: proposal.proposal.name,
             price: proposal.proposal.price,
-            owner_id: proposal.proposal.ownerID,
             start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
             status: proposal.proposal.status,
             terms: proposal.proposal.terms,
         };
+
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
         partner: INewUserData) {
+
         return {
             proposal: {
-                id: proposal.proposal.proposalID,
+                proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
                 auction_type: proposal.proposal.auctionType,
@@ -94,7 +98,7 @@ class Helper {
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
             partner: {
-                id: partner.userID,
+                partner_id: partner.userID,
                 contact: {
                     title: 'Warlord',
                     name: partner.firstName + ' ' + partner.lastName,
@@ -121,12 +125,13 @@ class Helper {
                                         proposal: INewProposalData, partner: INewUserData) {
         return {
             proposal: {
-                id: proposal.proposal.proposalID,
+                proposal_id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
                 description: proposal.proposal.description,
-                name: proposal.proposal.name
+                currency: 'USD'
             },
             partner: {
-                id: partner.userID,
+                partner_id: partner.userID,
                 contact: {
                     title: 'Warlord',
                     name: partner.firstName + ' ' + partner.lastName,
@@ -134,13 +139,12 @@ class Helper {
                     phone: partner.phone
                 }
             },
+            auction_type: proposal.proposal.auctionType,
+            inventory: proposal.sectionIDs,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
-            auction_type: proposal.proposal.auctionType,
-            inventory: proposal.sectionIDs,
-            currency: 'USD',
             external_id: settledDeal.settledDeal.externalDealID,
             start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
             end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
@@ -156,12 +160,13 @@ class Helper {
 
         return {
             proposal: {
-                "id": proposal.proposal.proposalID,
-                "description": proposal.proposal.description,
-                "name": proposal.proposal.name,
+                proposal_id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
+                description: proposal.proposal.description,
+                currency: 'USD'
             },
             partner: {
-                id: owner.userID,
+                partner_id: owner.userID,
                 contact: {
                     title: 'Warlord',
                     name: owner.firstName + ' ' + owner.lastName,
@@ -169,6 +174,8 @@ class Helper {
                     phone: owner.phone
                 }
             },
+            auction_type: proposal.proposal.auctionType,
+            inventory: proposal.sectionIDs,
             dsp_id: buyer.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,
@@ -177,11 +184,8 @@ class Helper {
             start_date: Helper.formatDate(proposal.proposal.startDate),
             end_date: Helper.formatDate(proposal.proposal.endDate),
             status: proposal.proposal.status,
-            auction_type: proposal.proposal.auctionType,
             price: proposal.proposal.price,
             priority: 5,
-            inventory: proposal.sectionIDs,
-            currency: 'USD',
             modified_at: modifiedDate.toISOString()
         };
 

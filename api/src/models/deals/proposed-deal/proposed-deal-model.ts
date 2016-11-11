@@ -75,9 +75,8 @@ class ProposedDealModel {
     public toPayload(): any {
 
         return {
-            id: this.id,
-            owner_id: this.ownerID,
-            contact: this.ownerInfo.toContactPayload(),
+            proposal_id: this.id,
+            owner: this.ownerInfo.toPayload('owner_id'),
             name: this.name,
             status: this.status,
             currency: this.currency,
@@ -92,6 +91,23 @@ class ProposedDealModel {
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString(),
             inventory: this.sections
+        };
+
+    }
+
+    /**
+     * Return a subset of the information for the proposal.
+     * @returns - A subset of the model.
+     */
+    public toSubPayload() {
+
+        return  {
+            proposal_id: this.id,
+            name: this.name,
+            description: this.description,
+            auction_type: this.auctionType,
+            inventory: this.sections,
+            currency: this.currency
         };
 
     }
