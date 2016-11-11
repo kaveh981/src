@@ -88,6 +88,10 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
 
     await setup();
 
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let anotherBuyer = await databasePopulator.createBuyer(dsp.dspID);
+
     /** Test */
     let response = await apiRequest[verb](route, {});
 
@@ -111,9 +115,8 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     response = await apiRequest[verb](route, {}, "() => {}" );
     assert.equal(response.status, 401);
 
-    response = await apiRequest[verb](route, {}, "3,1415926" );
+    response = await apiRequest[verb](route, {}, buyer.user.userID.toString() + "," + anotherBuyer.user.userID.toString());
     assert.equal(response.status, 401);
-
 }
 
 /**
