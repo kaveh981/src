@@ -1075,16 +1075,16 @@ export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
 }
 
  /*
- * @case    - Buyer still can reopen the negotiation after pub rejected.
+ * @case    - Buyer cannot reopen the negotiation after pub rejected.
  * @expect  - 200 OK, buyer status accepted, pub status active
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
 
     /** Setup */
-    assert.plan(4);
+    assert.plan(3);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyer = await databasePopulator.createBuyer(DSP_ID);
@@ -1118,14 +1118,13 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
     let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
 
-    assert.equal(response.status, 200);
-    assert.equal(response.body.data[0].terms, 'honk honk honk');
-    assert.equal(actualPubStatus, 'active');
+    assert.equal(response.status, 403);
+    assert.equal(actualPubStatus, 'rejected');
     assert.equal(actualBuyerStatus, 'accepted');
 }
 
 /*
- * @case    - Pub still can reopen the negotiation after buyer rejected.
+ * @case    - Pub cannot reopen the negotiation after buyer rejected.
  * @expect  - 200 OK, buyer status active, pub status accepted
  * @route   - PUT deals/negotiations
  * @status  - working
@@ -1134,7 +1133,7 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
 export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
 
     /** Setup */
-    assert.plan(4);
+    assert.plan(3);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyer = await databasePopulator.createBuyer(DSP_ID);
@@ -1175,10 +1174,9 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
     let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
 
-    assert.equal(response.status, 200);
-    assert.equal(response.body.data[0].terms, 'ok maybe you are a goose');
+    assert.equal(response.status, 403);
+    assert.equal(actualBuyerStatus, 'rejected');
     assert.equal(actualPubStatus, 'accepted');
-    assert.equal(actualBuyerStatus, 'active');
 }
 
 /*
@@ -1498,4 +1496,94 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
     let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
 
     assert.equal(response.status, 403);
+}
+
+/**
+ * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
+ * @expect  - 200
+ * @route   - PUT deals/negotiations
+ * @status  - 
+ * @tags    - put, negotiations, deals, reject
+ */
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(3);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+    let buyerRequestBody1 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
+    };
+    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+
+    // Test
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        response: 'reject'
+    };
+    let response2 = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response3 = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+
+    assert.equal(response1.status, 200);
+    assert.equal(response2.status, 200);
+    assert.equal(response3.status, 403);
+
+}
+
+/**
+ * @case    - The publisher can reject a negotiation out of turn, but cannot reject again.
+ * @expect  - 200
+ * @route   - PUT deals/negotiations
+ * @status  - 
+ * @tags    - put, negotiations, deals, reject
+ */
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(4);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+    let buyerRequestBody1 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: publisher.user.userID,
+        terms: 'i am a goose'
+    };
+    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+
+    let publisherRequestBody1 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        terms: 'i am a goober'
+    };
+    let response2 = await apiRequest.put(route, publisherRequestBody1, publisher.user.userID);
+
+    // Test
+    let publisherRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyer.user.userID,
+        response: 'reject'
+    };
+    let response3 = await apiRequest.put(route, publisherRequestBody2, publisher.user.userID);
+    let response4 = await apiRequest.put(route, publisherRequestBody2, publisher.user.userID);
+
+    assert.equal(response1.status, 200);
+    assert.equal(response2.status, 200);
+    assert.equal(response3.status, 200);
+    assert.equal(response4.status, 403);
+
 }

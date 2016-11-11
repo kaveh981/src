@@ -37,6 +37,7 @@ en-US:
     403_PARTNER_NOT_IXMUSER: Provided partner ID is not an Index Market User.
     403_PARTNER_NOT_ACTIVE: Partner is not active
     403_PARTNER_INVALID_USERTYPE: Provided partner ID has a invalid user type.
+    403_ALREADY_REJECTED: You have already rejected this negotiation, please contact the partner to continue negotiation.
 
     # 404 Status Code Messages
     404: Not found.
