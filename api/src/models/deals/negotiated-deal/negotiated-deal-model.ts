@@ -115,7 +115,7 @@ class NegotiatedDealModel {
 
         for (let key in negotiationFields) {
             if (negotiationFields[key] === this.proposedDeal.toPayload()[key]) {
-                delete negotiationFields[key];
+                negotiationFields[key] = null;
             }
         }
 
