@@ -69,12 +69,37 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(8);
 
     await setup();
 
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let anotherBuyer = await databasePopulator.createBuyer(dsp.dspID);
+
     /** Test */
     let response = await apiRequest[verb](route, {}, 'goose bear');
+
+    response = await apiRequest[verb](route, {}, 3.1415926 );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, -1 );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, true );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, [3, 1, 4] );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, { goose: 314 } );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, "() => {}" );
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, buyer.user.userID.toString() + "," + anotherBuyer.user.userID.toString());
+    assert.equal(response.status, 401);
 
     assert.equal(response.status, 401);
 }
