@@ -36,11 +36,11 @@ class NegotiatedDealModel {
 
     /** Start date of the deal */
     public startDate: Date | '0000-00-00';
-    /** End date of the package */
+    /** End date of the proposal */
     public endDate: Date  | '0000-00-00';
-    /** Price of the package */
+    /** Price of the proposal */
     public price: number;
-    /** Projected amout of impressions for the package */
+    /** Projected amout of impressions for the proposal */
     public impressions: number;
     /** Project amount to be spend by the buyer */
     public budget: number;
@@ -104,18 +104,27 @@ class NegotiatedDealModel {
             partner = this.buyerInfo.toPayload('partner_id');
         }
 
-        return {
-            proposal: this.proposedDeal.toSubPayload(),
-            partner: partner,
+        let negotiationFields = {
             terms: this.terms,
             impressions: this.impressions,
             budget: this.budget,
             price: this.price,
             start_date: Helper.formatDate(this.startDate),
             end_date: Helper.formatDate(this.endDate),
+        };
+
+        for (let key in negotiationFields) {
+            if (negotiationFields[key] === this.proposedDeal.toPayload()[key]) {
+                delete negotiationFields[key];
+            }
+        }
+
+        return Object.assign (negotiationFields, {
+            proposal: this.proposedDeal.toPayload(),
+            partner: partner,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
-        };
+        });
 
     }
 
