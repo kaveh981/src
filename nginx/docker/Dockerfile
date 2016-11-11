@@ -5,17 +5,18 @@ ENV TZ America/Toronto
 RUN mkdir /src
 COPY . /src/
 
-ARG env=development
-ENV env $env
+ARG ENVIRONMENT
+ENV ENVIRONMENT ${ENVIRONMENT:-development}
 
-RUN sh /src/bin/deploy.sh $env
-RUN rm -rf /src
+RUN sh /src/bin/deploy.sh $ENVIRONMENT && \
+    rm -rf /src
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
-ARG GIT_COMMIT=dev
-ARG DATE=dev
+ARG GIT_COMMIT
+ARG DATE
 
 LABEL  SERVICE_NAME=atw-nginx \
-       GIT_COMMIT=${GIT_COMMIT} \
-       DATE=${DATE}
+       GIT_COMMIT=${GIT_COMMIT:-dev} \
+       DATE=${DATE:-dev} \
+       ENVIRONMENT=$ENVIRONMENT

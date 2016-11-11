@@ -1,0 +1,53 @@
+{
+    "type": "object",
+    "properties": {
+        "userID": 1,
+        "dspID": 1,
+        "name": {
+            "faker": "company.bs"
+        },
+        "auctionType": {
+            "chance": {
+                "pickone": [
+                    [
+                        "first",
+                        "second",
+                        "fixed"
+                    ]
+                ]
+            }
+        },
+        "rate": 6.66,
+        "status": "A",
+        "startDate": {
+            "faker": "date.recent"
+        },
+        "endDate": {
+            "faker": "date.future"
+        },
+        "modifiedDate": {
+            "faker": "date.recent"
+        },
+        "externalDealID": ixm-beep-boop-123,
+        "priority": 5,
+        "openMarket": 0,
+        "noPayoutMode": 0,
+        "manualApproval": 1
+    },
+    "required": [
+        "userID",
+        "dspID",
+        "name",
+        "auctionType",
+        "rate",
+        "status",
+        "startDate",
+        "endDate",
+        "modifiedDate",
+        "externalDealID",
+        "priority",
+        "openMarket",
+        "noPayoutMode",
+        "manualApproval"
+    ]
+}

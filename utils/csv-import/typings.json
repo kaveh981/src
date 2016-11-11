@@ -1,10 +1,15 @@
 {
   "globalDependencies": {
     "chalk": "registry:dt/chalk#0.4.0+20160317120654",
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
     "csv-parse": "registry:dt/csv-parse#1.1.0+20160602150508",
     "csv-stringify": "registry:dt/csv-stringify#0.0.0+20160801211411",
     "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
-    "node": "registry:dt/node#6.0.0+20161019125345",
+    "knex": "registry:dt/knex#0.0.0+20161009195237",
+    "node": "registry:dt/node#6.0.0+20161102143327",
     "z-schema": "registry:dt/z-schema#3.16.0+20160622084406"
+  },
+  "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.4.1+20160909132857"
   }
 }

@@ -14,9 +14,8 @@ class CSVLoader extends Loader {
      * Depends on: ConfigLoader
      * @param configLoader - the configLoader singleton instance to use as dependency
      */
-    constructor(configLoader: ConfigLoader) {
-        let folder = configLoader.getEnvironmentVariable('CSV_DIR');
-        super(folder, 'CSVL');
+    constructor() {
+        super('CSVL');
     }
 
     /**
@@ -31,6 +30,7 @@ class CSVLoader extends Loader {
         }
 
         return this.loadedMap[name];
+
     }
 
     /**
@@ -40,7 +40,7 @@ class CSVLoader extends Loader {
     public loadCsvFile(name: string) {
 
         try {
-            return this.parseCsv(super.loadFile(name + '.csv'));
+            return this.parseCsv(super.loadFile(name));
         } catch (e) {
             this.logger.error(e);
             return [];
@@ -54,12 +54,14 @@ class CSVLoader extends Loader {
      * @returns {any}
      */
     private parseCsv(input: string) {
+
         let csvParserOptions = {
             columns: true,
             auto_parse: true
         };
 
         return csv(input, csvParserOptions);
+
     }
 
     /**
@@ -70,13 +72,13 @@ class CSVLoader extends Loader {
     private parseProposals(parsedCsv: IProposal[]): IProposal[] {
 
         return parsedCsv.map((proposal: any) => {
-            proposal.sectionIDs = proposal.sectionIDs.toString().split(',');
-            proposal.sectionIDs = proposal.sectionIDs.map(Number);
+            proposal.sectionIDs = proposal.sectionIDs && proposal.sectionIDs.toString().split(',').map(Number);
             proposal.createDate = null;
             proposal.modifyDate = null;
 
             return proposal;
         });
+
     }
 
 }
