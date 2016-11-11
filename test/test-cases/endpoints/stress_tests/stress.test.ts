@@ -181,7 +181,7 @@ export async function ATW_STRESS_TEST_04 () {
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
-        for (let j = 0; j < 10; j++){
+        for (let j = 0; j < 10; j++) {
 
             let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
             let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
