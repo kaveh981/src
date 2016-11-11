@@ -104,12 +104,10 @@ class NegotiatedDealModel {
             partner = this.buyerInfo.toPayload('partner_id');
         }
 
-        let status = this.setPayloadStatus(userType);
-
         return {
             proposal: this.proposedDeal.toSubPayload(),
             partner: partner,
-            status: status,
+            status: this.setPayloadStatus(userType),
             terms: this.terms,
             impressions: this.impressions,
             budget: this.budget,
@@ -135,7 +133,7 @@ class NegotiatedDealModel {
             } else if (this.publisherStatus === 'active') {
                 return 'waiting_on_partner';
             } else if (this.publisherStatus === 'rejected') {
-                return 'rejected by partner';
+                return 'rejected_by_partner';
             }
         } else {
             if (this.publisherStatus === 'active') {
@@ -145,7 +143,7 @@ class NegotiatedDealModel {
             } else if (this.buyerStatus === 'active') {
                 return 'waiting_on_partner';
             } else if (this.buyerStatus === 'rejected') {
-                return 'rejected by partner';
+                return 'rejected_by_partner';
             }
         }
 
