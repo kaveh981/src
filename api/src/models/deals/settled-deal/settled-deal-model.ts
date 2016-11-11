@@ -26,6 +26,10 @@ class SettledDealModel {
     public price: number;
     /** Deal Priority */
     public priority: number;
+    /** Auction Type */
+    public auctionType: string;
+    /** Section Ids */
+    public sections: number[];
 
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
@@ -74,17 +78,24 @@ class SettledDealModel {
         }
 
         return {
-            proposal: this.negotiatedDeal.proposedDeal.toSubPayload(),
+            proposal: {
+                proposal_id: this.negotiatedDeal.proposedDeal.id,
+                description: this.negotiatedDeal.proposedDeal.description,
+                name: this.negotiatedDeal.proposedDeal.name
+            },
             partner: partner,
             dsp_id: this.dspID,
             terms: this.negotiatedDeal.terms,
             impressions: this.negotiatedDeal.impressions,
+            currency: this.negotiatedDeal.proposedDeal.currency,
+            auction_type: this.auctionType,
             budget: this.negotiatedDeal.budget,
             external_id: this.externalDealID,
             start_date: Helper.formatDate(this.startDate),
             end_date: Helper.formatDate(this.endDate),
             status: this.status,
             priority: this.priority,
+            inventory: this.sections,
             price: this.negotiatedDeal.price,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
