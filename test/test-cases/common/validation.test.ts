@@ -33,6 +33,8 @@ function validationTest(route: string, verb: string, setup: Function, validation
         if (validationParams.hasOwnProperty(property)) {
 
             let cases = configLoader.get(`common-validation/${validationParams[property].type}`);
+            cases = JSON.parse(JSON.stringify(cases));
+
             if (validationParams[property].extraCases && validationParams[property].extraCases.length > 0) {
                 cases = cases.concat(validationParams[property].extraCases);
             }
@@ -51,8 +53,8 @@ function validationTest(route: string, verb: string, setup: Function, validation
                 t.plan(cases.length);
                 // loop through cases
                 for (let i = 0; i < cases.length; i++) {
-
-                    validRequestParams[property] = cases[i].input;
+                    let input = cases[i].input;
+                    validRequestParams[property] = typeof input === 'object' ? JSON.stringify(input) : input;
                     let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.userID);
                     t.equal(res.status, cases[i].expect || 400);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
@@ -78,6 +80,8 @@ function validationTest(route: string, verb: string, setup: Function, validation
         if (uriParams.hasOwnProperty(param)) {
 
             let cases = configLoader.get(`common-validation/${uriParams[param].type}`);
+            cases = JSON.parse(JSON.stringify(cases));
+
             if (uriParams[param].extraCases && uriParams[param].extraCases.length > 0) {
                 cases = cases.concat(uriParams[param].extraCases);
             }
@@ -100,7 +104,8 @@ function validationTest(route: string, verb: string, setup: Function, validation
                     } else if (!cases[i].input) {
                         validUriParams[param] = '""';
                     } else {
-                        validUriParams[param] = cases[i].input;
+                        let input = cases[i].input;
+                        validUriParams[param] = typeof input === 'object' ? JSON.stringify(input) : input.toString();
                     }
 
                     routeParam = route;
