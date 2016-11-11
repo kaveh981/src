@@ -39,13 +39,14 @@ class SettledDealManager {
 
         let rows = await this.databaseManager.select('rtbDeals.dealID as id', 'rtbDeals.status as status',
                                                      'rtbDeals.externalDealID as externalDealID', 'rtbDeals.dspID as dspID',
-                                                     'createDate', 'modifiedDate as modifyDate', 'rtbDeals.startDate', 'rtbDeals.endDate',
-                                                     'rtbDeals.rate as price', 'priority', 'rtbDeals.auctionType', 'sectionID as sections')
+                                                     'ixmNegotiationDealMappings.createDate', 'modifiedDate as modifyDate',
+                                                     'rtbDeals.startDate', 'rtbDeals.endDate', 'rtbDeals.rate as price',
+                                                     'priority', 'rtbDeals.auctionType', 'sectionID as sections')
                                              .from('rtbDeals')
                                              .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
                                              .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
                                                    'ixmNegotiationDealMappings.negotiationID')
-                                             .join('rtbDealSections', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
+                                             .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
                                              .where('ixmDealNegotiations.proposalID', proposalID)
                                              .where('buyerID', buyerID)
                                              .where('publisherID', publisherID);
