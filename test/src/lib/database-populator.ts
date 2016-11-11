@@ -373,7 +373,7 @@ class DatabasePopulator {
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSettledDealToNegotiation(dealID: number, negotiationID: number) {
-        let mapping = {dealID: dealID, negotiationID: negotiationID};
+        let mapping = {dealID: dealID, negotiationID: negotiationID, createDate: null};
 
         await this.dbm.insert(mapping).into('ixmNegotiationDealMappings');
 
