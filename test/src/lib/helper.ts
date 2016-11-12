@@ -140,7 +140,7 @@ class Helper {
                     phone: partner.phone
                 }
             },
-            auction_type: proposal.proposal.auctionType,
+            auction_type: settledDeal.settledDeal.auctionType,
             inventory: proposal.sectionIDs,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
@@ -152,12 +152,13 @@ class Helper {
             status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
             price: settledDeal.settledDeal.rate,
             priority: settledDeal.settledDeal.priority,
+            created_at: (new Date(settledDeal.settledDeal.createDate)).toISOString(),
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
 
     public static dealsActivePutToPayload(proposal: INewProposalData,
-        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date) {
+        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date, createDate: Date) {
 
         return {
             proposal: {
@@ -187,6 +188,7 @@ class Helper {
             status: proposal.proposal.status,
             price: proposal.proposal.price,
             priority: 5,
+            created_at: createDate.toISOString(),
             modified_at: modifiedDate.toISOString()
         };
 

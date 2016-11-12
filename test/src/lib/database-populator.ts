@@ -340,6 +340,9 @@ class DatabasePopulator {
         await this.mapSettledDealToSections(newSettledDeal.settledDeal.dealID, newSettledDeal.sectionIDs);
         await this.mapSettledDealToNegotiation(newSettledDeal.settledDeal.dealID, newSettledDeal.negotiationID);
 
+        let createdDateObj = await this.dbm.select('createDate').from('ixmNegotiationDealMappings').where('dealID', dealID[0]);
+        newSettledDeal.settledDeal.createDate = createdDateObj[0].createDate;
+
         return newSettledDeal;
 
     }
@@ -372,7 +375,7 @@ class DatabasePopulator {
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSettledDealToNegotiation(dealID: number, negotiationID: number) {
-        let mapping = {dealID: dealID, negotiationID: negotiationID};
+        let mapping = {dealID: dealID, negotiationID: negotiationID, createDate: null};
 
         await this.dbm.insert(mapping).into('ixmNegotiationDealMappings');
 
