@@ -18,7 +18,7 @@ let SimpleCSV = require('simple-csv');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /*
- * @case    - 10 RPS, 2 mins, 170 pub, 170 buyers, 170 proposals
+ * @case    - 10 F(lows)PS, 2 mins, 1200 pub, 1200 buyers, 1200 proposals
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -48,7 +48,7 @@ export async function ATW_STRESS_TEST_01 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_RPS.json")]);
+        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS.json")]);
 
         child.stdout.on('data', (data) => {
             console.log(`${data}`.trim());
@@ -67,7 +67,7 @@ export async function ATW_STRESS_TEST_01 () {
 }
 
 /*
- * @case    - 100 RPS, 2 mins, 1700 pub, 1700 buyers, 1700 proposals
+ * @case    - 100 FPS, 2 mins, 12,000 pub, 12,000 buyers, 12,000 proposals
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -97,7 +97,7 @@ export async function ATW_STRESS_TEST_02 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./100_RPS.json")]);
+        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./100_FPS.json")]);
 
         child.stdout.on('data', (data) => {
             console.log(`${data}`.trim());
@@ -116,7 +116,7 @@ export async function ATW_STRESS_TEST_02 () {
 }
 
 /*
- * @case    - 1000 RPS, 2 mins, 17000 pub, 17000 buyers, 17000 proposals
+ * @case    - 1000 FPS, 2 mins, 120,000 pub, 120,000 buyers, 120,000 proposals
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -146,7 +146,7 @@ export async function ATW_STRESS_TEST_03 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./1000_RPS.json")]);
+        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./1000_FPS.json")]);
 
         child.stdout.on('data', (data) => {
             console.log(`${data}`.trim());
@@ -165,7 +165,7 @@ export async function ATW_STRESS_TEST_03 () {
 }
 
 /*
- * @case    - 10 RPS, 2 mins, 170 pub, 170 buyers, 1700 proposals (10 proposals per publisher)
+ * @case    - 10 FPS, 20 mins, 1,200 pub, 1,200 buyers, 12,000 proposals (10 proposals per publisher)
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -199,7 +199,7 @@ export async function ATW_STRESS_TEST_04 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_RPS.json")]);
+        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS_20m.json")]);
 
         child.stdout.on('data', (data) => {
             console.log(`${data}`.trim());
@@ -218,7 +218,7 @@ export async function ATW_STRESS_TEST_04 () {
 }
 
 /*
- * @case    - 10 RPS, 2 mins, 170 pub, 170 buyers, 17000 proposals (100 proposals per publisher)
+ * @case    - 10 FPS, 200 mins, 1,200 pub, 1,200 buyers, 120,000 proposals (100 proposals per publisher)
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -251,7 +251,7 @@ export async function ATW_STRESS_TEST_05 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_RPS.json")]);
+        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS_200m.json")]);
 
         child.stdout.on('data', (data) => {
             console.log(`${data}`.trim());
