@@ -51,7 +51,7 @@ export async function ATW_STRESS_TEST_01 () {
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log('${data}'.trim());
+            console.log(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -100,7 +100,7 @@ export async function ATW_STRESS_TEST_02 () {
         let child = spawn('artillery', ['run', path.join(__dirname, "./100_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log('${data}'.trim());
+            console.log(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -149,7 +149,7 @@ export async function ATW_STRESS_TEST_03 () {
         let child = spawn('artillery', ['run', path.join(__dirname, "./1000_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log('${data}'.trim());
+            console.log(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -202,7 +202,7 @@ export async function ATW_STRESS_TEST_04 () {
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_20m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log('${data}'.trim());
+            console.log(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -254,7 +254,7 @@ export async function ATW_STRESS_TEST_05 () {
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_200m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log('${data}'.trim());
+            console.log(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
