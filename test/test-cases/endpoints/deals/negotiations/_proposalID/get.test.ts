@@ -260,7 +260,7 @@ export async function ATW_DNP_GET_08 (assert: test.Test) {
     let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user.userID);
 
     assert.equal(response.status, 200, "Response 200");
-    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, buyer.user)],
+    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyer.user, buyer.user)],
                      "Only the user's deal negotiations are shown");
 }
 
