@@ -2,6 +2,7 @@
 
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
+import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { UserManager } from '../../user/user-manager';
 import { Logger } from '../../../lib/logger';
 
@@ -16,14 +17,18 @@ class ProposedDealManager {
     /** To populate the contact info */
     private userManager: UserManager;
 
+    /** To get deal section info */
+    private dealSectionManager: DealSectionManager;
+
     /**
      * Constructor
      * @param database - An instance of the database manager.
      * @param userManager - An instance of the user manager.
      */
-    constructor(databaseManager: DatabaseManager, userManager: UserManager) {
+    constructor(databaseManager: DatabaseManager, userManager: UserManager, dealSectionManager: DealSectionManager) {
         this.databaseManager = databaseManager;
         this.userManager = userManager;
+        this.dealSectionManager = dealSectionManager;
     }
 
     /**
@@ -44,7 +49,7 @@ class ProposedDealManager {
         }
 
         let proposalInfo = rows[0];
-        proposalInfo.sections = await this.fetchSectionsFromProposalId(proposalID);
+        proposalInfo.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalID);
         proposalInfo.ownerInfo = await this.userManager.fetchUserFromId(proposalInfo.ownerID);
 
         return new ProposedDealModel(proposalInfo);
@@ -75,26 +80,6 @@ class ProposedDealManager {
 
     }
 
-    /**
-     * Get the active section ids for the proposal
-     * @param proposalID - The id of the proposed deal.
-     * @returns An array of section ids;
-     */
-    public async fetchSectionsFromProposalId(proposalID: number): Promise<string[]> {
-
-        let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
-                                             .from('ixmProposalSectionMappings')
-                                             .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
-                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
-                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                                             .where('ixmProposalSectionMappings.proposalID', proposalID)
-                                             .andWhere('rtbSections.status', 'A')
-                                             .andWhere('sites.status', 'A')
-                                             .groupBy('id');
-
-        return rows.map((row) => { return row.id; });
-
-    }
 }
 
 export { ProposedDealManager };

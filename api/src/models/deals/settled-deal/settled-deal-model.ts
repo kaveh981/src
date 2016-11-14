@@ -2,6 +2,7 @@
 
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { Helper } from '../../../lib/helper';
+import { DealSectionModel } from '../../deal-section/deal-section-model';
 
 class SettledDealModel {
 
@@ -29,7 +30,7 @@ class SettledDealModel {
     /** Auction Type */
     public auctionType: string;
     /** Section Ids */
-    public sections: number[];
+    public sections: DealSectionModel[];
 
     /** Reference to the negotiation */
     public negotiatedDeal: NegotiatedDealModel;
@@ -78,12 +79,7 @@ class SettledDealModel {
         }
 
         return {
-            proposal: {
-                proposal_id: this.negotiatedDeal.proposedDeal.id,
-                description: this.negotiatedDeal.proposedDeal.description,
-                name: this.negotiatedDeal.proposedDeal.name,
-                currency: this.negotiatedDeal.proposedDeal.currency
-            },
+            proposal: this.negotiatedDeal.proposedDeal.toSubPayload(true),
             partner: partner,
             dsp_id: this.dspID,
             terms: this.negotiatedDeal.terms,
@@ -95,7 +91,7 @@ class SettledDealModel {
             end_date: Helper.formatDate(this.endDate),
             status: this.status,
             priority: this.priority,
-            inventory: this.sections,
+            inventory: this.sections.map((section) => { return section.toSubPayload(); }),
             price: this.negotiatedDeal.price,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
