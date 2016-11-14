@@ -107,7 +107,6 @@ class SettledDealModel {
             status: this.status,
             priority: this.priority,
             inventory: this.sections.map((section) => { return section.toSubPayload(); }),
-            price: this.negotiatedDeal.price,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
         }, negotiatedFields);
