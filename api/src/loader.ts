@@ -59,5 +59,5 @@ Injector.put(proposedDealManager, 'ProposedDealManager');
 const negotiatedDealManager = new NegotiatedDealManager(databaseManager, proposedDealManager, userManager);
 Injector.put(negotiatedDealManager, 'NegotiatedDealManager');
 
-const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager);
+const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager, dealSectionManager);
 Injector.put(settledDealManager, 'SettledDealManager');
