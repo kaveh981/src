@@ -96,30 +96,7 @@ class Helper {
         proposalOwner: INewUserData, partner: INewUserData) {
 
         return {
-<<<<<<< HEAD
             proposal: Helper.proposalToPayload(proposal, proposalOwner),
-=======
-            proposal: {
-                proposal_id: proposal.proposal.proposalID,
-                name: proposal.proposal.name,
-                description: proposal.proposal.description,
-                auction_type: proposal.proposal.auctionType,
-                inventory: proposal.sectionIDs.map((id) => {
-                    return {
-                        id: id,
-                        resource: configLoader.getVar('API_BASE') + `sections/${id}`
-                    };
-                }),
-                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`,
-                currency: 'USD'
-            },
-            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
-            start_date: Helper.formatDate(dealNegotiation.startDate),
-            end_date: Helper.formatDate(dealNegotiation.endDate),
-            price: dealNegotiation.price,
-            impressions: dealNegotiation.impressions,
-            budget: dealNegotiation.budget,
->>>>>>> 6b00c62d7a07d55a3c2c95dd10452544c64381a6
             partner: {
                 partner_id: partner.userID,
                 contact: {
