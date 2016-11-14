@@ -35,7 +35,13 @@ class SiteModel {
             url: this.url,
             categories: this.categories,
             uniques: this.monthlyUniques,
-            description: this.description
+            description: this.description,
+            inventory: [{
+                ad_unit: '1337x420',
+                video: true,
+                devices: [ 'kerosene-powered cheese grater', 'goober' ]
+            }],
+            impressions: 666
         };
 
     }

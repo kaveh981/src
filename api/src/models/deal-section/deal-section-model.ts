@@ -1,6 +1,10 @@
 'use strict';
 
 import { SiteModel } from '../site/site-model';
+import { Injector } from '../../lib/injector';
+import { ConfigLoader } from '../../lib/config-loader';
+
+const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 class DealSectionModel {
 
@@ -47,6 +51,21 @@ class DealSectionModel {
             name: this.name,
             publisher_id: this.publisherID,
             sites: this.sites.map((site) => { return site.toPayload(); })
+        };
+
+    }
+
+    /**
+     * Return subset of payload object with URL.
+     * @returns A JSON object which is a subset of the payload object.
+     */
+    public toSubPayload() {
+
+        let infoURL = configLoader.getVar('BASE_URL') + `sections/${this.id}`;
+
+        return {
+            id: this.id,
+            resource: infoURL
         };
 
     }

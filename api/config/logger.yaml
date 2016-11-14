@@ -1,7 +1,7 @@
 # Logger Configuration
 
 # Default level of messages to write to stdout.
-consoleLevel: 1
+consoleLevel: 0
 
 # Default level of messages to write to files.
 filewriteLevel: 0

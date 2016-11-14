@@ -59,7 +59,13 @@ class SiteManager {
 
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
-            sites.push(await this.fetchSiteFromId(row.siteID));
+            let site = await this.fetchSiteFromId(row.siteID);
+
+            if (!site) {
+                continue;
+            }
+
+            sites.push(site);
         }
 
         return sites;

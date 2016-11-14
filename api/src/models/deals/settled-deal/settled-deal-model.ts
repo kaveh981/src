@@ -78,12 +78,7 @@ class SettledDealModel {
         }
 
         return {
-            proposal: {
-                proposal_id: this.negotiatedDeal.proposedDeal.id,
-                description: this.negotiatedDeal.proposedDeal.description,
-                name: this.negotiatedDeal.proposedDeal.name,
-                currency: this.negotiatedDeal.proposedDeal.currency
-            },
+            proposal: this.negotiatedDeal.proposedDeal.toSubPayload(true),
             partner: partner,
             dsp_id: this.dspID,
             terms: this.negotiatedDeal.terms,

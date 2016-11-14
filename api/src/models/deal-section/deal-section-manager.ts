@@ -33,10 +33,9 @@ class DealSectionManager {
     public async fetchDealSectionById(sectionID: number) {
 
         let rows = await this.databaseManager.select('rtbSections.sectionID as id', 'name', 'status', 'percent as coverage',
-                                                     'entireSite', 'url', 'matchType', 'siteID', 'userID as publisherID')
+                                                     'entireSite', 'url', 'matchType', 'userID as publisherID')
                                              .from('rtbSections')
-                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
-                                             .join('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
                                              .where('rtbSections.sectionID', sectionID);
 
         if (!rows[0]) {
@@ -51,7 +50,7 @@ class DealSectionManager {
             coverage: rows[0].coverage,
             entireSite: !!rows[0].entireSite,
             id: rows[0].id,
-            urlMatches: rows.map((row) => {
+            urlMatches: rows.filter((row) => { return !!row.matchType; }).map((row) => {
                 return {
                     matchType: Helper.matchTypeToWord(row.matchType),
                     url: row.url
@@ -67,6 +66,39 @@ class DealSectionManager {
     }
 
     /**
+     * Get the active section ids for the proposal
+     * @param proposalID - The id of the proposed deal.
+     * @returns An array of section ids;
+     */
+    public async fetchSectionsFromProposalId(proposalID: number) {
+
+        let dealSections: DealSectionModel[] = [];
+        let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
+                                             .from('ixmProposalSectionMappings')
+                                             .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
+                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .where('ixmProposalSectionMappings.proposalID', proposalID)
+                                             .andWhere('rtbSections.status', 'A')
+                                             .andWhere('sites.status', 'A')
+                                             .groupBy('id');
+
+        for (let i = 0; i < rows.length; i++) {
+            let section = await this.fetchDealSectionById(rows[i].id);
+
+            if (!section) {
+                continue;
+            }
+
+            dealSections.push(section);
+        }
+
+        return dealSections;
+
+    }
+
+
+    /**
      * Fetch the adunits belonging to a section.
      * @param sectionID - The section to find ad-units for.
      * @return An array of names of the ad units.
@@ -77,7 +109,7 @@ class DealSectionManager {
                                              .from('adUnits')
                                              .join('sectionAdUnitMappings', 'sectionAdUnitMappings.adUnitID', 'adUnits.adUnitID')
                                              .where({
-                                                 sectionID: sectionID,
+                                                 'sectionID': sectionID,
                                                  'adUnits.status': 'A'
                                              });
 
