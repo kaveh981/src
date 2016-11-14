@@ -26,7 +26,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
  */
 export async function ATW_STRESS_TEST_01 () {
 
-    let artilleryData = []; // initialize empty array
+    let artilleryData = []; 
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -75,7 +75,7 @@ export async function ATW_STRESS_TEST_01 () {
  */
 export async function ATW_STRESS_TEST_02 () {
 
-    let artilleryData = []; // initialize empty array
+    let artilleryData = []; 
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -124,7 +124,7 @@ export async function ATW_STRESS_TEST_02 () {
  */
 export async function ATW_STRESS_TEST_03 () {
 
-    let artilleryData = []; // initialize empty array
+    let artilleryData = []; 
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -173,7 +173,7 @@ export async function ATW_STRESS_TEST_03 () {
  */
 export async function ATW_STRESS_TEST_04 () {
 
-    let artilleryData = []; // initialize empty array
+    let artilleryData = []; 
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -226,7 +226,7 @@ export async function ATW_STRESS_TEST_04 () {
  */
 export async function ATW_STRESS_TEST_05 () {
 
-    let artilleryData = []; // initialize empty array
+    let artilleryData = []; 
 
     let dsp = await databasePopulator.createDSP(1);
 
