@@ -2,7 +2,7 @@
   "config": {
     "target": "https://10.6.20.36/ixm",
     "phases": [
-      {"duration": 12000, "arrivalRate": 10}
+      {"duration": 1200, "arrivalRate": 10}
     ],
     "processor": "./converter.js",
     "payload": [{
@@ -15,6 +15,14 @@
     {
       "name": "Main Flow",
       "flow": [
+        {"get": {
+          "url": "/users/{{ pub }}",
+          "headers": {
+                "X-IXM-UserId": "{{ buyer }}"
+                }
+            }
+        },
+        
         {"get": {
             "url": "/deals/proposals/{{ proposalID }}",   
             "headers": {

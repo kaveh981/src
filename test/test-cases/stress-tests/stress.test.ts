@@ -2,10 +2,10 @@
 
 import * as test from 'tape';
 import * as path from 'path';
-import { DatabasePopulator } from '../../../src/lib/database-populator';
-import { Helper } from '../../../src/lib/helper';
-import { DatabaseManager } from '../../../src/lib/database-manager';
-import { Injector } from '../../../src/lib/injector';
+import { DatabasePopulator } from '../../src/lib/database-populator';
+import { Helper } from '../../src/lib/helper';
+import { DatabaseManager } from '../../src/lib/database-manager';
+import { Injector } from '../../src/lib/injector';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
@@ -44,7 +44,7 @@ export async function ATW_STRESS_TEST_01 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Complete, ... generated users_and_proposals.csv');
+    console.log('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
@@ -93,7 +93,7 @@ export async function ATW_STRESS_TEST_02 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Complete, ... generated users_and_proposals.csv');
+    console.log('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
@@ -142,7 +142,7 @@ export async function ATW_STRESS_TEST_03 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Complete, ... generated users_and_proposals.csv');
+    console.log('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
@@ -195,7 +195,7 @@ export async function ATW_STRESS_TEST_04 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Complete, ... generated users_and_proposals.csv');
+    console.log('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
@@ -247,7 +247,7 @@ export async function ATW_STRESS_TEST_05 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Complete, ... generated users_and_proposals.csv');
+    console.log('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
