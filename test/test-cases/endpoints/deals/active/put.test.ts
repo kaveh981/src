@@ -58,7 +58,7 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
-    let modifiedDate = await databaseManager.select('modifiedDate')
+    let selected = await databaseManager.select('modifiedDate', 'ixmNegotiationDealMappings.createDate as createDate')
                                             .from('rtbDeals')
                                             .join('ixmNegotiationDealMappings', 'rtbDeals.dealID',
                                                   'ixmNegotiationDealMappings.negotiationID')
@@ -71,7 +71,8 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
                                             });
 
     assert.equal(response.status, 200);
-    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer, modifiedDate[0].modifiedDate);
+    let expectedResponse = await Helper.dealsActivePutToPayload(proposal, publisher.user, buyer, selected[0].modifiedDate,
+                                                                selected[0].createDate);
     assert.deepEqual(response.body['data'][0], expectedResponse);
 
 }
