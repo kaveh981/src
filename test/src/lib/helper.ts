@@ -90,7 +90,6 @@ class Helper {
 
         return {
             proposal: Helper.proposalToPayload(proposal, proposalOwner),
-
             partner: {
                 partner_id: partner.userID,
                 contact: {
@@ -100,7 +99,6 @@ class Helper {
                     phone: partner.phone
                 }
             },
-
             status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
             price: dealNegotiation.price,
             impressions: dealNegotiation.impressions,
@@ -108,7 +106,6 @@ class Helper {
             terms: dealNegotiation.terms,
             start_date: Helper.formatDate(dealNegotiation.startDate),
             end_date: Helper.formatDate(dealNegotiation.endDate),
-
             created_at: dealNegotiation.createDate.toISOString(),
             modified_at: dealNegotiation.modifyDate.toISOString()
         };
