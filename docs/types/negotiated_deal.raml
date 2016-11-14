@@ -51,7 +51,7 @@ properties:
         displayName: Proposal
         description: The original proposal the negotiation is based on.
         properties:
-            id:
+            proposal_id:
                 type: integer
                 required: true
                 displayName: Proposal ID
@@ -93,8 +93,8 @@ properties:
         type: string
         required: true
         displayName: Status
-        description: The current status of the negotiation. Indicates whether the negotiation is currently waiting on on the user making the request, the negotiating partner, or… ? # TODO any other statuses
-        enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"] # TODO list, internal statuses?
+        description: The current status of the negotiation. Indicates whether the negotiation is currently waiting on/was rejected by the user making the request or the negotiating partner, or whether it was accepted by both parties.
+        enum: ["waiting_on_partner", "waiting_on_you", "rejected_by_partner", "rejected_by_you", "accepted"]
     terms:
         type: string
         required: false
@@ -103,7 +103,7 @@ properties:
     example: |
     {
         "proposal": {
-            "id": 999,
+            "proposal_id": 999,
             "name": "Superfab Ultradeal",
             "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
             "auction_type": "first",
@@ -117,7 +117,7 @@ properties:
         "impressions": 8,
         "budget": 9999999,
         "partner": {
-            "id": 666,
+            "partner_id": 666,
             "contact": {
                 "title": "Lord",
                 "name": "Humungus",

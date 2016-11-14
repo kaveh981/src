@@ -54,47 +54,52 @@ class Helper {
         return {
             auction_type: proposal.proposal.auctionType,
             budget: proposal.proposal.budget,
-            contact: {
-                title: 'Warlord',
-                name: owner.firstName + ' ' + owner.lastName,
-                email: owner.emailAddress,
-                phone: owner.phone
+            owner: {
+                owner_id: owner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: owner.firstName + ' ' + owner.lastName,
+                    email: owner.emailAddress,
+                    phone: owner.phone
+                }
             },
             created_at: proposal.proposal.createDate.toISOString(),
             currency: 'USD',
             description: proposal.proposal.description,
             end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
-            id: proposal.proposal.proposalID,
+            proposal_id: proposal.proposal.proposalID,
             impressions: proposal.proposal.impressions,
             inventory: proposal.sectionIDs,
             modified_at: proposal.proposal.modifyDate.toISOString(),
             name: proposal.proposal.name,
             price: proposal.proposal.price,
-            owner_id: proposal.proposal.ownerID,
             start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
             status: proposal.proposal.status,
             terms: proposal.proposal.terms,
         };
+
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
         partner: INewUserData) {
+
         return {
             proposal: {
-                id: proposal.proposal.proposalID,
+                proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
                 auction_type: proposal.proposal.auctionType,
                 inventory: proposal.sectionIDs,
                 currency: 'USD'
             },
+            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
             start_date: Helper.formatDate(dealNegotiation.startDate),
             end_date: Helper.formatDate(dealNegotiation.endDate),
             price: dealNegotiation.price,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
             partner: {
-                id: partner.userID,
+                partner_id: partner.userID,
                 contact: {
                     title: 'Warlord',
                     name: partner.firstName + ' ' + partner.lastName,
@@ -121,12 +126,13 @@ class Helper {
                                         proposal: INewProposalData, partner: INewUserData) {
         return {
             proposal: {
-                id: proposal.proposal.proposalID,
+                proposal_id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
                 description: proposal.proposal.description,
-                name: proposal.proposal.name
+                currency: 'USD'
             },
             partner: {
-                id: partner.userID,
+                partner_id: partner.userID,
                 contact: {
                     title: 'Warlord',
                     name: partner.firstName + ' ' + partner.lastName,
@@ -134,34 +140,35 @@ class Helper {
                     phone: partner.phone
                 }
             },
+            auction_type: settledDeal.settledDeal.auctionType,
+            inventory: proposal.sectionIDs,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
-            auction_type: proposal.proposal.auctionType,
-            inventory: proposal.sectionIDs,
-            currency: 'USD',
             external_id: settledDeal.settledDeal.externalDealID,
             start_date: Helper.formatDate(settledDeal.settledDeal.startDate),
             end_date: Helper.formatDate(settledDeal.settledDeal.endDate),
             status: Helper.statusLetterToWord(settledDeal.settledDeal.status),
             price: settledDeal.settledDeal.rate,
             priority: settledDeal.settledDeal.priority,
+            created_at: (new Date(settledDeal.settledDeal.createDate)).toISOString(),
             modified_at: (new Date(settledDeal.settledDeal.modifiedDate)).toISOString()
         };
     }
 
     public static dealsActivePutToPayload(proposal: INewProposalData,
-        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date) {
+        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date, createDate: Date) {
 
         return {
             proposal: {
-                "id": proposal.proposal.proposalID,
-                "description": proposal.proposal.description,
-                "name": proposal.proposal.name,
+                proposal_id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
+                description: proposal.proposal.description,
+                currency: 'USD'
             },
             partner: {
-                id: owner.userID,
+                partner_id: owner.userID,
                 contact: {
                     title: 'Warlord',
                     name: owner.firstName + ' ' + owner.lastName,
@@ -169,6 +176,8 @@ class Helper {
                     phone: owner.phone
                 }
             },
+            auction_type: proposal.proposal.auctionType,
+            inventory: proposal.sectionIDs,
             dsp_id: buyer.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,
@@ -177,11 +186,9 @@ class Helper {
             start_date: Helper.formatDate(proposal.proposal.startDate),
             end_date: Helper.formatDate(proposal.proposal.endDate),
             status: proposal.proposal.status,
-            auction_type: proposal.proposal.auctionType,
             price: proposal.proposal.price,
             priority: 5,
-            inventory: proposal.sectionIDs,
-            currency: 'USD',
+            created_at: createDate.toISOString(),
             modified_at: modifiedDate.toISOString()
         };
 
@@ -192,6 +199,37 @@ class Helper {
         let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
         encrypted += cipher.final('hex');
         return encrypted;
+    }
+
+     /**
+     * Determines the status to return to the user based on buyer and publisher status
+     */
+    private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
+
+        if (partnerType === 23) {
+            if (dealNegotiation.buyerStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (dealNegotiation.buyerStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (dealNegotiation.pubStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (dealNegotiation.pubStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        } else {
+            if (dealNegotiation.pubStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (dealNegotiation.pubStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (dealNegotiation.buyerStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (dealNegotiation.buyerStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        }
+
+        return 'accepted';
+
     }
 
 }

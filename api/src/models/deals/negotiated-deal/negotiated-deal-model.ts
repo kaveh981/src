@@ -99,21 +99,15 @@ class NegotiatedDealModel {
         let partner;
 
         if (userType === 'IXMB') {
-            partner = { id: this.publisherID, contact: this.publisherInfo.toContactPayload() };
+            partner = this.publisherInfo.toPayload('partner_id');
         } else {
-            partner = { id: this.buyerID, contact: this.buyerInfo.toContactPayload() };
+            partner = this.buyerInfo.toPayload('partner_id');
         }
 
         return {
-            proposal: {
-                id: this.proposedDeal.id,
-                name: this.proposedDeal.name,
-                description: this.proposedDeal.description,
-                auction_type: this.proposedDeal.auctionType,
-                inventory: this.proposedDeal.sections,
-                currency: this.proposedDeal.currency
-            },
+            proposal: this.proposedDeal.toSubPayload(),
             partner: partner,
+            status: this.setPayloadStatus(userType),
             terms: this.terms,
             impressions: this.impressions,
             budget: this.budget,
@@ -123,6 +117,37 @@ class NegotiatedDealModel {
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
         };
+
+    };
+
+    /**
+     * Determines the status to return to the user based on buyer and publisher status
+     */
+    private setPayloadStatus(userType: string) {
+
+        if (userType === 'IXMB') {
+            if (this.buyerStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (this.buyerStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (this.publisherStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (this.publisherStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        } else {
+            if (this.publisherStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (this.publisherStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (this.buyerStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (this.buyerStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        }
+
+        return 'accepted';
 
     }
 

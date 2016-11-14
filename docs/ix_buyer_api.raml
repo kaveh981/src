@@ -4,7 +4,7 @@
 # Overview
 ################################
 
-title: Index Exchange Buyer API
+title: Index Exchange Market API
 baseUri: https://market.indexexchange.com/api/{version}
 version: v1
 mediaType: application/json
@@ -161,8 +161,10 @@ types:
     NegotiatedDealCreate:   !include types/negotiated_deal_create.raml
     ActiveDealCreate:       !include types/active_deal_create.raml
     Section:                !include types/section.raml
+    SectionCreate:          !include types/section_create.raml
     UrlMatch:               !include types/url_match.raml
     Site:                   !include types/site.raml
+    SiteCreate:             !include types/site_create.raml
 
 ################################
 # Route Definitions
@@ -340,9 +342,9 @@ types:
                         enum: ["waiting_on_partner", "waiting_on_you", "no_status_no_class"]
                 responses:
                     200: # 200 = "OK"
-                    body:
-                        application/json:
-                            type: Response
+                        body:
+                            application/json:
+                                type: Response
                     400: # 400 = "Bad Request" use for malformed requests
                     401: # 401 = "Unauthorized" authentication has failed or was not provided
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
@@ -362,9 +364,9 @@ types:
                         description: Retrieve a specific negotiation associated with a specific proposal ID/partner ID combination for the current user.
                         responses:
                             200: # 200 = "OK"
-                            body:
-                                application/json:
-                                    type: Response
+                                body:
+                                    application/json:
+                                        type: Response
                             401: # 401 = "Unauthorized" authentication has failed or was not provided
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" negotiation/proposal/partner does not exist in the database
@@ -450,9 +452,9 @@ types:
                         description: DSP ID involved in the deal. Used to only obtain deals associated with a specific DSP.
                 responses:
                     200: # 200 = "OK"
-                    body:
-                        application/json:
-                            type: Response
+                        body:
+                            application/json:
+                                type: Response
                     400: # 400 = "Bad Request" use for malformed requests
                     401: # 401 = "Unauthorized" authentication has failed or was not provided
                     403: # 403 = "Forbidden" authentication successful but insufficient permissions
@@ -473,9 +475,9 @@ types:
                         description: Retrieve a specific active deal associated with a specific proposal ID/partner ID combination for the current user.
                         responses:
                             200: # 200 = "OK"
-                            body:
-                                application/json:
-                                    type: Response
+                                body:
+                                    application/json:
+                                        type: Response
                             401: # 401 = "Unauthorized" authentication has failed or was not provided
                             403: # 403 = "Forbidden" authentication successful but insufficient permissions
                             404: # 404 = "Not found" deal/proposal/partner does not exist in the database
@@ -557,57 +559,57 @@ types:
             401: # 401 = "Unauthorized" authentication has failed or was not provided
             403: # 403 = "Forbidden" authentication successful but insufficient permissions
             500: # 500
-        /{section_id}:
-            uriParameters:
-                section_id:
-                    type: integer
-                    required: true
-                    description: The unique identifier for a section.
-                    minimum: 1
-                    maximum: 16777215
-            get:
-                (not_implemented): true
-                is: [ auth_required ] #?
-                description: Retrieve a specific section by ID.
-                responses:
-                    200: # 200 = "OK"
-                        body:
-                            application/json:
-                                type: Response
-                    400: # 400 = "Bad Request" use for malformed requests
-                    401: # 401 = "Unauthorized" authentication has failed or was not provided
-                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                    404: # 404 = "Not found" nothing found for this ID
-                    500: # 500
-            put:
-                (not_implemented): true
-                is: [ auth_required ]
-                description: Update a specific section by ID.
-                body:
-                    type: SectionCreate
-                responses:
-                    200: # 200 = "OK"
-                        body:
-                            application/json:
-                                type: Response
-                    400: # 400 = "Bad Request" use for malformed requests
-                    401: # 401 = "Unauthorized" authentication has failed or was not provided
-                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                    404: # 404 = "Not found" no results
-                    500: # 500
-            delete:
-                (not_implemented): true
-                is: [ auth_required ]
-                description: Delete a section by ID.
-                responses:
-                    200: # 200 = "OK"
-                        body:
-                            application/json:
-                                type: Response
-                    401: # 401 = "Unauthorized" authentication has failed or was not provided
-                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
-                    404: # 404 = "Not found" no results
-                    500: # 500
+    /{section_id}:
+        uriParameters:
+            section_id:
+                type: integer
+                required: true
+                description: The unique identifier for a section.
+                minimum: 1
+                maximum: 16777215
+        get:
+            (not_implemented): true
+            is: [ auth_required ] #?
+            description: Retrieve a specific section by ID.
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" nothing found for this ID
+                500: # 500
+        put:
+            (not_implemented): true
+            is: [ auth_required ]
+            description: Update a specific section by ID.
+            body:
+                type: SectionCreate
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" no results
+                500: # 500
+        delete:
+            (not_implemented): true
+            is: [ auth_required ]
+            description: Delete a section by ID.
+            responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                404: # 404 = "Not found" no results
+                500: # 500
 
 /sites:
     get:
@@ -681,7 +683,7 @@ types:
             500: # 500
     /{site_id}:
         uriParameters:
-            section_id:
+            site_id:
                 type: integer
                 required: true
                 description: The unique identifier for a site.
@@ -691,7 +693,7 @@ types:
             (not_implemented): true
             is: [ auth_required ] #?
             description: Retrieve a specific site by ID
-                responses:
+            responses:
                 200: # 200 = "OK"
                     body:
                         application/json:
@@ -704,9 +706,9 @@ types:
             (not_implemented): true
             is: [ auth_required ]
             body:
-            type: SiteCreate
-            description: Update a site by ID
-                responses:
+                type: SiteCreate
+                description: Update a site by ID
+            responses:
                 200: # 200 = "OK"
                     body:
                         application/json:
@@ -720,7 +722,7 @@ types:
             (not_implemented): true
             is: [ auth_required ]
             description: Delete a site.
-                responses:
+            responses:
                 200: # 200 = "OK"
                     body:
                         application/json:

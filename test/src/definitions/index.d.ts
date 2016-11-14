@@ -93,7 +93,6 @@ interface IProposal {
     name?: string;
     description?: string;
     status?: string;
-    accessMode?: number;
     startDate?: Date;
     endDate?: Date;
     price?: number;
@@ -174,6 +173,7 @@ interface ISettledDeal {
     status?: string;
     startDate?: Date;
     endDate?: Date;
+    createDate?: Date;
     modifiedDate?: Date;
     externalDealID?: string;
     priority?: number;
