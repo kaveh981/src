@@ -26,7 +26,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
  */
 export async function ATW_STRESS_TEST_01 () {
 
-    let artilleryData = []; 
+    let artilleryData = [];
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -48,10 +48,10 @@ export async function ATW_STRESS_TEST_01 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            console.log('${data}'.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -75,7 +75,7 @@ export async function ATW_STRESS_TEST_01 () {
  */
 export async function ATW_STRESS_TEST_02 () {
 
-    let artilleryData = []; 
+    let artilleryData = [];
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -97,10 +97,10 @@ export async function ATW_STRESS_TEST_02 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./100_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, "./100_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            console.log('${data}'.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -124,7 +124,7 @@ export async function ATW_STRESS_TEST_02 () {
  */
 export async function ATW_STRESS_TEST_03 () {
 
-    let artilleryData = []; 
+    let artilleryData = [];
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -146,10 +146,10 @@ export async function ATW_STRESS_TEST_03 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./1000_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, "./1000_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            console.log('${data}'.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -173,7 +173,7 @@ export async function ATW_STRESS_TEST_03 () {
  */
 export async function ATW_STRESS_TEST_04 () {
 
-    let artilleryData = []; 
+    let artilleryData = [];
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -199,10 +199,10 @@ export async function ATW_STRESS_TEST_04 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS_20m.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_20m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            console.log('${data}'.trim());
         });
 
         child.stderr.on('data', (data) => {
@@ -226,7 +226,7 @@ export async function ATW_STRESS_TEST_04 () {
  */
 export async function ATW_STRESS_TEST_05 () {
 
-    let artilleryData = []; 
+    let artilleryData = [];
 
     let dsp = await databasePopulator.createDSP(1);
 
@@ -251,10 +251,10 @@ export async function ATW_STRESS_TEST_05 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn(`artillery`, [`run`, path.join(__dirname, "./10_FPS_200m.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_200m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            console.log('${data}'.trim());
         });
 
         child.stderr.on('data', (data) => {
