@@ -90,6 +90,7 @@ class Helper {
 
         return {
             proposal: Helper.proposalToPayload(proposal, proposalOwner),
+
             partner: {
                 partner_id: partner.userID,
                 contact: {
@@ -99,6 +100,8 @@ class Helper {
                     phone: partner.phone
                 }
             },
+
+            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
             price: dealNegotiation.price,
             impressions: dealNegotiation.impressions,
             budget: dealNegotiation.budget,
