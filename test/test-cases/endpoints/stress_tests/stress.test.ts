@@ -30,7 +30,7 @@ export async function ATW_STRESS_TEST_01 () {
 
     let artilleryData = []; // initialize empty array
 
-    for (let i = 0; i < 170; i++) {
+    for (let i = 0; i < 1200; i++) {
 
         let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -78,7 +78,7 @@ export async function ATW_STRESS_TEST_02 () {
 
     let artilleryData = []; // initialize empty array
 
-    for (let i = 0; i < 1700; i++) {
+    for (let i = 0; i < 12000; i++) {
 
         let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -126,7 +126,7 @@ export async function ATW_STRESS_TEST_03 () {
 
     let artilleryData = []; // initialize empty array
 
-    for (let i = 0; i < 17000; i++) {
+    for (let i = 0; i < 120000; i++) {
 
         let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -174,7 +174,7 @@ export async function ATW_STRESS_TEST_04 () {
 
     let artilleryData = []; // initialize empty array
 
-    for (let i = 0; i < 1700; i++) {
+    for (let i = 0; i < 1200; i++) {
 
         let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -226,7 +226,7 @@ export async function ATW_STRESS_TEST_05 () {
 
     let artilleryData = []; // initialize empty array
 
-    for (let i = 0; i < 1700; i++) {
+    for (let i = 0; i < 1200; i++) {
 
         let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
