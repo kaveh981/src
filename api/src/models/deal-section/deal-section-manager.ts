@@ -97,7 +97,6 @@ class DealSectionManager {
 
     }
 
-
     /**
      * Fetch the adunits belonging to a section.
      * @param sectionID - The section to find ad-units for.
