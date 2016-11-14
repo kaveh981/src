@@ -35,6 +35,7 @@ class UserManager {
         if (!rows[0]) {
             return;
         }
+
         return new UserModel(rows[0]);
 
     }

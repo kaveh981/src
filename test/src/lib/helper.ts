@@ -2,9 +2,11 @@
 
 import { DatabaseManager } from './database-manager';
 import { Injector } from './injector';
+import { ConfigLoader} from './config-loader';
 
 let crypto = require('crypto');
 
+const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 class Helper {
@@ -74,7 +76,12 @@ class Helper {
             end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
             proposal_id: proposal.proposal.proposalID,
             impressions: proposal.proposal.impressions,
-            inventory: proposal.sectionIDs,
+            inventory: proposal.sectionIDs.map((id) => {
+                return {
+                    id: id,
+                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                };
+            }),
             modified_at: proposal.proposal.modifyDate.toISOString(),
             name: proposal.proposal.name,
             price: proposal.proposal.price,
@@ -89,7 +96,30 @@ class Helper {
         proposalOwner: INewUserData, partner: INewUserData) {
 
         return {
+<<<<<<< HEAD
             proposal: Helper.proposalToPayload(proposal, proposalOwner),
+=======
+            proposal: {
+                proposal_id: proposal.proposal.proposalID,
+                name: proposal.proposal.name,
+                description: proposal.proposal.description,
+                auction_type: proposal.proposal.auctionType,
+                inventory: proposal.sectionIDs.map((id) => {
+                    return {
+                        id: id,
+                        resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                    };
+                }),
+                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`,
+                currency: 'USD'
+            },
+            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
+            start_date: Helper.formatDate(dealNegotiation.startDate),
+            end_date: Helper.formatDate(dealNegotiation.endDate),
+            price: dealNegotiation.price,
+            impressions: dealNegotiation.impressions,
+            budget: dealNegotiation.budget,
+>>>>>>> 6b00c62d7a07d55a3c2c95dd10452544c64381a6
             partner: {
                 partner_id: partner.userID,
                 contact: {
@@ -127,7 +157,8 @@ class Helper {
                 proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
-                currency: 'USD'
+                currency: 'USD',
+                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner: {
                 partner_id: partner.userID,
@@ -138,8 +169,13 @@ class Helper {
                     phone: partner.phone
                 }
             },
+            inventory: proposal.sectionIDs.map((id) => {
+                return {
+                    id: id,
+                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                };
+            }),
             auction_type: settledDeal.settledDeal.auctionType,
-            inventory: proposal.sectionIDs,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
             impressions: dealNegotiation.impressions,
@@ -163,7 +199,8 @@ class Helper {
                 proposal_id: proposal.proposal.proposalID,
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
-                currency: 'USD'
+                currency: 'USD',
+                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner: {
                 partner_id: owner.userID,
@@ -175,7 +212,12 @@ class Helper {
                 }
             },
             auction_type: proposal.proposal.auctionType,
-            inventory: proposal.sectionIDs,
+            inventory: proposal.sectionIDs.map((id) => {
+                return {
+                    id: id,
+                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                };
+            }),
             dsp_id: buyer.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,

@@ -105,6 +105,22 @@ class Helper {
 
     }
 
+    /**
+     * Convert the matching type integer to a full word
+     * @param matchType - An integer representing matching type.
+     * @returns The word corresponding to this match type.
+     */
+    public static matchTypeToWord(matchType: number) {
+        switch (matchType) {
+            case 1:
+                return 'full';
+            case 2:
+                return 'partial';
+            default:
+                throw new Error(`Unknown match type: ${matchType}`);
+        }
+    }
+
 };
 
 export { Helper };

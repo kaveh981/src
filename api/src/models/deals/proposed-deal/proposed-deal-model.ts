@@ -1,7 +1,12 @@
 'use strict';
 
 import { UserModel } from '../../user/user-model';
+import { DealSectionModel } from '../../deal-section/deal-section-model';
 import { Helper } from '../../../lib/helper';
+import { ConfigLoader } from '../../../lib/config-loader';
+import { Injector } from '../../../lib/injector';
+
+const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 class ProposedDealModel {
 
@@ -38,7 +43,7 @@ class ProposedDealModel {
     /** Modified date of the proposal */
     public modifyDate: Date;
     /** Array of sectionsID associated with the proposal*/
-    public sections: number[];
+    public sections: DealSectionModel[];
     /** The currency the proposal is in */
     public currency: string = 'USD';
 
@@ -90,25 +95,39 @@ class ProposedDealModel {
             terms: this.terms,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString(),
-            inventory: this.sections
+            inventory: this.sections.map((section) => { return section.toSubPayload(); })
         };
 
     }
 
     /**
      * Return a subset of the information for the proposal.
+     * @param minimal - Returns only the most basic information about the proposal, used almost exclusively for settled deal.
      * @returns - A subset of the model.
      */
-    public toSubPayload() {
+    public toSubPayload(minimal?: boolean): any {
 
-        return  {
-            proposal_id: this.id,
-            name: this.name,
-            description: this.description,
-            auction_type: this.auctionType,
-            inventory: this.sections,
-            currency: this.currency
-        };
+        let infoURL = configLoader.getVar('BASE_URL') + `deals/proposals/${this.id}`;
+
+        if (minimal) {
+            return {
+                proposal_id: this.id,
+                name: this.name,
+                description: this.description,
+                currency: this.currency,
+                resource: infoURL
+            };
+        } else {
+            return {
+                proposal_id: this.id,
+                name: this.name,
+                description: this.description,
+                auction_type: this.auctionType,
+                inventory: this.sections.map((section) => { return section.toSubPayload(); }),
+                currency: this.currency,
+                resource: infoURL
+            };
+        }
 
     }
 

@@ -6,8 +6,10 @@ import { SettledDealModel } from './settled-deal-model';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { Helper } from '../../../lib/helper';
 import { NegotiatedDealManager } from '../negotiated-deal/negotiated-deal-manager';
+import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
+import { DealSectionModel } from '../../deal-section/deal-section-model';
 
 /** Active deal model manager */
 class SettledDealManager {
@@ -18,14 +20,18 @@ class SettledDealManager {
     /** Internal negotation manager */
     private negotiatedDealManager: NegotiatedDealManager;
 
+    /** Internal deal section manager */
+    private dealSectionManager: DealSectionManager;
+
     /**
      * Constructor
      * @param databaseManager - An instance of the database manager.
      * @param negotiationManager - An instance of the negotiation manager.
      */
-    constructor(databaseManager: DatabaseManager, negotiationManager: NegotiatedDealManager) {
+    constructor(databaseManager: DatabaseManager, negotiationManager: NegotiatedDealManager, dealSectionManager: DealSectionManager) {
         this.databaseManager = databaseManager;
         this.negotiatedDealManager = negotiationManager;
+        this.dealSectionManager = dealSectionManager;
     }
 
     /** 
@@ -56,8 +62,19 @@ class SettledDealManager {
         }
 
         let settledDealObject = new SettledDealModel(rows[0]);
+        let sections: DealSectionModel[] = [];
 
-        settledDealObject.sections = rows.map((row) => { return Number(row.sections); });
+        for (let i = 0; i < rows.length; i++) {
+            let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
+
+            if (!section) {
+                continue;
+            }
+
+            sections.push(section);
+        }
+
+        settledDealObject.sections = sections;
         settledDealObject.negotiatedDeal = await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
         settledDealObject.status = Helper.statusLetterToWord(settledDealObject.status);
 
@@ -186,7 +203,7 @@ class SettledDealManager {
         for (let i = 0; i < proposedDeal.sections.length; i++) {
             await transaction.insert({
                 dealID: row.dealID,
-                sectionID: settledDeal.sections[i]
+                sectionID: settledDeal.sections[i].id
             }).into('rtbDealSections');
         }
 
