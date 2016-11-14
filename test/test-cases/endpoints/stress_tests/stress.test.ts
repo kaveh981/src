@@ -11,8 +11,6 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const spawn = require('child_process').spawn;
 const csvFile = path.join(__dirname, "./users_and_proposals.csv");
-const statsFile = path.join(__dirname, "./docker-stats.txt");
-const statsTimeout = 300;
 
 let debug = require('debug')('ssc:example');
 let SimpleCSV = require('simple-csv');
@@ -30,9 +28,10 @@ export async function ATW_STRESS_TEST_01 () {
 
     let artilleryData = []; // initialize empty array
 
+    let dsp = await databasePopulator.createDSP(1);
+
     for (let i = 0; i < 1200; i++) {
 
-        let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -78,9 +77,10 @@ export async function ATW_STRESS_TEST_02 () {
 
     let artilleryData = []; // initialize empty array
 
+    let dsp = await databasePopulator.createDSP(1);
+
     for (let i = 0; i < 12000; i++) {
 
-        let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -126,9 +126,10 @@ export async function ATW_STRESS_TEST_03 () {
 
     let artilleryData = []; // initialize empty array
 
+    let dsp = await databasePopulator.createDSP(1);
+
     for (let i = 0; i < 120000; i++) {
 
-        let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -174,9 +175,10 @@ export async function ATW_STRESS_TEST_04 () {
 
     let artilleryData = []; // initialize empty array
 
+    let dsp = await databasePopulator.createDSP(1);
+
     for (let i = 0; i < 1200; i++) {
 
-        let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -226,9 +228,10 @@ export async function ATW_STRESS_TEST_05 () {
 
     let artilleryData = []; // initialize empty array
 
+    let dsp = await databasePopulator.createDSP(1);
+
     for (let i = 0; i < 1200; i++) {
 
-        let dsp = await databasePopulator.createDSP(i + 1);
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
