@@ -100,19 +100,28 @@ class SettledDealManager {
      */
     public createSettledDealFromNegotiation(negotiatedDeal: NegotiatedDealModel, dspID: number): SettledDealModel {
 
-        let settledDeal = new SettledDealModel({
+        let negotiatedFields = {
+            startDate: negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate,
+            price: negotiatedDeal.price
+        };
+
+        for (let key in negotiatedFields) {
+            if (negotiatedFields[key] === null) {
+                negotiatedFields[key] = negotiatedDeal.proposedDeal[key];
+            }
+        }
+
+        let settledDeal = new SettledDealModel( Object.assign({
             status: 'active',
             dspID: dspID,
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
-            startDate: negotiatedDeal.startDate,
-            endDate: negotiatedDeal.endDate,
-            price: negotiatedDeal.price,
             auctionType: negotiatedDeal.proposedDeal.auctionType,
             sections: negotiatedDeal.proposedDeal.sections,
             priority: 5,
             negotiatedDeal: negotiatedDeal
-        });
+        }, negotiatedFields ));
 
         return settledDeal;
 
