@@ -46,9 +46,11 @@ class SuiteManager {
      */
     private loadTests() {
         let testFiles: string[] = [];
+
         if (this.stressTestsPath) {
            testFiles = testFiles.concat(Finder.from(this.stressTestsPath).findFiles('*.test.ts'));
         }
+
         if (this.testsPath) {
             testFiles = testFiles.concat(Finder.from(this.testsPath).findFiles('*.test.js'));
         }

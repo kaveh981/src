@@ -6,16 +6,17 @@ import { DatabasePopulator } from '../../src/lib/database-populator';
 import { Helper } from '../../src/lib/helper';
 import { DatabaseManager } from '../../src/lib/database-manager';
 import { Injector } from '../../src/lib/injector';
+import { Logger } from '../../src/lib/logger';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const spawn = require('child_process').spawn;
 const csvFile = path.join(__dirname, "./users_and_proposals.csv");
-
-let debug = require('debug')('ssc:example');
 let SimpleCSV = require('simple-csv');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+const Log: Logger = new Logger('ROUT');
 
 /*
  * @case    - 10 F(lows)PS, 2 mins, 1200 pub, 1200 buyers, 1200 proposals
@@ -27,7 +28,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 export async function ATW_STRESS_TEST_01 () {
 
     let artilleryData = [];
-
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
@@ -37,6 +37,7 @@ export async function ATW_STRESS_TEST_01 () {
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
     }
 
@@ -44,18 +45,19 @@ export async function ATW_STRESS_TEST_01 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Finished generating users_and_proposals.csv');
+
+    Log.info('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            Log.info(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
-            console.error(data.toString());
+            Log.debug(data.toString());
         });
 
         child.on('close', (code) => {
@@ -76,16 +78,15 @@ export async function ATW_STRESS_TEST_01 () {
 export async function ATW_STRESS_TEST_02 () {
 
     let artilleryData = [];
-
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 12000; i++) {
-
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
     }
 
@@ -93,18 +94,19 @@ export async function ATW_STRESS_TEST_02 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Finished generating users_and_proposals.csv');
+
+    Log.info('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
         let child = spawn('artillery', ['run', path.join(__dirname, "./100_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            Log.info(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
-            console.error(data.toString());
+            Log.debug(data.toString());
         });
 
         child.on('close', (code) => {
@@ -125,16 +127,15 @@ export async function ATW_STRESS_TEST_02 () {
 export async function ATW_STRESS_TEST_03 () {
 
     let artilleryData = [];
-
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 120000; i++) {
-
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+        
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
     }
 
@@ -142,18 +143,19 @@ export async function ATW_STRESS_TEST_03 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Finished generating users_and_proposals.csv');
+
+    Log.info('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
         let child = spawn('artillery', ['run', path.join(__dirname, "./1000_FPS.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            Log.info(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
-            console.error(data.toString());
+            Log.debug(data.toString());
         });
 
         child.on('close', (code) => {
@@ -174,19 +176,17 @@ export async function ATW_STRESS_TEST_03 () {
 export async function ATW_STRESS_TEST_04 () {
 
     let artilleryData = [];
-
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
         for (let j = 0; j < 10; j++) {
-
             let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
             let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
             artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
         }
     }
@@ -195,18 +195,19 @@ export async function ATW_STRESS_TEST_04 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Finished generating users_and_proposals.csv');
+
+    Log.info('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_20m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            Log.info(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
-            console.error(data.toString());
+            Log.debug(data.toString());
         });
 
         child.on('close', (code) => {
@@ -227,11 +228,9 @@ export async function ATW_STRESS_TEST_04 () {
 export async function ATW_STRESS_TEST_05 () {
 
     let artilleryData = [];
-
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -239,6 +238,7 @@ export async function ATW_STRESS_TEST_05 () {
         for (let j = 0; j < 100; j++) {
             let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
             let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
             artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
         }
     }
@@ -247,18 +247,19 @@ export async function ATW_STRESS_TEST_05 () {
 
     await csv.append(artilleryData);
     await csv.write(csvFile);
-    console.log('Finished generating users_and_proposals.csv');
+
+    Log.info('Finished generating users_and_proposals.csv');
 
     await new Promise((resolve, reject) => {
 
         let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_200m.json")]);
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`.trim());
+            Log.info(`${data}`.trim());
         });
 
         child.stderr.on('data', (data) => {
-            console.error(data.toString());
+            Log.debug(data.toString());
         });
 
         child.on('close', (code) => {
