@@ -178,7 +178,7 @@ class SQLScriptBuilder {
             }
         });
     }
-    
+
     private static formatDate(d: Date) {
         const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
         return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
