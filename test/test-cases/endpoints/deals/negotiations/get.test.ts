@@ -40,7 +40,7 @@ export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetu
 /*
  * @case    - Publisher has no proposals (and no negotiations)
  * @expect  - No proposals are returned
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -61,7 +61,7 @@ export async function ATW_DN_GET_01 (assert: test.Test) {
 
 /*
  * @case    - Publisher has proposals (no negotiations)
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @expect  - No proposals are returned
  * @status  - passing
  * @tags    - 
@@ -86,7 +86,7 @@ export async function ATW_DN_GET_02 (assert: test.Test) {
 /*
  * @case    - Proposal belonging to different publisher containing negotiations exists, but current user is NOT linked to them
  * @expect  - No DN returned; no proposals belong to the publisher making the request 
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - incomplete (pub perspective not a thing yet)
  * @tags    - pub
  */
@@ -113,7 +113,7 @@ export async function ATW_DN_GET_03 (assert: test.Test) {
 /*
  * @case    - Publisher was not the last to negotiate on its proposal
  * @expect  - 1 DN returned regardless of sender
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing    
  * @tags    - 
  */
@@ -143,7 +143,7 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
 /*
  * @case    - Publisher was the last to negotiate on its proposal
  * @expect  - 1 DN returned regardless of sender
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -173,7 +173,7 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
 /*
  * @case    - Buyer accepted publisher's proposal right away
  * @expect  - Negotiation closed - nothing returned 
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -201,7 +201,7 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
 /*
  * @case    - Publisher accepted its own proposal after a negotiation
  * @expect  - Negotiation closed - nothing returned
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -230,7 +230,7 @@ export async function ATW_DN_GET_07 (assert: test.Test) {
 /*
  * @case    - Buyer rejects publisher's proposal after negotiations
  * @expect  - 1 DN returned (still active)
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    -
  */
@@ -260,7 +260,7 @@ export async function ATW_DN_GET_08 (assert: test.Test) {
 /*
  * @case    - Publisher rejects its own proposal after a negotiation
  * @expect  - 1 DN returned (still active)
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -290,7 +290,7 @@ export async function ATW_DN_GET_09 (assert: test.Test) {
 /*
  * @case    - Multiple proposals belong to publisher - publisher's perspective
  * @expect  - 2 DN's returned that belong to 2 separate buyers
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - incomplete (pub perspective not a thing yet)
  * @tags    - pub
  */
@@ -329,7 +329,7 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
 /*
  * @case    - Multiple proposals belong to publisher - buyer's perspective
  * @expect  - 1 DN returned since only one of them belongs to the buyer making the request 
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */
@@ -366,7 +366,7 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
 /*
  * @case    - Buyer linked to multiple proposals by different publishers
  * @expect  - 2 DNs returned belonging to 2 different publishers 
- * @route   - GET deals/negotitation
+ * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
  */

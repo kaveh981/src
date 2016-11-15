@@ -884,7 +884,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_03_ (assert: test.Test) {
  * @expect  - 403 Forbidden, publisher cannot start negotiation on its own proposal
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PUBLISHER_04(assert: test.Test) {
 
@@ -997,7 +997,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
  /*
  * @case    - Buyer sends an offer to a negotiation before publisher reply to its previous offer
  * @expect  - 403 Forbidden, buyer out of turn
- * @route   - PUT deals/negotiaitons
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -1035,9 +1035,9 @@ export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
  /*
  * @case    - Different buyers negotiate on the same proposal do not effect each other.
  * @expect  - 200 OK, another negotiation created
- * @route   - PUT deals/negotiaitons
+ * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
 
@@ -1128,7 +1128,7 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
  * @expect  - 403, buyer status rejected, pub status accepted
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
 
@@ -1181,10 +1181,10 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
 
 /*
  * @case    - Buyer send an offer to an accepted negotiation
- * @expect  - 403 Forbidden, buyer cannot send an offer to an accepted negotiaiton
+ * @expect  - 403 Forbidden, buyer cannot send an offer to an accepted negotiation
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
 
@@ -1228,7 +1228,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
  * @expect  - 403 Forbidden, pub cannot send an offer to an accepted negotiation
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
 
@@ -1271,7 +1271,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
  * @expect  - 403 Forbidden, cannot reject a negotiation that doesn't exist
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
 
@@ -1301,7 +1301,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
  * @expect  - 403 Forbidden, cannot reject a negotiation that doesn't exist
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
 
@@ -1331,7 +1331,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
  * @expect  - 404 Not Found, cannot found a non-existing proposal
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
 
@@ -1359,7 +1359,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
  * @expect  - 400 Bad Request, proposal id has to be a number
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
 
@@ -1387,7 +1387,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
  * @expect  - 400 Bad Request, a request has to have a proposal id
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
 
@@ -1413,7 +1413,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
  * @expect  - 403 Forbidden, cannot negotiate on an inactive proposal
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
 
@@ -1443,7 +1443,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
  * @expect  - Forbidden, sections have to be active
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
 
@@ -1473,7 +1473,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
  * @expect  - 403 Forbidden, sites has to be active
  * @route   - PUT deals/negotiations
  * @status  - working
- * @tags    - put, negotiaitons, deals
+ * @tags    - put, negotiations, deals
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
 

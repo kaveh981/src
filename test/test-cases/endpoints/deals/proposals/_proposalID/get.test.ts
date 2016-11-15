@@ -62,7 +62,7 @@ export let ATW_PA_GET_SP_VALIDATION = validationTest(
  * @setup   - create publisher, create site, create section, create proposal 
  * and set the owner and user both as publisher or both as buyer .
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -89,7 +89,7 @@ export async function IXM_API_PROPOSAL_GET_SP_01(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal
  *  and set publisher as the owner and buyer as the user
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -117,7 +117,7 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal 
  * and set publisher as the owner and the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -143,7 +143,7 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
  * @setup   - create dsp, create buyer, create a deactive publisher, create site, create section, create proposal
  *  and set publisher as the owner.
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -170,7 +170,7 @@ export async function IXM_API_PROPOSAL_GET_SP_04(assert: test.Test) {
  * @case    - ProposalID is not provided
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and do not pass the proposalID.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -198,7 +198,7 @@ export async function IXM_API_PROPOSAL_GET_SP_05(assert: test.Test) {
  * @case    - ProposalID is out of range
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal with a proposalID 16777215 + 1
  * @expect  - 404.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -227,7 +227,7 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's status to deleted and
  *  set publisher as the owner as well as the user. 
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -254,7 +254,7 @@ export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to deleted and 
  * set publisher as the owner and buyer as the user. 
  * @expect  - 404.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -282,7 +282,7 @@ export async function IXM_API_PROPOSAL_GET_SP_08(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's status to paused and 
  * set publisher as the owner as well as the user. 
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -309,7 +309,7 @@ export async function IXM_API_PROPOSAL_GET_SP_09(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to paused and
  *  set publisher as the owner and buyer as the user.  
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -336,7 +336,7 @@ export async function IXM_API_PROPOSAL_GET_SP_10(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today and
  *  set the owner as publisher as well as user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -364,7 +364,7 @@ export async function IXM_API_PROPOSAL_GET_SP_11(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today and
  *  set the owner as publisher and the buyer as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -394,7 +394,7 @@ export async function IXM_API_PROPOSAL_GET_SP_12(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today - 5 and
  *  set the owner as publisher as well as user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -422,7 +422,7 @@ export async function IXM_API_PROPOSAL_GET_SP_13(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today - 5 
  * and set the owner as publisher and the buyer as the user.
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -451,7 +451,7 @@ export async function IXM_API_PROPOSAL_GET_SP_14(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's startDate to today - 5 
  * and set the owner as publisher as well as user.
  * @expect  - 2000.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -479,7 +479,7 @@ export async function IXM_API_PROPOSAL_GET_SP_15(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to today
  *  - 5 and set the owner as publisher and the buyer as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -509,7 +509,7 @@ export async function IXM_API_PROPOSAL_GET_SP_16(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create proposal and set it's startDate to
  *  today + 5 and set the owner as publisher as well as user. 
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -537,7 +537,7 @@ export async function IXM_API_PROPOSAL_GET_SP_17(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to today + 5
  *  and set the owner as publisher and the buyer as the user.
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -567,7 +567,7 @@ export async function IXM_API_PROPOSAL_GET_SP_18(assert: test.Test) {
  * @setup   - create publisher, create site, create section, create a deactive section, create proposal with
  *  active and deactive section set publisher as the owner as well as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -597,7 +597,7 @@ export async function IXM_API_PROPOSAL_GET_SP_19(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create section, create a deactive section, create proposal with
  *  active and deactive section set publisher as the owner and the buyer as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -629,7 +629,7 @@ export async function IXM_API_PROPOSAL_GET_SP_20(assert: test.Test) {
  * @setup   - create publisher, create site, create a deactive section, create proposal with the deactive section
  *  set publisher as the owner as well as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -657,7 +657,7 @@ export async function IXM_API_PROPOSAL_GET_SP_21(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site, create a deactive section, create proposal with the deactive
  *  section set publisher as the owner and the buyer as the user.
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -685,7 +685,7 @@ export async function IXM_API_PROPOSAL_GET_SP_22(assert: test.Test) {
  * @setup   - create publisher, create site,create a deactive site , create section with active and deactive 
  * sites, create proposal and set the publisher as the owner as well as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -716,7 +716,7 @@ export async function IXM_API_PROPOSAL_GET_SP_23(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site,create a deactive site , create section with active and deactive
  *  sites, create proposal and set the publisher as the owner and the buyer as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -749,7 +749,7 @@ export async function IXM_API_PROPOSAL_GET_SP_24(assert: test.Test) {
  * @setup   - create publisher, create a deactive site , create section with  deactive site, create proposal
  *  and set the publisher as the owner as well as the user.
  * @expect  - 200.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -777,7 +777,7 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create a deactive site , create section with  deactive site, create proposal
  *  and set the publisher as the owner and the buyer as the user.
  * @expect  - 403.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
@@ -805,7 +805,7 @@ export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
  * @setup   - create dsp, create buyer, create publisher, create site , create section
  *  and send a proposalID that does not exist.
  * @expect  - 404.
- * @route   - GET deals/proposal/:proposal_id
+ * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
