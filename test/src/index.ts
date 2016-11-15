@@ -21,7 +21,7 @@ if (!directory && !program['stress']) {
 } else {
     Bootstrap.boot()
         .then(() => {
-            let suiteManager = new SuiteManager(directory, program['stress'], regex);
+            let suiteManager = new SuiteManager(directory, !!program['stress'], regex);
             return suiteManager.runSuite();
         })
         .then(() => {
