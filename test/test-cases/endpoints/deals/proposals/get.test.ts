@@ -50,7 +50,7 @@ async function createProposal(publisher: INewPubData) {
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
- * @route   - GET deals
+ * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals, auth
  */
@@ -59,7 +59,7 @@ export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup)
 /*
  * @case    - Different pagination parameters are attempted.
  * @expect  - Pagination tests to pass.
- * @route   - GET deals
+ * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals, auth
  */
@@ -68,7 +68,7 @@ export let ATW_PA_GET_PAG = paginationTest(route, 'get', paginationDatabaseSetup
  /*
  * @case    - The buyer sends a GET request to view active proposals.
  * @expect  - The buyer should receive the defined proposal.
- * @route   - GET deals
+ * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals
  */
