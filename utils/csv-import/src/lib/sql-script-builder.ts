@@ -10,18 +10,18 @@ import * as path from 'path';
 class SQLScriptBuilder {
 
     private queryBuilder: Knex;
-    private createDate: Date;
+    private createDate: string;
 
     constructor() {
         this.queryBuilder = Knex({client: 'mysql'});
-        this.createDate = new Date();
+        this.createDate = SQLScriptBuilder.formatDate(new Date());
     }
 
     /**
      * Build rollout and rollback scripts
      * 
      * @param {string} ticketNumber JIRA Ticket Number for the csv insertion
-     * @param {string} path Path to store SQL scripts generated
+     * @param {string} directory Path to store SQL scripts generated
      * @param {INewProposalData[]} proposals Array of proposal data objects
      */
     public async buildScripts(ticketNumber: string, directory: string, proposals: IProposal[]) {
@@ -171,6 +171,12 @@ class SQLScriptBuilder {
                 return console.log(err);
             }
         });
+    }
+    
+    private static formatDate(d: Date) {
+        const pad = (val: Number) => { if (val < 10) { return '0' + val; } return val.toString(); };
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+               `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 }
 
