@@ -11,7 +11,7 @@ import { Logger } from '../../src/lib/logger';
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const spawn = require('child_process').spawn;
-const csvFile = path.join(__dirname, "./users_and_proposals.csv");
+const csvFile = path.join(__dirname, './users_and_proposals.csv');
 let SimpleCSV = require('simple-csv');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -19,7 +19,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const Log: Logger = new Logger('ROUT');
 
 /*
- * @case    - 10 F(lows)PS, 2 mins, 1200 pub, 1200 buyers, 1200 proposals
+ * @case    - 1 F(lows)PS, 2 mins, 150 pub, 150 buyers, 150 proposals
  * @expect  -  
  * @route   - 
  * @status  - 
@@ -30,9 +30,9 @@ export async function ATW_STRESS_TEST_01 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
-        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
+    for (let i = 0; i < 150; i++) {
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -49,7 +49,56 @@ export async function ATW_STRESS_TEST_01 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, './1_FPS.json')]);
+
+        child.stdout.on('data', (data) => {
+            Log.info(`${data}`.trim());
+        });
+
+        child.stderr.on('data', (data) => {
+            Log.debug(data.toString());
+        });
+
+        child.on('close', (code) => {
+            resolve();
+        });
+
+    });
+
+}
+
+/*
+ * @case    - 10 F(lows)PS, 2 mins, 1200 pub, 1200 buyers, 1200 proposals
+ * @expect  -  
+ * @route   - 
+ * @status  - 
+ * @tags    - 
+ */
+export async function ATW_STRESS_TEST_02 () {
+
+    let artilleryData = [];
+    let dsp = await databasePopulator.createDSP(1);
+
+    for (let i = 0; i < 1200; i++) {
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
+        let site = await databasePopulator.createSite(publisher.publisher.userID);
+        let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+        let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+        artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
+    }
+
+    let csv = new SimpleCSV();
+
+    await csv.append(artilleryData);
+    await csv.write(csvFile);
+
+    Log.info('Finished generating users_and_proposals.csv');
+
+    await new Promise((resolve, reject) => {
+
+        let child = spawn('artillery', ['run', path.join(__dirname, './10_FPS.json')]);
 
         child.stdout.on('data', (data) => {
             Log.info(`${data}`.trim());
@@ -74,14 +123,14 @@ export async function ATW_STRESS_TEST_01 () {
  * @status  - 
  * @tags    - 
  */
-export async function ATW_STRESS_TEST_02 () {
+export async function ATW_STRESS_TEST_03 () {
 
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 12000; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
-        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -98,7 +147,7 @@ export async function ATW_STRESS_TEST_02 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn('artillery', ['run', path.join(__dirname, "./100_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, './100_FPS.json')]);
 
         child.stdout.on('data', (data) => {
             Log.info(`${data}`.trim());
@@ -123,14 +172,14 @@ export async function ATW_STRESS_TEST_02 () {
  * @status  - 
  * @tags    - 
  */
-export async function ATW_STRESS_TEST_03 () {
+export async function ATW_STRESS_TEST_04 () {
 
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 120000; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
-        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -147,7 +196,7 @@ export async function ATW_STRESS_TEST_03 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn('artillery', ['run', path.join(__dirname, "./1000_FPS.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, './1000_FPS.json')]);
 
         child.stdout.on('data', (data) => {
             Log.info(`${data}`.trim());
@@ -172,14 +221,14 @@ export async function ATW_STRESS_TEST_03 () {
  * @status  - 
  * @tags    - 
  */
-export async function ATW_STRESS_TEST_04 () {
+export async function ATW_STRESS_TEST_05 () {
 
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
-        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
         for (let j = 0; j < 10; j++) {
@@ -199,7 +248,7 @@ export async function ATW_STRESS_TEST_04 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_20m.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, './10_FPS_20m.json')]);
 
         child.stdout.on('data', (data) => {
             Log.info(`${data}`.trim());
@@ -224,14 +273,14 @@ export async function ATW_STRESS_TEST_04 () {
  * @status  - 
  * @tags    - 
  */
-export async function ATW_STRESS_TEST_05 () {
+export async function ATW_STRESS_TEST_06 () {
 
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
-        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
         for (let j = 0; j < 100; j++) {
@@ -251,7 +300,7 @@ export async function ATW_STRESS_TEST_05 () {
 
     await new Promise((resolve, reject) => {
 
-        let child = spawn('artillery', ['run', path.join(__dirname, "./10_FPS_200m.json")]);
+        let child = spawn('artillery', ['run', path.join(__dirname, './10_FPS_200m.json')]);
 
         child.stdout.on('data', (data) => {
             Log.info(`${data}`.trim());
