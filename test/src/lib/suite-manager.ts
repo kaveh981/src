@@ -19,8 +19,8 @@ interface ITestCaseFunction {
  * SuiteManager class. Loads all test files in the specified folder and includes any test cases that match a RegExp
  */
 class SuiteManager {
-
     private testsPath: string;
+    private stressTestsPath: string;
     private regex: RegExp;
     private testCases: TestManager[];
 
@@ -29,10 +29,15 @@ class SuiteManager {
      * @param testsPath - the path to load tst files from
      * @param regex - the regular expression to describe test cases to load
      */
-    constructor (testsPath: string, regex: RegExp = /\.*/) {
+    constructor (testsPath: string, stressTestsPath: string, regex: RegExp = /\.*/) {
         this.testCases = [];
         this.regex = regex;
-        this.testsPath = path.join(__dirname, '../../test-cases/endpoints', testsPath);
+        if (testsPath) {
+            this.testsPath = path.join(__dirname, '../../test-cases/endpoints', testsPath);
+        }
+        if (stressTestsPath) {
+            this.stressTestsPath = path.join(__dirname, '../../test-cases/', stressTestsPath);
+        }
         this.loadTests();
     }
 
@@ -40,7 +45,13 @@ class SuiteManager {
      * Loads tests described by this test suite
      */
     private loadTests() {
-        let testFiles: string[] = Finder.from(this.testsPath).findFiles('*.test.js');
+        let testFiles: string[] = [];
+        if (this.stressTestsPath) {
+           testFiles = testFiles.concat(Finder.from(this.stressTestsPath).findFiles('*.test.ts'));
+        }
+        if (this.testsPath) {
+            testFiles = testFiles.concat(Finder.from(this.testsPath).findFiles('*.test.js'));
+        }
 
         testFiles.forEach((testFile: string) => {
             let fileExports: any = require(testFile);

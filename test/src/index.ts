@@ -9,18 +9,20 @@ import { SuiteManager } from './lib/suite-manager';
 
 program.version('1.0.0')
     .option('-d, --directory [dir]', 'The directory which houses the tests.')
+    .option('-s, --st [dir]', 'The directory which houses the stress tests.')
     .option('-r, --regex [regex]', 'A regular expression matching the test name.')
     .parse(process.argv);
 
 let directory = program['directory'];
+let stressDirectory = program['st'];
 let regex = program['regex'] && new RegExp(program['regex']);
 
-if (!directory) {
+if (!directory && !stressDirectory) {
     console.log('Please specify a directory.');
 } else {
     Bootstrap.boot()
         .then(() => {
-            let suiteManager = new SuiteManager(directory, regex);
+            let suiteManager = new SuiteManager(directory, stressDirectory, regex);
             return suiteManager.runSuite();
         })
         .then(() => {
