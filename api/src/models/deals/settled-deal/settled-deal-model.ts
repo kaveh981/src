@@ -78,24 +78,33 @@ class SettledDealModel {
             partner = this.negotiatedDeal.buyerInfo.toPayload('partner_id');
         }
 
-        return {
+        let negotiatedFields = {
+            terms: this.negotiatedDeal.terms,
+            impressions: this.negotiatedDeal.impressions,
+            budget: this.negotiatedDeal.budget,
+            price: this.negotiatedDeal.price
+        };
+
+        for (let key in negotiatedFields) {
+            if (negotiatedFields[key] === null) {
+                negotiatedFields[key] = this.negotiatedDeal.proposedDeal[key];
+            }
+        }
+
+        return Object.assign({
             proposal: this.negotiatedDeal.proposedDeal.toSubPayload(true),
             partner: partner,
             dsp_id: this.dspID,
-            terms: this.negotiatedDeal.terms,
-            impressions: this.negotiatedDeal.impressions,
             auction_type: this.auctionType,
-            budget: this.negotiatedDeal.budget,
             external_id: this.externalDealID,
             start_date: Helper.formatDate(this.startDate),
             end_date: Helper.formatDate(this.endDate),
             status: this.status,
             priority: this.priority,
             inventory: this.sections.map((section) => { return section.toSubPayload(); }),
-            price: this.negotiatedDeal.price,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
-        };
+        }, negotiatedFields);
 
     }
 

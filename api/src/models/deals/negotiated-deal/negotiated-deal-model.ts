@@ -36,11 +36,11 @@ class NegotiatedDealModel {
 
     /** Start date of the deal */
     public startDate: Date | '0000-00-00';
-    /** End date of the package */
+    /** End date of the proposal */
     public endDate: Date  | '0000-00-00';
-    /** Price of the package */
+    /** Price of the proposal */
     public price: number;
-    /** Projected amout of impressions for the package */
+    /** Projected amout of impressions for the proposal */
     public impressions: number;
     /** Project amount to be spend by the buyer */
     public budget: number;
@@ -105,7 +105,7 @@ class NegotiatedDealModel {
         }
 
         return {
-            proposal: this.proposedDeal.toSubPayload(),
+            proposal: this.proposedDeal.toPayload(),
             partner: partner,
             status: this.setPayloadStatus(userType),
             terms: this.terms,

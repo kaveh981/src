@@ -253,6 +253,26 @@ class DatabasePopulator {
         newDealNegotiationData.startDate.setHours(0, 0, 0, 0);
         newDealNegotiationData.endDate.setHours(0, 0, 0, 0);
 
+        // Check if there are any differences between proposal and negotiation
+        let proposals = await this.dbm.select().from('ixmDealProposals').where('proposalID', proposalID);
+
+        let proposal = proposals[0];
+
+        let negotiatedFields = {
+            price: newDealNegotiationData.price,
+            terms: newDealNegotiationData.terms,
+            budget: newDealNegotiationData.budget,
+            impressions: newDealNegotiationData.impressions,
+            startDate: newDealNegotiationData.startDate,
+            endDate: newDealNegotiationData.endDate
+        };
+
+        for (let key in negotiatedFields) {
+            if (negotiatedFields[key] === proposal[key]) {
+                newDealNegotiationData[key] = null;
+            }
+        }
+
         let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
 
         newDealNegotiationData.negotiationID = newDealNegotiationIds[0];

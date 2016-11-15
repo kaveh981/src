@@ -14,6 +14,10 @@ class Helper {
      */
     public static formatDate(date: Date | string) {
 
+        if (date === null) {
+            return null;
+        }
+
         let dateString = date.toString();
 
         if (dateString.includes('0000-00-00')) {
