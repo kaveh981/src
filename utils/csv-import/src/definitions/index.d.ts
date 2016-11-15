@@ -11,7 +11,7 @@ interface IProposal {
     budget?: number;
     auctionType?: string;
     terms?: string;
-    createDate?: Date;
-    modifyDate?: Date;
+    createDate?: Date | string;
+    modifyDate?: Date | string;
     sectionIDs: Number[];
 }
