@@ -10,7 +10,7 @@ properties:
         type: integer
         required: false
         displayName: Budget
-        description: The projected amount to be spent by the buyer
+        description: The projected amount to be spent by the buyer. Null if same as proposal's field.
     created_at:
         type: datetime
         required: true
@@ -20,13 +20,13 @@ properties:
         type: date-only
         required: false
         displayName: End Date
-        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire. Null if same as proposal's field.
         example: 2016-10-10
     impressions:
         type: integer
         required: false
         displayName: Impressions
-        description: The projected amount of impressions for the package.
+        description: The projected amount of impressions for the package. Null if same as proposal's field.
     modified_at:
         type: datetime
         required: true
@@ -41,53 +41,20 @@ properties:
         type: number
         required: true
         displayName: Deal Price
-        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.)
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.) Null if same as proposal's field.
         example: 1.99
         minimum: 0.01
         maximum: 655.35
     proposal:
-        type: object
+        type: ProposedDeal
         required: true
         displayName: Proposal
         description: The original proposal the negotiation is based on.
-        properties:
-            proposal_id:
-                type: integer
-                required: true
-                displayName: Proposal ID
-                description: The unique identifier for the proposal.
-            name:
-                type: string
-                required: true
-                displayName: Name
-                description: Name of the deal.
-            description:
-                type: string
-                required: false
-                displayName: Description
-                description: The description of the deal, from the original deal proposal.
-            auction_type:
-                type: string
-                required: true
-                displayName: Auction Type,
-                description: The auction type - 'first' = First Price, 'second' = Second Price, 'fixed' = Fixed Rate
-                enum: ['first','second','fixed']
-            inventory:
-                type: integer[] # TODO will be full objects
-                required: true
-                displayName: Inventory Section Id(s)
-                description: An array of Inventory Section IDs, indicating which sections will be active in this deal.
-            currency:
-                type: string
-                required: true
-                displayName: Currency
-                description: Three-letter currency code for the deal.
-                example: USD
     start_date:
         type: date-only
         required: false
         displayName: Start Date
-        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance.
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance. Null if same as proposal's field.
         example: 2016-09-09
     status:
         type: string
@@ -99,23 +66,41 @@ properties:
         type: string
         required: false
         displayName: Terms & Conditions
-        description: The terms & conditions for the deal - extra information describing the deal.
+        description: The terms & conditions for the deal - extra information describing the deal. Null if same as proposal's field.
     example: |
     {
         "proposal": {
             "proposal_id": 999,
+            "inventory": [4321, 9876],
             "name": "Superfab Ultradeal",
             "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+            "status": "active",
+            "start_date": "2016-09-09",
+            "end_date": "2016-10-10",
+            "price": 1.99,
+            "impressions": 8,
+            "budget": 9999999,
+            "currency": "USD",
             "auction_type": "first",
-            "inventory": [4321, 9876],
-            "currency": "USD"
+            "owner": {
+                "owner_id": 123,
+                "contact": {
+                    "title": "Captain",
+                    "name": "Jimdex Exchange",
+                    "email": "jimdex.exchange@indexexchange.com",
+                    "phone": "666 666 6665"
+                }
+            },
+            "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+            "created_at": "2016-04-04T04:00:00Z",
+            "modified_at": "2016-04-14T14:00:00Z"
         },
         "status": "waiting_on_partner",
-        "start_date": "2016-09-09",
-        "end_date": "2016-10-10",
-        "price": 1.99,
-        "impressions": 8,
-        "budget": 9999999,
+        "start_date": null,
+        "end_date": "2016-12-12",
+        "price": 1.49,
+        "impressions": null,
+        "budget": null,
         "partner": {
             "partner_id": 666,
             "contact": {
@@ -124,7 +109,7 @@ properties:
                 "email": "ayatollah@rockandrollah.com",
                 "phone": "999 999 9998"
             }
-        }
+        },
         "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
         "created_at": "2016-04-04T04:00:00Z",
         "modified_at": "2016-04-14T14:00:00Z"
