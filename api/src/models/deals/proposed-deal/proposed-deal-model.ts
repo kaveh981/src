@@ -107,7 +107,7 @@ class ProposedDealModel {
      */
     public toSubPayload(minimal?: boolean): any {
 
-        let infoURL = configLoader.getVar('BASE_URL') + `deals/proposals/${this.id}`;
+        let infoURL = `deals/proposals/${this.id}`;
 
         if (minimal) {
             return {
