@@ -15,13 +15,14 @@ program.version('1.0.0')
 
 let directory = program['directory'];
 let regex = program['regex'] && new RegExp(program['regex']);
+let isStress = program['stress'];
 
-if (!directory && !program['stress']) {
+if (!directory && !isStress) {
     console.log('Please specify a directory.');
 } else {
     Bootstrap.boot()
         .then(() => {
-            let suiteManager = new SuiteManager(directory, !!program['stress'], regex);
+            let suiteManager = new SuiteManager(directory, !!isStress, regex);
             return suiteManager.runSuite();
         })
         .then(() => {
