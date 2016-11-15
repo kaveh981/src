@@ -1,6 +1,6 @@
 {
   "config": {
-    "target": "https://10.6.20.36/ixm",
+    "target": "https://market.indexexchange.com/ixm",
     "phases": [
       {"duration": 120, "arrivalRate": 1000}
     ],
