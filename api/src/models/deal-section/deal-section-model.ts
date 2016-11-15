@@ -61,7 +61,7 @@ class DealSectionModel {
      */
     public toSubPayload() {
 
-        let infoURL = configLoader.getVar('BASE_URL') + `sections/${this.id}`;
+        let infoURL = `sections/${this.id}`;
 
         return {
             id: this.id,
