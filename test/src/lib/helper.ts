@@ -12,6 +12,11 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 class Helper {
 
     public static formatDate(dateString: string | Date) {
+
+        if (dateString === null) {
+            return null;
+        }
+
         dateString = dateString.toString();
         let date = new Date(dateString.toString());
 
@@ -88,29 +93,10 @@ class Helper {
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-        partner: INewUserData) {
+        proposalOwner: INewUserData, partner: INewUserData) {
 
         return {
-            proposal: {
-                proposal_id: proposal.proposal.proposalID,
-                name: proposal.proposal.name,
-                description: proposal.proposal.description,
-                auction_type: proposal.proposal.auctionType,
-                inventory: proposal.sectionIDs.map((id) => {
-                    return {
-                        id: id,
-                        resource: `sections/${id}`
-                    };
-                }),
-                resource: `deals/proposals/${proposal.proposal.proposalID}`,
-                currency: 'USD'
-            },
-            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
-            start_date: Helper.formatDate(dealNegotiation.startDate),
-            end_date: Helper.formatDate(dealNegotiation.endDate),
-            price: dealNegotiation.price,
-            impressions: dealNegotiation.impressions,
-            budget: dealNegotiation.budget,
+            proposal: Helper.proposalToPayload(proposal, proposalOwner),
             partner: {
                 partner_id: partner.userID,
                 contact: {
@@ -120,7 +106,13 @@ class Helper {
                     phone: partner.phone
                 }
             },
+            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
+            price: dealNegotiation.price,
+            impressions: dealNegotiation.impressions,
+            budget: dealNegotiation.budget,
             terms: dealNegotiation.terms,
+            start_date: Helper.formatDate(dealNegotiation.startDate),
+            end_date: Helper.formatDate(dealNegotiation.endDate),
             created_at: dealNegotiation.createDate.toISOString(),
             modified_at: dealNegotiation.modifyDate.toISOString()
         };

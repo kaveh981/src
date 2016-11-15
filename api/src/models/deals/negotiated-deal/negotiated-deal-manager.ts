@@ -196,12 +196,12 @@ class NegotiatedDealManager {
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
-            startDate: proposedDeal.startDate,
-            endDate: proposedDeal.endDate,
-            price: proposedDeal.price,
-            impressions: proposedDeal.impressions,
-            budget: proposedDeal.budget,
-            terms: proposedDeal.terms
+            startDate: null,
+            endDate: null,
+            price: null,
+            impressions: null,
+            budget: null,
+            terms: null
         });
 
         return negotiatedDeal;
@@ -231,12 +231,12 @@ class NegotiatedDealManager {
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
-            startDate: negotiationFields.startDate || proposedDeal.startDate,
-            endDate: negotiationFields.endDate || proposedDeal.endDate,
-            price: negotiationFields.price || proposedDeal.price,
-            impressions: negotiationFields.impressions || proposedDeal.impressions,
-            budget: negotiationFields.budget || proposedDeal.budget,
-            terms: negotiationFields.terms || proposedDeal.terms
+            startDate: negotiationFields.startDate || null,
+            endDate: negotiationFields.endDate || null,
+            price: negotiationFields.price || null,
+            impressions: negotiationFields.impressions || null,
+            budget: negotiationFields.budget || null,
+            terms: negotiationFields.terms || null
         });
 
         return negotiatedDeal;
