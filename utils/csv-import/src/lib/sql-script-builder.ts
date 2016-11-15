@@ -58,8 +58,11 @@ class SQLScriptBuilder {
         insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         insertScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        insertScript += "SELECT IF(@final_proposals - @existing_proposals = @expected_proposal_changes,"
-                                + "'Insertion check OK, Please COMMIT', 'Insertion check FAIL, Please ROLLBACK');\n";
+        insertScript += "SELECT IF(@final_proposals - @existing_proposals = @expected_proposal_changes" +
+            " AND " +
+            "@final_mappings - @existing_mappings = @expected_mapping_changes" +
+            "," +
+            "'Insertion check OK, Please COMMIT', 'Insertion check FAIL, Please ROLLBACK');\n";
 
         insertScript += "NOTEE\n";
 
@@ -90,8 +93,11 @@ class SQLScriptBuilder {
         deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
         deleteScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
 
-        deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes,"
-                                + "'Deletion check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
+        deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes" +
+            " AND " +
+            "@existing_mappings - @final_mappings = @expected_mappings_changes" +
+            "," +
+            "'Deletion check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
 
         deleteScript += "NOTEE\n";
 
