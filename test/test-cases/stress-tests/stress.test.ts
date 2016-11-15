@@ -31,8 +31,8 @@ export async function ATW_STRESS_TEST_01 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID);
-        let publisher = await databasePopulator.createPublisher();
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -80,8 +80,8 @@ export async function ATW_STRESS_TEST_02 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 12000; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID);
-        let publisher = await databasePopulator.createPublisher();
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -129,8 +129,8 @@ export async function ATW_STRESS_TEST_03 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 120000; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID);
-        let publisher = await databasePopulator.createPublisher();
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -178,8 +178,8 @@ export async function ATW_STRESS_TEST_04 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID);
-        let publisher = await databasePopulator.createPublisher();
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
         for (let j = 0; j < 10; j++) {
@@ -230,8 +230,8 @@ export async function ATW_STRESS_TEST_05 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-        let buyer = await databasePopulator.createBuyer(dsp.dspID);
-        let publisher = await databasePopulator.createPublisher();
+        let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + "@gmail.com"});
+        let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + "@gmail.com"});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
 
         for (let j = 0; j < 100; j++) {
