@@ -8,4 +8,4 @@ function stringToNumber (requestParams, context, ee, next) {
 
 };
 
-module.exports = {stringToNumber: stringToNumber};
+module.exports = { stringToNumber: stringToNumber };
