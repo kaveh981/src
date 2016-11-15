@@ -31,7 +31,6 @@ export async function ATW_STRESS_TEST_01 () {
     let dsp = await databasePopulator.createDSP(1);
 
     for (let i = 0; i < 1200; i++) {
-
         let buyer = await databasePopulator.createBuyer(dsp.dspID);
         let publisher = await databasePopulator.createPublisher();
         let site = await databasePopulator.createSite(publisher.publisher.userID);
