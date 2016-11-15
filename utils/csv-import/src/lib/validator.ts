@@ -37,6 +37,16 @@ class Validator {
         this.validatorOptions = config.validatorOptions;
         this.validator = new ZSchema(this.validatorOptions);
         this.logger = new Logger('VLDT');
+
+        ZSchema.registerFormat("proposal", (proposal) => {
+            proposal.description = "";
+            proposal.startDate = "0000-00-00";
+            proposal.endDate = "0000-00-00";
+            proposal.impressions = 0;
+            proposal.budget = 0;
+            proposal.auctionType = "second";
+            return true;
+        });
     }
 
     /**

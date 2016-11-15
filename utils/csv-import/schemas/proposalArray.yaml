@@ -6,11 +6,12 @@ items:
     title: proposal
     description: A JSON schema defining how a valid proposal instance should be represented
     type: object
+    format: proposal
     properties:
         proposalID:
-            $ref: "#/definitions/positiveMediumInt"
+            $ref: "#/definitions/ID"
         ownerID:
-            $ref: "#/definitions/positiveMediumInt"
+            $ref: "#/definitions/ID"
         name:
             $ref: "#/definitions/varchar255"
         description:
@@ -48,9 +49,13 @@ items:
     required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
     terms, createDate, modifyDate, sectionIDs]
 definitions:
-    positiveMediumInt:
+    ID:
         type: integer
         minimum: 1
+        maximum: 16777215
+    positiveMediumInt:
+        type: integer
+        minimum: 0
         maximum: 16777215
     positiveTinyInt:
         type: integer
@@ -61,4 +66,4 @@ definitions:
         maxLength: 255
     dateString:
         type: string
-        pattern: ^[0-2]\d{3}-(?:0[1-9]|1[0-2]|[1-9])-(?:[0-3]\d|[1-9])$
+        pattern: ^[0-2]\d{3}-(?:0[0-9]|1[0-2]|[1-9])-(?:[0-3]\d|[1-9])$
