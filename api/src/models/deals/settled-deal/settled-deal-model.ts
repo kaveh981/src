@@ -92,12 +92,7 @@ class SettledDealModel {
         }
 
         return Object.assign({
-            proposal: {
-                proposal_id: this.negotiatedDeal.proposedDeal.id,
-                description: this.negotiatedDeal.proposedDeal.description,
-                name: this.negotiatedDeal.proposedDeal.name,
-                currency: this.negotiatedDeal.proposedDeal.currency
-            },
+            proposal: this.negotiatedDeal.proposedDeal.toSubPayload(true),
             partner: partner,
             dsp_id: this.dspID,
             auction_type: this.auctionType,

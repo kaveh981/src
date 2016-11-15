@@ -79,7 +79,7 @@ class Helper {
             inventory: proposal.sectionIDs.map((id) => {
                 return {
                     id: id,
-                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                    resource: `sections/${id}`
                 };
             }),
             modified_at: proposal.proposal.modifyDate.toISOString(),
@@ -135,7 +135,7 @@ class Helper {
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
                 currency: 'USD',
-                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`
+                resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner: {
                 partner_id: partner.userID,
@@ -149,7 +149,7 @@ class Helper {
             inventory: proposal.sectionIDs.map((id) => {
                 return {
                     id: id,
-                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                    resource: `sections/${id}`
                 };
             }),
             auction_type: settledDeal.settledDeal.auctionType,
@@ -177,7 +177,7 @@ class Helper {
                 name: proposal.proposal.name,
                 description: proposal.proposal.description,
                 currency: 'USD',
-                resource: configLoader.getVar('API_BASE') + `deals/proposals/${proposal.proposal.proposalID}`
+                resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner: {
                 partner_id: owner.userID,
@@ -192,7 +192,7 @@ class Helper {
             inventory: proposal.sectionIDs.map((id) => {
                 return {
                     id: id,
-                    resource: configLoader.getVar('API_BASE') + `sections/${id}`
+                    resource: `sections/${id}`
                 };
             }),
             dsp_id: buyer.dspID,
