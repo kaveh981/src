@@ -135,7 +135,7 @@ export async function ATW_STRESS_TEST_03 () {
         let site = await databasePopulator.createSite(publisher.publisher.userID);
         let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-        
+
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
     }
 

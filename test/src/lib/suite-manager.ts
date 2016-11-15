@@ -29,15 +29,18 @@ class SuiteManager {
      * @param testsPath - the path to load tst files from
      * @param regex - the regular expression to describe test cases to load
      */
-    constructor (testsPath: string, stressTestsPath: string, regex: RegExp = /\.*/) {
+    constructor (testsPath: string, stressTestOption: boolean, regex: RegExp = /\.*/) {
         this.testCases = [];
         this.regex = regex;
+
         if (testsPath) {
             this.testsPath = path.join(__dirname, '../../test-cases/endpoints', testsPath);
         }
-        if (stressTestsPath) {
-            this.stressTestsPath = path.join(__dirname, '../../test-cases/', stressTestsPath);
+
+        if (stressTestOption) {
+            this.stressTestsPath = path.join(__dirname, '../../test-cases/stress-tests');
         }
+
         this.loadTests();
     }
 
