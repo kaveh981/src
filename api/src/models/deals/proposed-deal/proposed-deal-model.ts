@@ -74,6 +74,20 @@ class ProposedDealModel {
     }
 
     /**
+     * Checks that a proposed deal is accessible by a specific user (can be returned by any of the
+     * listing routes). The proposal must be a valid purchaseable proposal, its owner must be active, 
+     * and the user viewing it must be a user that's not the same type as its owner (publishers can't 
+     * view other publishers' proposals, and the same applies to buyers). Alternatively, the proposal 
+     * must be owned by the user.
+     * @param user - the user in question
+     * @returns true if the proposal is accessible by this user
+     */
+    public isAccessibleByUser(user: UserModel) {
+        return (this.isAvailable() && this.ownerInfo.status === 'A' && this.ownerInfo.userType !== user.userType)
+                || this.ownerInfo.id === user.id;
+    }
+
+    /**
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */

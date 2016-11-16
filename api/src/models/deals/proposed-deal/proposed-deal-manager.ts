@@ -80,6 +80,32 @@ class ProposedDealManager {
 
     }
 
+    /**
+     * Get all proposals
+     * @returns Returns an array of proposed deal objects
+     */
+    public async fetchProposedDeals(pagination: any): Promise<ProposedDealModel[]> {
+
+        let proposals = [];
+        let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'name', 'description', 'status',
+                                                     'startDate', 'endDate', 'price', 'impressions', 'budget',
+                                                     'auctionType', 'terms', 'createDate', 'modifyDate')
+                                             .from('ixmDealProposals')
+                                             .limit(pagination.limit)
+                                             .offset(pagination.offset);
+
+        for (let i = 0; i < rows.length; i++) {
+            let proposalInfo = rows[i];
+            proposalInfo.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalInfo.id);
+            proposalInfo.ownerInfo = await this.userManager.fetchUserFromId(proposalInfo.ownerID);
+
+            proposals.push(new ProposedDealModel(proposalInfo));
+        }
+
+        return proposals;
+
+    }
+
 }
 
 export { ProposedDealManager };

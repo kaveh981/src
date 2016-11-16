@@ -55,7 +55,9 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let userID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(userID, pagination);
+        let userType: 'buyer' | 'publisher' = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
+
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(userID, userType, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);

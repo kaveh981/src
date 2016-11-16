@@ -69,12 +69,12 @@ class NegotiatedDealManager {
 
     /**
      * Get list of latest deals in negotiation for the buyer  
-     * @param userID - The id of the buyer of the negotiation.
+     * @param userID - The id of the buyer or publisher in the negotiation.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserId(userID: number, pagination: any) {
+    public async fetchNegotiatedDealsFromUserId(userID: number, userType: string, pagination: any) {
 
-        let rows = await this.databaseManager.select('proposalID', 'publisherID')
+        let rows = await this.databaseManager.select('proposalID', 'buyerID', 'publisherID')
                                              .from('ixmDealNegotiations')
                                              .where('buyerID', userID)
                                              .orWhere('publisherID', userID)
@@ -84,8 +84,16 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < rows.length; i++) {
-            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
-            negotiatedDealArray.push(negotiatedDeal);
+            let negotiatedDeal;
+            if (userType === 'buyer') {
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
+            } else {
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, rows[i].buyerID, userID);
+            }
+
+            if (negotiatedDeal) {
+                negotiatedDealArray.push(negotiatedDeal);
+            }
         }
 
         return negotiatedDealArray;
