@@ -43,8 +43,8 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate pagination parameters
         let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+            page: req.query.page,
+            limit: req.query.limit
         };
 
         let validationErrors = validator.validateType(pagination, 'Pagination',
@@ -101,8 +101,8 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate pagination parameters
         let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+            page: req.query.page,
+            limit: req.query.limit
         };
 
         let paginationValidationErrors = validator.validateType(pagination, 'Pagination',

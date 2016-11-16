@@ -64,12 +64,14 @@ class ProposedDealManager {
      */
     public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
 
+        let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
+
         let proposals = [];
         let rows = await this.databaseManager.select('proposalID')
                                              .from('ixmDealProposals')
                                              .where('status', proposalStatus)
                                              .limit(pagination.limit)
-                                             .offset(pagination.offset);
+                                             .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);

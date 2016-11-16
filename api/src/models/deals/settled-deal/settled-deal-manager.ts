@@ -90,6 +90,8 @@ class SettledDealManager {
      */
     public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: any): Promise<SettledDealModel[]> {
 
+        let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
+
         let settledDeals: SettledDealModel[] = [];
 
         let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
@@ -98,7 +100,7 @@ class SettledDealManager {
                                                    'ixmNegotiationDealMappings.negotiationID')
                                              .where('ixmDealNegotiations.buyerID', buyerID)
                                              .limit(pagination.limit)
-                                             .offset(pagination.offset);
+                                             .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
             let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);

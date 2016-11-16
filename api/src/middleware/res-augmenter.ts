@@ -10,11 +10,12 @@ const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');
 const errorMessages = config.get('errors')['en-US'];
 
+
 interface IPagination {
-    /** The limit of the data returned */
+    /** The specific page of data returned */
+    page: number;
+    /** The limit of data returned per page */
     limit: number;
-    /** The offset of the data returned */
-    offset: number;
 }
 
 /**
@@ -81,8 +82,8 @@ function augmentResponse(res: express.Response): void {
 
         if (pagination) {
             msg.pagination = {
-                limit: pagination.limit,
-                offset: pagination.offset
+                page: pagination.page,
+                limit: pagination.limit
             };
         }
 
