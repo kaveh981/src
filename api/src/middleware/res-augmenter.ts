@@ -10,7 +10,6 @@ const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');
 const errorMessages = config.get('errors')['en-US'];
 
-
 interface IPagination {
     /** The specific page of data returned */
     page: number;
