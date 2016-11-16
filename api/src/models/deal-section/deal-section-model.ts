@@ -50,7 +50,8 @@ class DealSectionModel {
             url_matches: this.urlMatches,
             name: this.name,
             publisher_id: this.publisherID,
-            sites: this.sites.map((site) => { return site.toPayload(); })
+            sites: this.sites.map((site) => { return site.toPayload(); }),
+            status: this.status
         };
 
     }
