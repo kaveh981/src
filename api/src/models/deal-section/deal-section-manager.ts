@@ -35,8 +35,15 @@ class DealSectionManager {
         let rows = await this.databaseManager.select('rtbSections.sectionID as id', 'name', 'status', 'percent as coverage',
                                                      'entireSite', 'url', 'matchType', 'userID as publisherID')
                                              .from('rtbSections')
+                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                                              .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
-                                             .where('rtbSections.sectionID', sectionID);
+                                             .where('rtbSections.sectionID', sectionID)
+                                             .andWhere(function() {
+                                                  this.whereNull('rtbSectionMatches.sectionID')
+                                                      .andWhere('rtbSections.entireSite', 1)
+                                                      .orWhere('rtbSections.entireSite', 0)
+                                                      .whereNotNull('rtbSectionMatches.sectionID');
+                                             });
 
         if (!rows[0]) {
             return;
@@ -71,21 +78,18 @@ class DealSectionManager {
      * @returns An array of section ids;
      */
     public async fetchSectionsFromProposalId(proposalID: number) {
+
         let dealSections: DealSectionModel[] = [];
         let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
                                              .from('ixmProposalSectionMappings')
                                              .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
                                              .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                                              .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                                             .andWhere({
+                                             .where({
                                                  'ixmProposalSectionMappings.proposalID': proposalID,
                                                  'rtbSections.status': 'A',
                                                  'sites.status': 'A'
-                                              })
-                                             .whereRaw('((rtbSections.entireSite = 1 AND rtbSectionMatches.sectionID IS null) \
-                                                OR (rtbSections.entireSite = 0 AND rtbSectionMatches.sectionID IS NOT null))')
-                                             .groupBy('id');
+                                              });
 
         for (let i = 0; i < rows.length; i++) {
             let section = await this.fetchDealSectionById(rows[i].id);
