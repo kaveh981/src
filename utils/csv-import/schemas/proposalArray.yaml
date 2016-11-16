@@ -16,22 +16,28 @@ items:
             $ref: "#/definitions/varchar255"
         description:
             $ref: "#/definitions/varchar255"
+            default: ""
         status:
             enum: [active, paused, deleted]
         startDate:
             $ref: "#/definitions/dateString"
+            default: "0000-00-00"
         endDate:
             $ref: "#/definitions/dateString"
+            default: "0000-00-00"
         price:
             type: number
             minimum: 0.01
             maximum: 655.35
         impressions:
             $ref: "#/definitions/positiveMediumInt"
+            default: 0
         budget:
             $ref: "#/definitions/positiveMediumInt"
+            default: 0
         auctionType:
             enum: [fixed, first, second]
+            default: "second"
         terms:
             type: string
             minLength: 1
