@@ -46,12 +46,12 @@ Log.info('Parsing proposals...');
 
 let proposals = csv.getProposals(file);
 
-Log.info('Parsed proposals:\n' + JSON.stringify(proposals, undefined, 4));
-
 if (!validator.validateProposals(proposals)) {
     Log.error('One or more proposals are invalid. Exiting...');
     process.exit(1);
 }
+
+Log.info('Parsed proposals:\n' + JSON.stringify(proposals, undefined, 4));
 
 Log.info('All proposals pass validation. Building SQL script...');
 

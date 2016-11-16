@@ -15,3 +15,12 @@ interface IProposal {
     modifyDate?: Date | string;
     sectionIDs: Number[];
 }
+
+interface IDateOrderConstraint {
+    prior: string;
+    after: string;
+}
+
+interface IConstraints {
+    dateOrder?: IDateOrderConstraint[];
+}
