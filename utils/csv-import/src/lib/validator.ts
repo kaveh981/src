@@ -74,34 +74,44 @@ class Validator {
         }
     }
 
-     /**
-     * Customize validation function
-     * @private
-     * @param {any} report output of validator
-     * @param {any} schema schema we defined in conf
-     * @param {any} json json object that need to validate
-     * 
-     */
+    /**
+    * Customize validation function
+    * @private
+    * @param {any} report output of validator
+    * @param {any} schema schema we defined in conf
+    * @param {any} json json object that need to validate
+    *
+    */
     private customValidationFunction(report, schema, json) {
+        let constraints: IConstraints = schema.constraints;
 
-        if (schema.constraints) {
-            for (let constraint in schema.constraints) {
-                if (constraint === 'dateOrder') {
-                    schema.constraints.dateOrder.forEach((dates) => {
+        if (!constraints) { return; }
 
+        for (let constraint in constraints) {
+            if (!constraints.hasOwnProperty(constraint)) { return; }
+
+            switch (constraint) {
+
+                case 'dateOrder':
+                    constraints.dateOrder.forEach((dates: IDateOrderConstraint) => {
                         let prior = json[dates.prior];
                         let after = json[dates.after];
 
-                        if (after !== '0000-00-00' && prior !== '0000-00-00') {
+                        if (after === '0000-00-00' || prior === '0000-00-00') {
                             return;
                         }
+
                         if (after <= prior) {
-                            report.addCustomError("DATE_ORDER_CONSTRAINT_FAILED",
-                                    'Property {0} is not greather than {1}',
-                                    [dates.prior, dates.after], null, schema.description);
+                            report.addCustomError('DATE_ORDER_CONSTRAINT_FAILED',
+                                'Property "{0}" is not prior to property "{1}"',
+                                [dates.prior, dates.after], null, schema.description
+                            );
                         }
                     });
-                };
+                    break;
+
+                default:
+                    this.logger.warn(`Constraint: ${constraint} is not a valid constraint keyword}`);
             }
         }
     }
