@@ -6,7 +6,14 @@
                 "name": "Atwater Test Section",
                 "status": "A",
                 "percent": 100,
-                "entireSite": 1
+                "entireSite": {
+                    "faker": {
+                        "random.number": 1
+                    }
+                },
+                "adUnits": "random",
+                "countries": "random",
+                "depthBuckets": "random"
             },
             "required": [
                 "name", "status", "percent", "entireSite"

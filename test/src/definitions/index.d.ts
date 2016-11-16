@@ -80,11 +80,21 @@ interface ISection {
     name?: string;
     percent?: number;
     entireSite?: number;
+    adUnits?: string;
+    countries?: string;
+    depthBuckets?: string;
+    matches?: INewMatchData[] | string;
 }
 
 interface INewSectionData {
     siteIDs: number[];
     section: ISection;
+}
+
+interface INewMatchData {
+    sectionID: number;
+    url: string;
+    matchType: number;
 }
 
 interface IProposal {
