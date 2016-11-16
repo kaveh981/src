@@ -37,6 +37,20 @@ class Validator {
         this.validatorOptions = config.validatorOptions;
         this.validator = new ZSchema(this.validatorOptions);
         this.logger = new Logger('VLDT');
+
+        ZSchema.registerFormat("proposal", (proposal) => {
+
+            let schema = this.loader.getSchema("proposalArray");
+
+            for (let key in schema.items.properties) {
+
+                if (!proposal[key] && typeof schema.items.properties[key].default  !== 'undefined') {
+
+                    proposal[key] = schema.items.properties[key].default;
+                }
+            }
+            return true;
+        });
     }
 
     /**
