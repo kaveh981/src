@@ -7,6 +7,10 @@ items:
     description: A JSON schema defining how a valid proposal instance should be represented
     type: object
     format: proposal
+    constraints:
+        dateOrder: 
+         -  prior: startDate
+            after: endDate
     properties:
         proposalID:
             $ref: "#/definitions/ID"
