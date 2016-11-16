@@ -6,6 +6,10 @@ items:
     title: proposal
     description: A JSON schema defining how a valid proposal instance should be represented
     type: object
+    constraints:
+        dateOrder: 
+         -  prior: startDate
+            after: endDate
     properties:
         proposalID:
             $ref: "#/definitions/positiveMediumInt"

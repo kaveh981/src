@@ -35,7 +35,13 @@ class Validator {
 
         this.loader = schemaLoader;
         this.validatorOptions = config.validatorOptions;
-        this.validator = new ZSchema(this.validatorOptions);
+
+        this.validator = new ZSchema(Object.assign(
+            this.validatorOptions,
+            {customValidator: this.customValidationFunction}
+        ));
+
+
         this.logger = new Logger('VLDT');
     }
 
@@ -53,7 +59,38 @@ class Validator {
             this.logger.error(JSON.stringify(this.validator.getLastErrors(), undefined, 4));
             return false;
         }
+    }
 
+     /**
+     * Customize validation function
+     * @private
+     * @param {any} report output of validator
+     * @param {any} schema schema we defined in conf
+     * @param {any} json json object that need to validate
+     * 
+     */
+    private customValidationFunction(report, schema, json) {
+
+        if (schema.constraints) {
+            for (let constraint in schema.constraints) {
+                if (constraint === 'dateOrder') {
+                    schema.constraints.dateOrder.forEach((dates) => {
+
+                        let prior = json[dates.prior];
+                        let after = json[dates.after];
+
+                        if (after !== '0000-00-00' && prior !== '0000-00-00') {
+                            return;
+                        }
+                        if (after <= prior) {
+                            report.addCustomError("DATE_ORDER_CONSTRAINT_FAILED",
+                                    'Property {0} is not greather than {1}',
+                                    [dates.prior, dates.after], null, schema.description);
+                        }
+                    });
+                };
+            }
+        }
     }
 
 }
