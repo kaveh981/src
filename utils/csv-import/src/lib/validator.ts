@@ -40,18 +40,13 @@ class Validator {
 
         ZSchema.registerFormat("proposal", (proposal) => {
 
-            let defaultFields = {
-                description: "",
-                startDate: "0000-00-00",
-                endDate: "0000-00-00",
-                impressions: 0,
-                budget: 0,
-                auctionType: "second"
-            };
+            let schema = this.loader.getSchema("proposalArray");
 
-            for (let key in defaultFields) {
-                if (!proposal[key]) {
-                    proposal[key] = defaultFields[key];
+            for (let key in schema.items.properties) {
+
+                if (!proposal[key] && typeof schema.items.properties[key].default  !== 'undefined') {
+
+                    proposal[key] = schema.items.properties[key].default;
                 }
             }
             return true;
