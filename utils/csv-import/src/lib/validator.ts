@@ -39,12 +39,21 @@ class Validator {
         this.logger = new Logger('VLDT');
 
         ZSchema.registerFormat("proposal", (proposal) => {
-            proposal.description = "";
-            proposal.startDate = "0000-00-00";
-            proposal.endDate = "0000-00-00";
-            proposal.impressions = 0;
-            proposal.budget = 0;
-            proposal.auctionType = "second";
+
+            let defaultFields = {
+                description: "",
+                startDate: "0000-00-00",
+                endDate: "0000-00-00",
+                impressions: 0,
+                budget: 0,
+                auctionType: "second"
+            };
+
+            for (let key in defaultFields) {
+                if (!proposal[key]) {
+                    proposal[key] = defaultFields[key];
+                }
+            }
             return true;
         });
     }
