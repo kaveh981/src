@@ -71,6 +71,7 @@ class DealSectionManager {
      * @returns An array of section ids;
      */
     public async fetchSectionsFromProposalId(proposalID: number) {
+
         let dealSections: DealSectionModel[] = [];
         let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
                                              .from('ixmProposalSectionMappings')
