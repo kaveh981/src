@@ -3,6 +3,7 @@
 import { UserModel } from './user-model';
 import { DatabaseManager } from '../../lib/database-manager';
 import { Logger } from '../../lib/logger';
+import { Helper } from '../../lib/helper';
 
 /** User model manager */
 class UserManager {
@@ -35,6 +36,9 @@ class UserManager {
         if (!rows[0]) {
             return;
         }
+
+        let userInfo = rows[0];
+        userInfo.status = Helper.statusLetterToWord(userInfo.status);
 
         return new UserModel(rows[0]);
 

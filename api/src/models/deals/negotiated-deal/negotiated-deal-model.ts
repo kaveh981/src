@@ -35,26 +35,24 @@ class NegotiatedDealModel {
      */
 
     /** Start date of the deal */
-    public startDate: Date | '0000-00-00';
+    public startDate: Date | '0000-00-00' | null;
     /** End date of the proposal */
-    public endDate: Date  | '0000-00-00';
+    public endDate: Date  | '0000-00-00' | null;
     /** Price of the proposal */
-    public price: number;
+    public price: number | null;
     /** Projected amout of impressions for the proposal */
-    public impressions: number;
+    public impressions: number | null;
     /** Project amount to be spend by the buyer */
-    public budget: number;
+    public budget: number | null;
     /** Free text that both parties can edit to convene of specific deal conditions */
-    public terms: string;
+    public terms: string | null;
 
     /**
      * Constructor
      * @param initParams - Initial parameters to populate the deal negotiation model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+        Object.assign(this, initParams);
     }
 
     /**
@@ -112,8 +110,8 @@ class NegotiatedDealModel {
             impressions: this.impressions,
             budget: this.budget,
             price: this.price,
-            start_date: Helper.formatDate(this.startDate),
-            end_date: Helper.formatDate(this.endDate),
+            start_date: this.startDate && Helper.formatDate(this.startDate),
+            end_date: this.startDate && Helper.formatDate(this.endDate),
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
         };
