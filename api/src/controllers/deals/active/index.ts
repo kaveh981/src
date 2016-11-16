@@ -60,7 +60,9 @@ function ActiveDeals(router: express.Router): void {
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            let url = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), url, pagination);
         } else {
             res.sendError('200_NO_DEALS');
         }

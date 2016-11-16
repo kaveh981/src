@@ -72,7 +72,9 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            let url = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), url, pagination);
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -118,7 +120,9 @@ function NegotiationDeals(router: express.Router): void {
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            let url = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), url, pagination);
         } else {
             throw HTTPError('200_NO_NEGOTIATIONS');
         }

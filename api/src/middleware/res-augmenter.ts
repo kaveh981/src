@@ -30,6 +30,10 @@ interface IHttpResponse {
     data: any[];
     /** Optional pagination details to send */
     pagination?: IPagination;
+    /** Optional URL for next page */
+    nextPageURL?: string;
+    /** Optional URL for prev page */
+    prevPageURL?: string;
 }
 
 /*
@@ -61,7 +65,7 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Send JSON payload
-    res.sendPayload = (payload: any, pagination?: IPagination) => {
+    res.sendPayload = (payload: any, url?: string, pagination?: IPagination) => {
 
         let msg: IHttpResponse = {
             status: 200,
@@ -85,6 +89,16 @@ function augmentResponse(res: express.Response): void {
                 page: pagination.page,
                 limit: pagination.limit
             };
+
+            let urls = {
+                nextPageURL: url + `?page=${pagination.page + 1}&limit=${pagination.limit}`
+            };
+
+            if (pagination.page > 1)  {
+              Object.assign(urls, {prevPageURL: url + `?page=${pagination.page - 1}&limit=${pagination.limit}`});
+            }
+
+            Object.assign(msg, urls);
         }
 
         res.sendJSON(200, msg);
