@@ -76,11 +76,16 @@ class DealSectionManager {
         let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
                                              .from('ixmProposalSectionMappings')
                                              .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
                                              .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                                              .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                                             .where('ixmProposalSectionMappings.proposalID', proposalID)
-                                             .andWhere('rtbSections.status', 'A')
-                                             .andWhere('sites.status', 'A')
+                                             .andWhere({
+                                                 'ixmProposalSectionMappings.proposalID': proposalID,
+                                                 'rtbSections.status': 'A',
+                                                 'sites.status': 'A'
+                                              })
+                                             .whereRaw('((rtbSections.entireSite = 1 AND rtbSectionMatches.sectionID IS null) \
+                                                OR (rtbSections.entireSite = 0 AND rtbSectionMatches.sectionID IS NOT null))')
                                              .groupBy('id');
 
         for (let i = 0; i < rows.length; i++) {
