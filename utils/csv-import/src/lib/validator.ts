@@ -41,7 +41,6 @@ class Validator {
             {customValidator: this.customValidationFunction}
         ));
 
-
         this.logger = new Logger('VLDT');
     }
 
