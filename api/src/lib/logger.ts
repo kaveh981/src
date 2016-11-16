@@ -145,17 +145,13 @@ class Logger {
      */
     private outputLog(message: IMessage): void {
 
-        let override = loggerConfig['sourceOverrides'][message.ORIGIN];
-        let displayMessage = message.LEVEL >= loggerConfig['consoleLevel'];
-        let writeMessage = message.LEVEL >= loggerConfig['filewriteLevel'];
+        let override = loggerConfig['sourceOverrides'][message.ORIGIN] || {};
 
-        if (override && message.LEVEL < override['consoleLevel']) {
-            displayMessage = false;
-        }
+        let consoleLevel = typeof override['consoleLevel'] === 'number' ? override['consoleLevel'] : loggerConfig['consoleLevel'];
+        let filewriteLevel =  typeof override['filewriteLevel'] === 'number' ? override['filewriteLevel'] : loggerConfig['filewriteLevel'];
 
-        if (override && message.LEVEL < override['filewriteLevel']) {
-            writeMessage = false;
-        }
+        let displayMessage = message.LEVEL >= Number(consoleLevel);
+        let writeMessage = message.LEVEL >= Number(filewriteLevel);
 
         if (displayMessage) {
             let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
