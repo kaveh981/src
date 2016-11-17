@@ -29,8 +29,8 @@ class SiteManager {
                                                      'monthlyUniques', 'sites.name as name', 'categories.name as categories',
                                                      'description')
                                              .from('sites')
-                                             .join('siteCategories', 'siteCategories.siteID', 'sites.siteID')
-                                             .join('categories', 'categories.categoryID', 'siteCategories.categoryID')
+                                             .leftJoin('siteCategories', 'siteCategories.siteID', 'sites.siteID')
+                                             .leftJoin('categories', 'categories.categoryID', 'siteCategories.categoryID')
                                              .where('sites.siteID', siteID);
 
         if (!rows[0]) {
@@ -38,7 +38,8 @@ class SiteManager {
         }
 
         let siteData = rows[0];
-        siteData.categories = rows.map((row) => { return row.categories; });
+        siteData.categories = rows.filter((row) => { return !!row.categories; })
+                                  .map((row) => { return row.categories; });
 
         return new SiteModel(siteData);
 
