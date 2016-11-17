@@ -65,7 +65,7 @@ class ProposedDealManager {
      */
     public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: PaginationModel): Promise<ProposedDealModel[]> {
 
-        let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
+        let offset = pagination.getOffset();
 
         let proposals = [];
         let rows = await this.databaseManager.select('proposalID')

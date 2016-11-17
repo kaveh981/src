@@ -13,17 +13,20 @@ class PaginationModel {
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+
+        Object.assign(this, initParams);
     }
 
     public toPayload (req: express.Request) {
+
         let url = req.protocol + '://' + req.get('host') + req.originalUrl;
 
         let payload =  {
-            pagination: this,
+            pagination: {
+                page: this.page,
+                limit: this.limit
+            },
             nextPageURL: url + `?page=${this.page + 1}&limit=${this.limit}`
         };
 
@@ -32,6 +35,11 @@ class PaginationModel {
         }
 
         return payload;
+    }
+
+    public getOffset () {
+
+        return (Number(this.page) - 1) * Number(this.limit);
     }
 
 }

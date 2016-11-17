@@ -75,7 +75,7 @@ class NegotiatedDealManager {
      */
     public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: PaginationModel) {
 
-        let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
+        let offset = pagination.getOffset();
 
         let rows = await this.databaseManager.select('proposalID', 'publisherID')
                                              .from('ixmDealNegotiations')

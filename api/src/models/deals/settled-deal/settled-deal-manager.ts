@@ -91,7 +91,7 @@ class SettledDealManager {
      */
     public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: PaginationModel): Promise<SettledDealModel[]> {
 
-        let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
+        let offset = pagination.getOffset();
 
         let settledDeals: SettledDealModel[] = [];
 
