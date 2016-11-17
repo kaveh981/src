@@ -13,10 +13,6 @@ services:
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile
-      args:
-        ENVIRONMENT: $ENVIRONMENT
-        DATE: $DATE
-        GIT_COMMIT: $GIT_COMMIT
     image: ir.indexexchange.com:5000/atw-api$APIVERSION
     logging:
       driver: "journald"
@@ -33,10 +29,6 @@ services:
     build:
       context: ./nginx
       dockerfile: ./docker/Dockerfile
-      args:
-        ENVIRONMENT: $ENVIRONMENT
-        DATE: $DATE
-        GIT_COMMIT: $GIT_COMMIT
     image: ir.indexexchange.com:5000/atw-nginx$NGINXVERSION
     logging:
       driver: "journald"
