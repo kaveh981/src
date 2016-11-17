@@ -8,6 +8,7 @@ import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
+import { PaginationModel } from '../../pagination/pagination-model';
 import { Helper } from '../../../lib/helper';
 
 const Log: Logger = new Logger('ACTD');
@@ -72,7 +73,7 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the negotiation.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: any) {
+    public async fetchNegotiatedDealsFromBuyerId(buyerID: number, pagination: PaginationModel) {
 
         let offset = (Number(pagination.page) - 1) * Number(pagination.limit);
 
