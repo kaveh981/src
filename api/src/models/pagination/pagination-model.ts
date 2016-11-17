@@ -9,9 +9,9 @@ class PaginationModel {
     /** The limit of data returned per page */
     public limit: number;
     /** Optional URL for next page */
-    public next_page_url?: string;
+    public nextPageURL: string;
     /** Optional URL for prev page */
-    public prev_page_url?: string;
+    public prevPageURL: string;
 
      /**
      * Constructor
