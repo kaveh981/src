@@ -34,7 +34,6 @@ class PaginationModel {
         return payload;
     }
 
-
 }
 
 export { PaginationModel };

@@ -2,7 +2,6 @@
 import * as Knex from 'knex';
 import { UserModel } from '../models/user/user-model';
 
-
 declare module './database-manager' {
     // Promise that the dbm will extend knex
     interface DatabaseManager extends Knex {}
