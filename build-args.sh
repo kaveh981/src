@@ -1,10 +1,6 @@
 #!/bin/sh
 
-APIVERSION=${1:-latest}
-NGINXVERSION=${2:-latest}
-
-export APIVERSION=:$APIVERSION
-export NGINXVERSION=:$NGINXVERSION
-export ENVIRONMENT=${ENVIRONMENT:-production}
-export GIT_COMMIT=$(git rev-parse --short HEAD)
-export DATE=`date +%Y-%m-%d`
+export ATW_APIVER=:$APIVER
+export ATW_NGINXVER=:$NGINXVER
+export ATW_GIT_COMMIT=$(git rev-parse --short HEAD)
+export ATW_DATE=`date +%Y-%m-%d`

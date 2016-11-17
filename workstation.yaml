@@ -13,7 +13,7 @@ services:
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile
-    image: ir.indexexchange.com:5000/atw-api$APIVERSION
+    image: ir.indexexchange.com:5000/atw-api$ATW_APIVER
     logging:
       driver: "journald"
       options:
@@ -29,7 +29,7 @@ services:
     build:
       context: ./nginx
       dockerfile: ./docker/Dockerfile
-    image: ir.indexexchange.com:5000/atw-nginx$NGINXVERSION
+    image: ir.indexexchange.com:5000/atw-nginx$ATW_NGINXVER
     logging:
       driver: "journald"
       options:
