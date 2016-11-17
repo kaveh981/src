@@ -36,6 +36,13 @@ class DealSectionModel {
     }
 
     /**
+     * Returns true if the section is active.
+     */
+    public isActive() {
+        return this.sites.length > 0 && this.status === 'active';
+    }
+
+    /**
      * Return payload formated object
      */
     public toPayload() {

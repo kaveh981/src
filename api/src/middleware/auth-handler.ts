@@ -29,7 +29,7 @@ async function identifyUser(token: string): Promise<UserModel> {
     // User not found or not an IXM buyer
     if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
         throw HTTPError('401_NOT_IXMUSER');
-    } else if (userInfo.status !== 'A') {
+    } else if (!userInfo.isActive()) {
         throw HTTPError('401_NOT_ACTIVE');
     }
 

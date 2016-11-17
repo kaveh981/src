@@ -52,7 +52,7 @@ class DealSectionManager {
         let newDealSection = new DealSectionModel({
             adUnitRestrictions: await this.fetchAdUnitsBySectionId(sectionID),
             countryRestrictions: await this.fetchCountryRestrictionBySectionId(sectionID),
-            sites: await this.siteManager.fetchSitesFromSectionId(sectionID),
+            sites: await this.siteManager.fetchActiveSitesFromSectionId(sectionID),
             frequencyRestrictions: await this.fetchFrequencyRestrictionsFromSectionId(sectionID),
             coverage: rows[0].coverage,
             entireSite: !!rows[0].entireSite,

@@ -68,7 +68,7 @@ class SettledDealManager {
         for (let i = 0; i < rows.length; i++) {
             let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
 
-            if (!section) {
+            if (!section || !section.isActive()) {
                 continue;
             }
 
@@ -120,19 +120,7 @@ class SettledDealManager {
      */
     public createSettledDealFromNegotiation(negotiatedDeal: NegotiatedDealModel, dspID: number): SettledDealModel {
 
-        let negotiatedFields = {
-            startDate: negotiatedDeal.startDate,
-            endDate: negotiatedDeal.endDate,
-            price: negotiatedDeal.price
-        };
-
-        for (let key in negotiatedFields) {
-            if (negotiatedFields[key] === null) {
-                negotiatedFields[key] = negotiatedDeal.proposedDeal[key];
-            }
-        }
-
-        let settledDeal = new SettledDealModel( Object.assign({
+        let settledDeal = new SettledDealModel({
             status: 'active',
             dspID: dspID,
             createDate: Helper.currentDate(),
@@ -140,8 +128,11 @@ class SettledDealManager {
             auctionType: negotiatedDeal.proposedDeal.auctionType,
             sections: negotiatedDeal.proposedDeal.sections,
             priority: 5,
-            negotiatedDeal: negotiatedDeal
-        }, negotiatedFields ));
+            negotiatedDeal: negotiatedDeal,
+            startDate: negotiatedDeal.startDate === null ? negotiatedDeal.proposedDeal.startDate : negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate === null ? negotiatedDeal.proposedDeal.endDate : negotiatedDeal.endDate,
+            price: negotiatedDeal.price === null ? negotiatedDeal.proposedDeal.price : negotiatedDeal.price
+        });
 
         return settledDeal;
 
@@ -215,6 +206,15 @@ class SettledDealManager {
             negotiationID: negotiatedDeal.id,
             dealID: row.dealID
         }).into('ixmNegotiationDealMappings');
+
+        let createDateRow = (await transaction.select('createDate')
+                                           .from('ixmNegotiationDealMappings')
+                                           .where({
+                                                negotiationID: negotiatedDeal.id,
+                                                dealID: row.dealID
+                                           }))[0];
+
+        settledDeal.createDate = createDateRow.createDate;
 
     }
 

@@ -9,7 +9,7 @@ class SettledDealModel {
     /** Id for the deal in rtbDeals */
     public id: number;
     /** Status of the deal in rtbDeals */
-    public status: 'active' | 'paused' | 'deleted';
+    public status: 'active' | 'paused' | 'deleted' | 'inactive';
     /** External deal id for the deal */
     public externalDealID: string;
     /** The dsp ID corresponding to this deal */
@@ -44,10 +44,8 @@ class SettledDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+        Object.assign(this, initParams);
     }
 
     /** 
@@ -60,7 +58,9 @@ class SettledDealModel {
         let endDate = Helper.formatDate(this.endDate);
         let today = Helper.formatDate(new Date());
 
-        return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00');
+        return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00')
+               && this.sections.length > 0
+               && this.negotiatedDeal.publisherInfo.isActive();
 
     }
 
@@ -78,21 +78,11 @@ class SettledDealModel {
             partner = this.negotiatedDeal.buyerInfo.toPayload('partner_id');
         }
 
-        let negotiatedFields = {
-            terms: this.negotiatedDeal.terms,
-            impressions: this.negotiatedDeal.impressions,
-            budget: this.negotiatedDeal.budget,
-            price: this.negotiatedDeal.price
-        };
+        let negotiatedDeal = this.negotiatedDeal;
+        let proposedDeal = this.negotiatedDeal.proposedDeal;
 
-        for (let key in negotiatedFields) {
-            if (negotiatedFields[key] === null) {
-                negotiatedFields[key] = this.negotiatedDeal.proposedDeal[key];
-            }
-        }
-
-        return Object.assign({
-            proposal: this.negotiatedDeal.proposedDeal.toSubPayload(true),
+        return {
+            proposal: proposedDeal.toSubPayload(true),
             partner: partner,
             dsp_id: this.dspID,
             auction_type: this.auctionType,
@@ -103,8 +93,12 @@ class SettledDealModel {
             priority: this.priority,
             inventory: this.sections.map((section) => { return section.toSubPayload(); }),
             created_at: this.createDate.toISOString(),
-            modified_at: this.modifyDate.toISOString()
-        }, negotiatedFields);
+            modified_at: this.modifyDate.toISOString(),
+            price: this.price,
+            terms: negotiatedDeal.terms === null ? proposedDeal.terms : negotiatedDeal.terms,
+            impressions: negotiatedDeal.impressions === null ? proposedDeal.impressions : negotiatedDeal.impressions,
+            budget: negotiatedDeal.budget === null ? proposedDeal.budget : negotiatedDeal.budget
+        };
 
     }
 
