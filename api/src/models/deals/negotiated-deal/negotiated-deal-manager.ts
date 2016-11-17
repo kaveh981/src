@@ -73,7 +73,7 @@ class NegotiatedDealManager {
      * @param user - the user in question
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserId(user: UserModel, pagination: any) {
+    public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: any) {
 
         let userID = Number(user.id);
         let userType = user.userType;

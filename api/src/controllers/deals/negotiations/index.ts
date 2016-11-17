@@ -56,7 +56,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let user = req.ixmUserInfo;
 
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(user, pagination);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
@@ -167,7 +167,7 @@ function NegotiationDeals(router: express.Router): void {
         if (partner.userType === 'IXMB') {
             buyerID = Number(partner.id);
             publisherID = Number(req.ixmUserInfo.id);
-        } else if (partner.userType === 'IXMP') {
+        } else {
             buyerID = Number(req.ixmUserInfo.id);
             publisherID = Number(partner.id);
         }

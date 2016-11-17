@@ -52,12 +52,12 @@ function ActiveDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        // Get all active deals for current buyer
-        let buyerId = Number(req.ixmUserInfo.id);
-        let settledDeals = await settledDealManager.fetchSettledDealsFromBuyerId(buyerId, pagination);
+        // Get all active deals for current user
+        let user = req.ixmUserInfo;
+        let settledDeals = await settledDealManager.fetchSettledDealsFromUser(user, pagination);
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
-        Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
+        Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
 
         if (activeDeals.length > 0) {
             res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
