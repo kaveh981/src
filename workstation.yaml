@@ -23,6 +23,7 @@ services:
     entrypoint: sh /src/docker/scripts/entrypoint.sh $ENVIRONMENT
     volumes:
       - "/src/atwater.git/api/:/src/:ro"
+      - "/var/log/ixm/atw-api/:/opt/atw-api/logs/"
   atw-nginx:
     container_name: "atw-nginx"
     restart: "no"

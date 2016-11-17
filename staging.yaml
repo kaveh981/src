@@ -24,6 +24,7 @@ services:
       - atwater
     volumes:
       - "/services/ixm/atw-api/.env:/opt/atw-api/.env:ro"
+      - "/var/log/ixm/atw-api/:/opt/atw-api/logs/"
   atw-nginx:
     container_name: "atw-nginx"
     restart: "always"
