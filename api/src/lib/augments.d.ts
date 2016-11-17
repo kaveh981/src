@@ -38,7 +38,7 @@ declare module 'express' {
          * @param payload - JSON object to send in the response.
          * @param pagination - The pagination parameters, optional.
          */
-        sendPayload(payload: any, req?: any, pagination?: any): void;
+        sendPayload(payload: any, pagination?: any): void;
 
         /**
          * Send a message as JSON 

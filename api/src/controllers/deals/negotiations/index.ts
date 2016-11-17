@@ -74,7 +74,8 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), req, pagination);
+            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }),
+                            pagination.toPayload(req));
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -121,7 +122,7 @@ function NegotiationDeals(router: express.Router): void {
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), req, pagination);
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload(req));
         } else {
             throw HTTPError('200_NO_NEGOTIATIONS');
         }

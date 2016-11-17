@@ -63,7 +63,7 @@ function ActiveDeals(router: express.Router): void {
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), req, pagination);
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload(req));
         } else {
             res.sendError('200_NO_DEALS');
         }

@@ -70,7 +70,7 @@ function Proposals(router: express.Router): void {
         Log.trace(`Found purchasable proposals ${Log.stringify(proposedDeals)}`, req.id);
 
         if (proposedDeals.length > 0) {
-            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), req, pagination);
+            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination.toPayload(req));
         } else {
             res.sendError('200_NO_PROPOSALS');
         }

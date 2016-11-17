@@ -28,7 +28,7 @@ class PaginationModel {
         };
 
         if (this.page > 1) {
-            Object.assign(payload, {prevPageURL: url + `?page=${this.page - 1}&limit=${this.limit}`});
+            payload['prevPageURL'] = url + `?page=${this.page - 1}&limit=${this.limit}`;
         }
 
         return payload;

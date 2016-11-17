@@ -58,7 +58,7 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Send JSON payload
-    res.sendPayload = (payload: any, req?: express.Request, pagination?: PaginationModel) => {
+    res.sendPayload = (payload: any, pagination?: any) => {
 
         let msg: IHttpResponse = {
             status: 200,
@@ -78,7 +78,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         if (pagination) {
-            Object.assign(msg, pagination.toPayload(req));
+            Object.assign(msg, pagination);
         }
 
         res.sendJSON(200, msg);
