@@ -80,7 +80,7 @@ class ProposedDealModel {
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: UserModel) {
-        return (this.isAvailable() && this.ownerInfo.status === 'A' && this.ownerInfo.userType !== user.userType)
+        return (this.isAvailable() && this.ownerInfo.isActive() && this.ownerInfo.userType !== user.userType)
                 || this.ownerInfo.id === user.id;
     }
 

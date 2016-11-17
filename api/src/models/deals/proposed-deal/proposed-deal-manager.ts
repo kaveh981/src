@@ -89,11 +89,13 @@ class ProposedDealManager {
      */
     public async fetchProposedDeals(pagination: any): Promise<ProposedDealModel[]> {
 
+        let offset = pagination.getOffset();
+
         let proposals = [];
         let rows = await this.databaseManager.select('proposalID as id')
                                              .from('ixmDealProposals')
                                              .limit(pagination.limit)
-                                             .offset(pagination.offset);
+                                             .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].id);
