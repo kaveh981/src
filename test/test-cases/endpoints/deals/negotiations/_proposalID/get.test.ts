@@ -44,7 +44,6 @@ export let ATW_DN_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', commo
  * @status  - passing 
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_01 (assert: test.Test) {
 
     assert.plan(2);
@@ -72,7 +71,6 @@ export async function ATW_DNP_GET_01 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_02 (assert: test.Test) {
 
     assert.plan(2);
@@ -99,7 +97,6 @@ export async function ATW_DNP_GET_02 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_03 (assert: test.Test) {
     assert.plan(2);
 
@@ -125,7 +122,6 @@ export async function ATW_DNP_GET_03 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_04 (assert: test.Test) {
 
     assert.plan(2);
@@ -152,7 +148,6 @@ export async function ATW_DNP_GET_04 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_05 (assert: test.Test) {
 
     assert.plan(2);
@@ -179,7 +174,6 @@ export async function ATW_DNP_GET_05 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_06 (assert: test.Test) {
 
     assert.plan(2);
@@ -211,7 +205,6 @@ export async function ATW_DNP_GET_06 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_07 (assert: test.Test) {
 
     assert.plan(2);
@@ -241,7 +234,6 @@ export async function ATW_DNP_GET_07 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_08 (assert: test.Test) {
 
     assert.plan(2);
@@ -271,7 +263,6 @@ export async function ATW_DNP_GET_08 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_09 (assert: test.Test) {
 
     assert.plan(2);
@@ -298,7 +289,6 @@ export async function ATW_DNP_GET_09 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_10 (assert: test.Test) {
 
     assert.plan(2);
@@ -325,7 +315,6 @@ export async function ATW_DNP_GET_10 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_11 (assert: test.Test) {
 
     assert.plan(2);
@@ -378,7 +367,6 @@ export async function ATW_DNP_GET_12 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_13 (assert: test.Test) {
 
     assert.plan(2);
@@ -407,7 +395,6 @@ export async function ATW_DNP_GET_13 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_14 (assert: test.Test) {
 
     assert.plan(2);
@@ -436,7 +423,6 @@ export async function ATW_DNP_GET_14 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_15 (assert: test.Test) {
 
     assert.plan(2);
@@ -465,7 +451,6 @@ export async function ATW_DNP_GET_15 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_16 (assert: test.Test) {
 
     assert.plan(2);
@@ -494,7 +479,6 @@ export async function ATW_DNP_GET_16 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_17 (assert: test.Test) {
 
     assert.plan(2);
@@ -523,7 +507,6 @@ export async function ATW_DNP_GET_17 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_18 (assert: test.Test) {
 
     assert.plan(2);
@@ -553,7 +536,6 @@ export async function ATW_DNP_GET_18 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_19 (assert: test.Test) {
 
     assert.plan(2);
@@ -583,7 +565,6 @@ export async function ATW_DNP_GET_19 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_20 (assert: test.Test) {
 
     assert.plan(2);
@@ -612,7 +593,6 @@ export async function ATW_DNP_GET_20 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_21 (assert: test.Test) {
 
     assert.plan(2);
@@ -641,7 +621,6 @@ export async function ATW_DNP_GET_21 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_22 (assert: test.Test) {
 
     assert.plan(2);
@@ -668,7 +647,6 @@ export async function ATW_DNP_GET_22 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_23 (assert: test.Test) {
 
     assert.plan(2);
@@ -698,7 +676,6 @@ export async function ATW_DNP_GET_23 (assert: test.Test) {
  * @status  - passing
  * @tags    - 
  */
-
 export async function ATW_DNP_GET_24 (assert: test.Test) {
 
     assert.plan(2);

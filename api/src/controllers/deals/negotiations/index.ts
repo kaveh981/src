@@ -65,7 +65,7 @@ function NegotiationDeals(router: express.Router): void {
             let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
             if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                && proposal.isAvailable() && owner.status === 'A' ) {
+                && proposal.isAvailable() && owner.isActive() ) {
                     Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
                     activeNegotiatedDeals.push(negotiatedDeals[i]);
             }
@@ -163,7 +163,7 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('403_PARTNER_NOT_IXMUSER');
         }
 
-        if (partner.status !== 'A') {
+        if (!partner.isActive()) {
             throw HTTPError('403_PARTNER_NOT_ACTIVE');
         }
 
@@ -283,7 +283,7 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NO_CHANGE');
             }
 
-            if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.status === 'A')) {
+            if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.isActive())) {
                 throw HTTPError('403_NOT_FORSALE');
             }
 

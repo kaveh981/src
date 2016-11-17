@@ -36,6 +36,7 @@ async function getPubStatus(proposalID: number, publisherID: number, buyerID: nu
                 .andWhere('buyerID', buyerID)
                 .andWhere('publisherID', publisherID);
     return row[0].pubStatus;
+
 }
 
 async function getBuyerStatus(proposalID: number, publisherID: number, buyerID: number): Promise<string> {
@@ -46,6 +47,7 @@ async function getBuyerStatus(proposalID: number, publisherID: number, buyerID: 
                 .andWhere('buyerID', buyerID)
                 .andWhere('publisherID', publisherID);
     return row[0].buyerStatus;
+
 }
 
 /** Generic Authentication Tests */
