@@ -5,17 +5,11 @@ import * as express from 'express';
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
+import { PaginationModel } from '../models/pagination/pagination-model';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');
 const errorMessages = config.get('errors')['en-US'];
-
-interface IPagination {
-    /** The specific page of data returned */
-    page: number;
-    /** The limit of data returned per page */
-    limit: number;
-}
 
 /**
  * The standardized response object
@@ -28,7 +22,7 @@ interface IHttpResponse {
     /** Payload data to send. */
     data: any[];
     /** Optional pagination details to send */
-    pagination?: IPagination;
+    pagination?: PaginationModel;
     /** Optional URL for next page */
     nextPageURL?: string;
     /** Optional URL for prev page */
@@ -64,7 +58,7 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Send JSON payload
-    res.sendPayload = (payload: any, url?: string, pagination?: IPagination) => {
+    res.sendPayload = (payload: any, req?: express.Request, pagination?: PaginationModel) => {
 
         let msg: IHttpResponse = {
             status: 200,
@@ -84,20 +78,8 @@ function augmentResponse(res: express.Response): void {
         }
 
         if (pagination) {
-            msg.pagination = {
-                page: pagination.page,
-                limit: pagination.limit
-            };
-
-            let urls = {
-                nextPageURL: url + `?page=${pagination.page + 1}&limit=${pagination.limit}`
-            };
-
-            if (pagination.page > 1)  {
-              Object.assign(urls, {prevPageURL: url + `?page=${pagination.page - 1}&limit=${pagination.limit}`});
-            }
-
-            Object.assign(msg, urls);
+            msg.pagination = pagination;
+            Object.assign(msg, msg.pagination.toPayload(req));
         }
 
         res.sendJSON(200, msg);

@@ -2,6 +2,7 @@
 import * as Knex from 'knex';
 import { UserModel } from '../models/user/user-model';
 
+
 declare module './database-manager' {
     // Promise that the dbm will extend knex
     interface DatabaseManager extends Knex {}
@@ -38,7 +39,7 @@ declare module 'express' {
          * @param payload - JSON object to send in the response.
          * @param pagination - The pagination parameters, optional.
          */
-        sendPayload(payload: any, url?: string, pagination?: any): void;
+        sendPayload(payload: any, req: any, pagination?: any): void;
 
         /**
          * Send a message as JSON 
