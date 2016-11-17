@@ -78,8 +78,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         if (pagination) {
-            msg.pagination = pagination;
-            Object.assign(msg, msg.pagination.toPayload(req));
+            Object.assign(msg, pagination.toPayload(req));
         }
 
         res.sendJSON(200, msg);
