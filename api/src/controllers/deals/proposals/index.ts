@@ -46,13 +46,13 @@ function Proposals(router: express.Router): void {
 
         let pagination = new PaginationModel(paginationParams, req);
 
-        let proposals = await proposedDealManager.fetchProposedDeals(pagination);
+        let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let availableProposals = [];
 
-        Log.trace(`Found proposals ${Log.stringify(proposals)}`, req.id);
+        Log.trace(`Found active proposals ${Log.stringify(activeProposals)}`, req.id);
 
-        for (let i = 0; i < proposals.length; i++) {
-            let proposal = proposals[i];
+        for (let i = 0; i < activeProposals.length; i++) {
+            let proposal = activeProposals[i];
 
             if (!proposal) {
                 continue;
@@ -60,7 +60,7 @@ function Proposals(router: express.Router): void {
 
             let user = req.ixmUserInfo;
 
-            if (proposal.isReadableByUser(user)) {
+            if (proposal.isPurchasableByUser(user)) {
                 availableProposals.push(proposal);
             }
         }

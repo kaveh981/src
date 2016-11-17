@@ -83,29 +83,6 @@ class ProposedDealManager {
 
     }
 
-    /**
-     * Get all proposals
-     * @returns Returns an array of proposed deal objects
-     */
-    public async fetchProposedDeals(pagination: any): Promise<ProposedDealModel[]> {
-
-        let offset = pagination.getOffset();
-
-        let proposals = [];
-        let rows = await this.databaseManager.select('proposalID as id')
-                                             .from('ixmDealProposals')
-                                             .limit(pagination.limit)
-                                             .offset(offset);
-
-        for (let i = 0; i < rows.length; i++) {
-            let proposal = await this.fetchProposedDealFromId(rows[i].id);
-            proposals.push(proposal);
-        }
-
-        return proposals;
-
-    }
-
 }
 
 export { ProposedDealManager };
