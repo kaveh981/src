@@ -55,18 +55,11 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-<<<<<<< HEAD
         let user = req.ixmUserInfo;
-=======
         let pagination = new PaginationModel(paginationParams, req);
-        let buyerID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
-        let activeNegotiatedDeals: NegotiatedDealModel[] = [];
->>>>>>> 996bbd718ed2edf9a3c638ac20b1dff7f691df32
 
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
 
-<<<<<<< HEAD
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals.length > 0) {
