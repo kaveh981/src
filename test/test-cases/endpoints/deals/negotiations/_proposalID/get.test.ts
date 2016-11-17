@@ -17,7 +17,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 let routePrefix = "/deals/negotiations";
 
-async function commonDatabaseSetup() {
+async function authenticationDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -35,7 +35,7 @@ async function commonDatabaseSetup() {
  * @status  - passing
  * @tags    - 
  */
-export let ATW_DN_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', commonDatabaseSetup);
+export let ATW_DN_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', authenticationDatabaseSetup);
 
 /*
  * @case    - Proposal ID is provided and is a valid number 

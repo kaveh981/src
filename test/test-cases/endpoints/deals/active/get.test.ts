@@ -45,7 +45,7 @@ async function authenticationSetup (publisher: INewPubData) {
 
 }
 
-interface ICreateEntityData {
+interface ICreateSettledDealData {
     buyer: INewBuyerData;
     publisher: INewPubData;
     section: INewSectionData;
@@ -70,7 +70,7 @@ async function paginationSetup () {
     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
                                                                     buyer.user.userID);
 
-    let data: ICreateEntityData = {
+    let data: ICreateSettledDealData = {
         buyer: buyer,
         publisher: publisher,
         section: section,
@@ -82,7 +82,7 @@ async function paginationSetup () {
 
 }
 
-async function createSettledDeal (data: ICreateEntityData) {
+async function createSettledDeal (data: ICreateSettledDealData) {
 
     let activeDeal = await databasePopulator.createSettledDeal(data.publisher.publisher.userID, [data.section.section.sectionID],
                                                                data.negotiation.negotiationID);
