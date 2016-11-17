@@ -23,7 +23,7 @@ services:
     networks:
       - atwater
     volumes:
-      - "/services/ixm/api/.env:/opt/atw-api/.env:ro"
+      - "/services/ixm/atw-api/.env:/opt/atw-api/.env:ro"
   atw-nginx:
     container_name: "atw-nginx"
     restart: "always"
@@ -44,4 +44,4 @@ services:
     ports:
       - "443:443"
     volumes:
-      - "/services/ixm/nginx/ssl:/etc/nginx/ssl:ro"
+      - "/services/ixm/atw-nginx/ssl:/etc/nginx/ssl:ro"
