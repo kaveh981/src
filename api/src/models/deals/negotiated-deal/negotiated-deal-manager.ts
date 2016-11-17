@@ -72,6 +72,7 @@ class NegotiatedDealManager {
     /**
      * Get list of latest deals in negotiation for the buyer  
      * @param user - the user in question
+     * @param pagination - pagination details for this query
      * @returns A list of negotiated deal objects.
      */
     public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
