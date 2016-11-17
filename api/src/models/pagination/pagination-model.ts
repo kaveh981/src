@@ -16,6 +16,7 @@ class PaginationModel {
      /**
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
+     * @param req - The request calling the pagination constructor
      */
     constructor(initParams: any = {}, req: express.Request) {
 
@@ -31,6 +32,9 @@ class PaginationModel {
 
     }
 
+    /**
+     * Return payload
+     */
     public toPayload () {
 
         return {
@@ -39,11 +43,15 @@ class PaginationModel {
             next_page_url: this.nextPageURL,
             prev_page_url: this.prevPageURL
         };
+
     }
 
+    /**
+     * Calculate and return offset for SQL queries 
+     */
     public getOffset () {
 
-        return (Number(this.page) - 1) * Number(this.limit);
+        return (this.page - 1) * this.limit;
     }
 
 }

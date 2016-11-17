@@ -80,7 +80,7 @@ class NegotiatedDealManager {
         let rows = await this.databaseManager.select('proposalID', 'publisherID')
                                              .from('ixmDealNegotiations')
                                              .where('buyerID', buyerID)
-                                             .limit(Number(pagination.limit))
+                                             .limit(pagination.limit)
                                              .offset(offset);
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
