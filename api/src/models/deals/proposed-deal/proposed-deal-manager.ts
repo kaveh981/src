@@ -2,6 +2,7 @@
 
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
+import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { UserManager } from '../../user/user-manager';
 import { Logger } from '../../../lib/logger';
@@ -62,14 +63,16 @@ class ProposedDealManager {
      * @param pagination - The pagination parameters.
      * @returns Returns an array of proposed deal objects with the given status.
      */
-    public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: any): Promise<ProposedDealModel[]> {
+    public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: PaginationModel): Promise<ProposedDealModel[]> {
+
+        let offset = pagination.getOffset();
 
         let proposals = [];
         let rows = await this.databaseManager.select('proposalID')
                                              .from('ixmDealProposals')
                                              .where('status', proposalStatus)
                                              .limit(pagination.limit)
-                                             .offset(pagination.offset);
+                                             .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);

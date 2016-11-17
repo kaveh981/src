@@ -9,6 +9,7 @@ import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
 import { UserModel } from '../../user/user-model';
+import { PaginationModel } from '../../pagination/pagination-model';
 import { Helper } from '../../../lib/helper';
 
 const Log: Logger = new Logger('ACTD');
@@ -73,17 +74,18 @@ class NegotiatedDealManager {
      * @param user - the user in question
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: any) {
+    public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
 
         let userID = Number(user.id);
         let userType = user.userType;
+        let offset = pagination.getOffset();
 
         let rows = await this.databaseManager.select('proposalID', 'buyerID', 'publisherID')
                                              .from('ixmDealNegotiations')
                                              .where('buyerID', userID)
                                              .orWhere('publisherID', userID)
-                                             .limit(Number(pagination.limit))
-                                             .offset(Number(pagination.offset));
+                                             .limit(pagination.limit)
+                                             .offset(offset);
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 

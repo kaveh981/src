@@ -50,11 +50,15 @@ class SiteManager {
      * @param sectionID - The id of the section to find sites for.
      * @returns An array of site models.
      */
-    public async fetchSitesFromSectionId(sectionID: number) {
+    public async fetchActiveSitesFromSectionId(sectionID: number) {
 
-        let rows = await this.databaseManager.select('siteID')
+        let rows = await this.databaseManager.select('sites.siteID')
                                              .from('rtbSiteSections')
-                                             .where('sectionID', sectionID);
+                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .where({
+                                                 'sectionID': sectionID,
+                                                 'sites.status': 'A'
+                                             });
 
         let sites = [];
 

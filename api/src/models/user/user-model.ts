@@ -31,6 +31,13 @@ class UserModel {
         }
     }
 
+    /**
+     * Returns true if the user is active.
+     */
+    public isActive() {
+        return this.status === 'active';
+    }
+
     /** 
      * Craft the contact information as payload
      */

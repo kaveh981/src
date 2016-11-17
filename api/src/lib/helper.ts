@@ -14,10 +14,6 @@ class Helper {
      */
     public static formatDate(date: Date | string) {
 
-        if (date === null) {
-            return null;
-        }
-
         let dateString = date.toString();
 
         if (dateString.includes('0000-00-00')) {
@@ -90,7 +86,7 @@ class Helper {
      * @param status - The letter to convert.
      * @returns The word.
      */
-    public static statusLetterToWord(status: string): 'active' | 'deleted' | 'paused' {
+    public static statusLetterToWord(status: string): 'active' | 'deleted' | 'paused' | 'inactive' {
 
         switch (status) {
             case 'A':
@@ -99,6 +95,9 @@ class Helper {
                 return 'deleted';
             case 'P':
                 return 'paused';
+            case 'N':
+            case 'I':
+                return 'inactive';
             default:
                 throw new Error(`Unknown status: ${status}`);
         }
