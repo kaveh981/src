@@ -63,7 +63,7 @@ function NegotiationDeals(router: express.Router): void {
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }

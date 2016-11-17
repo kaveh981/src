@@ -107,7 +107,7 @@ class SettledDealManager {
                                              .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
-            let deal;
+            let deal: SettledDealModel;
             if (user.userType === 'IXMB') {
                 deal = await this.fetchSettledDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
             } else {

@@ -90,7 +90,7 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         for (let i = 0; i < rows.length; i++) {
-            let negotiatedDeal;
+            let negotiatedDeal: NegotiatedDealModel;
             if (userType === 'IXMB') {
                 negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
             } else {
