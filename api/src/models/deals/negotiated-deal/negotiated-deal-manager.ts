@@ -8,6 +8,7 @@ import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { UserManager } from '../../user/user-manager';
+import { UserModel } from '../../user/user-model';
 import { Helper } from '../../../lib/helper';
 
 const Log: Logger = new Logger('ACTD');
@@ -69,10 +70,13 @@ class NegotiatedDealManager {
 
     /**
      * Get list of latest deals in negotiation for the buyer  
-     * @param userID - The id of the buyer or publisher in the negotiation.
+     * @param user - the user in question
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserId(userID: number, userType: string, pagination: any) {
+    public async fetchNegotiatedDealsFromUserId(user: UserModel, pagination: any) {
+
+        let userID = Number(user.id);
+        let userType = user.userType;
 
         let rows = await this.databaseManager.select('proposalID', 'buyerID', 'publisherID')
                                              .from('ixmDealNegotiations')
@@ -85,7 +89,7 @@ class NegotiatedDealManager {
 
         for (let i = 0; i < rows.length; i++) {
             let negotiatedDeal;
-            if (userType === 'buyer') {
+            if (userType === 'IXMB') {
                 negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
             } else {
                 negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, rows[i].buyerID, userID);
@@ -101,12 +105,12 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get proposalID specific deal negotiation from proposal and user id 
+     * Get proposalID specific deal negotiations from proposal id and user id 
      * @param userID - The user id of one of the negotiating parties
      * @param proposalID - The id of the proposal being negotiated
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number) {
+    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number, pagination: any) {
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
         let rows = await this.databaseManager.select('publisherID', 'buyerID')
@@ -118,7 +122,9 @@ class NegotiatedDealManager {
                                              .orWhere({
                                                  proposalID: proposalID,
                                                  publisherID: userID
-                                             });
+                                             })
+                                             .limit(Number(pagination.limit))
+                                             .offset(Number(pagination.offset));
 
         if (!rows[0]) {
             return;

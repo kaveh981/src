@@ -54,27 +54,14 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let userID = Number(req.ixmUserInfo.id);
-        let userType: 'buyer' | 'publisher' = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
+        let user = req.ixmUserInfo;
 
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(userID, userType, pagination);
-        let activeNegotiatedDeals: NegotiatedDealModel[] = [];
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserId(user, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        for (let i = 0; i < negotiatedDeals.length; i++) {
-            let proposal = negotiatedDeals[i].proposedDeal;
-            let owner = await userManager.fetchUserFromId(proposal.ownerID);
-
-            if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                && proposal.isAvailable() && owner.status === 'A' ) {
-                    Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
-                    activeNegotiatedDeals.push(negotiatedDeals[i]);
-            }
-        }
-
-        if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+        if (negotiatedDeals.length > 0) {
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -115,7 +102,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let userID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 

@@ -55,10 +55,9 @@ function Proposals(router: express.Router): void {
                 continue;
             }
 
-            let owner = proposal.ownerInfo;
             let user = req.ixmUserInfo;
 
-            if (proposal.isAccessibleByUser(user)) {
+            if (proposal.isReadableByUser(user)) {
                 availableProposals.push(proposal);
             }
         }
@@ -95,10 +94,10 @@ function Proposals(router: express.Router): void {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
-        let user = req.ixmUserInfo; 
+        let user = req.ixmUserInfo;
 
         // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
-        if (proposal.isAccessibleByUser(user)) {
+        if (proposal.isReadableByUser(user)) {
             res.sendPayload(proposal.toPayload());
         } else if (proposal.status === 'deleted') {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
