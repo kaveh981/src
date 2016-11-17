@@ -72,8 +72,8 @@ class ProposedDealModel {
     }
 
     /**
-     * Checks that a proposed deal is purchasable by a specific user. The proposal must be a valid purchaseable 
-     * proposal, its owner must be active, and the user viewing it must be a user that's not the same type as 
+     * Checks that a proposed deal is purchasable by a specific user. The proposal must be a valid purchasable 
+     * proposal, its owner must be active, and the user viewing it must not have the same type as 
      * its owner (publishers can't view other publishers' proposals, and the same applies to buyers).
      * @param user - the user in question
      * @returns true if the proposal is purchasable by this user
