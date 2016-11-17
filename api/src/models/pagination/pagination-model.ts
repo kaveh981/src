@@ -23,8 +23,7 @@ class PaginationModel {
         let url = req.protocol + '://' + req.get('host') + req.originalUrl;
 
         let payload =  {
-            page: this.page,
-            limit: this.limit,
+            pagination: this,
             nextPageURL: url + `?page=${this.page + 1}&limit=${this.limit}`
         };
 
