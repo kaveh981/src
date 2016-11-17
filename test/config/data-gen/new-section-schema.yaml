@@ -11,9 +11,9 @@
                         "random.number": 1
                     }
                 },
-                "adUnits": "random",
-                "countries": "random",
-                "depthBuckets": "random"
+                "adUnits": [],
+                "countries": [],
+                "rtbDomainDepths": []
             },
             "required": [
                 "name", "status", "percent", "entireSite"

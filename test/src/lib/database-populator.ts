@@ -188,7 +188,7 @@ class DatabasePopulator {
         let mapEntities = {
             adUnits: null,
             countries: null,
-            depthBuckets: null
+            rtbDomainDepths: null
         };
 
         for (let key in mapEntities) {
@@ -215,6 +215,30 @@ class DatabasePopulator {
             for (let i = 0; i < numMatches; ++i) {
                 newSectionData.section.matches.push(await this.createSectionMatch(newSectionData.section.sectionID));
             }
+        }
+
+        let restrictions = {
+            "adUnits": "adUnitID",
+            "countries": "countryID",
+            "rtbDomainDepths": "depthBucket"
+        };
+
+        for (let i in restrictions) {
+            let restrictionSource = i;
+            let restrictionID = restrictions[i];
+
+            if (!mapEntities[restrictionSource] || mapEntities[restrictionSource].length === 0) {
+                let restrictionIDs: number[] = await this.dbm.pluck(restrictionID).from(restrictionSource);
+                let numRestrictions: number = Math.round(Math.random() * restrictionIDs.length);
+
+                while (restrictionIDs.length > numRestrictions) {
+                    restrictionIDs.splice(Math.floor(Math.random() * restrictionIDs.length), 1);
+                }
+
+                newSectionData.section[restrictionSource] = restrictionIDs;
+            }
+
+            await this.mapSectionToRestrictions(sectionID, newSectionData.section[restrictionSource], restrictionSource, restrictionID);
         }
 
         return newSectionData;
@@ -373,6 +397,45 @@ class DatabasePopulator {
 
         for (let i = 0; i < siteIDs.length; i += 1) {
             Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
+        }
+    }
+
+    /**
+     * Maps sections to adUnit, country, and depth tables
+     * @arg sectionID {int} - the sectionID of the section to map
+     * @arg restrictionIDs {int[] | string[]} - the adUnitID to map
+     * @arg restrictionSource {string} - the restriction source table
+     * @arg restrictionID {string} - the restriction ID column
+     * @returns {Promise<void>} - Resolves when all mapping entries are successful
+     */
+    public async mapSectionToRestrictions(sectionID: number, restrictionIDs: number[] | string[], restrictionSource: string,
+                                            restrictionID: string) {
+        let mappings: Object[] = [];
+
+        let restrictionTable = '';
+        if (restrictionSource === 'adUnits') {
+            restrictionTable = 'sectionAdUnitMappings';
+        } else if (restrictionSource === 'countries') {
+            restrictionTable = 'sectionCountryMappings';
+        } else if (restrictionSource === 'rtbDomainDepths') {
+            restrictionTable = 'sectionDepthMappings';
+        }
+
+        // Viper2.countries uses 'countryID', but sectionCountryMappings uses 'countryCode'
+        if (restrictionID === 'countryID') {
+            restrictionID = 'countryCode';
+        }
+
+        for (let i = 0; i < restrictionIDs.length; ++i) {
+            let mapping: Object = {sectionID: sectionID};
+            mapping[restrictionID] = restrictionIDs[i];
+            mappings.push(mapping);
+        }
+
+        await this.dbm.insert(mappings).into(restrictionTable);
+
+        for (let i = 0; i < restrictionIDs.length; ++i) {
+            Log.debug(`Mapped sectionID ${sectionID} to ${restrictionID} ${restrictionIDs[i]}`);
         }
     }
 

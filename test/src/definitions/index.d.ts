@@ -80,9 +80,9 @@ interface ISection {
     name?: string;
     percent?: number;
     entireSite?: number;
-    adUnits?: string;
-    countries?: string;
-    depthBuckets?: string;
+    adUnits?: number[];
+    countries?: string[];
+    rtbDomainDepths?: number[];
     matches?: INewMatchData[] | string;
 }
 
