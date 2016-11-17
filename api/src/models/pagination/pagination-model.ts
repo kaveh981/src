@@ -9,36 +9,36 @@ class PaginationModel {
     /** The limit of data returned per page */
     public limit: number;
     /** Optional URL for next page */
-    public nextPageURL?: string;
+    public next_page_url?: string;
     /** Optional URL for prev page */
-    public prevPageURL?: string;
+    public prev_page_url?: string;
 
      /**
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
      */
-    constructor(initParams: any = {}) {
+    constructor(initParams: any = {}, req: express.Request) {
 
         Object.assign(this, initParams);
-    }
-
-    public toPayload (req: express.Request) {
 
         let url = req.protocol + '://' + req.get('host') + req.originalUrl;
-
-        let payload =  {
-            pagination: {
-                page: this.page,
-                limit: this.limit,
-                nextPageURL: url + `?page=${this.page + 1}&limit=${this.limit}`
-            }
-        };
+        this.next_page_url = url + `?page=${this.page + 1}&limit=${this.limit}`;
+        this.prev_page_url = "";
 
         if (this.page > 1) {
-            payload['pagination']['prevPageURL'] = url + `?page=${this.page - 1}&limit=${this.limit}`;
+            this.prev_page_url = url + `?page=${this.page - 1}&limit=${this.limit}`;
         }
 
-        return payload;
+    }
+
+    public toPayload () {
+
+        return {
+            page: this.page,
+            limit: this.limit,
+            next_page_url: this.next_page_url,
+            prev_page_url: this.prev_page_url
+        };
     }
 
     public getOffset () {

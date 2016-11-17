@@ -44,7 +44,7 @@ function Proposals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams);
+        let pagination = new PaginationModel(paginationParams, req);
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
 
@@ -70,7 +70,7 @@ function Proposals(router: express.Router): void {
         Log.trace(`Found purchasable proposals ${Log.stringify(proposedDeals)}`, req.id);
 
         if (proposedDeals.length > 0) {
-            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination.toPayload(req));
+            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_PROPOSALS');
         }

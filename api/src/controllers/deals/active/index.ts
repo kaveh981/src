@@ -53,7 +53,7 @@ function ActiveDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams);
+        let pagination = new PaginationModel(paginationParams, req);
 
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmUserInfo.id);
@@ -63,7 +63,7 @@ function ActiveDeals(router: express.Router): void {
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload(req));
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_DEALS');
         }

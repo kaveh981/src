@@ -55,7 +55,7 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams);
+        let pagination = new PaginationModel(paginationParams, req);
         let buyerID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
@@ -75,7 +75,7 @@ function NegotiationDeals(router: express.Router): void {
 
         if (activeNegotiatedDeals.length > 0) {
             res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }),
-                            pagination.toPayload(req));
+                            pagination.toPayload());
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -115,14 +115,14 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams);
+        let pagination = new PaginationModel(paginationParams, req);
         let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload(req));
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
         } else {
             throw HTTPError('200_NO_NEGOTIATIONS');
         }
