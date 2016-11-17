@@ -112,7 +112,9 @@ class NegotiatedDealManager {
      * @param proposalID - The id of the proposal being negotiated
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number, pagination: any) {
+    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number, pagination: PaginationModel) {
+
+        let offset = pagination.getOffset();
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
         let rows = await this.databaseManager.select('publisherID', 'buyerID')
@@ -125,8 +127,8 @@ class NegotiatedDealManager {
                                                  proposalID: proposalID,
                                                  publisherID: userID
                                              })
-                                             .limit(Number(pagination.limit))
-                                             .offset(Number(pagination.offset));
+                                             .limit(pagination.limit)
+                                             .offset(offset);
 
         if (!rows[0]) {
             return;

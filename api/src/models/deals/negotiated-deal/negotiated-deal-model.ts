@@ -119,7 +119,7 @@ class NegotiatedDealModel {
     };
 
     /**
-     * Checks whether this negotiated deal is accessible by a specific user. The user must just be one of the negotiating parties.
+     * Checks whether this negotiated deal is readable by a specific user. The user must just be one of the negotiating parties.
      * @param user - the user in question
      * @returns true if the negotiation is readable by the user
      */
