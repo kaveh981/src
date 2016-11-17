@@ -59,7 +59,7 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
 
 /*
  * @case    - limit is within the permitted values
- * @expect  - 200 - the correct proposals is fetched, limit returned in the response is correct
+ * @expect  - 200 - the correct proposals are fetched, limit returned in the response is correct
  * @status  - failing ("expected" date incorrect, limit type from response is incorrect - should be int instead of string)
  * @tags    - get, pagination, buyer
  */
@@ -74,13 +74,8 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     let entity2Payload = await createEntity(setupData);
 
     /** Test */
-    let response = await apiRequest[verb](route, {'limit': 1}, setupData.buyer.user.userID);
-
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [entity1Payload]);
-    assert.deepEqual(response.body.pagination, {limit: 1, page: 0});
-
     let cases = [
+        {input: 1, expect: {limit: 1, data: [entity1Payload]}},
         {input: 2, expect: {limit: 2, data: [entity1Payload, entity2Payload]}},
         {input: 249, expect: {limit: 249, data: [entity1Payload, entity2Payload]}},
         {input: 250, expect: {limit: 250, data: [entity1Payload, entity2Payload]}},
@@ -88,11 +83,11 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     ];
 
     for (let caseObject of cases) {
-        response = await apiRequest[verb](route, {'limit': caseObject.input}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'limit': caseObject.input}, setupData.buyer.user.userID);
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
-        assert.deepEqual(response.body.pagination, {limit: caseObject.expect.limit, page: 0});
+        assert.deepEqual(response.body.pagination, {limit: caseObject.expect.limit, page: 1});
     }
 
 }
