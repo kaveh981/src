@@ -23,10 +23,6 @@ interface IHttpResponse {
     data: any[];
     /** Optional pagination details to send */
     pagination?: PaginationModel;
-    /** Optional URL for next page */
-    nextPageURL?: string;
-    /** Optional URL for prev page */
-    prevPageURL?: string;
 }
 
 /*
@@ -78,7 +74,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         if (pagination) {
-            Object.assign(msg, pagination);
+            msg['pagination'] = pagination;
         }
 
         res.sendJSON(200, msg);

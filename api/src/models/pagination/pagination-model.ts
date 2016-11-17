@@ -8,6 +8,10 @@ class PaginationModel {
     public page: number;
     /** The limit of data returned per page */
     public limit: number;
+    /** Optional URL for next page */
+    public nextPageURL?: string;
+    /** Optional URL for prev page */
+    public prevPageURL?: string;
 
      /**
      * Constructor
@@ -25,13 +29,13 @@ class PaginationModel {
         let payload =  {
             pagination: {
                 page: this.page,
-                limit: this.limit
-            },
-            nextPageURL: url + `?page=${this.page + 1}&limit=${this.limit}`
+                limit: this.limit,
+                nextPageURL: url + `?page=${this.page + 1}&limit=${this.limit}`
+            }
         };
 
         if (this.page > 1) {
-            payload['prevPageURL'] = url + `?page=${this.page - 1}&limit=${this.limit}`;
+            payload['pagination']['prevPageURL'] = url + `?page=${this.page - 1}&limit=${this.limit}`;
         }
 
         return payload;
