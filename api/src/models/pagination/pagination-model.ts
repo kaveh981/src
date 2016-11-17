@@ -22,11 +22,11 @@ class PaginationModel {
         Object.assign(this, initParams);
 
         let url = req.protocol + '://' + req.get('host') + req.originalUrl;
-        this.next_page_url = url + `?page=${this.page + 1}&limit=${this.limit}`;
-        this.prev_page_url = "";
+        this.nextPageURL = url + `?page=${this.page + 1}&limit=${this.limit}`;
+        this.prevPageURL = "";
 
         if (this.page > 1) {
-            this.prev_page_url = url + `?page=${this.page - 1}&limit=${this.limit}`;
+            this.prevPageURL = url + `?page=${this.page - 1}&limit=${this.limit}`;
         }
 
     }
@@ -36,8 +36,8 @@ class PaginationModel {
         return {
             page: this.page,
             limit: this.limit,
-            next_page_url: this.next_page_url,
-            prev_page_url: this.prev_page_url
+            next_page_url: this.nextPageURL,
+            prev_page_url: this.prevPageURL
         };
     }
 

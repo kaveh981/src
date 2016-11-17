@@ -22,7 +22,12 @@ interface IHttpResponse {
     /** Payload data to send. */
     data: any[];
     /** Optional pagination details to send */
-    pagination?: PaginationModel;
+    pagination?: {
+        page: number,
+        limit: number,
+        next_page_url: string,
+        prev_page_url: string
+    };
 }
 
 /*
