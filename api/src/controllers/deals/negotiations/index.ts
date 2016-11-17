@@ -65,7 +65,7 @@ function NegotiationDeals(router: express.Router): void {
             let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
             if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                && proposal.isAvailable() && owner.isActive ) {
+                && proposal.isAvailable() && owner.isActive() ) {
                     Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
                     activeNegotiatedDeals.push(negotiatedDeals[i]);
             }
