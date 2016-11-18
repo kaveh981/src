@@ -66,7 +66,7 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
 async function ATW_PAG_03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(10);
+    assert.plan(15);
 
     let setupData = await setup();
 
@@ -87,7 +87,15 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
-        // assert.deepEqual(response.body.pagination, {limit: caseObject.expect.limit, page: 1});
+
+        let expectedPagination = {
+            page: 1,
+            limit: caseObject.input,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=2&limit=${caseObject.input}`,
+            prev_page_url: ""
+        };
+
+        assert.deepEqual(response.body.pagination, expectedPagination);
     }
 
 }
@@ -153,7 +161,7 @@ async function ATW_PAG_05 (route: string, verb: string, setup: Function, createE
 async function ATW_PAG_06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(4);
+    assert.plan(6);
 
     let setupData = await setup();
 
@@ -171,7 +179,21 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
-        // assert.deepEqual(response.body.pagination, {limit: 1, page: caseObject.expect.page});
+
+        let prevPageURL = "";
+
+        if (caseObject.input > 1) {
+            prevPageURL = apiRequest.getBaseURL() + route + `?page=${caseObject.input - 1}&limit=1`;
+        }
+
+        let expectedPagination = {
+            page: caseObject.input,
+            limit: 1,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.input + 1}&limit=1`,
+            prev_page_url: prevPageURL
+        };
+
+        assert.deepEqual(response.body.pagination, expectedPagination);
     }
 
 }
