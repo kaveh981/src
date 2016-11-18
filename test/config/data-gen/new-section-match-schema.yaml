@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "sectionID": 1,
+        "url": {
+            "faker": "internet.domainName"
+        },
+        "matchType": {
+            "faker": {
+                "random.number": {
+                    "min": 1,
+                    "max": 2
+                }
+            }
+        }
+    },
+    "required": ["sectionID", "url", "matchType"]
+}

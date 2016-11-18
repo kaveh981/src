@@ -80,11 +80,21 @@ interface ISection {
     name?: string;
     percent?: number;
     entireSite?: number;
+    adUnits?: number[];
+    countries?: string[];
+    rtbDomainDepths?: number[];
+    matches?: INewMatchData[];
 }
 
 interface INewSectionData {
     siteIDs: number[];
     section: ISection;
+}
+
+interface INewMatchData {
+    sectionID: number;
+    url: string;
+    matchType: number;
 }
 
 interface IProposal {

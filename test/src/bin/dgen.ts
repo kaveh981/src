@@ -66,7 +66,7 @@ class DataGenCLI {
         await Bootstrap.boot(false);
         let results = await this.runHandlers();
         console.log("Here's what you got:");
-        console.log(results);
+        console.log(JSON.stringify(results,  null, 4));
         await Bootstrap.shutdown(false);
         console.log("All done");
 /*        Bootstrap.boot(false)
