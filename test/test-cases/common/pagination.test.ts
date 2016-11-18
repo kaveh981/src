@@ -90,8 +90,8 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
 
         let expectedPagination = {
             page: 1,
-            limit: caseObject.input,
-            next_page_url: apiRequest.getBaseURL() + route + `?page=2&limit=${caseObject.input}`,
+            limit: caseObject.expect.limit,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=2&limit=${caseObject.expect.limit}`,
             prev_page_url: ""
         };
 
@@ -183,13 +183,13 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
         let prevPageURL = "";
 
         if (caseObject.input > 1) {
-            prevPageURL = apiRequest.getBaseURL() + route + `?page=${caseObject.input - 1}&limit=1`;
+            prevPageURL = apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1`;
         }
 
         let expectedPagination = {
-            page: caseObject.input,
+            page: caseObject.expect.page,
             limit: 1,
-            next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.input + 1}&limit=1`,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page + 1}&limit=1`,
             prev_page_url: prevPageURL
         };
 

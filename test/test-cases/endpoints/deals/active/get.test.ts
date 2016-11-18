@@ -63,14 +63,15 @@ interface ICreateSettledDealData {
  */
 async function paginationSetup () {
 
-    let dsp = await databasePopulator.createDSP(123);
+    let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
-                                                                    buyer.user.userID);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+
 
     let data: ICreateSettledDealData = {
         publisher: publisher,
@@ -90,10 +91,19 @@ async function paginationSetup () {
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createSettledDeal (data: ICreateSettledDealData) {
-    let activeDeal = await databasePopulator.createSettledDeal(data.publisher.publisher.userID, [data.section.section.sectionID],
-                                                               data.negotiation.negotiationID);
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        data.publisher.publisher.userID,
+        [data.section.section.sectionID],
+        data.negotiation.negotiationID,
+        {
+            startDate: tomorrow,
+            rate: data.negotiation.price
+        });
 
-    return Helper.dealsActiveGetToPayload(activeDeal, data.negotiation, data.proposal, data.publisher.user);
+
+    return Helper.dealsActiveGetToPayload(settledDeal, data.negotiation, data.proposal, data.publisher.user);
 }
 
 /*
