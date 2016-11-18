@@ -28,6 +28,41 @@ async function authenticationDatabaseSetup() {
                                                                         publisher.user.userID, buyer.user.userID);
 }
 
+interface ICreateDealNegotiationData {
+    dsp: INewDSPData;
+    publisher: INewPubData;
+    proposal: INewProposalData;
+    sender: INewUserData;
+}
+
+
+async function paginationSetup () {
+    let dsp = await databasePopulator.createDSP(123);
+
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+    let data: ICreateDealNegotiationData = {
+        dsp: dsp,
+        publisher: publisher,
+        proposal: proposal,
+        sender: publisher.user
+    };
+
+    return data;
+}
+
+async function createDealNegotiation (data: ICreateDealNegotiationData) {
+
+    let buyer = await databasePopulator.createBuyer(data.dsp.dspID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(data.proposal.proposal.proposalID,
+                                                                       data.publisher.user.userID, buyer.user.userID);
+
+    return Helper.dealNegotiationToPayload(dealNegotiation, data.proposal, data.publisher.user, buyer.user);
+}
+
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -35,7 +70,16 @@ async function authenticationDatabaseSetup() {
  * @status  - passing
  * @tags    - 
  */
-export let ATW_DN_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', authenticationDatabaseSetup);
+export let ATW_DNP_GET_AUTH = authenticationTest(routePrefix + '/1', 'get', authenticationDatabaseSetup);
+
+/*
+ * @case    - The buyer attempts to authenticate.
+ * @expect  - Authentication tests to pass.
+ * @route   - GET deals/negotiations/:proposalID
+ * @status  - passing
+ * @tags    - 
+ */
+export let ATW_DNP_GET_PAG = paginationTest(routePrefix + '/1', 'get', paginationSetup, createDealNegotiation);
 
 /*
  * @case    - Proposal ID is provided and is a valid number 

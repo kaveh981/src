@@ -32,7 +32,8 @@ async function authenticationSetup() {
 interface ICreateDealNegotiationData {
     buyer: INewBuyerData;
     publisher: INewPubData;
-    proposal: INewProposalData;
+    site: INewSiteData;
+    sender: INewUserData;
 }
 
 
@@ -41,39 +42,24 @@ async function paginationSetup () {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     let data: ICreateDealNegotiationData = {
         buyer: buyer,
         publisher: publisher,
-        proposal: proposal
+        site: site,
+        sender: buyer.user
     };
 
     return data;
 }
 
 async function createDealNegotiation (data: ICreateDealNegotiationData) {
+   let section = await databasePopulator.createSection(data.publisher.publisher.userID, [data.site.siteID]);
+   let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
+   let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+                                                                       data.publisher.user.userID, data.buyer.user.userID);
 
-   let dealNegotiation;
-
-   try {
-
-        dealNegotiation = await databasePopulator.createDealNegotiation(data.proposal.proposal.proposalID,
-                                                                            data.publisher.user.userID, data.buyer.user.userID);
-   } catch (err) {
-        // if Database throws an error, it means that a deal negotiation with the buyer, publisher and proposal has already been created 
-        // need to create new proposal (on new site and section) for the same publisher and put it in negotiation with the same buyer 
-        let site = await databasePopulator.createSite(data.publisher.publisher.userID);
-        let section = await databasePopulator.createSection(data.publisher.publisher.userID, [site.siteID]);
-        let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
-        dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                            data.publisher.user.userID, data.buyer.user.userID);
-
-        return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
-   }
-
-    return Helper.dealNegotiationToPayload(dealNegotiation, data.proposal, data.publisher.user, data.publisher.user);
+    return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
 }
 
 /*
@@ -92,7 +78,7 @@ export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', authenticationSetu
  * @status  - commented out (must restructure common pagination suite)
  * @tags    - get, deals, auth
  */
-export let IXM_API_DN_GET_PAG = paginationTest(route, 'get', paginationSetup, createDealNegotiation);
+export let ATW_DN_GET_PAG = paginationTest(route, 'get', paginationSetup, createDealNegotiation);
 
 /*
  * @case    - Publisher has no proposals (and no negotiations)

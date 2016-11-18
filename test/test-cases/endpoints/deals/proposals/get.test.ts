@@ -29,9 +29,9 @@ async function authDatabaseSetup() {
  * Interface to solidify what is returned by pagination database setup for createProposal
  */
 interface ICreateProposalData {
-    buyer: INewBuyerData;
     publisher: INewPubData;
     section: INewSectionData;
+    sender: INewUserData;
 }
 
 /**
@@ -46,9 +46,9 @@ async function paginationDatabaseSetup() {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
 
     let data: ICreateProposalData = {
-        buyer: buyer,
         publisher: publisher,
-        section: section
+        section: section,
+        sender: buyer.user
     };
 
     return data;

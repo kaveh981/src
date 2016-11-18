@@ -28,7 +28,7 @@ async function ATW_PAG_01 (route: string, verb: string, setup: Function, createE
     let cases = [`'10'`, {10: true}, [10], true];
 
     for (let limit of cases) {
-        let response = await apiRequest[verb](route, {'limit': limit}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'limit': limit}, setupData.sender.userID);
 
         assert.equal(response.status, 400);
     }
@@ -51,7 +51,7 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
     await createEntity(setupData);
 
     /** Test */
-    let response = await apiRequest[verb](route, {'limit': 0}, setupData.buyer.user.userID);
+    let response = await apiRequest[verb](route, {'limit': 0}, setupData.sender.userID);
 
     assert.equal(response.status, 400);
 
@@ -83,7 +83,7 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     ];
 
     for (let caseObject of cases) {
-        let response = await apiRequest[verb](route, {'limit': caseObject.input}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'limit': caseObject.input}, setupData.sender.userID);
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
@@ -111,7 +111,7 @@ async function ATW_PAG_04 (route: string, verb: string, setup: Function, createE
     let cases = [`'10'`, {10: true}, [10], true];
 
     for (let page of cases) {
-        let response = await apiRequest[verb](route, {'page': page}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'page': page}, setupData.sender.userID);
 
         assert.equal(response.status, 400);
     }
@@ -137,7 +137,7 @@ async function ATW_PAG_05 (route: string, verb: string, setup: Function, createE
 
     /** Test */
     for (let page of cases) {
-        let response = await apiRequest[verb](route, {'page': page}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'page': page}, setupData.sender.userID);
 
         assert.equal(response.status, 400);
     }
@@ -167,7 +167,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
     ];
 
     for (let caseObject of cases) {
-        let response = await apiRequest[verb](route, {'page': caseObject.input, 'limit': 1}, setupData.buyer.user.userID);
+        let response = await apiRequest[verb](route, {'page': caseObject.input, 'limit': 1}, setupData.sender.userID);
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
