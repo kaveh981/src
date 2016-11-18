@@ -25,9 +25,33 @@ async function authDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 }
 
+/**
+ * Interface to solidify what is returned by pagination database setup for createProposal
+ */
+interface ICreateProposalData {
+    buyer: INewBuyerData;
+    publisher: INewPubData;
+    section: INewSectionData;
+}
+
+/**
+ * Database setup for pagination tests
+ * @return: data: ICreateProposalData - teh data required from database setup to create a proposal
+ */
 async function paginationDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+
+    let data: ICreateProposalData = {
+        buyer: buyer,
+        publisher: publisher,
+        section: section
+    };
+
+    return data;
 }
 
 /**
@@ -36,15 +60,10 @@ async function paginationDatabaseSetup() {
  * @param [publisher] - The publisher object that will own the proposal.
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createProposal(publisher: INewPubData) {
-    if (typeof publisher === 'undefined') {
-        publisher = await databasePopulator.createPublisher();
-    }
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+async function createProposal(data: ICreateProposalData) {
+    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
-    return Helper.proposalToPayload(proposal, publisher.user);
+    return Helper.proposalToPayload(proposal, data.publisher.user);
 }
 
 /*

@@ -18,6 +18,9 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const route = 'deals/proposals';
 const currentDate: Date = new Date();
 
+/**
+ * Common database setup for authentication and proposalID validation
+ */
 async function databaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -26,6 +29,46 @@ async function databaseSetup() {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
+}
+
+/**
+ * Interface to solidify what is returned by pagination database setup for createProposal
+ */
+interface ICreateProposalData {
+    buyer: INewBuyerData;
+    publisher: INewPubData;
+    section: INewSectionData;
+}
+
+/**
+ * Database setup for pagination tests
+ * @return: data: ICreateProposalData - the data required from database setup to create a proposal
+ */
+async function paginationSetup() {
+    let dsp = await databasePopulator.createDSP(123);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+
+    let data: ICreateProposalData = {
+        buyer: buyer,
+        publisher: publisher,
+        section: section
+    };
+
+    return data;
+}
+
+/**
+ * Create a proposal. Function should allow successive calls to create new proposals without problems.
+ * @param data: ICreateProposalData - the data required from database setup to creat a proposal
+ * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ */
+async function createProposal (data: ICreateProposalData) {
+    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
+
+    return Helper.proposalToPayload(proposal, data.publisher.user);
 }
 
 /*
@@ -38,6 +81,15 @@ async function databaseSetup() {
 export let ATW_PA_GET_SP_AUTH = authenticationTest(route, 'get', databaseSetup);
 
 /*
+ * @case    - The buyer attempts to authenticate.
+ * @expect  - Authentication tests to pass.
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - working
+ * @tags    - get, proposal, auth
+ */
+export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, createProposal);
+
+/*
  * @case    - Common validation cases for proposalID.
  * @setup   - create proposal and apply common validation method.
  * @expect  - Validations tests to pass.
@@ -45,17 +97,7 @@ export let ATW_PA_GET_SP_AUTH = authenticationTest(route, 'get', databaseSetup);
  * @status  - working
  * @tags    - get, proposal, validation
  */
-export let ATW_PA_GET_SP_VALIDATION = validationTest(
-    route,
-    'get',
-    databaseSetup,
-    {},
-    {
-        proposalID: {
-            type: 'integer'
-        }
-    }
-);
+export let ATW_PA_GET_SP_VALIDATION = validationTest(route, 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
 
 /*
  * @case    - The user is the owner of proposal

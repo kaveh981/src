@@ -62,12 +62,14 @@ async function createDealNegotiation (data: ICreateDealNegotiationData) {
         dealNegotiation = await databasePopulator.createDealNegotiation(data.proposal.proposal.proposalID,
                                                                             data.publisher.user.userID, data.buyer.user.userID);
    } catch (err) {
-
+        // if Database throws an error, it means that a deal negotiation with the buyer, publisher and proposal has already been created 
+        // need to create new proposal (on new site and section) for the same publisher and put it in negotiation with the same buyer 
         let site = await databasePopulator.createSite(data.publisher.publisher.userID);
         let section = await databasePopulator.createSection(data.publisher.publisher.userID, [site.siteID]);
         let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
         dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                             data.publisher.user.userID, data.buyer.user.userID);
+
         return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
    }
 
