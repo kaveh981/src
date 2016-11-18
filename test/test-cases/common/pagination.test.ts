@@ -60,7 +60,7 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
 /*
  * @case    - limit is within the permitted values
  * @expect  - 200 - the correct proposals are fetched, limit returned in the response is correct
- * @status  - failing ("expected" date incorrect, limit type from response is incorrect - should be int instead of string)
+ * @status  - failing, defect in ATW528_Feature (URL Building)
  * @tags    - get, pagination, buyer
  */
 async function ATW_PAG_03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
@@ -155,7 +155,7 @@ async function ATW_PAG_05 (route: string, verb: string, setup: Function, createE
 /*
  * @case    - page is within the permitted values
  * @expect  - 200 - the correct proposal is fetched, page returned in the response is correct
- * @status  - 
+ * @status  - failing, defect in ATW528_Feature (URL Building)
  * @tags    - get, pagination, buyer
  */
 async function ATW_PAG_06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {

@@ -45,6 +45,9 @@ async function authenticationSetup (publisher: INewPubData) {
 
 }
 
+/**
+ * Interface to solidify what is returned by pagination database setup for createProposal
+ */
 interface ICreateSettledDealData {
     publisher: INewPubData;
     section: INewSectionData;
@@ -55,9 +58,8 @@ interface ICreateSettledDealData {
 
 
 /**
- * Create a settled deal. Function should allow successive calls to create new proposals without problems.
- * @param [publisher] - The publisher object that will own the settled deal.
- * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ * Database setup for pagination tests
+ * @return: data: ICreateSettledDealData - the data required from database setup to create a settled deal
  */
 async function paginationSetup () {
 
@@ -82,6 +84,11 @@ async function paginationSetup () {
 
 }
 
+/**
+ * Create a settled deal. Function should allow successive calls to create new settled deals without problems.
+ * @param data: ICreateSettledDealData - the data required from database setup to create a settled deal
+ * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ */
 async function createSettledDeal (data: ICreateSettledDealData) {
     let activeDeal = await databasePopulator.createSettledDeal(data.publisher.publisher.userID, [data.section.section.sectionID],
                                                                data.negotiation.negotiationID);

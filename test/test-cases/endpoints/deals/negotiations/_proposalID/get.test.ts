@@ -28,6 +28,9 @@ async function authenticationDatabaseSetup() {
                                                                         publisher.user.userID, buyer.user.userID);
 }
 
+/**
+ * Interface to solidify what is returned by pagination database setup for createProposal
+ */
 interface ICreateDealNegotiationData {
     dsp: INewDSPData;
     publisher: INewPubData;
@@ -35,7 +38,10 @@ interface ICreateDealNegotiationData {
     sender: INewUserData;
 }
 
-
+/**
+ * Database setup for pagination tests. Sender is publisher unlike all other pagination tests
+ * @return: data: ICreateDealNegotiationData - the data required from database setup to create a proposal
+ */
 async function paginationSetup () {
     let dsp = await databasePopulator.createDSP(123);
 
@@ -54,6 +60,12 @@ async function paginationSetup () {
     return data;
 }
 
+/**
+ * Create a deal negotiation and new buyer to go along. Function should allow successive calls to create new negotiations
+ * without problems.
+ * @param data: ICreateDealNegotiationData - the data required from database setup to create a negotiation
+ * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ */
 async function createDealNegotiation (data: ICreateDealNegotiationData) {
 
     let buyer = await databasePopulator.createBuyer(data.dsp.dspID);

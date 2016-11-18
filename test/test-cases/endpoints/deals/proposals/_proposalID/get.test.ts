@@ -62,7 +62,7 @@ async function paginationSetup() {
 
 /**
  * Create a proposal. Function should allow successive calls to create new proposals without problems.
- * @param data: ICreateProposalData - the data required from database setup to creat a proposal
+ * @param data: ICreateProposalData - the data required from database setup to create a proposal
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createProposal (data: ICreateProposalData) {
