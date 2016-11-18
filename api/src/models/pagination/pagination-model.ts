@@ -22,7 +22,7 @@ class PaginationModel {
 
         Object.assign(this, initParams);
 
-        let url = req.protocol + '://' + req.get('host') + req.originalUrl;
+        let url = req.protocol + '://' + req.get('host') + this.sanitize(req.originalUrl);
         this.nextPageURL = url + `?page=${this.page + 1}&limit=${this.limit}`;
         this.prevPageURL = "";
 
@@ -52,6 +52,13 @@ class PaginationModel {
     public getOffset () {
 
         return (this.page - 1) * this.limit;
+    }
+    /**
+     * Remove all queries from incoming URL 
+     */
+    private sanitize (url: string) {
+
+        return url.split("?")[0];
     }
 
 }
