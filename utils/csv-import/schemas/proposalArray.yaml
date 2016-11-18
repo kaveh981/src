@@ -53,7 +53,7 @@ items:
         sectionIDs:
             type: array
             items:
-                $ref: "#/definitions/positiveMediumInt"
+                $ref: "#/definitions/ID"
             minItems: 1
             uniqueItems: true
     required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
