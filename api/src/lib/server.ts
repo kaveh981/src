@@ -34,7 +34,7 @@ class Server {
      */
     public async initialize(): Promise<void> {
 
-        let krakenConfig = await this.createHandlers(this.config.get('kraken'));
+        let krakenConfig = this.config.get('kraken');
         let port = await this.startServer(krakenConfig);
 
         Log.info(`Server has started successfully, listening on port ${port}.`);
@@ -50,12 +50,9 @@ class Server {
         return new Promise((resolve, reject) => {
 
             let app: any = express();
-            let port: string = this.config.getVar('SERVER_PORT');
+            let port: string = this.config.getEnv('SERVER_PORT');
 
             let krakenOptions: any = {
-                // Kraken needs this or else it complains, but it's not necessary.
-                basedir: path.join(__dirname, this.config.get('server')['baseDirectory']),
-
                 // Uncaught exception handler
                 uncaughtException: (err) => {
                     Log.fatal(err);
@@ -96,30 +93,6 @@ class Server {
             });
 
             server.listen(port);
-
-        });
-    }
-
-    /** 
-     * Resolve the shortstop notation for config. Currently only supports 'path:'
-     * @param config - The config object to resolve shortstop.
-     * @returns A promise for the kraken config with shortstops resolved.
-    */
-    private createHandlers(config: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-
-            let resolver = shortstop.create();
-
-            resolver.use('path', handlers.path(path.join(__dirname, this.config.get('server')['baseDirectory'])));
-
-            resolver.resolve(config, (err, data) => {
-                if (err) {
-                    Log.error(err);
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            });
 
         });
     }

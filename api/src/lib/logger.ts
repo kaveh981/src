@@ -196,26 +196,15 @@ class Logger {
         loggerConfig = Injector.request<ConfigLoader>('ConfigLoader').get('logger');
 
         writeStreams = loggerConfig['outputFiles'].map((file: string) => {
-            return this.createLogWriteStream(file);
+            let logFile = path.resolve(__dirname, file);
+            let logFolder = path.dirname(logFile);
+
+            if (!fs.existsSync(logFolder)) {
+                fs.mkdirSync(logFolder);
+            }
+
+            return fs.createWriteStream(logFile, { flags: 'a' });
         });
-
-    }
-
-    /** 
-     * Write stream for file writing needs to be global so that all loggers can access it.
-     * @param filename - The filename relative to the root directory of the output file.
-     * @returns An fs.WriteStream for the filename specified.
-     */
-    private createLogWriteStream(filename: string): fs.WriteStream {
-
-        let logFile: string = path.join(__dirname, '../', filename);
-        let logFolder: string = path.dirname(logFile);
-
-        if (!fs.existsSync(logFolder)) {
-            fs.mkdirSync(logFolder);
-        }
-
-        return fs.createWriteStream(logFile, { flags: 'a' });
 
     }
 
