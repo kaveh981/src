@@ -36,6 +36,13 @@ class DealSectionModel {
     }
 
     /**
+     * Returns true if the section is active.
+     */
+    public isActive() {
+        return this.sites.length > 0 && this.status === 'active';
+    }
+
+    /**
      * Return payload formated object
      */
     public toPayload() {
@@ -50,7 +57,8 @@ class DealSectionModel {
             url_matches: this.urlMatches,
             name: this.name,
             publisher_id: this.publisherID,
-            sites: this.sites.map((site) => { return site.toPayload(); })
+            sites: this.sites.map((site) => { return site.toPayload(); }),
+            status: this.status
         };
 
     }

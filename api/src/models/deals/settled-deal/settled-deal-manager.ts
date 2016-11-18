@@ -10,6 +10,7 @@ import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
+import { PaginationModel } from '../../pagination/pagination-model';
 
 /** Active deal model manager */
 class SettledDealManager {
@@ -67,7 +68,7 @@ class SettledDealManager {
         for (let i = 0; i < rows.length; i++) {
             let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
 
-            if (!section) {
+            if (!section || !section.isActive()) {
                 continue;
             }
 
@@ -88,7 +89,9 @@ class SettledDealManager {
      * @param pagination - The pagination parameters.
      * @returns A promise for the settled deals with the given buyer.
      */
-    public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: any): Promise<SettledDealModel[]> {
+    public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: PaginationModel): Promise<SettledDealModel[]> {
+
+        let offset = pagination.getOffset();
 
         let settledDeals: SettledDealModel[] = [];
 
@@ -98,7 +101,7 @@ class SettledDealManager {
                                                    'ixmNegotiationDealMappings.negotiationID')
                                              .where('ixmDealNegotiations.buyerID', buyerID)
                                              .limit(pagination.limit)
-                                             .offset(pagination.offset);
+                                             .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
             let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
@@ -117,19 +120,7 @@ class SettledDealManager {
      */
     public createSettledDealFromNegotiation(negotiatedDeal: NegotiatedDealModel, dspID: number): SettledDealModel {
 
-        let negotiatedFields = {
-            startDate: negotiatedDeal.startDate,
-            endDate: negotiatedDeal.endDate,
-            price: negotiatedDeal.price
-        };
-
-        for (let key in negotiatedFields) {
-            if (negotiatedFields[key] === null) {
-                negotiatedFields[key] = negotiatedDeal.proposedDeal[key];
-            }
-        }
-
-        let settledDeal = new SettledDealModel( Object.assign({
+        let settledDeal = new SettledDealModel({
             status: 'active',
             dspID: dspID,
             createDate: Helper.currentDate(),
@@ -137,8 +128,11 @@ class SettledDealManager {
             auctionType: negotiatedDeal.proposedDeal.auctionType,
             sections: negotiatedDeal.proposedDeal.sections,
             priority: 5,
-            negotiatedDeal: negotiatedDeal
-        }, negotiatedFields ));
+            negotiatedDeal: negotiatedDeal,
+            startDate: negotiatedDeal.startDate === null ? negotiatedDeal.proposedDeal.startDate : negotiatedDeal.startDate,
+            endDate: negotiatedDeal.endDate === null ? negotiatedDeal.proposedDeal.endDate : negotiatedDeal.endDate,
+            price: negotiatedDeal.price === null ? negotiatedDeal.proposedDeal.price : negotiatedDeal.price
+        });
 
         return settledDeal;
 
@@ -212,6 +206,15 @@ class SettledDealManager {
             negotiationID: negotiatedDeal.id,
             dealID: row.dealID
         }).into('ixmNegotiationDealMappings');
+
+        let createDateRow = (await transaction.select('createDate')
+                                           .from('ixmNegotiationDealMappings')
+                                           .where({
+                                                negotiationID: negotiatedDeal.id,
+                                                dealID: row.dealID
+                                           }))[0];
+
+        settledDeal.createDate = createDateRow.createDate;
 
     }
 

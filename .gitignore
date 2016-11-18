@@ -21,6 +21,7 @@ typings
 # IDEs and editors
 #####################
 .idea
+.vscode
 
 # OS generated files
 ######################

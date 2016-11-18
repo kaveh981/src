@@ -35,8 +35,27 @@ class Validator {
 
         this.loader = schemaLoader;
         this.validatorOptions = config.validatorOptions;
-        this.validator = new ZSchema(this.validatorOptions);
+
+        this.validator = new ZSchema(Object.assign(
+            this.validatorOptions,
+            {customValidator: this.customValidationFunction}
+        ));
+
         this.logger = new Logger('VLDT');
+
+        ZSchema.registerFormat("proposal", (proposal) => {
+
+            let schema = this.loader.getSchema("proposalArray");
+
+            for (let key in schema.items.properties) {
+
+                if (!proposal[key] && typeof schema.items.properties[key].default  !== 'undefined') {
+
+                    proposal[key] = schema.items.properties[key].default;
+                }
+            }
+            return true;
+        });
     }
 
     /**
@@ -53,7 +72,48 @@ class Validator {
             this.logger.error(JSON.stringify(this.validator.getLastErrors(), undefined, 4));
             return false;
         }
+    }
 
+    /**
+    * Customize validation function
+    * @private
+    * @param {any} report output of validator
+    * @param {any} schema schema we defined in conf
+    * @param {any} json json object that need to validate
+    *
+    */
+    private customValidationFunction(report, schema, json) {
+        let constraints: IConstraints = schema.constraints;
+
+        if (!constraints) { return; }
+
+        for (let constraint in constraints) {
+            if (!constraints.hasOwnProperty(constraint)) { return; }
+
+            switch (constraint) {
+
+                case 'dateOrder':
+                    constraints.dateOrder.forEach((dates: IDateOrderConstraint) => {
+                        let prior = json[dates.prior];
+                        let after = json[dates.after];
+
+                        if (after === '0000-00-00' || prior === '0000-00-00') {
+                            return;
+                        }
+
+                        if (after <= prior) {
+                            report.addCustomError('DATE_ORDER_CONSTRAINT_FAILED',
+                                'Property "{0}" is not prior to property "{1}"',
+                                [dates.prior, dates.after], null, schema.description
+                            );
+                        }
+                    });
+                    break;
+
+                default:
+                    this.logger.warn(`Constraint: ${constraint} is not a valid constraint keyword}`);
+            }
+        }
     }
 
 }

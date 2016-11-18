@@ -18,6 +18,7 @@ import { DatabaseManager } from '../../../lib/database-manager';
 import { UserModel } from '../../../models/user/user-model';
 import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
+import { PaginationModel } from '../../../models/pagination/pagination-model';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
@@ -42,18 +43,19 @@ function NegotiationDeals(router: express.Router): void {
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate pagination parameters
-        let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+        let paginationParams = {
+            page: req.query.page,
+            limit: req.query.limit
         };
 
-        let validationErrors = validator.validateType(pagination, 'Pagination',
+        let validationErrors = validator.validateType(paginationParams, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
+        let pagination = new PaginationModel(paginationParams, req);
         let buyerID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
         let activeNegotiatedDeals: NegotiatedDealModel[] = [];
@@ -65,14 +67,15 @@ function NegotiationDeals(router: express.Router): void {
             let owner = await userManager.fetchUserFromId(proposal.ownerID);
 
             if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                && proposal.isAvailable() && owner.status === 'A' ) {
+                && proposal.isAvailable() && owner.isActive() ) {
                     Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
                     activeNegotiatedDeals.push(negotiatedDeals[i]);
             }
         }
 
         if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }),
+                            pagination.toPayload());
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -100,25 +103,26 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         // Validate pagination parameters
-        let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+        let paginationParams = {
+            page: req.query.page,
+            limit: req.query.limit
         };
 
-        let paginationValidationErrors = validator.validateType(pagination, 'Pagination',
+        let validationErrors = validator.validateType(paginationParams, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
-        if (paginationValidationErrors.length > 0) {
-            throw HTTPError('400', paginationValidationErrors);
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
         }
 
+        let pagination = new PaginationModel(paginationParams, req);
         let userID = Number(req.ixmUserInfo.id);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
         if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
         } else {
             throw HTTPError('200_NO_NEGOTIATIONS');
         }
@@ -163,7 +167,7 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('403_PARTNER_NOT_IXMUSER');
         }
 
-        if (partner.status !== 'A') {
+        if (!partner.isActive()) {
             throw HTTPError('403_PARTNER_NOT_ACTIVE');
         }
 
@@ -283,7 +287,7 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NO_CHANGE');
             }
 
-            if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.status === 'A')) {
+            if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.isActive())) {
                 throw HTTPError('403_NOT_FORSALE');
             }
 

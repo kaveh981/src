@@ -15,10 +15,8 @@ class BuyerModel {
      * Constructor
      * @param initParams - Initial parameters to populate the buyer model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+        Object.assign(this, initParams);
     }
 
 }

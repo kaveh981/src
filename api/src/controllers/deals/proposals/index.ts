@@ -12,6 +12,7 @@ import { ProtectedRoute } from '../../../middleware/protected-route';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { UserManager } from '../../../models/user/user-manager';
+import { PaginationModel } from '../../../models/pagination/pagination-model';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const userManager = Injector.request<UserManager>('UserManager');
@@ -30,19 +31,20 @@ function Proposals(router: express.Router): void {
      */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate pagination parameters
-        let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+       // Validate pagination parameters
+        let paginationParams = {
+            page: req.query.page,
+            limit: req.query.limit
         };
 
-        let validationErrors = validator.validateType(pagination, 'Pagination',
+        let validationErrors = validator.validateType(paginationParams, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
+        let pagination = new PaginationModel(paginationParams, req);
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
         let proposedDeals = [];
 
@@ -60,7 +62,7 @@ function Proposals(router: express.Router): void {
             // The proposal must be a valid purschaseable proposal, its owner must be active, and the user viewing 
             // it must either be its owner or a user that's not the same type as its owner (publishers can't view other 
             // publisher's proposals, and the same applies to buyers)
-            if (activeProposal.isAvailable() && owner.status === 'A' && (owner.id === user.id || owner.userType !== user.userType)) {
+            if (activeProposal.isAvailable() && owner.isActive() && (owner.id === user.id || owner.userType !== user.userType)) {
                 proposedDeals.push(activeProposal);
             }
         }
@@ -68,7 +70,7 @@ function Proposals(router: express.Router): void {
         Log.trace(`Found purchasable proposals ${Log.stringify(proposedDeals)}`, req.id);
 
         if (proposedDeals.length > 0) {
-            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination);
+            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_PROPOSALS');
         }
@@ -101,7 +103,7 @@ function Proposals(router: express.Router): void {
         if (proposal.ownerID !== Number(req.ixmUserInfo.id)) {
             if (proposal.status === 'deleted') {
                 throw HTTPError('404_PROPOSAL_NOT_FOUND');
-            } else if (!proposal.isAvailable() || proposal.ownerInfo.status !== 'A'
+            } else if (!proposal.isAvailable() || !proposal.ownerInfo.isActive()
                     || proposal.ownerInfo.userType === req.ixmUserInfo.userType) {
                 throw HTTPError('403');
             }

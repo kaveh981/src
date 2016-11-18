@@ -18,6 +18,7 @@ import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negot
 import { UserManager } from '../../../models/user/user-manager';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
+import { PaginationModel } from '../../../models/pagination/pagination-model';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
@@ -40,17 +41,19 @@ function ActiveDeals(router: express.Router): void {
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate pagination parameters
-        let pagination = {
-            limit: req.query.limit,
-            offset: req.query.offset
+        let paginationParams = {
+            page: req.query.page,
+            limit: req.query.limit
         };
 
-        let validationErrors = validator.validateType(pagination, 'Pagination',
+        let validationErrors = validator.validateType(paginationParams, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
+
+        let pagination = new PaginationModel(paginationParams, req);
 
         // Get all active deals for current buyer
         let buyerId = Number(req.ixmUserInfo.id);
@@ -60,7 +63,7 @@ function ActiveDeals(router: express.Router): void {
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for buyer ${buyerId}.`, req.id);
 
         if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination);
+            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_DEALS');
         }
@@ -94,7 +97,7 @@ function ActiveDeals(router: express.Router): void {
         // Check that the proposal is available for purchase
         let owner = await userManager.fetchUserFromId(proposedDeal.ownerID);
 
-        if (!proposedDeal.isAvailable() || !(owner.status === 'A')) {
+        if (!proposedDeal.isAvailable() || !(owner.isActive())) {
             throw HTTPError('403_NOT_FORSALE');
         }
 

@@ -51,10 +51,8 @@ class ProposedDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the proposal model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+        Object.assign(this, initParams);
     }
 
     /**

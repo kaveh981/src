@@ -5,17 +5,11 @@ import * as express from 'express';
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
+import { PaginationModel } from '../models/pagination/pagination-model';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');
 const errorMessages = config.get('errors')['en-US'];
-
-interface IPagination {
-    /** The limit of the data returned */
-    limit: number;
-    /** The offset of the data returned */
-    offset: number;
-}
 
 /**
  * The standardized response object
@@ -28,7 +22,12 @@ interface IHttpResponse {
     /** Payload data to send. */
     data: any[];
     /** Optional pagination details to send */
-    pagination?: IPagination;
+    pagination?: {
+        page: number,
+        limit: number,
+        next_page_url: string,
+        prev_page_url: string
+    };
 }
 
 /*
@@ -60,7 +59,7 @@ function augmentResponse(res: express.Response): void {
     };
 
     // Send JSON payload
-    res.sendPayload = (payload: any, pagination?: IPagination) => {
+    res.sendPayload = (payload: any, pagination?: any) => {
 
         let msg: IHttpResponse = {
             status: 200,
@@ -80,10 +79,7 @@ function augmentResponse(res: express.Response): void {
         }
 
         if (pagination) {
-            msg.pagination = {
-                limit: pagination.limit,
-                offset: pagination.offset
-            };
+            msg['pagination'] = pagination;
         }
 
         res.sendJSON(200, msg);

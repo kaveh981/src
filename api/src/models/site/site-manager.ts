@@ -29,8 +29,8 @@ class SiteManager {
                                                      'monthlyUniques', 'sites.name as name', 'categories.name as categories',
                                                      'description')
                                              .from('sites')
-                                             .join('siteCategories', 'siteCategories.siteID', 'sites.siteID')
-                                             .join('categories', 'categories.categoryID', 'siteCategories.categoryID')
+                                             .leftJoin('siteCategories', 'siteCategories.siteID', 'sites.siteID')
+                                             .leftJoin('categories', 'categories.categoryID', 'siteCategories.categoryID')
                                              .where('sites.siteID', siteID);
 
         if (!rows[0]) {
@@ -38,7 +38,8 @@ class SiteManager {
         }
 
         let siteData = rows[0];
-        siteData.categories = rows.map((row) => { return row.categories; });
+        siteData.categories = rows.filter((row) => { return !!row.categories; })
+                                  .map((row) => { return row.categories; });
 
         return new SiteModel(siteData);
 
@@ -49,11 +50,15 @@ class SiteManager {
      * @param sectionID - The id of the section to find sites for.
      * @returns An array of site models.
      */
-    public async fetchSitesFromSectionId(sectionID: number) {
+    public async fetchActiveSitesFromSectionId(sectionID: number) {
 
-        let rows = await this.databaseManager.select('siteID')
+        let rows = await this.databaseManager.select('sites.siteID')
                                              .from('rtbSiteSections')
-                                             .where('sectionID', sectionID);
+                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .where({
+                                                 'sectionID': sectionID,
+                                                 'sites.status': 'A'
+                                             });
 
         let sites = [];
 

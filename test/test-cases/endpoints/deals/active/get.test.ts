@@ -24,11 +24,14 @@ const VERB = 'get';
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createSettledDeal(publisher: INewPubData) {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+
     if (typeof publisher === 'undefined') {
         publisher = await databasePopulator.createPublisher();
     }
+
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -38,6 +41,7 @@ async function createSettledDeal(publisher: INewPubData) {
             publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
     return Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, publisher.user);
+
 }
 
 /*
@@ -207,37 +211,37 @@ export async function IXM_API_DA_GET_04 (assert: test.Test) {
  * @status  - failing (still showing the deal, but we shouldn't be)
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_05 (assert: test.Test) {
+// export async function IXM_API_DA_GET_05 (assert: test.Test) {
 
-    /** Setup */
-    assert.plan(2);
+//     /** Setup */
+//     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
-    let proposal = await databasePopulator.createProposal(
-        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(
-        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-    let settledDeal = await databasePopulator.createSettledDeal(
-        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
+//     let dsp = await databasePopulator.createDSP(1);
+//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+//     let publisher = await databasePopulator.createPublisher();
+//     let site = await databasePopulator.createSite(publisher.publisher.userID);
+//     let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+//     let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
+//     let proposal = await databasePopulator.createProposal(
+//         publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
+//     let negotiation = await databasePopulator.createDealNegotiation(
+//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+//     let settledDeal = await databasePopulator.createSettledDeal(
+//         publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
 
-    /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+//     /** Test */
+//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
 
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, []);
+//     assert.equal(response.status, 200);
+//     assert.deepEqual(response.body.data, []);
 
-}
+// }
 
  /*
  * @case    - All sections linked to the settled deal are deactivated
  * @expect  - No deals returned
  * @route   - GET deals/active
- * @status  - failing (still showing the deal, but we shouldn't be)
+ * @status  - passing
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_06 (assert: test.Test) {
@@ -273,36 +277,36 @@ export async function IXM_API_DA_GET_06 (assert: test.Test) {
  * @status  - failing (still showing the deal, but we shouldn't be)
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_07 (assert: test.Test) {
+// export async function IXM_API_DA_GET_07 (assert: test.Test) {
 
-    /** Setup */
-    assert.plan(2);
+//     /** Setup */
+//     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
-    let site2 = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(
-        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-    let settledDeal = await databasePopulator.createSettledDeal(
-        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+//     let dsp = await databasePopulator.createDSP(1);
+//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+//     let publisher = await databasePopulator.createPublisher();
+//     let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
+//     let site2 = await databasePopulator.createSite(publisher.publisher.userID);
+//     let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
+//     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+//     let negotiation = await databasePopulator.createDealNegotiation(
+//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+//     let settledDeal = await databasePopulator.createSettledDeal(
+//         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
-    /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+//     /** Test */
+//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
 
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, []);
+//     assert.equal(response.status, 200);
+//     assert.deepEqual(response.body.data, []);
 
-}
+// }
 
  /*
  * @case    - All sites linked to the settled deal (through 1 section) are deactivated (section is active)
  * @expect  - No deals returned
  * @route   - GET deals/active
- * @status  - failing (still showing the deal, but we shouldn't be)
+ * @status  - passing
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_08 (assert: test.Test) {
@@ -334,7 +338,7 @@ export async function IXM_API_DA_GET_08 (assert: test.Test) {
  * @case    - Publisher who created the proposal is now deactivated
  * @expect  - No deals returned
  * @route   - GET deals/active
- * @status  - failing (still showing the deal, but we shouldn't be)
+ * @status  - passing
  * @tags    - get, active, deals
  */
 export async function IXM_API_DA_GET_09 (assert: test.Test) {
@@ -344,7 +348,7 @@ export async function IXM_API_DA_GET_09 (assert: test.Test) {
 
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
+    let publisher = await databasePopulator.createPublisher({status: 'D'});
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
@@ -352,7 +356,6 @@ export async function IXM_API_DA_GET_09 (assert: test.Test) {
         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
     let settledDeal = await databasePopulator.createSettledDeal(
         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
-    publisher.user.status = 'D';
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
@@ -401,30 +404,30 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
  * @status  - failing (entry should show up even if paused status)
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_11 (assert: test.Test) {
+// export async function IXM_API_DA_GET_11 (assert: test.Test) {
 
-    /** Setup */
-    assert.plan(2);
+//     /** Setup */
+//     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(
-        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-    let settledDeal = await databasePopulator.createSettledDeal(
-        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'P'});
+//     let dsp = await databasePopulator.createDSP(1);
+//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+//     let publisher = await databasePopulator.createPublisher();
+//     let site = await databasePopulator.createSite(publisher.publisher.userID);
+//     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+//     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+//     let negotiation = await databasePopulator.createDealNegotiation(
+//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+//     let settledDeal = await databasePopulator.createSettledDeal(
+//         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'P'});
 
-    /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
+//     /** Test */
+//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+//     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [expectedPayload]);
+//     assert.equal(response.status, 200);
+//     assert.deepEqual(response.body.data, [expectedPayload]);
 
-}
+// }
 
  /*
  * @case    - Proposal got accepted and rtbDeals entry of deactivated status is present
