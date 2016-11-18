@@ -13,7 +13,8 @@
                 },
                 "adUnits": [],
                 "countries": [],
-                "rtbDomainDepths": []
+                "rtbDomainDepths": [],
+                "matches": []
             },
             "required": [
                 "name", "status", "percent", "entireSite"

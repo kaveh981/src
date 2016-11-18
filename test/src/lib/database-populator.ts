@@ -185,6 +185,7 @@ class DatabasePopulator {
             Object.assign(newSectionData.section, sectionFields);
         }
 
+        // store the restriction mappings and remove them from the base object
         let mapEntities = {
             adUnits: null,
             countries: null,
@@ -207,14 +208,17 @@ class DatabasePopulator {
 
         // if not entire site, generate some matches
         if (!newSectionData.section.entireSite &&
-            (!newSectionData.section.hasOwnProperty("matches") || newSectionData.section.matches === "random")) {
+            (!newSectionData.section.hasOwnProperty("matches") || newSectionData.section.matches.length === 0)) {
+
+            // remove the matches from the main object if present
+            if (newSectionData.section.hasOwnProperty["matches"]) {
+                delete newSectionData.section.matches;
+            }
+
             let numMatches = Math.ceil(Math.random() * 10);
             Log.debug(`Create ${numMatches} matches for section ${newSectionData.section.sectionID}`);
 
-            newSectionData.section.matches = [];
-            for (let i = 0; i < numMatches; ++i) {
-                newSectionData.section.matches.push(await this.createSectionMatch(newSectionData.section.sectionID));
-            }
+            newSectionData.section.matches = await this.createSectionMatches(newSectionData.section.sectionID, numMatches);
         }
 
         let restrictions = {
@@ -246,28 +250,40 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new section match entity based on "new-section-match-schema", Inserts into "Viper2.rtbSectionMatches"
+     * Creates a new section match entities based on "new-section-match-schema", Inserts into "Viper2.rtbSectionMatches"
      * @param sectionID {int} - The section ID for this match
-     * @param matchFields {INewMatchData} - Optional a new match object to override random fields
+     * @param numMatches {int} - Optional: the number of matches to generate. If 
+     * @param matchFields {INewMatchData} - Optional an array of new match objects to override random fields. Length should equal numMatches
      * @returns {Promise<INewMatchData>} - Promise which resolves with an object with new match data
      */
-    public async createSectionMatch(sectionID: number, matchFields?: INewMatchData) {
-        let newMatchObj = this.generateDataObject<INewMatchData>('new-section-match-schema');
-        newMatchObj.sectionID = sectionID;
+    public async createSectionMatches(sectionID: number, numMatches = 1, matchFields?: INewMatchData[]) {
 
-        // Random chance of adding path segments onto the url
-        if (Math.random() > 0.33) {
-            let numPathSegments = Math.round(Math.random() * 3);
+        let newMatchObjects = [];
+        for (let i = 0; i < numMatches; ++i) {
+            let newMatchObj = this.generateDataObject<INewMatchData>('new-section-match-schema');
+            newMatchObj.sectionID = sectionID;
 
-            for (let i = 0; i < numPathSegments; ++i) {
-                newMatchObj.url += '/' + faker.internet.domainWord();
+            // Random chance of adding path segments onto the url
+            if (Math.random() > 0.33) {
+                let numPathSegments = Math.round(Math.random() * 3);
+
+                for (let i = 0; i < numPathSegments; ++i) {
+                    newMatchObj.url += '/' + faker.internet.domainWord();
+                }
             }
+
+            if (typeof matchFields !== 'undefined' && matchFields.length) {
+                Object.assign(newMatchObj, matchFields[i]);
+            }
+
+            newMatchObjects.push(newMatchObj);
         }
 
-        await this.dbm.insert(newMatchObj).into('rtbSectionMatches');
-        Log.debug(`Created match for section ${sectionID}`);
+        await this.dbm.insert(newMatchObjects).into('rtbSectionMatches');
 
-        return newMatchObj;
+        Log.debug(`Created ${numMatches} match objects for section ${sectionID}`);
+
+        return newMatchObjects;
     }
 
     /**

@@ -83,7 +83,7 @@ interface ISection {
     adUnits?: number[];
     countries?: string[];
     rtbDomainDepths?: number[];
-    matches?: INewMatchData[] | string;
+    matches?: INewMatchData[];
 }
 
 interface INewSectionData {
