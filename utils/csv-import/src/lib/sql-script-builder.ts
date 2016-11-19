@@ -95,7 +95,7 @@ class SQLScriptBuilder {
 
         deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes" +
             " AND " +
-            "@existing_mappings - @final_mappings = @expected_mappings_changes" +
+            "@existing_mappings - @final_mappings = @expected_mapping_changes" +
             "," +
             "'Deletion check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
 
