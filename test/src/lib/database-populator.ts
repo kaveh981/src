@@ -227,9 +227,9 @@ class DatabasePopulator {
             "rtbDomainDepths": "depthBucket"
         };
 
-        for (let i in restrictions) {
-            let restrictionSource = i;
-            let restrictionID = restrictions[i];
+        for (let key in restrictions) {
+            let restrictionSource = key;
+            let restrictionID = restrictions[key];
 
             if (!mapEntities[restrictionSource] || mapEntities[restrictionSource].length === 0) {
                 let restrictionIDs: number[] = await this.dbm.pluck(restrictionID).from(restrictionSource);
@@ -265,9 +265,9 @@ class DatabasePopulator {
 
             // Random chance of adding path segments onto the url
             if (Math.random() > 0.33) {
-                let numPathSegments = Math.round(Math.random() * 3);
+                let numPathSegments = Math.ceil(Math.random() * 3);
 
-                for (let i = 0; i < numPathSegments; ++i) {
+                for (let j = 0; j < numPathSegments; ++j) {
                     newMatchObj.url += '/' + faker.internet.domainWord();
                 }
             }
@@ -443,7 +443,7 @@ class DatabasePopulator {
         }
 
         for (let i = 0; i < restrictionIDs.length; ++i) {
-            let mapping: Object = {sectionID: sectionID};
+            let mapping = {sectionID: sectionID};
             mapping[restrictionID] = restrictionIDs[i];
             mappings.push(mapping);
         }
