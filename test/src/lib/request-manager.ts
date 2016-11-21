@@ -96,8 +96,8 @@ class APIRequestManager {
     }
 
     public getBaseURL () {
-        let url = this.baseDomain;
-        return url;
+        return  this.baseDomain;
+
     }
 
 }

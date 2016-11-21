@@ -9,6 +9,18 @@ import { DatabasePopulator } from '../../src/lib/database-populator';
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
+interface ICreateEntityData {
+
+    sender: INewUserData;
+    dsp?: INewDSPData;
+    buyer?: INewBuyerData;
+    publisher?: INewPubData;
+    proposal?: INewProposalData;
+    site?: INewSiteData;
+    section?: INewSectionData;
+
+}
+
 /*
  * @case    - Limit is non-int
  * @expect  - 400 - TYPE_INT_INVALID
@@ -20,7 +32,7 @@ async function ATW_PAG_01 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(4);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     await createEntity(setupData);
 
@@ -46,7 +58,7 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(1);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     await createEntity(setupData);
 
@@ -68,7 +80,7 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(15);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     let entity1Payload = await createEntity(setupData);
     let entity2Payload = await createEntity(setupData);
@@ -111,7 +123,7 @@ async function ATW_PAG_04 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(4);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     await createEntity(setupData);
 
@@ -137,7 +149,7 @@ async function ATW_PAG_05 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(2);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     await createEntity(setupData);
 
@@ -163,7 +175,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
     /** Setup */
     assert.plan(6);
 
-    let setupData = await setup();
+    let setupData: ICreateEntityData = await setup();
 
     let entity1Payload = await createEntity(setupData);
     let entity2Payload = await createEntity(setupData);
