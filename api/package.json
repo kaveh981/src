@@ -19,6 +19,7 @@
     "dotenv": "2.0.0",
     "express": "4.12.2",
     "fs": "0.0.1-security",
+    "fs-finder": "^1.8.1",
     "handlebars": "4.0.5",
     "js-yaml": "3.6.1",
     "knex": "0.11.10",

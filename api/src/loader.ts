@@ -14,7 +14,7 @@ import { DatabaseManager } from './lib/database-manager';
 import { RamlTypeValidator } from './lib/raml-type-validator';
 
 /** Library Resolution */
-const config = new ConfigLoader('../../config');
+const config = new ConfigLoader('../../');
 Injector.put(config, 'ConfigLoader');
 
 const validator = new RamlTypeValidator(config);
