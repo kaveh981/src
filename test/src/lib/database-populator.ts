@@ -193,7 +193,7 @@ class DatabasePopulator {
         };
 
         for (let key in mapEntities) {
-            if (newSectionData.section.hasOwnProperty(key)) {
+            if (typeof newSectionData.section[key] !== 'undefined') {
                 mapEntities[key] = newSectionData.section[key];
                 delete newSectionData.section[key];
             }
@@ -208,10 +208,10 @@ class DatabasePopulator {
 
         // if not entire site, generate some matches
         if (!newSectionData.section.entireSite &&
-            (!newSectionData.section.hasOwnProperty("matches") || newSectionData.section.matches.length === 0)) {
+            (typeof newSectionData.section["matches"] === 'undefined' || newSectionData.section.matches.length === 0)) {
 
             // remove the matches from the main object if present
-            if (newSectionData.section.hasOwnProperty["matches"]) {
+            if (typeof newSectionData.section["matches"] !== 'undefined') {
                 delete newSectionData.section.matches;
             }
 
@@ -227,9 +227,9 @@ class DatabasePopulator {
             "rtbDomainDepths": "depthBucket"
         };
 
-        for (let i in restrictions) {
-            let restrictionSource = i;
-            let restrictionID = restrictions[i];
+        for (let key in restrictions) {
+            let restrictionSource = key;
+            let restrictionID = restrictions[key];
 
             if (!mapEntities[restrictionSource] || mapEntities[restrictionSource].length === 0) {
                 let restrictionIDs: number[] = await this.dbm.pluck(restrictionID).from(restrictionSource);
@@ -265,9 +265,9 @@ class DatabasePopulator {
 
             // Random chance of adding path segments onto the url
             if (Math.random() > 0.33) {
-                let numPathSegments = Math.round(Math.random() * 3);
+                let numPathSegments = Math.ceil(Math.random() * 3);
 
-                for (let i = 0; i < numPathSegments; ++i) {
+                for (let j = 0; j < numPathSegments; ++j) {
                     newMatchObj.url += '/' + faker.internet.domainWord();
                 }
             }
@@ -443,7 +443,7 @@ class DatabasePopulator {
         }
 
         for (let i = 0; i < restrictionIDs.length; ++i) {
-            let mapping: Object = {sectionID: sectionID};
+            let mapping = {sectionID: sectionID};
             mapping[restrictionID] = restrictionIDs[i];
             mappings.push(mapping);
         }
