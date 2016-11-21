@@ -193,7 +193,7 @@ class DatabasePopulator {
         };
 
         for (let key in mapEntities) {
-            if (newSectionData.section.hasOwnProperty(key)) {
+            if (typeof newSectionData.section[key] !== 'undefined') {
                 mapEntities[key] = newSectionData.section[key];
                 delete newSectionData.section[key];
             }
@@ -208,10 +208,10 @@ class DatabasePopulator {
 
         // if not entire site, generate some matches
         if (!newSectionData.section.entireSite &&
-            (!newSectionData.section.hasOwnProperty("matches") || newSectionData.section.matches.length === 0)) {
+            (typeof newSectionData.section["matches"] === 'undefined' || newSectionData.section.matches.length === 0)) {
 
             // remove the matches from the main object if present
-            if (newSectionData.section.hasOwnProperty["matches"]) {
+            if (typeof newSectionData.section["matches"] !== 'undefined') {
                 delete newSectionData.section.matches;
             }
 
