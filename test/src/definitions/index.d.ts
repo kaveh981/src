@@ -197,3 +197,14 @@ interface ISettledDealData {
     sectionIDs?: number[];
     negotiationID?: number;
 }
+
+interface ICreateEntityData {
+    sender: INewUserData;
+    dsp?: INewDSPData;
+    buyer?: INewBuyerData;
+    publisher?: INewPubData;
+    proposal?: INewProposalData;
+    site?: INewSiteData;
+    section?: INewSectionData;
+
+}

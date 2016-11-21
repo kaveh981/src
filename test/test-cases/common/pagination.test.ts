@@ -9,25 +9,14 @@ import { DatabasePopulator } from '../../src/lib/database-populator';
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
-interface ICreateEntityData {
-
-    sender: INewUserData;
-    dsp?: INewDSPData;
-    buyer?: INewBuyerData;
-    publisher?: INewPubData;
-    proposal?: INewProposalData;
-    site?: INewSiteData;
-    section?: INewSectionData;
-
-}
-
 /*
  * @case    - Limit is non-int
  * @expect  - 400 - TYPE_INT_INVALID
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_01 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_01 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -53,7 +42,8 @@ async function ATW_PAG_01 (route: string, verb: string, setup: Function, createE
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_02 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_02 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -72,10 +62,11 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
 /*
  * @case    - limit is within the permitted values
  * @expect  - 200 - the correct proposals are fetched, limit returned in the response is correct
- * @status  - failing, defect in ATW528_Feature (URL Building)
+ * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_03 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(15);
@@ -118,7 +109,8 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_04 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_04 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -144,7 +136,8 @@ async function ATW_PAG_04 (route: string, verb: string, setup: Function, createE
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_05 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_05 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -167,10 +160,11 @@ async function ATW_PAG_05 (route: string, verb: string, setup: Function, createE
 /*
  * @case    - page is within the permitted values
  * @expect  - 200 - the correct proposal is fetched, page returned in the response is correct
- * @status  - failing, defect in ATW528_Feature (URL Building)
+ * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_06 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -213,7 +207,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
 /**
  * Reusable tests for pagination authentication
  */
-function paginationTest(route: string, verb: string, setup: Function, createEntity: Function) {
+function paginationTest(route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function) {
     return [
         (assert: test.Test) => { return ATW_PAG_01(route, verb, setup, createEntity, assert); },
         (assert: test.Test) => { return ATW_PAG_02(route, verb, setup, createEntity, assert); },

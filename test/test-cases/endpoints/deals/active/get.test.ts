@@ -54,7 +54,7 @@ async function paginationSetup () {
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
 
-     let data = {
+     let data: ICreateEntityData = {
         buyer: buyer,
         sender: buyer.user
     };
@@ -68,7 +68,7 @@ async function paginationSetup () {
  * @param data: the data required from database setup to create a settled deal
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createSettledDeal (data: any) {
+async function createSettledDeal (data: ICreateEntityData) {
 
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -81,8 +81,7 @@ async function createSettledDeal (data: any) {
     let settledDeal = await databasePopulator.createSettledDeal(
         publisher.publisher.userID,
         [section.section.sectionID],
-        negotiation.negotiationID,
-        {
+        negotiation.negotiationID, {
             startDate: tomorrow,
             rate: negotiation.price
         });
