@@ -46,38 +46,18 @@ async function authenticationSetup (publisher: INewPubData) {
 }
 
 /**
- * Interface to solidify what is returned by pagination database setup for createProposal
- */
-interface ICreateSettledDealData {
-    publisher: INewPubData;
-    section: INewSectionData;
-    negotiation: IDealNegotiationData;
-    proposal: INewProposalData;
-    sender: INewUserData;
-}
-
-
-/**
  * Database setup for pagination tests
- * @return: data: ICreateSettledDealData - the data required from database setup to create a settled deal
+ * @return: data: the data required from database setup to create a settled deal
  */
 async function paginationSetup () {
 
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let negotiation = await databasePopulator.createDealNegotiation(
-        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+ 
 
 
-    let data: ICreateSettledDealData = {
-        publisher: publisher,
-        section: section,
-        negotiation: negotiation,
-        proposal: proposal,
+    let data = {
+        buyer: buyer,
         sender: buyer.user
     };
 
@@ -87,23 +67,29 @@ async function paginationSetup () {
 
 /**
  * Create a settled deal. Function should allow successive calls to create new settled deals without problems.
- * @param data: ICreateSettledDealData - the data required from database setup to create a settled deal
+ * @param data: the data required from database setup to create a settled deal
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createSettledDeal (data: ICreateSettledDealData) {
+async function createSettledDeal (data: any) {
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
+                                                                    data.buyer.user.userID);
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     let settledDeal = await databasePopulator.createSettledDeal(
-        data.publisher.publisher.userID,
-        [data.section.section.sectionID],
-        data.negotiation.negotiationID,
+        publisher.publisher.userID,
+        [section.section.sectionID],
+        negotiation.negotiationID,
         {
             startDate: tomorrow,
-            rate: data.negotiation.price
+            rate: negotiation.price
         });
 
 
-    return Helper.dealsActiveGetToPayload(settledDeal, data.negotiation, data.proposal, data.publisher.user);
+    return Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 }
 
 /*

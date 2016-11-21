@@ -30,18 +30,8 @@ async function authenticationSetup() {
 }
 
 /**
- * Interface to solidify what is returned by pagination database setup for createProposal
- */
-interface ICreateDealNegotiationData {
-    buyer: INewBuyerData;
-    publisher: INewPubData;
-    site: INewSiteData;
-    sender: INewUserData;
-}
-
-/**
  * Database setup for pagination tests
- * @return: data: ICreateDealNegotiationData - the data required from database setup to create a proposal
+ * @return: data: The data required from database setup to create a proposal
  */
 async function paginationSetup () {
     let dsp = await databasePopulator.createDSP(123);
@@ -49,7 +39,7 @@ async function paginationSetup () {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
 
-    let data: ICreateDealNegotiationData = {
+    let data = {
         buyer: buyer,
         publisher: publisher,
         site: site,
@@ -61,10 +51,10 @@ async function paginationSetup () {
 
 /**
  * Create a deal negotiation. Function should allow successive calls to create new negotiations without problems.
- * @param data: ICreateDealNegotiationData - the data required from database setup to create a negotiation
+ * @param data: The data required from database setup to create a negotiation
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createDealNegotiation (data: ICreateDealNegotiationData) {
+async function createDealNegotiation (data: any) {
    let section = await databasePopulator.createSection(data.publisher.publisher.userID, [data.site.siteID]);
    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,

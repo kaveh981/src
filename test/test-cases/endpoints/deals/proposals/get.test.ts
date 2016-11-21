@@ -26,17 +26,8 @@ async function authDatabaseSetup() {
 }
 
 /**
- * Interface to solidify what is returned by pagination database setup for createProposal
- */
-interface ICreateProposalData {
-    publisher: INewPubData;
-    section: INewSectionData;
-    sender: INewUserData;
-}
-
-/**
  * Database setup for pagination tests
- * @return: data: ICreateProposalData - teh data required from database setup to create a proposal
+ * @return: data: the data required from database setup to create a proposal
  */
 async function paginationDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
@@ -45,7 +36,7 @@ async function paginationDatabaseSetup() {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
 
-    let data: ICreateProposalData = {
+    let data = {
         publisher: publisher,
         section: section,
         sender: buyer.user
@@ -56,11 +47,10 @@ async function paginationDatabaseSetup() {
 
 /**
  * Create a proposal. Function should allow successive calls to create new proposals without problems.
- * @param proposal - The proposal object.
- * @param [publisher] - The publisher object that will own the proposal.
+ * @param: The data required to create new proposal
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createProposal(data: ICreateProposalData) {
+async function createProposal(data: any) {
     let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
