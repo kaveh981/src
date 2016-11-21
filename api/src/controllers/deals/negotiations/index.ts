@@ -62,11 +62,11 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        if (negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
-        } else {
-            res.sendError('200_NO_NEGOTIATIONS');
+        if (negotiatedDeals.length === 0) {
+            throw HTTPError('200_NO_NEGOTIATIONS');
         }
+
+        res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -109,11 +109,11 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        if (negotiatedDeals && negotiatedDeals.length > 0) {
-            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
-        } else {
+        if (!negotiatedDeals || !(negotiatedDeals.length > 0)) {
             throw HTTPError('200_NO_NEGOTIATIONS');
         }
+
+        res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -179,11 +179,11 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)}`, req.id);
 
-        if (negotiatedDeal) {
-            res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
-        } else {
+        if (!negotiatedDeal) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
+
+        res.sendPayload(negotiatedDeal.toPayload(req.ixmUserInfo.userType));
 
     } catch (error) { next(error); } });
 

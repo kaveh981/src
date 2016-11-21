@@ -8,10 +8,7 @@
     "start": "ts-node src/index.ts",
     "build-docs": "bash ./bin/compile-docs.sh",
     "postinstall": "typings install",
-    "tape": "ts-node node_modules/tape/bin/tape",
-    "test": "npm run tape e2e/deals/get.ts",
-    "tslint": "tslint -e./typings/** -e./node_modules/** './**/*.ts'",
-    "dgen": "ts-node ./bin/dgen.ts"
+    "tslint": "tslint -e./typings/** -e./node_modules/** './**/*.ts'"
   },
   "dependencies": {
     "bluebird": "3.4.6",
@@ -41,11 +38,5 @@
     "typescript": "2.0.3",
     "typings": "1.4.0",
     "validator": "6.0.0"
-  },
-  "devDependencies": {
-    "chance": "1.0.4",
-    "commander": "2.9.0",
-    "faker": "3.1.0",
-    "json-schema-faker": "0.3.6"
   }
 }

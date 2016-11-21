@@ -418,9 +418,7 @@ class DatabasePopulator {
 
         await this.dbm.insert(mappings).into('rtbSiteSections');
 
-        for (let i = 0; i < siteIDs.length; i += 1) {
-            Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
-        }
+        Log.debug(`Mapped sectionID ${sectionID} to siteIDs ${siteIDs.join(', ')}`);
     }
 
     /**
@@ -457,9 +455,7 @@ class DatabasePopulator {
 
         await this.dbm.insert(mappings).into(restrictionTable);
 
-        for (let i = 0; i < restrictionIDs.length; ++i) {
-            Log.debug(`Mapped sectionID ${sectionID} to ${restrictionID} ${restrictionIDs[i]}`);
-        }
+        Log.debug(`Mapped sectionID ${sectionID} to ${restrictionID} ${restrictionIDs.join(', ')}`);
     }
 
     /**
