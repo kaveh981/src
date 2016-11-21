@@ -63,11 +63,11 @@ function ActiveDeals(router: express.Router): void {
 
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
 
-        if (activeDeals.length > 0) {
-            res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
-        } else {
-            res.sendError('200_NO_DEALS');
+        if (activeDeals.length === 0) {
+            throw HTTPError('200_NO_DEALS');
         }
+
+        res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -118,6 +118,8 @@ function ActiveDeals(router: express.Router): void {
 
         Log.debug(`Creating a new negotiation and inserting into rtbDeals...`, req.id);
 
+        let settledDeal: SettledDealModel;
+
         // Begin transaction
         await databaseManager.transaction(async (transaction) => {
             // Create a new negotiation
@@ -127,13 +129,14 @@ function ActiveDeals(router: express.Router): void {
             Log.trace(`Created accepted negotiation ${Log.stringify(acceptedNegotiation)}`, req.id);
 
             // Create the settled deal
-            let settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
+            settledDeal = settledDealManager.createSettledDealFromNegotiation(acceptedNegotiation, buyerIXMInfo.dspIDs[0]);
             await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
             Log.trace(`Created settled deal ${Log.stringify(settledDeal)}`, req.id);
 
-            res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
         });
+
+        res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
 
     } catch (error) { next(error); } });
 
