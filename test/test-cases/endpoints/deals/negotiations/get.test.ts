@@ -34,7 +34,7 @@ async function authenticationSetup() {
  * @return: data: The data required from database setup to create a proposal
  */
 async function paginationSetup () {
-    
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
