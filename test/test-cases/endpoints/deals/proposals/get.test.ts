@@ -24,6 +24,7 @@ async function authDatabaseSetup() {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
 }
 
 /**
@@ -45,6 +46,7 @@ async function paginationDatabaseSetup() {
     };
 
     return data;
+
 }
 
 /**
@@ -57,6 +59,7 @@ async function createProposal(data: any) {
     let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
+    
 }
 
 /*

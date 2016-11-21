@@ -222,6 +222,7 @@ function paginationTest(route: string, verb: string, setup: Function, createEnti
         (assert: test.Test) => { return ATW_PAG_05(route, verb, setup, createEntity, assert); },
         (assert: test.Test) => { return ATW_PAG_06(route, verb, setup, createEntity, assert); }
     ];
+
 }
 
 export { paginationTest }

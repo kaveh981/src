@@ -27,6 +27,7 @@ async function authenticationSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID);
+
 }
 
 /**
@@ -48,6 +49,7 @@ async function paginationSetup () {
     };
 
     return data;
+
 }
 
 /**
@@ -63,6 +65,7 @@ async function createDealNegotiation (data: any) {
                                                                        data.publisher.user.userID, data.buyer.user.userID);
 
     return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
+
 }
 
 /*

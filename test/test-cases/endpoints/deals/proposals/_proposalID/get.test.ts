@@ -31,6 +31,7 @@ async function databaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
     return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
+
 }
 
 /**
@@ -52,6 +53,7 @@ async function paginationSetup() {
     };
 
     return data;
+
 }
 
 /**
@@ -60,9 +62,11 @@ async function paginationSetup() {
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createProposal (data: any) {
+
     let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
+
 }
 
 /*

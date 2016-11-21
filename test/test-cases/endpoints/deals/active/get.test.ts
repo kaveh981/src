@@ -60,6 +60,7 @@ async function paginationSetup () {
     };
 
     return data;
+
 }
 
 /**
@@ -87,6 +88,7 @@ async function createSettledDeal (data: any) {
         });
 
     return Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
+
 }
 
 /*
