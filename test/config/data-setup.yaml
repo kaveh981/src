@@ -17,3 +17,7 @@ tables:
     - rtbSections
     - rtbDealSections
     - rtbSiteSections
+    - sectionAdUnitMappings
+    - sectionCountryMappings
+    - sectionDepthMappings
+    - rtbSectionMatches

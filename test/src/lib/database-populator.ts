@@ -185,6 +185,20 @@ class DatabasePopulator {
             Object.assign(newSectionData.section, sectionFields);
         }
 
+        // store the restriction mappings and remove them from the base object
+        let mapEntities = {
+            adUnits: null,
+            countries: null,
+            rtbDomainDepths: null
+        };
+
+        for (let key in mapEntities) {
+            if (typeof newSectionData.section[key] !== 'undefined') {
+                mapEntities[key] = newSectionData.section[key];
+                delete newSectionData.section[key];
+            }
+        }
+
         let sectionID = await this.dbm.insert(newSectionData.section, 'sectionID').into('rtbSections');
         newSectionData.section.sectionID = sectionID[0];
         Log.debug(`Created section ID: ${sectionID[0]}, ownerID: ${ownerID}`);
@@ -192,8 +206,84 @@ class DatabasePopulator {
 
         await this.mapSectionToSites(newSectionData.section.sectionID, siteIDs);
 
+        // if not entire site, generate some matches
+        if (!newSectionData.section.entireSite &&
+            (typeof newSectionData.section["matches"] === 'undefined' || newSectionData.section.matches.length === 0)) {
+
+            // remove the matches from the main object if present
+            if (typeof newSectionData.section["matches"] !== 'undefined') {
+                delete newSectionData.section.matches;
+            }
+
+            let numMatches = Math.ceil(Math.random() * 10);
+            Log.debug(`Create ${numMatches} matches for section ${newSectionData.section.sectionID}`);
+
+            newSectionData.section.matches = await this.createSectionMatches(newSectionData.section.sectionID, numMatches);
+        }
+
+        let restrictions = {
+            "adUnits": "adUnitID",
+            "countries": "countryID",
+            "rtbDomainDepths": "depthBucket"
+        };
+
+        for (let key in restrictions) {
+            let restrictionSource = key;
+            let restrictionID = restrictions[key];
+
+            if (!mapEntities[restrictionSource] || mapEntities[restrictionSource].length === 0) {
+                let restrictionIDs: number[] = await this.dbm.pluck(restrictionID).from(restrictionSource);
+                let numRestrictions: number = Math.round(Math.random() * restrictionIDs.length);
+
+                while (restrictionIDs.length > numRestrictions) {
+                    restrictionIDs.splice(Math.floor(Math.random() * restrictionIDs.length), 1);
+                }
+
+                newSectionData.section[restrictionSource] = restrictionIDs;
+            }
+
+            await this.mapSectionToRestrictions(sectionID, newSectionData.section[restrictionSource], restrictionSource, restrictionID);
+        }
+
         return newSectionData;
 
+    }
+
+    /**
+     * Creates a new section match entities based on "new-section-match-schema", Inserts into "Viper2.rtbSectionMatches"
+     * @param sectionID {int} - The section ID for this match
+     * @param numMatches {int} - Optional: the number of matches to generate. If 
+     * @param matchFields {INewMatchData} - Optional an array of new match objects to override random fields. Length should equal numMatches
+     * @returns {Promise<INewMatchData>} - Promise which resolves with an object with new match data
+     */
+    public async createSectionMatches(sectionID: number, numMatches = 1, matchFields?: INewMatchData[]) {
+
+        let newMatchObjects = [];
+        for (let i = 0; i < numMatches; ++i) {
+            let newMatchObj = this.generateDataObject<INewMatchData>('new-section-match-schema');
+            newMatchObj.sectionID = sectionID;
+
+            // Random chance of adding path segments onto the url
+            if (Math.random() > 0.33) {
+                let numPathSegments = Math.ceil(Math.random() * 3);
+
+                for (let j = 0; j < numPathSegments; ++j) {
+                    newMatchObj.url += '/' + faker.internet.domainWord();
+                }
+            }
+
+            if (typeof matchFields !== 'undefined' && matchFields.length) {
+                Object.assign(newMatchObj, matchFields[i]);
+            }
+
+            newMatchObjects.push(newMatchObj);
+        }
+
+        await this.dbm.insert(newMatchObjects).into('rtbSectionMatches');
+
+        Log.debug(`Created ${numMatches} match objects for section ${sectionID}`);
+
+        return newMatchObjects;
     }
 
     /**
@@ -323,6 +413,45 @@ class DatabasePopulator {
 
         for (let i = 0; i < siteIDs.length; i += 1) {
             Log.debug(`Mapped sectionID ${sectionID} to siteID ${siteIDs[i]}`);
+        }
+    }
+
+    /**
+     * Maps sections to adUnit, country, and depth tables
+     * @arg sectionID {int} - the sectionID of the section to map
+     * @arg restrictionIDs {int[] | string[]} - the adUnitID to map
+     * @arg restrictionSource {string} - the restriction source table
+     * @arg restrictionID {string} - the restriction ID column
+     * @returns {Promise<void>} - Resolves when all mapping entries are successful
+     */
+    public async mapSectionToRestrictions(sectionID: number, restrictionIDs: number[] | string[], restrictionSource: string,
+                                            restrictionID: string) {
+        let mappings: Object[] = [];
+
+        let restrictionTable = '';
+        if (restrictionSource === 'adUnits') {
+            restrictionTable = 'sectionAdUnitMappings';
+        } else if (restrictionSource === 'countries') {
+            restrictionTable = 'sectionCountryMappings';
+        } else if (restrictionSource === 'rtbDomainDepths') {
+            restrictionTable = 'sectionDepthMappings';
+        }
+
+        // Viper2.countries uses 'countryID', but sectionCountryMappings uses 'countryCode'
+        if (restrictionID === 'countryID') {
+            restrictionID = 'countryCode';
+        }
+
+        for (let i = 0; i < restrictionIDs.length; ++i) {
+            let mapping = {sectionID: sectionID};
+            mapping[restrictionID] = restrictionIDs[i];
+            mappings.push(mapping);
+        }
+
+        await this.dbm.insert(mappings).into(restrictionTable);
+
+        for (let i = 0; i < restrictionIDs.length; ++i) {
+            Log.debug(`Mapped sectionID ${sectionID} to ${restrictionID} ${restrictionIDs[i]}`);
         }
     }
 
