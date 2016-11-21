@@ -59,7 +59,7 @@ async function createProposal(data: any) {
     let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
-    
+
 }
 
 /*
