@@ -199,7 +199,14 @@ class DatabasePopulator {
             }
         }
 
-        let sectionID = await this.dbm.insert(newSectionData.section, 'sectionID').into('rtbSections');
+        let sectionID = await this.dbm.insert({
+            userID: newSectionData.section.userID,
+            name: newSectionData.section.name,
+            status: newSectionData.section.status,
+            percent: newSectionData.section.percent,
+            entireSite: newSectionData.section.entireSite
+        }, 'sectionID').into('rtbSections');
+
         newSectionData.section.sectionID = sectionID[0];
         Log.debug(`Created section ID: ${sectionID[0]}, ownerID: ${ownerID}`);
         newSectionData.siteIDs = siteIDs;
