@@ -105,8 +105,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let pagination = new PaginationModel(paginationParams, req);
         let userID = req.ixmUserInfo.id;
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(
-                                        userID, proposalID, pagination);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 

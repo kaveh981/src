@@ -18,7 +18,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 /** Test constants */
 const route = 'deals/negotiations';
 
-async function commonDatabaseSetup() {
+async function authenticationSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -27,7 +27,47 @@ async function commonDatabaseSetup() {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID);
+
 }
+
+/**
+ * Database setup for pagination tests
+ * @return: data: The data required from database setup to create a proposal
+ */
+async function paginationSetup () {
+
+    let dsp = await databasePopulator.createDSP(123);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+
+    let data: ICreateEntityData = {
+        buyer: buyer,
+        publisher: publisher,
+        site: site,
+        sender: buyer.user
+    };
+
+    return data;
+
+}
+
+/**
+ * Create a deal negotiation. Function should allow successive calls to create new negotiations without problems.
+ * @param data: The data required from database setup to create a negotiation
+ * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
+ */
+async function createDealNegotiation (data: ICreateEntityData) {
+
+   let section = await databasePopulator.createSection(data.publisher.publisher.userID, [data.site.siteID]);
+   let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
+   let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+                                                                       data.publisher.user.userID, data.buyer.user.userID);
+
+    return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
+
+}
+
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -35,7 +75,16 @@ async function commonDatabaseSetup() {
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', commonDatabaseSetup);
+export let ATW_DN_GET_AUTH = authenticationTest(route, 'get', authenticationSetup);
+
+/*
+ * @case    - Different pagination parameters are attempted.
+ * @expect  - Pagination tests to pass.
+ * @route   - GET deals/active
+ * @status  - commented out (must restructure common pagination suite)
+ * @tags    - get, deals, auth
+ */
+export let ATW_DN_GET_PAG = paginationTest(route, 'get', paginationSetup, createDealNegotiation);
 
 /*
  * @case    - Publisher has no proposals (and no negotiations)

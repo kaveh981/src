@@ -15,23 +15,21 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_01 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_01 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-
-    await createEntity();
+    await createEntity(setupData);
 
     /** Test */
     let cases = [`'10'`, {10: true}, [10], true];
 
     for (let limit of cases) {
-        let response = await apiRequest[verb](route, {'limit': limit}, buyer.user.userID);
+        let response = await apiRequest[verb](route, {'limit': limit}, setupData.sender.userID);
 
         assert.equal(response.status, 400);
     }
@@ -44,20 +42,18 @@ async function ATW_PAG_01 (route: string, verb: string, setup: Function, createE
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_02 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_02 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-
-    await createEntity();
+    await createEntity(setupData);
 
     /** Test */
-    let response = await apiRequest[verb](route, {'limit': 0}, buyer.user.userID);
+    let response = await apiRequest[verb](route, {'limit': 0}, setupData.sender.userID);
 
     assert.equal(response.status, 400);
 
@@ -65,32 +61,24 @@ async function ATW_PAG_02 (route: string, verb: string, setup: Function, createE
 
 /*
  * @case    - limit is within the permitted values
- * @expect  - 200 - the correct proposals is fetched, limit returned in the response is correct
- * @status  - failing ("expected" date incorrect, limit type from response is incorrect - should be int instead of string)
+ * @expect  - 200 - the correct proposals are fetched, limit returned in the response is correct
+ * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_03 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_03 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(15);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-
-    let publisher = await databasePopulator.createPublisher();
-    let entity1Payload = await createEntity(publisher);
-    let entity2Payload = await createEntity(publisher);
+    let entity1Payload = await createEntity(setupData);
+    let entity2Payload = await createEntity(setupData);
 
     /** Test */
-    let response = await apiRequest[verb](route, {'limit': 1}, buyer.user.userID);
-
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [entity1Payload]);
-    assert.deepEqual(response.body.pagination, {limit: 1, offset: 0});
-
     let cases = [
+        {input: 1, expect: {limit: 1, data: [entity1Payload]}},
         {input: 2, expect: {limit: 2, data: [entity1Payload, entity2Payload]}},
         {input: 249, expect: {limit: 249, data: [entity1Payload, entity2Payload]}},
         {input: 250, expect: {limit: 250, data: [entity1Payload, entity2Payload]}},
@@ -98,38 +86,44 @@ async function ATW_PAG_03 (route: string, verb: string, setup: Function, createE
     ];
 
     for (let caseObject of cases) {
-        response = await apiRequest[verb](route, {'limit': caseObject.input}, buyer.user.userID);
+        let response = await apiRequest[verb](route, {'limit': caseObject.input}, setupData.sender.userID);
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
-        assert.deepEqual(response.body.pagination, {limit: caseObject.expect.limit, offset: 0});
+
+        let expectedPagination = {
+            page: 1,
+            limit: caseObject.expect.limit,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=2&limit=${caseObject.expect.limit}`,
+            prev_page_url: ""
+        };
+
+        assert.deepEqual(response.body.pagination, expectedPagination);
     }
 
 }
 
 /*
- * @case    - offset is non-int
+ * @case    - page is non-int
  * @expect  - 400 - TYPE_INT_INVALID
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_04 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_04 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-
-    await createEntity();
+    await createEntity(setupData);
 
     /** Test */
     let cases = [`'10'`, {10: true}, [10], true];
 
-    for (let offset of cases) {
-        let response = await apiRequest[verb](route, {'offset': offset}, buyer.user.userID);
+    for (let page of cases) {
+        let response = await apiRequest[verb](route, {'page': page}, setupData.sender.userID);
 
         assert.equal(response.status, 400);
     }
@@ -137,62 +131,75 @@ async function ATW_PAG_04 (route: string, verb: string, setup: Function, createE
 }
 
 /*
- * @case    - offset is less than 0
+ * @case    - page is less than 1
  * @expect  - 400 - TYPE_NUMB_TOO_SMALL
  * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_05 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_05 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    await createEntity(setupData);
 
-    await createEntity();
+    let cases = [-1, 0];
 
     /** Test */
-    let response = await apiRequest[verb](route, {'offset': -1}, buyer.user.userID);
+    for (let page of cases) {
+        let response = await apiRequest[verb](route, {'page': page}, setupData.sender.userID);
 
-    assert.equal(response.status, 400);
+        assert.equal(response.status, 400);
+    }
 
 }
 
 /*
- * @case    - offset is within the permitted values
- * @expect  - 200 - the correct proposal is fetched, offset returned in the response is correct
- * @status  - failing ("expected" date incorrect, offset type from response is incorrect - should be int instead of string)
+ * @case    - page is within the permitted values
+ * @expect  - 200 - the correct proposal is fetched, page returned in the response is correct
+ * @status  - passing
  * @tags    - get, pagination, buyer
  */
-async function ATW_PAG_06 (route: string, verb: string, setup: Function, createEntity: Function, assert: test.Test) {
+async function ATW_PAG_06 (route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function,
+                           assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
 
-    await setup();
+    let setupData: ICreateEntityData = await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-
-    let publisher = await databasePopulator.createPublisher();
-    let entity1Payload = await createEntity(publisher);
-    let entity2Payload = await createEntity(publisher);
+    let entity1Payload = await createEntity(setupData);
+    let entity2Payload = await createEntity(setupData);
 
     /** Test */
     let cases = [
-        {input: 0, expect: {offset: 0, data: [entity1Payload, entity2Payload]}},
-        {input: 1, expect: {offset: 1, data: [entity2Payload]}}
+        {input: 1, expect: {page: 1, data: [entity1Payload]}},
+        {input: 2, expect: {page: 2, data: [entity2Payload]}}
     ];
 
     for (let caseObject of cases) {
-        let response = await apiRequest[verb](route, {'offset': caseObject.input}, buyer.user.userID);
+        let response = await apiRequest[verb](route, {'page': caseObject.input, 'limit': 1}, setupData.sender.userID);
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
-        assert.deepEqual(response.body.pagination, {limit: 250, offset: caseObject.expect.offset});
+
+        let prevPageURL = "";
+
+        if (caseObject.input > 1) {
+            prevPageURL = apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1`;
+        }
+
+        let expectedPagination = {
+            page: caseObject.expect.page,
+            limit: 1,
+            next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page + 1}&limit=1`,
+            prev_page_url: prevPageURL
+        };
+
+        assert.deepEqual(response.body.pagination, expectedPagination);
     }
 
 }
@@ -200,7 +207,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: Function, createE
 /**
  * Reusable tests for pagination authentication
  */
-function paginationTest(route: string, verb: string, setup: Function, createEntity: Function) {
+function paginationTest(route: string, verb: string, setup: () => Promise<ICreateEntityData>, createEntity: Function) {
     return [
         (assert: test.Test) => { return ATW_PAG_01(route, verb, setup, createEntity, assert); },
         (assert: test.Test) => { return ATW_PAG_02(route, verb, setup, createEntity, assert); },
@@ -209,6 +216,7 @@ function paginationTest(route: string, verb: string, setup: Function, createEnti
         (assert: test.Test) => { return ATW_PAG_05(route, verb, setup, createEntity, assert); },
         (assert: test.Test) => { return ATW_PAG_06(route, verb, setup, createEntity, assert); }
     ];
+
 }
 
 export { paginationTest }

@@ -17,34 +17,49 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const route = 'deals/proposals';
 
 async function authDatabaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
 }
 
+/**
+ * Database setup for pagination tests
+ * @return: data: the data required from database setup to create a proposal
+ */
 async function paginationDatabaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+
+    let data: ICreateEntityData = {
+        publisher: publisher,
+        section: section,
+        sender: buyer.user
+    };
+
+    return data;
+
 }
 
 /**
  * Create a proposal. Function should allow successive calls to create new proposals without problems.
- * @param proposal - The proposal object.
- * @param [publisher] - The publisher object that will own the proposal.
+ * @param: The data required to create new proposal
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
-async function createProposal(publisher: INewPubData) {
-    if (typeof publisher === 'undefined') {
-        publisher = await databasePopulator.createPublisher();
-    }
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+async function createProposal(data: ICreateEntityData) {
 
-    return Helper.proposalToPayload(proposal, publisher.user);
+    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
+
+    return Helper.proposalToPayload(proposal, data.publisher.user);
+
 }
 
 /*
