@@ -3,7 +3,7 @@
 class UserModel {
 
     /** The user's userId */
-    public id: string;
+    public id: number;
     /** The current status of the user */
     public status: string;
     /** The abbreviated name of the user type. */
@@ -25,10 +25,8 @@ class UserModel {
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
      */
-    constructor(initParams?: any) {
-        if (initParams) {
-            Object.assign(this, initParams);
-        }
+    constructor(initParams: any = {}) {
+        Object.assign(this, initParams);
     }
 
     /**

@@ -167,7 +167,7 @@ export async function IXM_API_DA_GET_02 (assert: test.Test) {
 
  /*
  * @case    - Settled deal start date is in the future
- * @expect  - No deals returned
+ * @expect  - Deal is returned
  * @route   - GET deals/active
  * @status  - failing (created_at returned, but doesn't come from rtbDeals)
  * @tags    - get, active, deals

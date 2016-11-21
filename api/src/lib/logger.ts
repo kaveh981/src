@@ -150,8 +150,8 @@ class Logger {
         let consoleLevel = typeof override['consoleLevel'] === 'number' ? override['consoleLevel'] : loggerConfig['consoleLevel'];
         let filewriteLevel =  typeof override['filewriteLevel'] === 'number' ? override['filewriteLevel'] : loggerConfig['filewriteLevel'];
 
-        let displayMessage = message.LEVEL >= Number(consoleLevel);
-        let writeMessage = message.LEVEL >= Number(filewriteLevel);
+        let displayMessage = message.LEVEL >= consoleLevel;
+        let writeMessage = message.LEVEL >= filewriteLevel;
 
         if (displayMessage) {
             let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
