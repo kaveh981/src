@@ -72,6 +72,27 @@ class ProposedDealModel {
     }
 
     /**
+     * Checks that a proposed deal is purchasable by a specific user. The proposal must be a valid purchasable 
+     * proposal, its owner must be active, and the user viewing it must not have the same type as 
+     * its owner (publishers can't view other publishers' proposals, and the same applies to buyers).
+     * @param user - the user in question
+     * @returns true if the proposal is purchasable by this user
+     */
+    public isPurchasableByUser(user: UserModel) {
+        return (this.isAvailable() && this.ownerInfo.isActive() && this.ownerInfo.userType !== user.userType);
+    }
+
+    /**
+     * Checks that a proposed deal is readable by a specific user. The proposal must be purchasable by this user, or
+     * the proposal must be owned by the user.
+     * @param user - the user in question
+     * @returns true if the proposal is readable by this user
+     */
+    public isReadableByUser(user: UserModel) {
+        return this.isPurchasableByUser(user) || this.ownerInfo.id === user.id;
+    }
+
+    /**
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */

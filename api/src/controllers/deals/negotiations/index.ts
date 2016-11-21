@@ -55,27 +55,15 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
+        let user = req.ixmUserInfo;
         let pagination = new PaginationModel(paginationParams, req);
-        let buyerID = Number(req.ixmUserInfo.id);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromBuyerId(buyerID, pagination);
-        let activeNegotiatedDeals: NegotiatedDealModel[] = [];
+
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        for (let i = 0; i < negotiatedDeals.length; i++) {
-            let proposal = negotiatedDeals[i].proposedDeal;
-            let owner = await userManager.fetchUserFromId(proposal.ownerID);
-
-            if ( (negotiatedDeals[i].buyerStatus === 'active' || negotiatedDeals[i].publisherStatus === 'active')
-                && proposal.isAvailable() && owner.isActive() ) {
-                    Log.trace(`Negotiated deal ${negotiatedDeals[i].id} is active.`, req.id);
-                    activeNegotiatedDeals.push(negotiatedDeals[i]);
-            }
-        }
-
-        if (activeNegotiatedDeals.length > 0) {
-            res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }),
-                            pagination.toPayload());
+        if (negotiatedDeals.length > 0) {
+            res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_NEGOTIATIONS');
         }
@@ -182,7 +170,7 @@ function NegotiationDeals(router: express.Router): void {
         if (partner.userType === 'IXMB') {
             buyerID = Number(partner.id);
             publisherID = Number(req.ixmUserInfo.id);
-        } else if (partner.userType === 'IXMP') {
+        } else {
             buyerID = Number(req.ixmUserInfo.id);
             publisherID = Number(partner.id);
         }
