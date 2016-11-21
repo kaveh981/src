@@ -77,7 +77,7 @@ class NegotiatedDealManager {
      */
     public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
 
-        let userID = Number(user.id);
+        let userID = user.id;
         let userType = user.userType;
         let offset = pagination.getOffset();
 

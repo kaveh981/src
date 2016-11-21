@@ -94,7 +94,7 @@ class SettledDealManager {
 
         let offset = pagination.getOffset();
         let settledDeals: SettledDealModel[] = [];
-        let userID = Number(user.id);
+        let userID = user.id;
         let userType = user.userType;
 
         let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'buyerID', 'publisherID')
