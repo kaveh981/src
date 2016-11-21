@@ -89,7 +89,8 @@ class DealSectionManager {
                                                  'ixmProposalSectionMappings.proposalID': proposalID,
                                                  'rtbSections.status': 'A',
                                                  'sites.status': 'A'
-                                              });
+                                              })
+                                              .groupBy('rtbSections.sectionID');
 
         for (let i = 0; i < rows.length; i++) {
             let section = await this.fetchDealSectionById(rows[i].id);

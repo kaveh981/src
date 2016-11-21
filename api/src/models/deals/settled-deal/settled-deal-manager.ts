@@ -10,6 +10,7 @@ import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
+import { UserModel } from '../../user/user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 
 /** Active deal model manager */
@@ -84,28 +85,39 @@ class SettledDealManager {
     }
 
     /**
-     * Get all settled deals with the given buyer.
-     * @param buyerID - The id for the buyer.
+     * Get all settled deals for the given user.
+     * @param user - The user in question.
      * @param pagination - The pagination parameters.
-     * @returns A promise for the settled deals with the given buyer.
+     * @returns A promise for the settled deals with the given user.
      */
-    public async fetchSettledDealsFromBuyerId(buyerID: number, pagination: PaginationModel): Promise<SettledDealModel[]> {
+    public async fetchSettledDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
 
         let offset = pagination.getOffset();
-
         let settledDeals: SettledDealModel[] = [];
+        let userID = Number(user.id);
+        let userType = user.userType;
 
-        let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'publisherID')
+        let rows = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'buyerID', 'publisherID')
                                              .from('ixmDealNegotiations')
                                              .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
                                                    'ixmNegotiationDealMappings.negotiationID')
-                                             .where('ixmDealNegotiations.buyerID', buyerID)
+                                             .where('ixmDealNegotiations.buyerID', userID)
+                                             .orWhere('ixmDealNegotiations.publisherID', userID)
                                              .limit(pagination.limit)
                                              .offset(offset);
 
         for (let i = 0; i < rows.length; i++) {
-            let deal = await this.fetchSettledDealFromIds(rows[i].proposalID, buyerID, rows[i].publisherID);
-            settledDeals.push(deal);
+            let deal: SettledDealModel;
+
+            if (userType === 'IXMB') {
+                deal = await this.fetchSettledDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
+            } else {
+                deal = await this.fetchSettledDealFromIds(rows[i].proposalID, rows[i].buyerID, userID);
+            }
+
+            if (deal) {
+                settledDeals.push(deal);
+            }
         }
 
         return settledDeals;

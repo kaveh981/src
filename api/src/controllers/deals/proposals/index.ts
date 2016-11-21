@@ -45,32 +45,30 @@ function Proposals(router: express.Router): void {
         }
 
         let pagination = new PaginationModel(paginationParams, req);
-        let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
-        let proposedDeals = [];
 
-        Log.trace(`Found proposals ${Log.stringify(activeProposals)}`, req.id);
+        let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
+        let availableProposals = [];
+
+        Log.trace(`Found active proposals ${Log.stringify(activeProposals)}`, req.id);
 
         for (let i = 0; i < activeProposals.length; i++) {
-            let activeProposal = activeProposals[i];
+            let proposal = activeProposals[i];
 
-            if (!activeProposal) {
+            if (!proposal) {
                 continue;
             }
 
-            let owner = activeProposal.ownerInfo;
             let user = req.ixmUserInfo;
-            // The proposal must be a valid purschaseable proposal, its owner must be active, and the user viewing 
-            // it must either be its owner or a user that's not the same type as its owner (publishers can't view other 
-            // publisher's proposals, and the same applies to buyers)
-            if (activeProposal.isAvailable() && owner.isActive() && (owner.id === user.id || owner.userType !== user.userType)) {
-                proposedDeals.push(activeProposal);
+
+            if (proposal.isPurchasableByUser(user)) {
+                availableProposals.push(proposal);
             }
         }
 
-        Log.trace(`Found purchasable proposals ${Log.stringify(proposedDeals)}`, req.id);
+        Log.trace(`Found valid proposals ${Log.stringify(availableProposals)}`, req.id);
 
-        if (proposedDeals.length > 0) {
-            res.sendPayload(proposedDeals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
+        if (availableProposals.length > 0) {
+            res.sendPayload(availableProposals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
         } else {
             res.sendError('200_NO_PROPOSALS');
         }
@@ -99,14 +97,13 @@ function Proposals(router: express.Router): void {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
-        // Check that the proposal can actually be viewed by the current user. If not, send back an error. If so, send back the proposal.
-        if (proposal.ownerID !== Number(req.ixmUserInfo.id)) {
-            if (proposal.status === 'deleted') {
-                throw HTTPError('404_PROPOSAL_NOT_FOUND');
-            } else if (!proposal.isAvailable() || !proposal.ownerInfo.isActive()
-                    || proposal.ownerInfo.userType === req.ixmUserInfo.userType) {
-                throw HTTPError('403');
-            }
+        let user = req.ixmUserInfo;
+
+        // Check that the proposal can actually be viewed by the current user. If not, send back an error.
+        if (proposal.status === 'deleted' ) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        } else if (!proposal.isReadableByUser(user)) {
+            throw HTTPError('403');
         }
 
         res.sendPayload(proposal.toPayload());
