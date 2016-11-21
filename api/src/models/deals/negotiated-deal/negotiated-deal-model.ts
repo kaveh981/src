@@ -124,8 +124,7 @@ class NegotiatedDealModel {
      * @returns true if the negotiation is readable by the user
      */
     public isReadableByUser(user: UserModel) {
-        let userID = Number(user.id);
-        return (userID === this.buyerID || userID === this.publisherID);
+        return (user.id === this.buyerID || user.id === this.publisherID);
     }
 
     /**

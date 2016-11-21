@@ -104,7 +104,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         let pagination = new PaginationModel(paginationParams, req);
-        let userID = Number(req.ixmUserInfo.id);
+        let userID = req.ixmUserInfo.id;
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(
                                         userID, proposalID, pagination);
 
@@ -124,15 +124,15 @@ function NegotiationDeals(router: express.Router): void {
     router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         // Validate parameters
-        let proposalID = Number(req.params.proposalID);
-        let partnerID = Number(req.params.partnerID);
+        let proposalID: number = req.params.proposalID;
+        let partnerID: number = req.params.partnerID;
 
         let parameters = {
             proposal_id: proposalID,
             partner_id: partnerID
         };
 
-        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters');
+        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
@@ -169,11 +169,11 @@ function NegotiationDeals(router: express.Router): void {
         let publisherID: number;
 
         if (partner.userType === 'IXMB') {
-            buyerID = Number(partner.id);
-            publisherID = Number(req.ixmUserInfo.id);
+            buyerID = partner.id;
+            publisherID = req.ixmUserInfo.id;
         } else {
-            buyerID = Number(req.ixmUserInfo.id);
-            publisherID = Number(partner.id);
+            buyerID = req.ixmUserInfo.id;
+            publisherID = partner.id;
         }
 
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
@@ -228,17 +228,17 @@ function NegotiationDeals(router: express.Router): void {
         let publisherID: number;
 
         if (userType === 'publisher') {
-            buyerID = Number(req.body.partner_id);
-            publisherID = Number(req.ixmUserInfo.id);
+            buyerID = req.body.partner_id;
+            publisherID = req.ixmUserInfo.id;
         } else {
-            buyerID = Number(req.ixmUserInfo.id);
-            publisherID = Number(req.body.partner_id);
+            buyerID = req.ixmUserInfo.id;
+            publisherID = req.body.partner_id;
         }
 
         Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`, req.id);
 
         // Confirm that the proposal is available and belongs to this publisher
-        let proposalID = Number(req.body.proposal_id);
+        let proposalID = req.body.proposal_id;
         let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
         if (!targetProposal) {
