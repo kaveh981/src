@@ -34,6 +34,7 @@ async function authenticationSetup() {
  * @return: data: The data required from database setup to create a proposal
  */
 async function paginationSetup () {
+    
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -55,6 +56,7 @@ async function paginationSetup () {
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createDealNegotiation (data: any) {
+
    let section = await databasePopulator.createSection(data.publisher.publisher.userID, [data.site.siteID]);
    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,

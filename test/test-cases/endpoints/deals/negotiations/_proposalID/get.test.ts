@@ -18,6 +18,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 let routePrefix = "/deals/negotiations";
 
 async function authenticationDatabaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -33,8 +34,8 @@ async function authenticationDatabaseSetup() {
  * @return: data: The data required from database setup to create a proposal
  */
 async function paginationSetup () {
-    let dsp = await databasePopulator.createDSP(123);
 
+    let dsp = await databasePopulator.createDSP(123);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);

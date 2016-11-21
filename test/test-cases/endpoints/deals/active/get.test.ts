@@ -60,7 +60,6 @@ async function paginationSetup () {
     };
 
     return data;
-
 }
 
 /**
@@ -69,6 +68,7 @@ async function paginationSetup () {
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createSettledDeal (data: any) {
+
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
@@ -85,7 +85,6 @@ async function createSettledDeal (data: any) {
             startDate: tomorrow,
             rate: negotiation.price
         });
-
 
     return Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 }

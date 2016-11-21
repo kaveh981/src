@@ -22,21 +22,23 @@ const currentDate: Date = new Date();
  * Common database setup for authentication and proposalID validation
  */
 async function databaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
     return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
 }
-
 
 /**
  * Database setup for pagination tests
  * @return: data: the data required from database setup to create a proposal
  */
 async function paginationSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();

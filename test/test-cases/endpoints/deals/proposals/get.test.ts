@@ -17,6 +17,7 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const route = 'deals/proposals';
 
 async function authDatabaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -30,6 +31,7 @@ async function authDatabaseSetup() {
  * @return: data: the data required from database setup to create a proposal
  */
 async function paginationDatabaseSetup() {
+
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
@@ -51,6 +53,7 @@ async function paginationDatabaseSetup() {
  * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
  */
 async function createProposal(data: any) {
+
     let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
