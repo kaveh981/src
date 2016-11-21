@@ -15,7 +15,7 @@ const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
-let routePrefix = "/deals/negotiations";
+let routePrefix = "deals/negotiations";
 
 async function authenticationDatabaseSetup() {
 
