@@ -15,6 +15,7 @@ services:
         ENVIRONMENT: production
         DATE: $ATW_DATE
         GIT_COMMIT: $ATW_GIT_COMMIT
+        DOCKERFILE_URL: $ATW_API_DOCKERFILE_URL
     image: pr.indexexchange.com:5000/atw-api$ATW_APIVER
     logging:
       driver: "syslog"
@@ -35,6 +36,7 @@ services:
         ENVIRONMENT: production
         DATE: $ATW_DATE
         GIT_COMMIT: $ATW_GIT_COMMIT
+        DOCKERFILE_URL: $ATW_API_DOCKERFILE_URL
     image: pr.indexexchange.com:5000/atw-nginx$ATW_NGINXVER
     logging:
       driver: "syslog"

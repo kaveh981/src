@@ -13,10 +13,12 @@ RUN sh /src/bin/deploy.sh $ENVIRONMENT && \
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
+ARG DOCKERFILE_URL
 ARG GIT_COMMIT
 ARG DATE
 
 LABEL  SERVICE_NAME=atw-nginx \
+       DOCKERFILE_URL=${DOCKERFILE_URL:-dev} \
        GIT_COMMIT=${GIT_COMMIT:-dev} \
        DATE=${DATE:-dev} \
        ENVIRONMENT=$ENVIRONMENT
