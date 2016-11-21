@@ -111,7 +111,7 @@ export async function ATW_DN_GET_03 (assert: test.Test) {
 }
 
 /*
- * @case    - Publisher was not the last to negotiate on its proposal
+ * @case    - Publisher was not the last to negotiate on their proposal
  * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotiations
  * @status  - passing    
@@ -141,7 +141,7 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
 }
 
 /*
- * @case    - Publisher was the last to negotiate on its proposal
+ * @case    - Publisher was the last to negotiate on their proposal
  * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotiations
  * @status  - passing
@@ -172,7 +172,7 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
 
 /*
  * @case    - Buyer accepted publisher's proposal right away
- * @expect  - Negotiation closed - nothing returned 
+ * @expect  - Negotiation is returned regardless of status
  * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
@@ -195,12 +195,13 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Response 200");
-    assert.deepEqual(response.body['data'], [], "No data returned");
+    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user)],
+                    "1 DN Returned");
 }
 
 /*
- * @case    - Publisher accepted its own proposal after a negotiation
- * @expect  - Negotiation closed - nothing returned
+ * @case    - Publisher accepted their own proposal after a negotiation
+ * @expect  - Negotiation is returned regardless of status
  * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
@@ -219,12 +220,13 @@ export async function ATW_DN_GET_07 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'accepted',
                                                                              pubStatus: 'accepted',
-                                                                             sender: 'buyer'
+                                                                             sender: 'publisher'
                                                                          });
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [], "No Negotiation Objects returned");
+    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user)],
+                    "1 DN Returned");
 }
 
 /*
@@ -258,7 +260,7 @@ export async function ATW_DN_GET_08 (assert: test.Test) {
 }
 
 /*
- * @case    - Publisher rejects its own proposal after a negotiation
+ * @case    - Publisher rejects their own proposal after a negotiation
  * @expect  - 1 DN returned (still active)
  * @route   - GET deals/negotiations
  * @status  - passing
