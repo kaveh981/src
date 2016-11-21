@@ -53,10 +53,8 @@ async function paginationSetup () {
 
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
- 
 
-
-    let data = {
+     let data = {
         buyer: buyer,
         sender: buyer.user
     };

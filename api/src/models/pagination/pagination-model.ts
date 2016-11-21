@@ -22,7 +22,7 @@ class PaginationModel {
 
         Object.assign(this, initParams);
 
-        let url = req.protocol + '://' + req.get('host') + this.sanitize(req.originalUrl);
+        let url = 'https://' + req.get('host') + this.sanitize(req.originalUrl);
         this.nextPageURL = url + `?page=${this.page + 1}&limit=${this.limit}`;
         this.prevPageURL = "";
 
