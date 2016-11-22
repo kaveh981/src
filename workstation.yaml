@@ -20,10 +20,9 @@ services:
         tag: "atwater.api"
     networks:
       - atwater
-    entrypoint: sh /src/docker/scripts/entrypoint.sh $ENVIRONMENT
     volumes:
-      - "/src/atwater.git/api/:/src/:ro"
-      - "/var/log/ixm/atw-api/:/opt/atw-api/logs/"
+      - "/src/atwater.git/api/:/src/"
+      - "/var/log/ixm/atw-api/:/opt/atwater/api/logs/"
   atw-nginx:
     container_name: "atw-nginx"
     restart: "no"
@@ -38,7 +37,6 @@ services:
     networks:
       - atwater
       - internal
-    entrypoint: sh /src/docker/scripts/entrypoint.sh $ENVIRONMENT
     volumes:
       - "/src/atwater.git/nginx/:/src/:ro"
     ports:
