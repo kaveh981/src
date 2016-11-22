@@ -1,0 +1,36 @@
+#%RAML 1.0 DataType
+
+type: object
+description: An object defining the current state of pagination; current page and limit.  
+properties:
+    page:
+        type: integer
+        required: false
+        displayName: page
+        description: The current page number of the data returned. Dependent on limit.
+        minimum: 1 
+        maximum: 4294967295    
+    limit:
+        type: integer
+        required: false
+        displayName: limit
+        description: The page size of each page returned.
+        minimum: 1
+        maximum: 250
+    nextPageURL:
+        type: string
+        required: false
+        displayName: next_page_url
+        description: A link to the next page of results with same limit
+    prevPageURL:
+        type: string
+        required: string 
+        displayName: prev_page_url
+        description: A link to the previous page of results with same limit  
+example: |
+    {
+        "page": 2,
+        "limit": 250,
+        "next_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=3&limit=250",
+        "prev_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=1&limit=250"
+    }
