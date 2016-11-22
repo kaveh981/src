@@ -1,0 +1,33 @@
+# Logger Configuration
+
+# Minimum level of messages to write to stdout.
+consoleLevel: 0
+
+# Sources of logs to suppress.
+consoleFilter:
+    - HTTP
+
+# Files to output JSON logs to. Relative to root.
+outputFiles:
+    - '../logs/output.log'
+
+# Metadata about each level
+levelMetadata:
+    0:
+        name: TRACE
+        color: cyan
+    1:
+        name: DEBUG
+        color: green
+    2:
+        name: INFO
+        color: white
+    3:
+        name: WARN
+        color: yellow
+    4:
+        name: ERROR
+        color: red
+    5:
+        name: FATAL
+        color: bgRed

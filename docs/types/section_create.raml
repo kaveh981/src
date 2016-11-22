@@ -1,0 +1,144 @@
+#%RAML 1.0 DataType
+
+type: object
+description: |
+        An object describing a deal section, specifying what inventory is available for a deal.
+
+        The section may consist of one or more of:
+            - Site URLs
+            - Ad Unit restrictions
+            - Country restrictions
+            - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
+properties:
+    ad_unit_restrictions:
+        type: string[]
+        required: false
+        displayName: Ad Unit Restrictions
+        description: A list of ad units this deal is restricted to. (TODO - insert list or link?). Will be omitted if no restrictions apply.
+    country_restrictions:
+        type: string[]
+        required: false
+        displayName: Country Restrictions
+        description: A list of countries the deal is available in. [ISO 3166 ALPHA-3](http://www.iso.org/iso/home/standards/country_codes.htm) codes. Will be omitted if no country restrictions apply.
+    coverage:
+        type: integer
+        required: true
+        displayName: Coverage
+        description: The percentage of coverage for the section: 80 = 80% coverage, meaning the deal will serve 80% of impressions.
+    entire_site:
+        type: boolean
+        required: true
+        displayName: Entire Site
+        description: Whether the entire site is included in the deal. If true, the `url_matches` array will be omitted.
+    frequency_restrictions:
+        type: string[]
+        required: false
+        displayName: Frequency (Domain Depth) Restrictions
+        description: |
+            A list of frequency, or domain depth, restrictions. This describes the number of page visits by a single visitor to the same site, and are organized in the following 'buckets'
+                - 1 - 2
+                - 3 - 6
+                - 7 - 14
+                - 15 - 30
+                - 31 - 62
+                - 63 - 126
+                - 127 - 254
+                - 255(max)
+    id:
+        type: integer
+        required: true
+        displayName: Section ID
+        description: The unique identifier for the section.
+    url_matches:
+        type: UrlMatch[]
+        required: false
+        displayName: Matches
+        description: A set of matching objects consisting of a `match_type` and `url` to match against. See [UrLMatch]( TODO link )
+    name:
+        type: string
+        required: true
+        displayName: Section Name
+        description: A descriptive name for the section
+        maxLength: 255
+    publisher_id:
+        type: integer
+        required: true
+        displayName: Publisher ID
+        description: The ID of the publisher who owns the site the section is associated with.
+        minimum: 1
+        maximum: 16777215
+    sites:
+        type: Site[]
+        required: true
+        displayName: Site
+        description: An array of one or more [Site]( link ) objects describing the site(s) this deal is active on.
+example: |
+    {
+        "id": 898,
+        "publisher_id": 100011,
+        "name": "click_dealy_leaderboard_cuz_we_luv_u",
+        "entire_site": false,
+        "url_matches": [
+            {
+                "match_type": "partial",
+                "url": "https://spamlords.com/clickbait"
+            }, 
+            {
+                "match_type": "full",
+                "url": "https://spamlords.com/outrage/some-jerk-did-a-thing.html"
+            }
+        ],
+        "coverage": 80,
+        "ad_unit_restrictions": [
+            "728x90",
+            "970x90"
+        ],
+        "country_restrictions": [
+            "RUS",
+            "ZAF"
+        ],
+        "frequency_restrictions": [
+            "1 - 2",
+            "3 - 6"
+        ],
+        "sites": [
+            {
+                "id": 1992,
+                "publisher_id": 100011,
+                "name": "SpamLords™®©",
+                "url": "https://spamlords.com",
+                "category": "Sports/Wrestling",
+                "impressions": 1230000,
+                "uniques": 980000,
+                "description": "The Old Ones were, the Old Ones are, and the Old Ones shall be. Not in the spaces we know, but between them, They walk serene and primal, undimensioned and to us unseen. Yog-Sothoth knows the gate. Yog-Sothoth is the gate. Yog-Sothoth is the key and guardian of the gate. Past, present, future, all are one in Yog-Sothoth.",
+                "avg_cpm": 3.33,
+                "inventory": [
+                    {
+                        "ad_unit": "728x90",
+                        "video": true,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "728x550",
+                        "video": true,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "160x600",
+                        "video": false,
+                        "devices": [ "desktop" ]
+                    },
+                    {
+                        "ad_unit": "300x600",
+                        "video": true,
+                        "devices": [ "desktop", "mobile" ]
+                    },
+                    {
+                        "ad_unit": "320x50",
+                        "video": true,
+                        "devices": [ "mobile" ]
+                    }
+                ]
+            }
+        ]
+    }

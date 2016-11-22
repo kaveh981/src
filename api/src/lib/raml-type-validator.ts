@@ -36,6 +36,24 @@ interface IValidationOptions {
 
     /** Force defaults only on specific errors */
     forceOnError?: string[];
+
+    /** Sanitize strings to lowercase and trim trailing whitespace */
+    sanitizeString?: boolean;
+
+    /** Sanitize strings that belong to enum types */
+    sanitizeStringEnum?: boolean;
+
+    /** Sanitize integers by converting strings to numbers */
+    sanitizeIntegers?: boolean;
+
+    /** Sanitize booleans by converting strings to bools */
+    sanitizeBooleans?: boolean;
+
+    /** Trim trailing whitespace from strings */
+    trimStrings?: boolean;
+
+    /** Remove keys which are null */
+    removeNull?: boolean;
 }
 
 /**
@@ -79,14 +97,20 @@ class RamlTypeValidator {
             types: {}
         };
 
+        // No schemas :(
+        if (!files[0]) {
+            Log.info('No schemas found.');
+            return;
+        }
+
         // We need to create a fake RAML API spec in order for it to be used by raml-1-parser.
         files.forEach((file: string) => {
             let fileContent: string = fs.readFileSync(path.join(schemaDirectory, file), 'utf8');
             let parsedYAML = yaml.safeLoad(fileContent);
 
             for (let key in parsedYAML) {
-                Log.trace('Loading ' + key + '...');
-
+                Log.trace('Reading ' + key + '...');
+                Log.trace(`${Log.stringify(parsedYAML[key])}`);
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
@@ -94,7 +118,8 @@ class RamlTypeValidator {
         let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
 
         if (parsedAPI.errors().length > 0) {
-            Log.error(parsedAPI.errors().join('\n'));
+            Log.error(Log.stringify(parsedAPI.errors()));
+            throw new Error('Compilation error in schemas.');
         }
 
         // We parse the raml api object into a JSON object and put it in the types variable.
@@ -107,6 +132,7 @@ class RamlTypeValidator {
                 Log.error(err);
                 throw err;
             });
+
     }
 
     /**
@@ -117,6 +143,9 @@ class RamlTypeValidator {
      * @return An array of errors, if there are any.
      */
     public validateType(obj: any, type: string, opts: IValidationOptions = {}): IValidationError[] {
+
+        Log.trace(`Validating ${Log.stringify(obj)} as ${type} with options ${JSON.stringify(opts)}.`);
+
         let typeObject = this.types[type];
 
         if (!typeObject) {
@@ -124,7 +153,12 @@ class RamlTypeValidator {
             return [this.createError('UNKNOWN_TYPE', type, null, '')];
         }
 
-        return this.validateNode(obj, typeObject, type, opts);
+        let errors = this.validateNode(obj, typeObject, type, opts);
+
+        Log.trace(`Had errors ${Log.stringify(errors)}`);
+
+        return errors;
+
     }
 
     /**
@@ -137,6 +171,7 @@ class RamlTypeValidator {
      * @returns An array of errors, if there are any.
      */
     private validateNode(obj: any, node: any, path: string, opts: IValidationOptions = {}): IValidationError[] {
+
         let errors: IValidationError[] = [];
 
         // If the value is undefined, we are missing it.
@@ -168,8 +203,38 @@ class RamlTypeValidator {
             node.properties.forEach((property) => {
 
                 // Fill defaults for properties if fillDefault is true.
-                if (opts.fillDefaults && !obj[property.key] && typeof property.default !== 'undefined') {
+                if (opts.fillDefaults && typeof obj[property.key] === 'undefined' && typeof property.default !== 'undefined') {
                     obj[property.key] = property.default;
+                }
+
+                // Sanitize string to lower case if desired
+                if (opts.sanitizeString && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Sanitize strings to lower case if the key is an enum
+                if (opts.sanitizeStringEnum && typeof obj[property.key] === 'string' && property.enum) {
+                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                }
+
+                // Trim trailing whitespace from strings
+                if (opts.trimStrings && typeof obj[property.key] === 'string') {
+                    obj[property.key] = obj[property.key].trim();
+                }
+
+                // Sanitize integers to numbers
+                if (opts.sanitizeIntegers && typeof obj[property.key] === 'string' && validator.isInt(obj[property.key])) {
+                    obj[property.key] = Number(obj[property.key]);
+                }
+
+                // Sanitize booleans
+                if (opts.sanitizeBooleans && typeof obj[property.key] === 'string' && validator.isBoolean(obj[property.key])) {
+                    obj[property.key] = Boolean(obj[property.key]);
+                }
+
+                // Remove null values
+                if (opts.removeNull && obj[property.key] === null) {
+                    delete obj[property.key];
                 }
 
                 let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
@@ -192,6 +257,7 @@ class RamlTypeValidator {
         }
 
         return errors;
+
     }
 
     /**
@@ -202,6 +268,7 @@ class RamlTypeValidator {
      * @returns The errors if the value cannot be cast to node.
      */
     private validateNodeType(value: any, node: any, path: string): IValidationError[] {
+
         let types = node.type.join(' | ').split(' | ');
         let valueString = typeof value === 'object' ? JSON.stringify(value) : value.toString();
         let errorList: IValidationError[] = [];
@@ -232,7 +299,7 @@ class RamlTypeValidator {
                  * Verify booleans
                  */
                 case 'boolean':
-                    if (!validator.isBoolean(valueString)) {
+                    if (typeof value !== 'boolean' || !validator.isBoolean(valueString)) {
                         errors.push(this.createError('TYPE_BOOL_INVALID', valueString, node, path));
                     }
                 break;
@@ -251,7 +318,7 @@ class RamlTypeValidator {
                  * Verify numbers
                  */
                 case 'number':
-                    if (isNaN(Number(valueString))) {
+                    if (typeof value !== 'number' || isNaN(Number(valueString))) {
                         errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
                     } else {
                         // Verify number facets
@@ -269,7 +336,7 @@ class RamlTypeValidator {
                  * Verify strings
                  */
                 case 'string':
-                    if (typeof value === 'object') {
+                    if (typeof value !== 'string') {
                         errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
                     } else {
                         // Verify string facets
@@ -401,6 +468,7 @@ class RamlTypeValidator {
         }
 
         return errorList;
+
     }
 
     /**
@@ -412,6 +480,7 @@ class RamlTypeValidator {
      * @returns A standardized error object.
      */
     private createError(error: string, value: string, node: any, path: string): IValidationError {
+
         let errorMessage = error;
 
         if (this.templates[error]) {
@@ -426,6 +495,7 @@ class RamlTypeValidator {
             message: errorMessage,
             path: path
         };
+
     }
 
     /** 
@@ -435,6 +505,7 @@ class RamlTypeValidator {
      * @returns True if errorList contains one of the errors from errors.
      */
     private containsErrors(errorList: IValidationError[], errors: string[]): boolean {
+
         for (let i = 0; i < errorList.length; i++) {
             for (let j = 0; j < errors.length; j++) {
                 if (errors[j] === errorList[i].error) {
@@ -443,8 +514,9 @@ class RamlTypeValidator {
             }
         }
         return false;
+
     }
 
 }
 
-export { RamlTypeValidator }
+export { RamlTypeValidator, IValidationError }

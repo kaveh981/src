@@ -1,0 +1,43 @@
+version: '2'
+
+networks:
+  atwater:
+    external: true
+  internal:
+    external: true
+
+services:
+  atw-api:
+    container_name: "atw-api"
+    restart: "no"
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+    image: ir.indexexchange.com:5000/atw-api$ATW_APIVER
+    logging:
+      driver: "journald"
+      options:
+        tag: "atwater.api"
+    networks:
+      - atwater
+    volumes:
+      - "/src/atwater.git/api/:/src/"
+      - "/var/log/ixm/atw-api/:/opt/atwater/api/logs/"
+  atw-nginx:
+    container_name: "atw-nginx"
+    restart: "no"
+    build:
+      context: ./nginx
+      dockerfile: ./docker/Dockerfile
+    image: ir.indexexchange.com:5000/atw-nginx$ATW_NGINXVER
+    logging:
+      driver: "journald"
+      options:
+        tag: "atwater.nginx"
+    networks:
+      - atwater
+      - internal
+    volumes:
+      - "/src/atwater.git/nginx/:/src/:ro"
+    ports:
+      - "443:443"

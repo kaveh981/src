@@ -8,13 +8,18 @@ import { Injector } from './lib/injector';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { RamlTypeValidator } from './lib/raml-type-validator';
+import { ConfigLoader } from './lib/config-loader';
 
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const server = Injector.request<Server>('Server');
+const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 /** Initialize the libraries. */
 Promise.resolve()
+    .then(() => {
+        return configLoader.initialize({ 'mw': './src/middleware' });
+    })
     .then(() => {
         return validator.initialize();
     })
@@ -25,6 +30,7 @@ Promise.resolve()
         return server.initialize();
     })
     .catch((err: Error) => {
+        console.error(err);
         // Clean up.
         databaseManager.shutdown();
     });

@@ -1,0 +1,96 @@
+ |
+
+            This example shows how a non-targeted Proposal can be created and made available for purchase by anyone using Index Market. A non-targeted Proposal is viewable by anyone except competitors (i.e. publishers cannot view other publishers' deals on offer, and the same applies to buyers). A non-targeted Proposal can be negotiated on in case the other party wants to alter its terms or purchased immediately in case the other party is satisfied with the original terms.
+
+            In the example, a publisher will create proposal to display on sale in the market. Two buyers are interested in this proposal: one is interested in buying this proposal immediately, while the other wishes to negotiate some of the terms first.
+
+            1. Create a non-targeted proposal
+            2. Receive responses from buyers
+            3. Respond to results
+
+            Before starting, make sure you've obtained an OAuth token in the [authorization workflow](TODO - link to auth WF).
+
+            #### 1. Create a non-targeted proposal
+
+            To create a proposal, a request is sent to the PUT `/deals/proposals` route. To make the proposal non-targeted, the publisher omits the `partner_id` property of the request.
+
+            The publisher includes specific [sites](TODO - link to sites) and/or [sections](TODO - link to sections) belonging to them as part of the proposal.
+
+            Contact information will be associated from the publisher account's default, or the `contact` field may be included to override the default.
+
+            ```
+            $ curl -X PUT \
+                -H 'X-Auth-ID: 123' \
+                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -d '{
+                        "inventory": [4321, 9876],
+                        "name": "Superfab Ultradeal",
+                        "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+                        "start_date": "2016-09-09",
+                        "end_date": "2016-10-10",
+                        "price": 1.99,
+                        "impressions": 8,
+                        "budget": 999999,
+                        "currency": "USD",
+                        "auction_type": "first",
+                        "contact": {
+                            "title": "Lord",
+                            "name": "Humungus",
+                            "email": "ayatollah@rockandrollah.com",
+                            "phone": "999 999 9998"
+                        },
+                        "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs"
+                    }' \
+                https://market.indexexchange.com/ixm/v1/deals/proposals
+            ```
+
+            The response obtained for a successful request is the details of the new proposal, along with its ID.
+
+            In this example, the created proposal has an ID of 888.
+
+            #### 2. Receive responses from buyers
+
+            Buyers can now see this proposal as available for purchase if they send a GET request to the `/deals/proposals` route. They can choose to either buy it immediately or to send a counter-offer that alters some of the details of the proposal.
+
+            In this example, the first buyer chooses to buy the proposal immediately, while the second wishes to negotiate by sending a counter-offer.
+
+
+            ##### Buyer 1 request
+            
+            ```
+             $ curl -X PUT \
+                -H 'X-Auth-ID: 1234' \
+                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -d '{ "proposal_id": 888 }' \
+                https://market.indexexchange.com/ixm/v1/deals/active
+            ```
+
+            ##### Buyer 2 request
+            
+            ```
+             $ curl -X PUT \
+                -H 'X-Auth-ID: 456' \
+                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -d '{ "proposal_id": 888, "partner_id": 123, "price": "2.99" "terms": "Try harder bro" }' \
+                https://market.indexexchange.com/ixm/v1/deals/negotiations
+            ```
+
+            #### 3. Respond to results
+
+            The publisher will be notified of the previous buyer responses, and will also see the first response has created an Active Deal in GET `/deals/active` route. The deal between the publisher and Buyer 1 will now be complete and ready to bid on, pending start date, if any.
+
+            The second response is available in Negotiated Deals via the GET `/deals/negotiations` route.
+
+            The publisher can now respond to the second response by sending a PUT request to `/deals/negotiations`, choosing to accept, reject, or counter-offer. The full details are available in the [Negotiate a Deal](TODO - link) workflow.
+
+            In our example, the publisher chooses to reject Buyer 2's counter-offer and decides to simply end negotiations because they will not accept any offers other than the original terms.
+
+            ```
+             $ curl -X PUT \
+                -H 'X-Auth-ID: 123' \
+                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -d '{ "proposal_id": 888, partner_id: 456, "response": "reject" }' \
+                https://market.indexexchange.com/ixm/v1/deals/negotiations
+            ```
+
+            The proposal is now unavailable to Buyer 2. It remains open until the publisher closes it, or if its end date passes.

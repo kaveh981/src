@@ -3,65 +3,57 @@
 # Kraken Middleware
 middleware:
 
-    # Disable sessions
+    # Disable sessions.
     session:
+        enabled: false
+
+    # Security not supported without sessions.
+    appsec:
         enabled: false
 
     # Log HTTP traffic
     logger:
         priority: 10
         module:
-            name: path:./middleware/http-logger
+            name: mw:http-logger
 
     # Augment the express response object
     resAugmenter:
         priority: 20
         module:
-            name: path:./middleware/res-augmenter
+            name: mw:res-augmenter
 
     # Handle authentication
     authHandler:
         priority: 30
         module:
-            name: path:./middleware/auth-handler
+            name: mw:auth-handler
 
     # The public access switch
     publicHandler:
         priority: 31
         module:
-            name: path:./middleware/public-access-handler
+            name: mw:public-access-handler
     
     # Controller routes
     router:
         priority: 70
-        route: "/ixm"
+        route: "/api/v1"
         module:
             arguments:
-                - directory: path:./controllers
-
-    # Handle Bad Request
-    badRequestHandler:
-        priority: 97
-        module:
-            name: path:./middleware/400-handler
-
-    # Handle Forbidden
-    forbiddenHandler:
-        priority: 98
-        module:
-            name: path:./middleware/403-handler
+                - directory: path:src/controllers
 
     # Handle Not Founds
     404Handler:
         priority: 99
         module:
-            name: path:./middleware/404-handler
+            name: mw:404-handler
 
     # Middleware error handler
     errorHandler:
         priority: 100
         module:
-            name: path:./middleware/error-handler
+            name: mw:error-handler
 
 
 

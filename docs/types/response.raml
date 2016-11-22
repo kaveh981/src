@@ -9,16 +9,16 @@ properties:
         displayName: Response Code
         description: The HTTP response code for the request result
         example: 200
-    message: 
-        type: string
-        required: true
-        displayName: Message
-        description: A result message. Will contain a success message, or error details in the case of error codes.
     data:
         type: array # can specify array w potential types with ( Type1 | Type 2)[] but haven't figured out how to !include
         required: true
         displayName: Data
         description: An array of data objects returned from the request. May be empty.
+    message: 
+        type: string
+        required: true
+        displayName: Message
+        description: A result message. Will contain a success message, or error details in the case of error codes.
     pagination:
         type: object #QueryPaging?
         required: false

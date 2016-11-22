@@ -21,6 +21,7 @@ typings
 # IDEs and editors
 #####################
 .idea
+.vscode
 
 # OS generated files
 ######################
@@ -31,6 +32,9 @@ typings
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Tools generated files - VIM
+*.swp
 
 # Local Config Files
 ######################

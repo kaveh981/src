@@ -1,1 +1,17 @@
-../api/typings.json
+{
+  "globalDependencies": {
+    "bluebird": "registry:dt/bluebird#3.0.0+20160928162057",
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
+    "deep-diff": "registry:dt/deep-diff#0.0.0+20160317120654",
+    "faker": "registry:dt/faker#3.1.0+20161003184239",
+    "fs-finder": "registry:dt/fs-finder#1.8.0+20160317120654",
+    "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
+    "knex": "registry:dt/knex#0.0.0+20160923124117",
+    "node": "registry:dt/node#6.0.0+20161019125345",
+    "tape": "registry:dt/tape#4.2.2+20160317120654"
+  },
+  "dependencies": {
+    "chalk": "registry:npm/chalk#1.1.1+20160812215109",
+    "request": "registry:npm/request#2.69.0+20160428223725"
+  }
+}

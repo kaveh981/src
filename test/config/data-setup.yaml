@@ -1,0 +1,23 @@
+# The suffix to append to the name of backed up tables
+suffix: _backup
+
+# Tables list that will be backed up and restored
+tables:
+    - ixmDealNegotiations
+    - ixmNegotiationDealMappings
+    - ixmBuyers
+    - ixmDealProposals
+    - ixmProposalSectionMappings
+#    - ixmPublishers
+    - users
+    - publishers
+    - sites
+    - rtbDeals
+    - rtbDSPs
+    - rtbSections
+    - rtbDealSections
+    - rtbSiteSections
+    - sectionAdUnitMappings
+    - sectionCountryMappings
+    - sectionDepthMappings
+    - rtbSectionMatches

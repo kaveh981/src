@@ -1,0 +1,24 @@
+#%RAML 1.0 DataType
+
+type: object
+description: A set consisting of a URL and a matching behaviour for deal section targeting
+properties: 
+    match_type:
+        type: string
+        required: true
+        displayName: URL matching type
+        description: |
+            The behaviour to use for matching the URL:
+                - `full`: Match the included `url` exactly
+                - `partial`: Partial match on `url` - will match any URLs below that. E.g. `https://spamlords.com/clickbait` will also match `https://spamlords.com/clickbait/one-weird-trick`
+        enum: [ 'site', 'full', 'partial' ]
+    url:
+        type: string
+        required: true
+        displayName: URL
+        description: The URL to match against.
+example: |
+    {
+        "match_type": "partial",
+        "url": "https://spamlords.com/clickbait"
+    }
