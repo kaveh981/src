@@ -266,7 +266,7 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
  * @case    - ProposalID is deleted and user is the owner
  * @setup   - create publisher, create site, create section, create proposal and set it's status to deleted and
  *  set publisher as the owner as well as the user. 
- * @expect  - 200.
+ * @expect  - 404.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
@@ -274,7 +274,7 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(1);
 
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -284,8 +284,7 @@ export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
 
-    assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.equals(response.status, 404);
 
 }
 
