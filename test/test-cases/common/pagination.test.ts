@@ -186,17 +186,11 @@ async function ATW_PAG_06 (route: string, verb: string, setup: () => Promise<ICr
         assert.equal(response.status, 200);
         assert.deepEqual(response.body.data, caseObject.expect.data);
 
-        let prevPageURL = "";
-
-        if (caseObject.input > 1) {
-            prevPageURL = apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1`;
-        }
-
         let expectedPagination = {
             page: caseObject.expect.page,
             limit: 1,
             next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page + 1}&limit=1`,
-            prev_page_url: prevPageURL
+            prev_page_url: caseObject.input > 1 ? apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1` : ""
         };
 
         assert.deepEqual(response.body.pagination, expectedPagination);
