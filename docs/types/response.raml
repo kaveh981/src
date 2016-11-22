@@ -20,9 +20,9 @@ properties:
         displayName: Message
         description: A result message. Will contain a success message, or error details in the case of error codes.
     pagination:
-        type: object #QueryPaging?
+        type: Pagination #QueryPaging?
         required: false
-        displayName: pagination
+        displayName: Pagination
         description: An optional object describing the pagination context of the returned data.
 example: |
     {
@@ -40,7 +40,9 @@ example: |
             }
         ],
         "pagination": {
+            "page": 2,
             "limit": 250,
-            "offset": 0
+            "next_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=3&limit=250",
+            "prev_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=1&limit=250
         }
     }
