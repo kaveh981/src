@@ -1,52 +1,42 @@
-FROM centos:centos7
+FROM ir.indexexchange.com:5000/node:6.9
+RUN mkdir -p /opt/atwater/api
 
-# Install git, needed by npm install
-RUN yum install -y git
+# Define ENTRYPOINT for image
+ENTRYPOINT ["entrypoint-api.sh"]
 
-# Install NodeJS v6.7.0
-RUN set -ex \
-    && for key in \
-        9554F04D7259F04124DE6B476D5A82AC7E37093B \
-        94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-        0034A06D9D9B0064CE8ADF6BF1747F4AD2306D93 \
-        FD3A5288F042B6850C66B31F09FE44734EB7990E \
-        71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-        DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-        B9AE9905FFD7803F25714661B63B535A4C206CA9 \
-        C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-    ; do \
-        gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-    done
-
-ENV NODE_VERSION 6.9.1
-
-RUN \
-  curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" && \
-  curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" && \
-  gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc && \
-  grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - && \
-  tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 && \
-  rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
-  ln -s /usr/local/bin/node /usr/local/bin/nodejs
-
-ENV TZ America/Toronto
-
-RUN mkdir /src && mkdir -p /opt/atw-api
-COPY . /src
-
+# Load build-args
 ARG ENVIRONMENT
-ENV ENVIRONMENT ${ENVIRONMENT:-development}
-
-RUN sh /src/bin/deploy.sh $ENVIRONMENT && \
-    rm -rf /src
-
-ENTRYPOINT ["sh", "-c", "/bin/start.sh $ENVIRONMENT"]
-
-# Label img with Commit hash and date at build time
+ARG DOCKERFILE_URL
 ARG GIT_COMMIT
 ARG DATE
 
+# Container TimeZone to EST/EDT
+ENV TZ America/Toronto
+# SRC_DIR - Path to source code
+ENV SRC_DIR /src
+# BASEDIR - Base path for services in Atwater
+ENV BASE_DIR /opt/atwater
+# DESTDIR - Path where service is deployed
+ENV DEST_DIR $BASE_DIR/api
+# ENVIRONMENT - defaults to "development" if build-arg wasn't provided
+ENV ENVIRONMENT ${ENVIRONMENT:-development}
+# NODE_ENV for npm and other nodejs processes
+ENV NODE_ENV $ENVIRONMENT
+
+# Label image
 LABEL  SERVICE_NAME=atw-api \
+    DOCKERFILE_URL=${DOCKERFILE_URL:-dev} \
     GIT_COMMIT=${GIT_COMMIT:-dev} \
     DATE=${DATE:-dev} \
     ENVIRONMENT=$ENVIRONMENT
+
+# Copy entrypoint-api.sh to /bin and add execution permissions
+COPY docker/entrypoint-api.sh /bin/entrypoint-api.sh
+RUN chmod +x /bin/entrypoint-api.sh
+
+# Copy Build Context to $SRC_DIR
+COPY ./ $SRC_DIR
+
+# Run entrypoint in "deploy" mode, then remove $SRC_DIR
+RUN entrypoint-api.sh --deploy && \
+    rm -rf $SRC_DIR

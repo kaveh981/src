@@ -1,6 +1,8 @@
 node_modules/
 typings/
 logs/
+test/
+build/
 *.log
 .env
 .env.example
