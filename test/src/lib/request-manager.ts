@@ -41,7 +41,8 @@ class APIRequestManager {
                 method: 'GET',
                 json: true,
                 headers: {
-                    [this.configLoader.get('api-config')['authentication-header']]: userID
+                    [this.configLoader.get('api-config')['authentication-header']]: userID,
+                    Host: this.baseDomain.replace('https://', '').split('/')[0]
                 }
             };
 

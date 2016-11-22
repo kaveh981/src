@@ -14,7 +14,7 @@ ENV TZ America/Toronto
 # ENVIRONMENT - defaults to "development" if build-arg wasn't provided
 ENV ENVIRONMENT ${ENVIRONMENT:-development}
 # SRC_ETC - src path for nginx configurations
-ENV SRC_ETC /etc/${ENVIRONMENT:-development}
+ENV SRC_ETC etc/${ENVIRONMENT:-development}
 # DEST_ETC - destination path for nginx configurations
 ENV DEST_ETC /etc/nginx
 
