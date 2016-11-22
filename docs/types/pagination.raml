@@ -5,28 +5,28 @@ description: An object defining the current state of pagination; current page an
 properties:
     page:
         type: integer
-        required: false
-        displayName: page
+        required: true
+        displayName: Page
         description: The current page number of the data returned. Dependent on limit.
         minimum: 1 
         maximum: 4294967295    
     limit:
         type: integer
-        required: false
-        displayName: limit
+        required: true
+        displayName: Limit
         description: The page size of each page returned.
         minimum: 1
         maximum: 250
-    nextPageURL:
+    next_page_url:
         type: string
-        required: false
-        displayName: next_page_url
-        description: A link to the next page of results with same limit
-    prevPageURL:
+        required: true
+        displayName: Next Page URL 
+        description: A link to the next page of results with same limit. If the current page contains the last available result, the next page URL will return an empty set.
+    prev_page_url:
         type: string
-        required: string 
-        displayName: prev_page_url
-        description: A link to the previous page of results with same limit  
+        required: true  
+        displayName: Previous Page URL 
+        description: A link to the previous page of results with same limit. Returned as empty string if current page is the first page.    
 example: |
     {
         "page": 2,
