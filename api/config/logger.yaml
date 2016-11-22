@@ -8,7 +8,7 @@ filewriteLevel: 0
 
 # Sources of logs to override.
 sourceOverrides:
-    HTTP:                   # Name of the logger to override.
+    HTTP:                   # Regex matching the name of the logger to override.
         consoleLevel: 1     # Console level to override.
         filewriteLevel: 1   # File write level to override.
 

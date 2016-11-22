@@ -145,10 +145,25 @@ class Logger {
      */
     private outputLog(message: IMessage): void {
 
-        let override = loggerConfig['sourceOverrides'][message.ORIGIN] || {};
+        let consoleLevel = loggerConfig['consoleLevel'];
+        let filewriteLevel =  loggerConfig['filewriteLevel'];
 
-        let consoleLevel = typeof override['consoleLevel'] === 'number' ? override['consoleLevel'] : loggerConfig['consoleLevel'];
-        let filewriteLevel =  typeof override['filewriteLevel'] === 'number' ? override['filewriteLevel'] : loggerConfig['filewriteLevel'];
+        for (let key in loggerConfig['sourceOverrides']) {
+            if (message.ORIGIN.match(key)) {
+                let consoleOverride = loggerConfig['sourceOverrides'][key]['consoleLevel'];
+                let filewriteOverride = loggerConfig['sourceOverrides'][key]['filewriteLevel'];
+
+                if (typeof consoleOverride === 'number') {
+                    consoleLevel = consoleOverride;
+                }
+
+                if (typeof filewriteOverride === 'number') {
+                    filewriteLevel = filewriteOverride;
+                }
+
+                continue;
+            }
+        }
 
         let displayMessage = message.LEVEL >= consoleLevel;
         let writeMessage = message.LEVEL >= filewriteLevel;
