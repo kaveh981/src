@@ -35,15 +35,15 @@ export class DatabaseManager {
     public initialize(): Promise<{}> {
         return new Promise((resolve, reject) => {
 
-            Log.info(`Initializing database connection to ${this.config.getVar('DB_DATABASE')}@${this.config.getVar('DB_HOST')}...`);
+            Log.info(`Initializing database connection to ${this.config.getEnv('DB_DATABASE')}@${this.config.getEnv('DB_HOST')}...`);
 
             let databaseConfig: Knex.Config = {
                 client: 'mysql',
                 connection: {
-                    host: this.config.getVar('DB_HOST'),
-                    user: this.config.getVar('DB_USER'),
-                    password: this.config.getVar('DB_PASSWORD'),
-                    database: this.config.getVar('DB_DATABASE')
+                    host: this.config.getEnv('DB_HOST'),
+                    user: this.config.getEnv('DB_USER'),
+                    password: this.config.getEnv('DB_PASSWORD'),
+                    database: this.config.getEnv('DB_DATABASE')
                 }
             };
 

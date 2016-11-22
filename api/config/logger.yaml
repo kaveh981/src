@@ -19,7 +19,7 @@ sourceOverrides:
 
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
-    - '../logs/output.log'
+    - path:logs/output.log
 
 # Metadata about each level
 levelMetadata:

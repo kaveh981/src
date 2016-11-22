@@ -3,12 +3,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import * as Promise from 'bluebird';
+const handlers = require('shortstop-handlers');
+const shortstop = require('shortstop');
+const finder = require('fs-finder');
 
 require('dotenv').config();
 
 /** Simple configuration loader, reads from the config folder at ./config. */
 class ConfigLoader {
+
+    /** Project root */
+    public baseFolder: string;
 
     /** Config Folder */
     public configFolder: string;
@@ -16,12 +21,43 @@ class ConfigLoader {
     /** Configuration storage */
     private configMap: any = {};
 
+    /** Shortstop resolver */
+    private resolver: any;
+
     /**
      * Construct a new config loader which loads from the given folder.
-     * @param folder - The folder containing config, located relative to the config module folder.
+     * @param baseFolder - The root directory of the project relative to config-loader module.
+     * @param configFolder - The folder containing all config files, relative to root.
      */
-    constructor(folder: string = '../config/') {
-        this.configFolder = path.join(__dirname, folder);
+    constructor(baseFolder: string = '../', configFolder: string = './config') {
+        this.baseFolder = path.join(__dirname, baseFolder);
+        this.configFolder = path.join(this.baseFolder, configFolder);
+    }
+
+    /**
+     * Load all of the config into memory.
+     * @param shortstopPaths - An object with keys representing shortstop keys and values the path relative to baseFolder.
+     */
+    public async initialize(shortstopPaths: any = {}) {
+
+        let configFiles = finder.from(this.configFolder).findFiles('<[0-9a-zA-Z/.-_ ]+(\.yaml|\.json)>');
+
+        // Create shortstop
+        this.resolver = shortstop.create();
+        this.resolver.use('path', handlers.path(this.baseFolder));
+
+        for (let key in shortstopPaths) {
+            this.resolver.use(key, handlers.path(path.join(this.baseFolder, shortstopPaths[key])));
+        }
+
+        // Load config
+        for (let i = 0; i < configFiles.length; i++) {
+            let file = configFiles[i];
+            let configName = path.basename(file).split('.').shift();
+
+            this.configMap[configName] = await this.loadConfig(file);
+        }
+
     }
 
     /**
@@ -29,9 +65,9 @@ class ConfigLoader {
      * @param variable - The name of the environment variable to get.
      * @returns The value of the environment variable requested. Throws error if it is not configured.
      */
-    public getVar(variable: string, optional?: boolean): string {
+    public getEnv(variable: string, optional?: boolean): string {
 
-        let value: string = process.env[variable];
+        let value = process.env[variable];
 
         if (typeof value === 'undefined' && !optional) {
             throw new Error(`Environment variable "${variable}" has not been configured.`);
@@ -49,7 +85,7 @@ class ConfigLoader {
     public get(config: string): any {
 
         if (!this.configMap[config]) {
-            this.loadConfig(config + '.yaml');
+            throw new Error(`Configuration "${config}" has not been loaded.`);
         }
 
         return this.configMap[config];
@@ -57,17 +93,35 @@ class ConfigLoader {
     }
 
     /**
-     * Load the configuration from this.configFolder/filename, and store it in the configMap.
-     * @param filename - The name of the file to load from the file system.
+     * Read the configuration and resolve shortstop.
+     * @param filepath - The path to the file to load from the file system.
      */
-    private loadConfig(filename: string): void {
+    private async loadConfig(filepath: string) {
 
-        let filepath = path.join(this.configFolder, filename);
         let fileContent = fs.readFileSync(filepath).toString();
         let configContent = yaml.safeLoad(fileContent);
 
-        this.configMap[filename.split('.yaml')[0]] = configContent;
+        return await this.resolveShortstop(configContent);
 
+    }
+
+    /** 
+     * Resolve the shortstop notation for config. Currently only supports 'path:'
+     * @param config - The config object to resolve shortstop.
+     * @returns A promise for the kraken config with shortstops resolved.
+    */
+    private resolveShortstop(config: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+
+            this.resolver.resolve(config, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            });
+
+        });
     }
 
 }
