@@ -95,7 +95,7 @@ async function ATW_PAG_03 (route: string, verb: string, setup: () => Promise<ICr
             page: 1,
             limit: caseObject.expect.limit,
             next_page_url: apiRequest.getBaseURL() + route + `?page=2&limit=${caseObject.expect.limit}`,
-            prev_page_url: ""
+            prev_page_url: ''
         };
 
         assert.deepEqual(response.body.pagination, expectedPagination);
@@ -190,7 +190,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: () => Promise<ICr
             page: caseObject.expect.page,
             limit: 1,
             next_page_url: apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page + 1}&limit=1`,
-            prev_page_url: caseObject.input > 1 ? apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1` : ""
+            prev_page_url: caseObject.input > 1 ? apiRequest.getBaseURL() + route + `?page=${caseObject.expect.page - 1}&limit=1` : ''
         };
 
         assert.deepEqual(response.body.pagination, expectedPagination);
