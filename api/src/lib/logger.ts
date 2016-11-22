@@ -161,7 +161,7 @@ class Logger {
                     filewriteLevel = filewriteOverride;
                 }
 
-                continue;
+                break;
             }
         }
 
