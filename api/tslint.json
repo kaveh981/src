@@ -12,7 +12,6 @@
         "no-duplicate-key": true,
         "no-empty": true,
         "no-eval": true,
-        "no-invalid-this": true,
         "no-shadowed-variable": true,
         "no-unreachable": true,
         "no-unused-expression": true,

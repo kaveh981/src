@@ -9,20 +9,20 @@ properties:
         displayName: Response Code
         description: The HTTP response code for the request result
         example: 200
-    message: 
-        type: string
-        required: true
-        displayName: Message
-        description: A result message. Will contain a success message, or error details in the case of error codes.
     data:
         type: array # can specify array w potential types with ( Type1 | Type 2)[] but haven't figured out how to !include
         required: true
         displayName: Data
         description: An array of data objects returned from the request. May be empty.
+    message: 
+        type: string
+        required: true
+        displayName: Message
+        description: A result message. Will contain a success message, or error details in the case of error codes.
     pagination:
-        type: object #QueryPaging?
+        type: Pagination #QueryPaging?
         required: false
-        displayName: pagination
+        displayName: Pagination
         description: An optional object describing the pagination context of the returned data.
 example: |
     {
@@ -40,7 +40,9 @@ example: |
             }
         ],
         "pagination": {
+            "page": 2,
             "limit": 250,
-            "offset": 0
+            "next_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=3&limit=250",
+            "prev_page_url": "https://market.indexexchange.com/ixm/deals/negotiations/?page=1&limit=250
         }
     }

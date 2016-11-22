@@ -33,17 +33,17 @@ export class DatabaseManager {
      * @returns Empty promise which resolves once the database connection is established.
      */
     public initialize(): Promise<{}> {
+        return new Promise((resolve, reject) => {
 
-        Log.info(`Initializing database connection to ${this.config.getVar('DB_DATABASE')}@${this.config.getVar('DB_HOST')}...`);
+            Log.info(`Initializing database connection to ${this.config.getEnv('DB_DATABASE')}@${this.config.getEnv('DB_HOST')}...`);
 
-        return new Promise((resolve: Function, reject: Function) => {
             let databaseConfig: Knex.Config = {
                 client: 'mysql',
                 connection: {
-                    host: this.config.getVar('DB_HOST'),
-                    user: this.config.getVar('DB_USER'),
-                    password: this.config.getVar('DB_PASSWORD'),
-                    database: this.config.getVar('DB_DATABASE')
+                    host: this.config.getEnv('DB_HOST'),
+                    user: this.config.getEnv('DB_USER'),
+                    password: this.config.getEnv('DB_PASSWORD'),
+                    database: this.config.getEnv('DB_DATABASE')
                 }
             };
 
@@ -53,26 +53,38 @@ export class DatabaseManager {
             queryBuilder.raw('SELECT 1')
                 .then(() => {
                     Log.info(`Database connection established successfully.`);
+
                     Object.assign(this, queryBuilder);
                     this.clientPool = queryBuilder.client;
+
+                    // Log all queries
+                    queryBuilder.on('query', (query) => {
+                        let filledQuery = query.sql;
+                        let idx = 0;
+
+                        while (filledQuery.includes('?') && idx < query.bindings.length) {
+                            filledQuery = filledQuery.replace('?', query.bindings[idx]);
+                            idx++;
+                        }
+
+                        Log.trace(filledQuery);
+                    });
+
                     resolve();
                 })
                 .catch((err: Error) => {
+                    Log.error(err);
                     reject(err);
                 });
-        })
-        .catch((err: Error) => {
-            Log.warn('Database failed to connect.');
-            Log.error(err);
-            throw err;
-        });
 
+        });
     }
 
     /**
      * Close down the database connection. If the client pool is open, destroys it.
      */
     public shutdown(): void {
+
         Log.info('Shutting down the DatabaseManager...');
 
         if (this.clientPool) {
@@ -81,6 +93,7 @@ export class DatabaseManager {
         }
 
         Log.info('DatabaseManager has been shutdown.');
+
     }
 
 };

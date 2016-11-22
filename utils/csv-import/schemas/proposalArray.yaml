@@ -1,0 +1,80 @@
+# A Schema defining a valid array of "Proposal" objects for bulk import
+#
+title: proposalArray
+type: array
+items:
+    title: proposal
+    description: A JSON schema defining how a valid proposal instance should be represented
+    type: object
+    format: proposal
+    constraints:
+        dateOrder: 
+         -  prior: startDate
+            after: endDate
+    properties:
+        proposalID:
+            $ref: "#/definitions/ID"
+        ownerID:
+            $ref: "#/definitions/ID"
+        name:
+            $ref: "#/definitions/varchar255"
+        description:
+            $ref: "#/definitions/varchar255"
+            default: ""
+        status:
+            enum: [active, paused, deleted]
+        startDate:
+            $ref: "#/definitions/dateString"
+            default: "0000-00-00"
+        endDate:
+            $ref: "#/definitions/dateString"
+            default: "0000-00-00"
+        price:
+            type: number
+            minimum: 0.01
+            maximum: 655.35
+        impressions:
+            $ref: "#/definitions/positiveMediumInt"
+            default: 0
+        budget:
+            $ref: "#/definitions/positiveMediumInt"
+            default: 0
+        auctionType:
+            enum: [fixed, first, second]
+            default: "second"
+        terms:
+            type: string
+            minLength: 1
+            maxLength: 65535
+        createDate:
+            type: "null"
+        modifyDate:
+            type: "null"
+        sectionIDs:
+            type: array
+            items:
+                $ref: "#/definitions/ID"
+            minItems: 1
+            uniqueItems: true
+    required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
+    terms, createDate, modifyDate, sectionIDs]
+definitions:
+    ID:
+        type: integer
+        minimum: 1
+        maximum: 16777215
+    positiveMediumInt:
+        type: integer
+        minimum: 0
+        maximum: 16777215
+    positiveTinyInt:
+        type: integer
+        minimum: 1
+        maximum: 255
+    varchar255:
+        type: string
+        minLength: 1
+        maxLength: 255
+    dateString:
+        type: string
+        pattern: ^[0-2]\d{3}-(?:0\d|1[0-2])-(?:[0-2]\d|3[0-1])$

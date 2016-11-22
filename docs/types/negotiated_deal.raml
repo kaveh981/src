@@ -1,0 +1,116 @@
+#!#%RAML 1.0 DataType
+
+type: object
+description: |
+    Current state of a deal in negotiation. The object fields describe the current proposed terms of the deal. The included proposal object contains the original proposal terms.
+
+    All negotiation is 1-1 between a publisher and a buyer. In the case of a proposal offered to multiple parties on either side, individual negotiation states are created for each publisher/buyer pair.
+properties:
+    budget:
+        type: integer
+        required: false
+        displayName: Budget
+        description: The projected amount to be spent by the buyer. Null if same as proposal's field.
+    created_at:
+        type: datetime
+        required: true
+        displayName: Created At
+        description: The timestamp the negotiation was created at. RFC3339 format, UTC.
+    end_date:
+        type: date-only
+        required: false
+        displayName: End Date
+        description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire. Null if same as proposal's field.
+        example: 2016-10-10
+    impressions:
+        type: integer
+        required: false
+        displayName: Impressions
+        description: The projected amount of impressions for the package. Null if same as proposal's field.
+    modified_at:
+        type: datetime
+        required: true
+        displayName: Modified At
+        description: The timestamp the negotiation was last modified at. RFC3339 format, UTC.
+    partner:
+        type: Partner
+        required: true
+        displayName: Partner
+        description: The partner involved in this negotiation. Will be a publisher if request originates from a buyer, or a buyer if request originates from a publisher.
+    price:
+        type: number
+        required: true
+        displayName: Deal Price
+        description: The deal price. This is the floor price for "First Price" or "Second Price" deals, or the fixed price for "Fixed Rate" deals. (See auction_type.) Null if same as proposal's field.
+        example: 1.99
+        minimum: 0.01
+        maximum: 655.35
+    proposal:
+        type: ProposedDeal
+        required: true
+        displayName: Proposal
+        description: The original proposal the negotiation is based on.
+    start_date:
+        type: date-only
+        required: false
+        displayName: Start Date
+        description: The start date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal is set to start immediately on acceptance. Null if same as proposal's field.
+        example: 2016-09-09
+    status:
+        type: string
+        required: true
+        displayName: Status
+        description: The current status of the negotiation. Indicates whether the negotiation is currently waiting on/was rejected by the user making the request or the negotiating partner, or whether it was accepted by both parties.
+        enum: ["waiting_on_partner", "waiting_on_you", "rejected_by_partner", "rejected_by_you", "accepted"]
+    terms:
+        type: string
+        required: false
+        displayName: Terms & Conditions
+        description: The terms & conditions for the deal - extra information describing the deal. Null if same as proposal's field.
+    example: |
+    {
+        "proposal": {
+            "proposal_id": 999,
+            "inventory": [4321, 9876],
+            "name": "Superfab Ultradeal",
+            "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
+            "status": "active",
+            "start_date": "2016-09-09",
+            "end_date": "2016-10-10",
+            "price": 1.99,
+            "impressions": 8,
+            "budget": 9999999,
+            "currency": "USD",
+            "auction_type": "first",
+            "owner": {
+                "owner_id": 123,
+                "contact": {
+                    "title": "Captain",
+                    "name": "Jimdex Exchange",
+                    "email": "jimdex.exchange@indexexchange.com",
+                    "phone": "666 666 6665"
+                }
+            },
+            "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
+            "created_at": "2016-04-04T04:00:00Z",
+            "modified_at": "2016-04-14T14:00:00Z"
+        },
+        "status": "waiting_on_partner",
+        "start_date": null,
+        "end_date": "2016-12-12",
+        "price": 1.49,
+        "impressions": null,
+        "budget": null,
+        "partner": {
+            "partner_id": 666,
+            "contact": {
+                "title": "Lord",
+                "name": "Humungus",
+                "email": "ayatollah@rockandrollah.com",
+                "phone": "999 999 9998"
+            }
+        },
+        "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror.",
+        "created_at": "2016-04-04T04:00:00Z",
+        "modified_at": "2016-04-14T14:00:00Z"
+    }

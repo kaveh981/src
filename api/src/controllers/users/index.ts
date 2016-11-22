@@ -1,12 +1,11 @@
 'use strict';
 
 import * as express from 'express';
-import * as Promise from 'bluebird';
 
 import { Injector } from '../../lib/injector';
-import { ContactManager } from '../../models/contact-info/contact-manager';
+import { UserManager } from '../../models/user/user-manager';
 
-const contactManager = Injector.request<ContactManager>('ContactManager');
+const userManager = Injector.request<UserManager>('UserManager');
 
 /**
  * Function that takes care of user information
@@ -16,19 +15,14 @@ function Users(router: express.Router): void {
     /**
      * GET request to get contact info for a user
      */
-    router.get('/:id', (req: express.Request, res: express.Response) => {
+    router.get('/:id', async (req: express.Request, res: express.Response, next: Function) => { try {
+
         let userID = req.params['id'];
+        let contactInfo = await userManager.fetchUserFromId(userID);
 
-        contactManager.fetchContactInfoFromId(userID)
-            .then((contactInfo) => {
-                if (!contactInfo.emailAddress) {
-                    res.sendNotFoundError();
-                    return;
-                }
+        res.sendPayload(contactInfo.toContactPayload());
 
-                res.sendPayload(contactInfo.toPayload());
-            });
-    });
+    } catch (error) { next(error); } });
 
 };
 

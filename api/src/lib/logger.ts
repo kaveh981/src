@@ -52,14 +52,16 @@ class Logger {
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public fatal(err: string | Error): IMessage {
-        let errorMessage = this.log(err.toString(), 5);
+    public fatal(err: string | Error, id?: string): IMessage {
+
+        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 5);
 
         if (typeof err !== 'string') {
             this.log(err.stack, 0);
         }
 
         return errorMessage;
+
     }
 
     /**
@@ -68,14 +70,16 @@ class Logger {
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public error(err: string | Error): IMessage {
-        let errorMessage = this.log(err.toString(), 4);
+    public error(err: string | Error, id?: string): IMessage {
+
+        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 4);
 
         if (typeof err !== 'string') {
             this.log(err.stack, 0);
         }
 
         return errorMessage;
+
     }
 
     /**
@@ -83,8 +87,8 @@ class Logger {
      * @param text - A string with the warning message.
      * @returns The JSON formatted message which was written to a file.
      */
-    public warn(text: string): IMessage {
-        return this.log(text, 3);
+    public warn(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 3);
     }
 
     /**
@@ -92,8 +96,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public info(text: string): IMessage {
-        return this.log(text, 2);
+    public info(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 2);
     }
 
     /**
@@ -101,8 +105,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public debug(text: string): IMessage {
-        return this.log(text, 1);
+    public debug(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 1);
     }
 
     /**
@@ -111,8 +115,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public trace(text: string): IMessage {
-        return this.log(text, 0);
+    public trace(text: string, id?: string): IMessage {
+        return this.log((id ? `(${id}) ` : '') + text, 0);
     }
 
     /** 
@@ -122,6 +126,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public log(text: string, level: number = 2): IMessage {
+
         // We only need to configure the logger once we log, this prevents annoying dependencies.
         if (!loggerConfig) {
             this.configureLoggers();
@@ -129,7 +134,9 @@ class Logger {
 
         let message: IMessage = this.createMessage(this.name, level, text);
         this.outputLog(message);
+
         return message;
+
     }
 
     /**
@@ -137,14 +144,41 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= loggerConfig['consoleLevel'] && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
-            let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
+
+        let consoleLevel = loggerConfig['consoleLevel'];
+        let filewriteLevel =  loggerConfig['filewriteLevel'];
+
+        for (let key in loggerConfig['sourceOverrides']) {
+            if (message.ORIGIN.match(key)) {
+                let consoleOverride = loggerConfig['sourceOverrides'][key]['consoleLevel'];
+                let filewriteOverride = loggerConfig['sourceOverrides'][key]['filewriteLevel'];
+
+                if (typeof consoleOverride === 'number') {
+                    consoleLevel = consoleOverride;
+                }
+
+                if (typeof filewriteOverride === 'number') {
+                    filewriteLevel = filewriteOverride;
+                }
+
+                break;
+            }
+        }
+
+        let displayMessage = message.LEVEL >= consoleLevel;
+        let writeMessage = message.LEVEL >= filewriteLevel;
+
+        if (displayMessage) {
+            let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 
             console.log(chalk[color](msg));
         }
 
-        writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        if (writeMessage) {
+            writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        }
+
     }
 
     /**
@@ -155,6 +189,7 @@ class Logger {
      * @returns The JSON formatted message.
      */
     private createMessage(origin: string, logLevel: number, message: string): IMessage {
+
         let date: Date = new Date();
 
         return {
@@ -165,33 +200,36 @@ class Logger {
             ORIGIN: origin,
             MESSAGE: message
         };
+
     }
 
     /**
      * Set up configuration for all the loggers.
      */
     private configureLoggers(): void {
+
         loggerConfig = Injector.request<ConfigLoader>('ConfigLoader').get('logger');
 
         writeStreams = loggerConfig['outputFiles'].map((file: string) => {
-            return this.createLogWriteStream(file);
+            let logFile = path.resolve(__dirname, file);
+            let logFolder = path.dirname(logFile);
+
+            if (!fs.existsSync(logFolder)) {
+                fs.mkdirSync(logFolder);
+            }
+
+            return fs.createWriteStream(logFile, { flags: 'a' });
         });
+
     }
 
-    /** 
-     * Write stream for file writing needs to be global so that all loggers can access it.
-     * @param filename - The filename relative to the root directory of the output file.
-     * @returns An fs.WriteStream for the filename specified.
+    /**
+     * Meaningful function for humans to print javascript objects
+     * @param obj - The object to stringify.
+     * @returns A string consisting of the obj properly indented.
      */
-    private createLogWriteStream(filename: string): fs.WriteStream {
-        let logFile: string = path.join(__dirname, '../', filename);
-        let logFolder: string = path.dirname(logFile);
-
-        if (!fs.existsSync(logFolder)) {
-            fs.mkdirSync(logFolder);
-        }
-
-        return fs.createWriteStream(logFile, { flags: 'a' });
+    public stringify(obj: any) {
+        return JSON.stringify(obj, null, 4);
     }
 
 };

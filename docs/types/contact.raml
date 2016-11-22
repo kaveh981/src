@@ -3,26 +3,26 @@
 type: object
 description: An object containing contact information, which may be associated with deals, available deal sections or profiles.
 properties:
-    title:
-        type: string
-        required: false
-        displayName: Job Title
-        description: The contact's job title or position
-    name:
-        type: string
-        required: true
-        displayName: Contact Name
-        description: The contact's name
     email:
         type: string
         required: true
         displayName: Contact Email
-        description: The contact's email address
+        description: The contact's email address.
+    name:
+        type: string
+        required: true
+        displayName: Contact Name
+        description: The contact's name.
     phone:
         type: string
         required: true
         displayName: Contact Phone Number
-        description: The contact's phone number
+        description: The contact's phone number.
+    title:
+        type: string
+        required: false
+        displayName: Job Title
+        description: The contact's job title or position.
 example: |
     {
         "title": "Captain",
