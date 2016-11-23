@@ -65,9 +65,9 @@ function Proposals(router: express.Router): void {
         /** Validation */
 
         // Validate request params
-        let paramsErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
 
-        if (paramsErrors.length > 0) {
+        if (paramErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
