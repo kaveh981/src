@@ -25,9 +25,9 @@ class ProposedDealModel {
     /** Flag to define is the proposal viewable to public */
     public isPublic: number;
     /** Start date of the proposal */
-    public startDate: Date | '0000-00-00';
+    public startDate: string;
     /** End date of the proposal */
-    public endDate: Date | '0000-00-00';
+    public endDate: string;
     /** Price of the proposal */
     public price: number;
     /** Projected amout of impressions for the proposal */
@@ -62,8 +62,8 @@ class ProposedDealModel {
      */
     public isAvailable(): boolean {
 
-        let startDate = Helper.formatDate(this.startDate);
-        let endDate = Helper.formatDate(this.endDate);
+        let startDate = this.startDate;
+        let endDate = this.endDate;
         let today = Helper.formatDate(new Date());
 
         return (this.sections.length > 0) && (this.status === 'active')
@@ -105,8 +105,8 @@ class ProposedDealModel {
             status: this.status,
             currency: this.currency,
             description: this.description,
-            start_date: Helper.formatDate(this.startDate),
-            end_date: Helper.formatDate(this.endDate),
+            start_date: this.startDate,
+            end_date: this.endDate,
             price: this.price,
             impressions: this.impressions,
             budget: this.budget,

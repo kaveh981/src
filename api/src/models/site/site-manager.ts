@@ -37,11 +37,16 @@ class SiteManager {
             return;
         }
 
-        let siteData = rows[0];
-        siteData.categories = rows.filter((row) => { return !!row.categories; })
-                                  .map((row) => { return row.categories; });
-
-        return new SiteModel(siteData);
+        return new SiteModel({
+            publisherID: rows[0].publisherID,
+            id: rows[0].id,
+            status: rows[0].status,
+            url: rows[0].url,
+            monthlyUniques: rows[0].monthlyUniques,
+            name: rows[0].name,
+            categories: rows.filter((row) => { return !!row.categories; }).map((row) => { return row.categories; }),
+            description: rows[0].description
+        });
 
     }
 
