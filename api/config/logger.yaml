@@ -15,7 +15,6 @@ sourceOverrides:
     DBMA:
         consoleLevel: 1
         filewriteLevel: 1
-        
 
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
