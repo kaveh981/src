@@ -164,7 +164,7 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     let publisher = await databasePopulator.createPublisher();
     let publisher2 = await databasePopulator.createPublisher();
@@ -175,7 +175,8 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher2.user.userID);
 
-    assert.equals(response.status, 403);
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
 }
 
 /*

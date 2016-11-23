@@ -60,7 +60,7 @@ function Proposals(router: express.Router): void {
 
             let user = req.ixmUserInfo;
 
-            if (proposal.isPurchasableByUser(user)) {
+            if (proposal.isAvailableForMarket()) {
                 availableProposals.push(proposal);
             }
         }

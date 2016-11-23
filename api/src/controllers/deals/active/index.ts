@@ -96,8 +96,6 @@ function ActiveDeals(router: express.Router): void {
         }
 
         // Check that the proposal is available for purchase
-        let owner = await userManager.fetchUserFromId(proposedDeal.ownerID);
-
         if (!proposedDeal.isPurchasableByUser(req.ixmUserInfo)) {
             throw HTTPError('403_NOT_FORSALE');
         }
