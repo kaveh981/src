@@ -56,18 +56,18 @@ class ProposedDealModel {
     }
 
     /**
-     * Checks that a proposed deal is currently available to buy by checking its start and end dates,
-     * that is has at least one section, and that its status is active
+     * Checks that a proposed deal can currently be displayed in the market by checking its start and end dates,
+     * that is has at least one section, that its status is active, and that its owner is active
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
-    public isAvailable(): boolean {
+    public isAvailableForMarket(): boolean {
 
         let startDate = this.startDate;
         let endDate = this.endDate;
         let today = Helper.formatDate((new Date()).toDateString());
 
         return (this.sections.length > 0) && (this.status === 'active')
-            && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00');
+            && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00') && this.ownerInfo.isActive();
 
     }
 
@@ -79,17 +79,17 @@ class ProposedDealModel {
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: UserModel) {
-        return (this.isAvailable() && this.ownerInfo.isActive() && this.ownerInfo.userType !== user.userType);
+        return (this.isAvailableForMarket() && this.ownerInfo.userType !== user.userType);
     }
 
     /**
-     * Checks that a proposed deal is readable by a specific user. The proposal must be purchasable by this user, or
+     * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market, or
      * the proposal must be owned by the user.
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: UserModel) {
-        return this.isPurchasableByUser(user) || this.ownerInfo.id === user.id;
+        return this.isAvailableForMarket() || this.ownerInfo.id === user.id;
     }
 
     /**

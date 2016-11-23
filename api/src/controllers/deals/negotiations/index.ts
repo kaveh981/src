@@ -275,7 +275,7 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NO_CHANGE');
             }
 
-            if (!targetProposal.isAvailable() || !(targetProposal.ownerInfo.isActive())) {
+            if (!targetProposal.isPurchasableByUser(req.ixmUserInfo)) {
                 throw HTTPError('403_NOT_FORSALE');
             }
 
