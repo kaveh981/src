@@ -85,7 +85,6 @@ function ActiveDeals(router: express.Router): void {
         let buyerID = req.ixmUserInfo.id;
         let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
         let proposedDeal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-        let owner = proposedDeal.ownerInfo;
 
         Log.trace(`Request to buy proposal ${proposalID} for buyer ${buyerID}.`, req.id);
 
@@ -93,6 +92,7 @@ function ActiveDeals(router: express.Router): void {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
+        // Check that the proposal is available for purchase
         if (!proposedDeal.isPurchasableByUser(req.ixmUserInfo)) {
             throw HTTPError('403_NOT_FORSALE');
         }
