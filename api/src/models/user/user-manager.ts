@@ -37,10 +37,16 @@ class UserManager {
             return;
         }
 
-        let userInfo = rows[0];
-        userInfo.status = Helper.statusLetterToWord(userInfo.status);
-
-        return new UserModel(rows[0]);
+        return new UserModel({
+            id: rows[0].id,
+            status:  Helper.statusLetterToWord(rows[0].status),
+            userType: rows[0].userType,
+            userGroup: rows[0].userGroup,
+            firstName: rows[0].firstName,
+            lastName: rows[0].lastName,
+            emailAddress: rows[0].emailAddress,
+            phone: rows[0].phone
+        });
 
     }
 }
