@@ -3,16 +3,16 @@
 type: object
 description: An object containing information about a deal partner, which may be a buyer or publisher involved in a negotiation or active deal.
 properties:
-    partner_id:
-        type: integer
-        required: true
-        displayName: Partner ID
-        description: The unique identifier for the negotiating partner
     contact:
         type: Contact
         required: false
         displayName: Partner contact information
         description: Contact information for the partner involved in this negotiation.
+    partner_id:
+        type: integer
+        required: true
+        displayName: Partner ID
+        description: The unique identifier for the negotiating partner
 example: |
     {
         "partner_id": 123,

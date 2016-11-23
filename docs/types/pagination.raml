@@ -3,13 +3,6 @@
 type: object
 description: An object defining the current state of pagination; current page and limit.  
 properties:
-    page:
-        type: integer
-        required: true
-        displayName: Page
-        description: The current page number of the data returned. Dependent on limit.
-        minimum: 1 
-        maximum: 4294967295    
     limit:
         type: integer
         required: true
@@ -22,6 +15,13 @@ properties:
         required: true
         displayName: Next Page URL 
         description: A link to the next page of results with same limit. If the current page contains the last available result, the next page URL will return an empty set.
+    page:
+        type: integer
+        required: true
+        displayName: Page
+        description: The current page number of the data returned. Dependent on limit.
+        minimum: 1
+        maximum: 4294967295
     prev_page_url:
         type: string
         required: true  

@@ -14,11 +14,6 @@ properties:
         required: false
         displayName: Budget
         description: The projected amount to be spent by the buyer.
-    contact:
-        type: Contact
-        required: true
-        displayName: Contact Information    
-        description: The primary contact information for the proposal's owner.
     created_at:
         type: datetime
         required: true
@@ -67,7 +62,7 @@ properties:
         maxLength: 255
     owner:
         type: Owner
-        require: true
+        required: true
         displayName: owner
         description: Information about the owner of this proposal.
     price:
