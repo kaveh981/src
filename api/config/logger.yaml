@@ -16,10 +16,6 @@ sourceOverrides:
         consoleLevel: 1
         filewriteLevel: 1
 
-    VLDT:
-        consoleLevel: 0
-        
-
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
     - path:logs/output.log
