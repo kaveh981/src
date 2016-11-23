@@ -93,7 +93,10 @@ class ProposedDealManager {
 
         for (let i = 0; i < rows.length; i++) {
             let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);
-            proposals.push(proposal);
+
+            if (proposal) {
+                proposals.push(proposal);
+            }
         }
 
         return proposals;

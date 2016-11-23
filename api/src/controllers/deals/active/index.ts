@@ -40,32 +40,25 @@ function ActiveDeals(router: express.Router): void {
      */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate pagination parameters
-        let paginationParams = {
-            page: req.query.page,
-            limit: req.query.limit
-        };
+        /** Validation */
 
-        let validationErrors = validator.validateType(paginationParams, 'Pagination',
+        // Validate Query
+        let validationErrors = validator.validateType(req.query, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
+        /** Route logic */
+
         // Get all active deals for current user
         let user = req.ixmUserInfo;
-        let pagination = new PaginationModel(paginationParams, req);
-
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit}, req);
         let settledDeals = await settledDealManager.fetchSettledDealsFromUser(user, pagination);
-
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
-
-        if (activeDeals.length === 0) {
-            throw HTTPError('200_NO_DEALS');
-        }
 
         res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
 
@@ -76,12 +69,16 @@ function ActiveDeals(router: express.Router): void {
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate the request
+        /** Validation */
+
+        // Validate body
         let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
+
+        /** Route logic */
 
         // Check that proposal exists
         let proposalID: number = req.body.proposal_id;
@@ -101,8 +98,7 @@ function ActiveDeals(router: express.Router): void {
         }
 
         // Check that proposal has not been bought yet by this buyer, or isn't in negotiation
-        let dealNegotiation: NegotiatedDealModel =
-                await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
+        let dealNegotiation = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, proposedDeal.ownerID);
 
         Log.trace(`Found a negotiation: ${Log.stringify(dealNegotiation)}.`, req.id);
 

@@ -42,29 +42,23 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate pagination parameters
-        let paginationParams = {
-            page: req.query.page,
-            limit: req.query.limit
-        };
+        /** Validation */
 
-        let validationErrors = validator.validateType(paginationParams, 'Pagination',
+        // Validate request query
+        let validationErrors = validator.validateType(req.query, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
-        let user = req.ixmUserInfo;
-        let pagination = new PaginationModel(paginationParams, req);
+        /** Route Logic */
 
+        let user = req.ixmUserInfo;
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
-
-        if (negotiatedDeals.length === 0) {
-            throw HTTPError('200_NO_NEGOTIATIONS');
-        }
 
         res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
 
@@ -75,43 +69,37 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate proposalID
-        let proposalID = Number(req.params.proposalID);
-        let proposalValidationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+        /** Validation */
 
-        if (proposalValidationErrors.length > 0) {
+        // Validate request params
+        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+
+        if (paramErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
-        // Check proposal exists based on proposalID
-        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-
-        if (!proposal) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        // Validate pagination parameters
-        let paginationParams = {
-            page: req.query.page,
-            limit: req.query.limit
-        };
-
-        let validationErrors = validator.validateType(paginationParams, 'Pagination',
+        // Validate request query
+        let validationErrors = validator.validateType(req.query, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams, req);
+        /** Route Logic */
+
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let userID = req.ixmUserInfo.id;
+        let proposalID: number = req.params.proposalID;
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(userID, proposalID, pagination);
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
-
-        if (!negotiatedDeals || !(negotiatedDeals.length > 0)) {
-            throw HTTPError('200_NO_NEGOTIATIONS');
-        }
 
         res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
 
@@ -122,20 +110,19 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate parameters
-        let proposalID: number = req.params.proposalID;
-        let partnerID: number = req.params.partnerID;
+        /** Validation */
 
-        let parameters = {
-            proposal_id: proposalID,
-            partner_id: partnerID
-        };
-
-        let validationErrors = validator.validateType(parameters, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
+        // Validate request params
+        let validationErrors = validator.validateType(req.params, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
+
+        /** Route logic */
+
+        let proposalID: number = req.params.proposalID;
+        let partnerID: number = req.params.partnerID;
 
         // Check proposal and partner existence
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
@@ -192,13 +179,17 @@ function NegotiationDeals(router: express.Router): void {
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        // Validate the request's parameters syntax
+        /** Validation */
+
+        // Validate the request body
         let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest',
                                 { sanitizeStringEnum: true, fillDefaults: true, removeNull: true, trimStrings: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
+
+        /** Route Logic */
 
         // Populate negotiation information used in the rest of the route
         let responseType: string = req.body.response;
