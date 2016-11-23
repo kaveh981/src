@@ -79,8 +79,6 @@ class SettledDealManager {
             sections: []
         });
 
-        let sections: DealSectionModel[] = [];
-
         for (let i = 0; i < rows.length; i++) {
             let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
 
