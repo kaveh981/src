@@ -63,7 +63,22 @@ class SettledDealManager {
             return;
         }
 
-        let settledDealObject = new SettledDealModel(rows[0]);
+        let settledDeal = new SettledDealModel({
+            id: rows[0].id,
+            status: Helper.statusLetterToWord(rows[0].status),
+            externalDealID: rows[0].externalDealID,
+            dspID: rows[0].dspID,
+            createDate: rows[0].createDate,
+            modifyDate: rows[0].modifyDate,
+            startDate: Helper.formatDate(rows[0].startDate),
+            endDate: Helper.formatDate(rows[0].endDate),
+            price: rows[0].price,
+            priority: rows[0].priority,
+            auctionType: rows[0].auctionType,
+            negotiatedDeal: await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID),
+            sections: []
+        });
+
         let sections: DealSectionModel[] = [];
 
         for (let i = 0; i < rows.length; i++) {
@@ -73,14 +88,10 @@ class SettledDealManager {
                 continue;
             }
 
-            sections.push(section);
+            settledDeal.sections.push(section);
         }
 
-        settledDealObject.sections = sections;
-        settledDealObject.negotiatedDeal = await this.negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
-        settledDealObject.status = Helper.statusLetterToWord(settledDealObject.status);
-
-        return settledDealObject;
+        return settledDeal;
 
     }
 

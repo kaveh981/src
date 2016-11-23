@@ -59,11 +59,25 @@ class NegotiatedDealManager {
             return;
         }
 
-        let negotiatedDeal = new NegotiatedDealModel(rows[0]);
-
-        negotiatedDeal.proposedDeal = await this.proposedDealManager.fetchProposedDealFromId(proposalID);
-        negotiatedDeal.buyerInfo = await this.userManager.fetchUserFromId(negotiatedDeal.buyerID);
-        negotiatedDeal.publisherInfo = await this.userManager.fetchUserFromId(negotiatedDeal.publisherID);
+        let negotiatedDeal = new NegotiatedDealModel({
+            id: rows[0].id,
+            buyerID: rows[0].buyerID,
+            publisherID: rows[0].publisherID,
+            publisherStatus: rows[0].publisherStatus,
+            buyerStatus: rows[0].buyerStatus,
+            sender: rows[0].sender,
+            createDate: rows[0].createDate,
+            modifyDate: rows[0].modifyDate,
+            proposedDeal: await this.proposedDealManager.fetchProposedDealFromId(proposalID),
+            buyerInfo: await this.userManager.fetchUserFromId(rows[0].buyerID),
+            publisherInfo: await this.userManager.fetchUserFromId(rows[0].publisherID),
+            startDate: Helper.formatDate(rows[0].startDate),
+            endDate: Helper.formatDate(rows[0].endDate),
+            price: rows[0].price,
+            impressions: rows[0].impressions,
+            budget: rows[0].budget,
+            terms: rows[0].terms
+        });
 
         return negotiatedDeal;
 

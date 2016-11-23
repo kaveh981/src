@@ -20,9 +20,9 @@ class SettledDealModel {
     public modifyDate: Date;
 
     /** Start date */
-    public startDate: Date | '0000-00-00';
+    public startDate: string;
     /** End date */
-    public endDate: Date | '0000-00-00';
+    public endDate: string;
     /** Price */
     public price: number;
     /** Deal Priority */
@@ -54,8 +54,8 @@ class SettledDealModel {
      */
     public isActive() {
 
-        let startDate = Helper.formatDate(this.startDate);
-        let endDate = Helper.formatDate(this.endDate);
+        let startDate = this.startDate;
+        let endDate = this.endDate;
         let today = Helper.formatDate(new Date());
 
         return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00')
@@ -87,8 +87,8 @@ class SettledDealModel {
             dsp_id: this.dspID,
             auction_type: this.auctionType,
             external_id: this.externalDealID,
-            start_date: Helper.formatDate(this.startDate),
-            end_date: Helper.formatDate(this.endDate),
+            start_date: this.startDate,
+            end_date: this.endDate,
             status: this.status,
             priority: this.priority,
             inventory: this.sections.map((section) => { return section.toSubPayload(); }),

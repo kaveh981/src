@@ -38,7 +38,7 @@ middleware:
     # Controller routes
     router:
         priority: 70
-        route: "/api/v1"
+        route: /api/v1
         module:
             arguments:
                 - directory: path:src/controllers
