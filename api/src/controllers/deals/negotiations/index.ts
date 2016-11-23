@@ -54,7 +54,6 @@ function NegotiationDeals(router: express.Router): void {
 
         /** Route Logic */
 
-        // Get all active deals for current user
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
