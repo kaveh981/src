@@ -49,11 +49,6 @@ properties:
         required: true
         displayName: Section ID
         description: The unique identifier for the section.
-    url_matches:
-        type: UrlMatch[]
-        required: false
-        displayName: Matches
-        description: A set of matching objects consisting of a `match_type` and `url` to match against. See [UrLMatch]( TODO link )
     name:
         type: string
         required: true
@@ -72,6 +67,11 @@ properties:
         required: true
         displayName: Site
         description: An array of one or more [Site]( link ) objects describing the site(s) this deal is active on.
+    url_matches:
+        type: UrlMatch[]
+        required: false
+        displayName: Matches
+        description: A set of matching objects consisting of a `match_type` and `url` to match against. See [UrLMatch]( TODO link )
 example: |
     {
         "id": 898,
