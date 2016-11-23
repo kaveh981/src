@@ -149,11 +149,9 @@ class NegotiatedDealManager {
         for (let i = 0; i < rows.length; i++) {
             let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
 
-            if (!negotiatedDeal) {
-                continue;
+            if (negotiatedDeal) {
+                negotiatedDealArray.push(negotiatedDeal);
             }
-
-            negotiatedDealArray.push(negotiatedDeal);
         }
 
         return negotiatedDealArray;
