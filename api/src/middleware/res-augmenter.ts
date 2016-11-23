@@ -68,7 +68,7 @@ function augmentResponse(res: express.Response): void {
         };
 
         // If the payload is undefined or is an empty object, send no content
-        if (!payload) {
+        if (!payload || payload.length === 0) {
             msg.message = errorMessages['200_NO_CONTENT'];
         }
 
