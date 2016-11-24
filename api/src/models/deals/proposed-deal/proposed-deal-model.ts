@@ -64,7 +64,7 @@ class ProposedDealModel {
 
         let startDate = this.startDate;
         let endDate = this.endDate;
-        let today = Helper.formatDate(new Date());
+        let today = Helper.formatDate((new Date()).toDateString());
 
         return (this.sections.length > 0) && (this.status === 'active')
             && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00');

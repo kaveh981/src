@@ -56,7 +56,7 @@ class SettledDealModel {
 
         let startDate = this.startDate;
         let endDate = this.endDate;
-        let today = Helper.formatDate(new Date());
+        let today = Helper.formatDate((new Date()).toDateString());
 
         return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00')
                && this.sections.length > 0
