@@ -6,6 +6,7 @@ import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { UserManager } from '../../user/user-manager';
 import { Logger } from '../../../lib/logger';
+import { Helper } from '../../../lib/helper';
 
 const Log = new Logger('MODS');
 
@@ -49,11 +50,27 @@ class ProposedDealManager {
             return;
         }
 
-        let proposalInfo = rows[0];
-        proposalInfo.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalID);
-        proposalInfo.ownerInfo = await this.userManager.fetchUserFromId(proposalInfo.ownerID);
+        let proposal = new ProposedDealModel({
+            id: proposalID,
+            ownerID: rows[0].ownerID,
+            name: rows[0].name,
+            description: rows[0].description,
+            status: rows[0].status,
+            startDate: Helper.formatDate(rows[0].startDate),
+            endDate: Helper.formatDate(rows[0].endDate),
+            price: rows[0].price,
+            impressions: rows[0].impressions,
+            budget: rows[0].budget,
+            auctionType: rows[0].auctionType,
+            terms: rows[0].terms,
+            createDate: rows[0].createDate,
+            modifyDate: rows[0].modifyDate,
+            currency: 'USD',
+            sections: await this.dealSectionManager.fetchSectionsFromProposalId(proposalID),
+            ownerInfo: await this.userManager.fetchUserFromId(rows[0].ownerID)
+        });
 
-        return new ProposedDealModel(proposalInfo);
+        return proposal;
 
     }
 

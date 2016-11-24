@@ -3,16 +3,16 @@
 type: object
 description: An object containing information about a proposal owner, which is the buyer or publisher that created proposal.
 properties:
-    owner_id:
-        type: integer
-        required: true
-        displayName: Owner ID
-        description: The unique identifier for the proposal owner.
     contact:
         type: Contact
         required: false
         displayName: Owner contact information
         description: Contact information for the owner of this proposal.
+    owner_id:
+        type: integer
+        required: true
+        displayName: Owner ID
+        description: The unique identifier for the proposal owner.
 example: |
     {
         "owner_id": 123,

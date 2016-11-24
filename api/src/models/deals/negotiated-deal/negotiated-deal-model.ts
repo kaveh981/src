@@ -35,9 +35,9 @@ class NegotiatedDealModel {
      */
 
     /** Start date of the deal */
-    public startDate: Date | '0000-00-00' | null;
+    public startDate: string | null;
     /** End date of the proposal */
-    public endDate: Date  | '0000-00-00' | null;
+    public endDate: string | null;
     /** Price of the proposal */
     public price: number | null;
     /** Projected amout of impressions for the proposal */
@@ -110,8 +110,8 @@ class NegotiatedDealModel {
             impressions: this.impressions,
             budget: this.budget,
             price: this.price,
-            start_date: this.startDate && Helper.formatDate(this.startDate),
-            end_date: this.startDate && Helper.formatDate(this.endDate),
+            start_date: this.startDate,
+            end_date: this.endDate,
             created_at: this.createDate.toISOString(),
             modified_at: this.modifyDate.toISOString()
         };
