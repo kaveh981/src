@@ -14,6 +14,7 @@ services:
       context: ./api
       dockerfile: ./docker/Dockerfile
     image: ir.indexexchange.com:5000/atw-api$ATW_APIVER
+    entrypoint: "sh /src/docker/entrypoint-api.sh"
     logging:
       driver: "journald"
       options:
@@ -30,6 +31,7 @@ services:
       context: ./nginx
       dockerfile: ./docker/Dockerfile
     image: ir.indexexchange.com:5000/atw-nginx$ATW_NGINXVER
+    entrypoint: "sh /src/docker/entrypoint-nginx.sh"
     logging:
       driver: "journald"
       options:
