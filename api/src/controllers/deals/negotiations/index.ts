@@ -108,7 +108,8 @@ function NegotiationDeals(router: express.Router): void {
     /**
      * Get specific negotiation from proposal id and partner id
      */
-    router.get('/:proposalID/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID/partner/:partnerID', ProtectedRoute,
+               async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
