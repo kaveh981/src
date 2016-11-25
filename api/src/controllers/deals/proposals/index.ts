@@ -31,47 +31,28 @@ function Proposals(router: express.Router): void {
      */
     router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-       // Validate pagination parameters
-        let paginationParams = {
-            page: req.query.page,
-            limit: req.query.limit
-        };
+        /** Validation */
 
-        let validationErrors = validator.validateType(paginationParams, 'Pagination',
+        // Validate request query
+        let validationErrors = validator.validateType(req.query, 'Pagination',
                                { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
 
-        let pagination = new PaginationModel(paginationParams, req);
+        /** Route logic */
 
+        let user = req.ixmUserInfo;
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
-        let availableProposals = [];
+        let availableProposals = activeProposals.filter((proposal) => { return !!proposal && proposal.isAvailableForMarket(); });
 
         Log.trace(`Found active proposals ${Log.stringify(activeProposals)}`, req.id);
 
-        for (let i = 0; i < activeProposals.length; i++) {
-            let proposal = activeProposals[i];
-
-            if (!proposal) {
-                continue;
-            }
-
-            let user = req.ixmUserInfo;
-
-            if (proposal.isPurchasableByUser(user)) {
-                availableProposals.push(proposal);
-            }
-        }
-
         Log.trace(`Found valid proposals ${Log.stringify(availableProposals)}`, req.id);
 
-        if (availableProposals.length > 0) {
-            res.sendPayload(availableProposals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
-        } else {
-            res.sendError('200_NO_PROPOSALS');
-        }
+        res.sendPayload(availableProposals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -81,26 +62,23 @@ function Proposals(router: express.Router): void {
      */
     router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
-        let proposalID = Number(req.params.proposalID);
+        /** Validation */
 
-        // Validate the parameter
-        let validationErrors = validator.validateType(proposalID, 'SpecificProposalParameter');
+        // Validate request params
+        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
 
-        if (validationErrors.length > 0) {
+        if (paramErrors.length > 0) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
+
+        /** Route logic */
 
         // Fetch the desired proposal
-        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-
-        if (!proposal) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
+        let proposal = await proposedDealManager.fetchProposedDealFromId(req.params.proposalID);
         let user = req.ixmUserInfo;
 
         // Check that the proposal can actually be viewed by the current user. If not, send back an error.
-        if (proposal.status === 'deleted' ) {
+        if (!proposal || proposal.status === 'deleted') {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         } else if (!proposal.isReadableByUser(user)) {
             throw HTTPError('403');

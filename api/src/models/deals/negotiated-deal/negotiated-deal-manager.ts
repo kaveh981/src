@@ -146,13 +146,12 @@ class NegotiatedDealManager {
                                              .limit(pagination.limit)
                                              .offset(offset);
 
-        if (!rows[0]) {
-            return;
-        }
-
         for (let i = 0; i < rows.length; i++) {
             let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
-            negotiatedDealArray.push(negotiatedDeal);
+
+            if (negotiatedDeal) {
+                negotiatedDealArray.push(negotiatedDeal);
+            }
         }
 
         return negotiatedDealArray;

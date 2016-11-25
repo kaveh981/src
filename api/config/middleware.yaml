@@ -1,0 +1,69 @@
+# Middleware Configuration
+
+# Log HTTP traffic
+logger:
+    priority: 10
+    module:
+        name: mw:http-logger
+
+# Augment the express response object
+resAugmenter:
+    priority: 20
+    module:
+        name: mw:res-augmenter
+
+# Handle authentication
+authHandler:
+    priority: 30
+    module:
+        name: mw:auth-handler
+
+# The public access switch
+publicHandler:
+    priority: 31
+    module:
+        name: mw:public-access-handler
+
+# JSON body parsing
+jsonParser:
+    priority: 60
+    module:
+        name: body-parser
+        method: json
+
+# URL decoding request bodies
+urlDecoder:
+    priority: 61
+    module:
+        name: body-parser
+        method: urlencoded
+        arguments:
+            - extended: true
+
+# Cookie parser
+cookieParser:
+    priority: 62
+    module: 
+        name: cookie-parser
+
+# Controller routes
+router:
+    priority: 70
+    route: /api/v1
+    module:
+        name: mw:router
+        arguments:
+            - directory: path:src/controllers
+
+# Handle Not Founds
+404Handler:
+    priority: 99
+    module:
+        name: mw:404-handler
+
+# Middleware error handler
+errorHandler:
+    priority: 100
+    module:
+        name: mw:error-handler
+

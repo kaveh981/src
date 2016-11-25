@@ -82,11 +82,9 @@ class SettledDealManager {
         for (let i = 0; i < rows.length; i++) {
             let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
 
-            if (!section || !section.isActive()) {
-                continue;
+            if (section && section.isActive()) {
+                settledDeal.sections.push(section);
             }
-
-            settledDeal.sections.push(section);
         }
 
         return settledDeal;

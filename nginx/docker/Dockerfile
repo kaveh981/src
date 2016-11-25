@@ -13,10 +13,8 @@ ARG DATE
 ENV TZ America/Toronto
 # ENVIRONMENT - defaults to "development" if build-arg wasn't provided
 ENV ENVIRONMENT ${ENVIRONMENT:-development}
-# SRC_ETC - src path for nginx configurations
-ENV SRC_ETC etc/${ENVIRONMENT:-development}
-# DEST_ETC - destination path for nginx configurations
-ENV DEST_ETC /etc/nginx
+# SRC_DIR - src path for nginx configurations
+ENV SRC_DIR /src
 
 # Label the image
 LABEL  SERVICE_NAME=atw-nginx \
@@ -30,4 +28,4 @@ COPY docker/entrypoint-nginx.sh /bin/entrypoint-nginx.sh
 RUN chmod +x /bin/entrypoint-nginx.sh
 
 # Deploy config
-ADD ["$SRC_ETC", "$DEST_ETC"]
+ADD ["etc/$ENVIRONMENT", "/etc/nginx"]

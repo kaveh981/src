@@ -2,15 +2,15 @@
 
 import * as test from 'tape';
 
-import { authenticationTest } from '../../../../../common/auth.test';
-import { paginationTest } from '../../../../../common/pagination.test';
-import { validationTest } from '../../../../../common/validation.test';
+import { authenticationTest } from '../../../../../../common/auth.test';
+import { paginationTest } from '../../../../../../common/pagination.test';
+import { validationTest } from '../../../../../../common/validation.test';
 
-import { Injector } from '../../../../../../src/lib/injector';
-import { APIRequestManager } from '../../../../../../src/lib/request-manager';
-import { DatabasePopulator } from '../../../../../../src/lib/database-populator';
-import { Helper } from '../../../../../../src/lib/helper';
-import { DatabaseManager } from '../../../../../../src/lib/database-manager';
+import { Injector } from '../../../../../../../src/lib/injector';
+import { APIRequestManager } from '../../../../../../../src/lib/request-manager';
+import { DatabasePopulator } from '../../../../../../../src/lib/database-populator';
+import { Helper } from '../../../../../../../src/lib/helper';
+import { DatabaseManager } from '../../../../../../../src/lib/database-manager';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
@@ -37,24 +37,20 @@ async function commonDatabaseSetup() {
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let ATW_DNPP_GET_AUTH = authenticationTest(route + '/1/1', 'get', commonDatabaseSetup);
+export let ATW_DNPP_GET_AUTH = authenticationTest(route + '/1/partner/1', 'get', commonDatabaseSetup);
 
 /*
  * @case    - The buyer attempts to pass in parameters.
  * @expect  - validation tests to pass.
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let ATW_DNPP_GET_VALIDATION =  validationTest(route, 'get', commonDatabaseSetup, {}, {
-    proposalID: {
-        type: 'integer'
-    },
-
+export let ATW_DNPP_GET_VALIDATION = validationTest(route + '/1/partner', 'get', commonDatabaseSetup, {}, {
     partnerID: {
         type: 'integer'
     }
@@ -63,7 +59,7 @@ export let ATW_DNPP_GET_VALIDATION =  validationTest(route, 'get', commonDatabas
 /*
  * @case    - Negotiation exist, both userID and partnerID are valid  
  * @expect  - 200 OK
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -91,7 +87,7 @@ export async function ATW_API_DNPP_GET_01(assert: test.Test) {
 /*
  * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -118,7 +114,7 @@ export async function ATW_API_DNPP_GET_02(assert: test.Test) {
 /*
  * @case    - Buyer is not related to Deal Negotiations concerning Proposal specified   
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -148,7 +144,7 @@ export async function ATW_API_DNPP_GET_03(assert: test.Test) {
 /*
  * @case    - Publisher is not related to Deal Negotiations concerning Proposal specified 
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -174,7 +170,7 @@ export async function ATW_API_DNPP_GET_04(assert: test.Test) {
 /*
  * @case    - Partner ID does not exist
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -212,7 +208,7 @@ export async function ATW_API_DNPP_GET_05(assert: test.Test) {
 /*
  * @case    - Partner is not an ixmBuyer or ixmPublisher
  * @expect  - 403 FORBIDDEN
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -242,7 +238,7 @@ export async function ATW_API_DNPP_GET_06(assert: test.Test) {
 /*
  * @case    - Partner ID is not related to the Deal Negotiation relating to the proposal  
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -274,7 +270,7 @@ export async function ATW_API_DNPP_GET_07(assert: test.Test) {
 /*
  * @case    - Partner status is not 'A' - Buyer
  * @expect  - 403 FORBIDDEN
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -299,7 +295,7 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 /*
  * @case    - Partner status is not 'A' - Publisher
  * @expect  - 403 FORBIDDEN
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -325,7 +321,7 @@ export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
 /*
  * @case    - Partner is the same user type (Buyers case)
  * @expect  - 403 FORBIDDEN
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -351,7 +347,7 @@ export async function ATW_API_DNPP_GET_09_01(assert: test.Test) {
 /*
  * @case    - Partner is the same user type (Publishers case)
  * @expect  - 403 FORBIDDEN
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -376,7 +372,7 @@ export async function ATW_API_DNPP_GET_09_02(assert: test.Test) {
 /*
  * @case    - Proposal exists, but no Negotiation started		
  * @expect  - 404 NOT FOUND
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -403,7 +399,7 @@ export async function ATW_API_DNPP_GET_10(assert: test.Test) {
 /*
  * @case    - Nogotiation exists on an paused proposal 		
  * @expect  - 200 OK
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -433,7 +429,7 @@ export async function ATW_API_DNPP_GET_11(assert: test.Test) {
 /*
  * @case    - Nogotiation exists on an deleted proposal 		
  * @expect  - 200 OK
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -463,7 +459,7 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
 /*
  * @case    - Nogotiation exists on an expired proposal 		
  * @expect  - 200 OK
- * @route   - GET deals/negotiations/:proposalID/:partnerID
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
@@ -519,8 +515,8 @@ async function generateProposalID(publisherID: number) {
 }
 
 /**
- * Build get specific negotiation URL /:proposalID/:partnerID
+ * Build get specific negotiation URL /:proposalID/partner/:partnerID
  */
 function buildPath(proposalID: number, partnerID: number) {
-    return route + '/' + proposalID + '/' + partnerID;
+    return route + '/' + proposalID + '/partner/' + partnerID;
 }

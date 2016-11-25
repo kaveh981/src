@@ -1,5 +1,6 @@
 #!/bin/sh
-set -o xtrace
+set -x
+set -e
 
 MODE=${1:-run}
 
@@ -19,7 +20,7 @@ if [ -d $SRC_DIR ]; then
     
     # Deploy build/ && config/ && locales/ && node_modules/ && src/schemas/
     echo "Deploying to $DEST_DIR"
-    mv $SRC_DIR/build $DEST_DIR/src
+    cp -rf $SRC_DIR/build $DEST_DIR/src
     cp -rf $SRC_DIR/config $DEST_DIR
     cp -rf $SRC_DIR/src/schemas $DEST_DIR/src
     cp -rf $SRC_DIR/node_modules $DEST_DIR
@@ -34,29 +35,7 @@ if [ -d $SRC_DIR ]; then
 
 fi
 
-if [ "$MODE" != "--deploy" ]; then
-    pid=0
-    # SIGTERM-handler function
-    sigterm_handler() {
-        if [ $pid -ne 0 ]; then
-            echo "Sending SIGTERM to node process"
-            kill -15 "$pid"
-            wait "$pid"
-            echo "Node process terminated"
-        fi
-        exit 0
-    }
-
-    trap sigterm_handler TERM
-    echo "Starting Atwater Api in $NODE_ENV environment"
-    cd $DEST_DIR
-
-    # start api
-    node src/index.js &
-    pid="$!"
-
-    # wait for the node process to exit
-    wait "$pid"
-    echo "Node process exited on its own, stopping container"
-    exit 10
-fi
+test "$MODE" != "--deploy" \
+    && cd $DEST_DIR \
+    && exec node src/index.js \
+    || exit 0

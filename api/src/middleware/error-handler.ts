@@ -13,7 +13,7 @@ function ErrorHandler(err: Error, req: express.Request, res: express.Response, n
 
     Log.debug(`${err.name || 'Unknown error'} on route ${req.url}.`, req.id);
 
-    if (err.message === 'Bad Request') {
+    if (err.message === 'Bad Request' || (err instanceof SyntaxError && 'body' in err)) {
         Log.trace(`Bad request on ${req.url}.`, req.id);
         res.sendError('400');
     } else if (!err['crafted'] ) {

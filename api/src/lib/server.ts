@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as path from 'path';
 const handlers = require('shortstop-handlers');
 const shortstop = require('shortstop');
-const kraken = require('kraken-js');
+const meddleware = require('meddleware');
 
 import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
@@ -34,8 +34,8 @@ class Server {
      */
     public async initialize(): Promise<void> {
 
-        let krakenConfig = this.config.get('kraken');
-        let port = await this.startServer(krakenConfig);
+        let middlewareConfig = this.config.get('middleware');
+        let port = await this.startServer(middlewareConfig, this.config.get('express'));
 
         Log.info(`Server has started successfully, listening on port ${port}.`);
 
@@ -46,55 +46,46 @@ class Server {
      * @param - Kraken configuration object.
      * @returns Resolves if the server starts correctly, and returns the port number.
      */
-    private startServer(krakenConfig: any): Promise<any> {
+    private startServer(middlewareConfig: any, expressConfig: any) {
+
+        let app: any = express();
+        let port = this.config.getEnv('SERVER_PORT');
+
+        Log.info(`Starting the server on port ${port}...`);
+
+        // Set express config
+        for (let key in expressConfig) {
+            Log.trace(`Setting express ${key} to ${expressConfig[key]}`);
+            app.set(key, expressConfig[key]);
+        }
+
+        // Debugging for loading middleware
+        app.on('middleware:before', (event: any) => {
+            let middlewarePath = event.config.name;
+
+            if (middlewarePath) {
+                Log.debug(`Loading middleware ${middlewarePath.split('\\').pop()}...`);
+            } else {
+                Log.debug(`Loading un-named middleware...`);
+            }
+        });
+
+        // Use the middleware configuration
+        app.use(meddleware(middlewareConfig));
+
+        let server = http.createServer(app);
+
+        // Start the server
         return new Promise((resolve, reject) => {
-
-            let app: any = express();
-            let port: string = this.config.getEnv('SERVER_PORT');
-
-            let krakenOptions: any = {
-                // Uncaught exception handler
-                uncaughtException: (err) => {
-                    Log.fatal(err);
-
-                    // CRASH
-                    process.exit(1);
-                },
-                // Kraken parses short-stop before onconfig is called... WAI?
-                onconfig: (config, callback) => {
-                    config.use(krakenConfig);
-                    callback(null, config);
+            server.listen(port, (error: Error) => {
+                if (error) {
+                    Log.error(error);
+                    reject(error);
                 }
-            };
-
-            Log.info(`Starting the server on port ${port}...`);
-
-            app.use(kraken(krakenOptions));
-
-            app.on('middleware:before', (event: any) => {
-                let middlewarePath = event.config.name;
-
-                if (middlewarePath) {
-                    Log.debug(`Loading middleware ${middlewarePath.split('\\').pop()}...`);
-                } else {
-                    Log.debug(`Loading un-named middleware...`);
-                }
-            });
-
-            app.on('start', () => {
                 resolve(port);
             });
-
-            let server: http.Server = http.createServer(app);
-
-            server.on('error', (err: Error) => {
-                Log.error(err);
-                reject(err);
-            });
-
-            server.listen(port);
-
         });
+
     }
 
 }
