@@ -432,11 +432,8 @@ class RamlTypeValidator {
                         }
 
                         // Validate all of the items in the array
-                        let newNode = Object.assign({}, node);
-                        newNode.type = [node.items];
-
                         for (let i = 0; i < value.length; i++) {
-                            errors = errors.concat(this.validateNode(value[i], newNode, path + `[${i}]`));
+                            errors = errors.concat(this.validateNode(value[i], node.items, path + `[${i}]`));
                         }
                     }
                 break;
