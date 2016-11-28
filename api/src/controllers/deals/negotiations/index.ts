@@ -238,7 +238,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
-            Log.trace('Proposal does not belong to neither, the publisher or the buyer');
+            Log.trace('Proposal does not belong to neither the publisher nor the buyer');
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
