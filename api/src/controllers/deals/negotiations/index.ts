@@ -217,7 +217,7 @@ function NegotiationDeals(router: express.Router): void {
         let userType: 'buyer' | 'publisher' = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
         let buyerID: number;
         let publisherID: number;
-        let userID = req.ixmUserInfo.id;
+        let user = req.ixmUserInfo;
 
         if (userType === 'publisher') {
             buyerID = req.body.partner_id;
@@ -249,12 +249,13 @@ function NegotiationDeals(router: express.Router): void {
         if (!currentNegotiation) {
 
             // Confirm that the user is not the owner of the proposal i.e the user cannot start a negotiaion on their own proposal
-            if (targetProposal.ownerID === userID) {
-                Log.trace('User starting the negotiation is the owner of the proposal');
+            // and confirm that the user type of the proposal owner is not same as the current user
+            if (targetProposal.ownerID === user.id || targetProposal.ownerInfo.userType === user.userType) {
+                Log.trace('User starting the negotiation is the owner of the proposal or same userTypes');
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
             }
 
-            // A buyer cannot accept or reject a negotiation that doesn't exist.
+            // A user cannot accept or reject a negotiation that doesn't exist.
             if (responseType !== 'counter-offer') {
                 throw HTTPError('403_NO_NEGOTIATION');
             }
