@@ -252,7 +252,7 @@ function NegotiationDeals(router: express.Router): void {
             // and confirm that the user type of the proposal owner is not same as the current user
             if (targetProposal.ownerID === user.id || targetProposal.ownerInfo.userType === user.userType) {
                 Log.trace("User starting the negotiation is the owner of the proposal "
-                          + "or the user-type of the proposal is the same as the current user's user-type");
+                          + "or the user-type of the proposal's owner is the same as the current user's user-type");
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
             }
 
