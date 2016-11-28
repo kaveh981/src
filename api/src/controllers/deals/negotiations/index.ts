@@ -238,7 +238,7 @@ function NegotiationDeals(router: express.Router): void {
         }
 
         if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
-            Log.trace('Proposal does not belong to neither the publisher nor the buyer');
+            Log.trace('Proposal does belongs to neither the publisher nor the buyer');
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
@@ -251,7 +251,8 @@ function NegotiationDeals(router: express.Router): void {
             // Confirm that the user is not the owner of the proposal i.e the user cannot start a negotiaion on their own proposal
             // and confirm that the user type of the proposal owner is not same as the current user
             if (targetProposal.ownerID === user.id || targetProposal.ownerInfo.userType === user.userType) {
-                Log.trace('User starting the negotiation is the owner of the proposal or same userTypes');
+                Log.trace("User starting the negotiation is the owner of the proposal "
+                          + "or the user-type of the proposal is the same as the current user's user-type");
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
             }
 
