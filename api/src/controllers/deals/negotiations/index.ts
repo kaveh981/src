@@ -228,7 +228,7 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`, req.id);
 
-        // Confirm that the proposal is available and belongs to this publisher
+        // Confirm that the proposal is available and belongs to one of buyer or publisher
         let proposalID = req.body.proposal_id;
         let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
@@ -236,9 +236,8 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
-        // Confirm that proposal is from the same publisher as negotiation request
-        if (targetProposal.ownerID !== publisherID) {
-            Log.trace(`Proposal belongs to ${targetProposal.ownerID}, not to ${publisherID}.`, req.id);
+        if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
+            Log.trace('Proposal does not belong to neither, the publisher or the buyer');
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
@@ -247,11 +246,6 @@ function NegotiationDeals(router: express.Router): void {
 
         // If the negotiation had not started yet, then it gets created
         if (!currentNegotiation) {
-
-            // Only buyers can start a negotiation
-            if (userType === 'publisher') {
-                throw HTTPError('403_CANNOT_START_NEGOTIATION');
-            }
 
             // A buyer cannot accept or reject a negotiation that doesn't exist.
             if (responseType !== 'counter-offer') {
