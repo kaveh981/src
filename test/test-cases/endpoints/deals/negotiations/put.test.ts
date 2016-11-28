@@ -747,7 +747,7 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_01(assert: test.Test) {
+export async function ATW_API_NEGOTIATION_PUBLISHER_01_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -766,6 +766,37 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_01(assert: test.Test) {
     let response = await apiRequest.put(route, requestBody, publisher.user.userID);
 
     assert.equal(response.status, 403);
+}
+
+/*
+ * @case    - Publisher start a negotiation on a buyer's proposal
+ * @expect  - 200 - Success
+ * @route   - PUT deals/negotiations
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_NEGOTIATION_PUBLISHER_01_02(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(123);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], { status: 'active' });
+
+    /** Test */
+    let requestBody = {
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyer.user.userID,
+            terms: 'Are you a goose'
+    };
+    let response = await apiRequest.put(route, requestBody, publisher.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data[0].terms, 'Are you a goose');
 }
 
 /*
@@ -1504,7 +1535,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
  * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
  * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
@@ -1545,7 +1576,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
  * @case    - The publisher can reject a negotiation out of turn, but cannot reject again.
  * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
@@ -1587,5 +1618,67 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
     assert.equal(response2.status, 200);
     assert.equal(response3.status, 200);
     assert.equal(response4.status, 403);
+
+}
+
+/**
+ * @case    - A buyer tries to start a negotiation on a proposal owned by another buyer 
+ * @expect  - 403 - cannot do that
+ * @route   - PUT deals/negotiations
+ * @status  - working
+ * @tags    - put, negotiations, deals, reject
+ */
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_05(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let proposalOwnerBuyer = await databasePopulator.createBuyer(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(proposalOwnerBuyer.user.userID, [section.section.sectionID]);
+
+    let requestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: proposalOwnerBuyer.user.userID,
+        terms: 'i am a goose'
+    };
+
+    let response = await apiRequest.put(route, requestBody, buyer.user.userID);
+
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - A publisher tries to start a negotiation on a proposal owned by another publisher 
+ * @expect  - 403 - cannot do that
+ * @route   - PUT deals/negotiations
+ * @status  - working
+ * @tags    - put, negotiations, deals, reject
+ */
+export async function ATW_API_NEGOTIATION_PROPOSAL_04_06(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let publisher = await databasePopulator.createPublisher();
+    let proposalOwnerPublisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(proposalOwnerPublisher.user.userID, [section.section.sectionID]);
+
+    let requestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: proposalOwnerPublisher.user.userID,
+        terms: 'i am a goose'
+    };
+
+    let response = await apiRequest.put(route, requestBody, publisher.user.userID);
+
+    assert.equal(response.status, 403);
 
 }
