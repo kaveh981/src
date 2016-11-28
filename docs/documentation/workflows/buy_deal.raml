@@ -1,29 +1,26 @@
  |
 
-            This example shows a basic deal purchasing workflow in Index Market. The following steps are taken:
+            There are two steps involved in the basic workflow for accepting a deal proposal as-is:
 
-            1. List available deals to buy
-            2. Purchase a selected deal
+                - List available deals, 
+                - Purchase a selected deal.
 
-            Before starting, make sure you've obtained an OAuth token in the [authorization workflow](TODO - link to auth WF).
 
-            #### 1. List available deals to buy
+            #### 2.1.1 List available deals
 
-            To list all available deals, send a GET request to the `/deals/proposals` endpoint. A collection of [deal proposals](TODO - link to proposal definition) will be returned.
+            To list all available deals, Send a GET request to the /deals/proposals endpoint:
 
-            ##### Example Request
             ```
             $ curl -X GET \
                 -H 'X-Auth-ID: 1234' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                https://market.indexexchange.com/ixm/v1/deals/proposals
+                https://market.indexexchange.com/v1/deals/proposals
             ```
 
-            A list of available deal proposals will be returned. The list can optionally be filtered by any of the available filters described in the [deal proposals route](TODO - link to route). 
+            In response, a list of available deal proposals is returned. Responses may differ based on:
 
-            If the number of available deals exceeds the pagination maximum, only the pagination maximum number of deals will be returned. A pagination object will be attached indicating the requested maximum objects, and the current page offset.
-
-            ##### Example response
+                - Filters. A response may optionally be filtered by any of the available filters described in the deal proposals route.
+                - Pagination maximums. The pagination object specifies the requested maximum objects and the current page offset. The number of available deals returned is limited to the pagination maximum.
 
             ```
             {
@@ -60,10 +57,10 @@
                         "proposal_id": 888,
                         "owner": {
                             "owner_id": 123,
-                            "contact": {
-                                "title": "Captain",
-                                "name": "Jimdex Exchange",
-                                "email": "jimdex.exchange@indexexchange.com",
+                            "contact": "contact": {
+                                "title": "Bossperson",
+                                "name": "Grunt McSlab",
+                                "email": "gruntslab@wemakenews4u.com",
                                 "phone": "666 666 6665"
                             }
                         },
@@ -85,17 +82,18 @@
 
                 ],
                 "pagination": {
+                    "page": 2,
                     "limit": 250,
-                    "offset": 1
+                    "next_page_url": "https://market.indexexchange.com/deals/proposals/?page=3&limit=250",
+                    "prev_page_url": "https://market.indexexchange.com/deals/proposals/?page=1&limit=250"
                 }
             }
             ```
 
-            #### 2. Purchase a selected deal
+            #### 2.1.2 Accept the deal
 
-            In our simplified example, we see two proposals available for purchase. Assuming we like the look of the 2nd one, and wish to purchase it as-is, we can buy it by sending a PUT request to `/deals/active`. The body of the request should be a JSON object containing the proposal ID to purchase.
-
-            ##### Example Request
+            Our simplified example illustrates two proposals available for purchase: 1“Great deal”1 and 1“Superfab Ultradeal”1. Let’s assume 1“Superfab Ultradeal”1 is perfect and we agree with all terms in the proposal. 
+            We can accept this deal as-is by sending a PUT request to /deals/active. The body of the request is a JSON object containing the proposal ID:
 
             ```
             $ curl -X PUT \
@@ -103,12 +101,12 @@
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -H 'Content-Type: application/json' \
                 -d '{ "proposalID": 888 }' \
-                https://market.indexexchange.com/ixm/v1/deals/active
+                https://market.indexexchange.com/v1/deals/active
             ```
 
-            On success, the deal is made active and will be available to bid on from the start date, if any. The returned deal object will include a unique `external_id`, which can be used as a reference or identifier in other systems.
+            We now have an active deal named “Superfab Ultradeal” which is available for bidding starting on September 9th, 2017. 
 
-            ##### Example Response
+            In response, we receive a deal object and a unique external_id which may be used as a reference or identifier in other systems:
 
             ```
             {
@@ -125,9 +123,9 @@
                         "partner": {
                             "id": 123,
                             "partner_contact": {
-                                "title": "Captain",
-                                "name": "Jimdex Exchange",
-                                "email": "jimdex.exchange@indexexchange.com",
+                                "title": "Bossperson",
+                                "name": "Grunt McSlab",
+                                "email": "gruntslab@wemakenews4u.com",
                                 "phone": "666 666 6665"
                             }
                         },
