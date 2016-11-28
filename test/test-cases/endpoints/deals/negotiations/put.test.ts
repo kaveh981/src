@@ -1535,7 +1535,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
  * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
  * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
@@ -1576,7 +1576,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
  * @case    - The publisher can reject a negotiation out of turn, but cannot reject again.
  * @expect  - 200 and 403
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
@@ -1625,7 +1625,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
  * @case    - A buyer tries to start a negotiation on a proposal owned by another buyer 
  * @expect  - 403 - cannot do that
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_05(assert: test.Test) {
@@ -1657,7 +1657,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_05(assert: test.Test) {
  * @case    - A publisher tries to start a negotiation on a proposal owned by another publisher 
  * @expect  - 403 - cannot do that
  * @route   - PUT deals/negotiations
- * @status  - 
+ * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
 export async function ATW_API_NEGOTIATION_PROPOSAL_04_06(assert: test.Test) {
