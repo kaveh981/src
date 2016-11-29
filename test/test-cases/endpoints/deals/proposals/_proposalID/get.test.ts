@@ -92,7 +92,7 @@ export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, cre
  * @setup   - create proposal and apply common validation method.
  * @expect  - Validations tests to pass.
  * @route   - GET deals/proposals/:proposal_id
- * @status  - working
+ * @status  - failing
  * @tags    - get, proposal, validation
  */
 export let ATW_PA_GET_SP_VALIDATION = validationTest(route, 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
