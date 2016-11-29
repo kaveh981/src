@@ -67,7 +67,8 @@ class ProposedDealManager {
             modifyDate: rows[0].modifyDate,
             currency: 'USD',
             sections: await this.dealSectionManager.fetchSectionsFromProposalId(proposalID),
-            ownerInfo: await this.userManager.fetchUserFromId(rows[0].ownerID)
+            ownerInfo: await this.userManager.fetchUserFromId(rows[0].ownerID),
+            targetedUsers: await this.fetchTargetedBuyerIdsFromProposalId(proposalID)
         });
 
         return proposal;
@@ -82,24 +83,32 @@ class ProposedDealManager {
      */
     public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: PaginationModel): Promise<ProposedDealModel[]> {
 
-        let offset = pagination.getOffset();
+        let proposalIDs = await this.databaseManager.pluck('proposalID')
+                                         .from('ixmDealProposals')
+                                         .where('status', proposalStatus)
+                                         .limit(pagination.limit)
+                                         .offset(pagination.getOffset());
 
-        let proposals = [];
-        let rows = await this.databaseManager.select('proposalID')
-                                             .from('ixmDealProposals')
-                                             .where('status', proposalStatus)
-                                             .limit(pagination.limit)
-                                             .offset(offset);
+        let proposals: ProposedDealModel[] = [];
 
-        for (let i = 0; i < rows.length; i++) {
-            let proposal = await this.fetchProposedDealFromId(rows[i].proposalID);
-
-            if (proposal) {
-                proposals.push(proposal);
-            }
+        for (let i = 0; i < proposalIDs.length; i++) {
+            proposals.push(await this.fetchProposedDealFromId(proposalIDs[i]));
         }
 
         return proposals;
+
+    }
+
+    /** 
+     * Get a list of userIDs that are targeted by a proposal
+     * @param proposalID - the id of the proposal targeted towards buyers 
+     * @return An array of buyerIDs targeted by the proposalID specified (if any)
+     */
+    private async fetchTargetedBuyerIdsFromProposalId(proposalID: number): Promise<number[]> {
+
+        return await this.databaseManager.pluck('userID')
+                                         .from('ixmProposalTargeting')
+                                         .where('proposalID', proposalID);
 
     }
 

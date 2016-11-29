@@ -271,7 +271,7 @@ function NegotiationDeals(router: express.Router): void {
             }
 
             if (!targetProposal.isPurchasableByUser(req.ixmUserInfo)) {
-                throw HTTPError('403_NOT_FORSALE');
+                throw HTTPError('404_PROPOSAL_NOT_FOUND');
             }
 
             await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
