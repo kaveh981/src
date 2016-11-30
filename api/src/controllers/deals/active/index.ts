@@ -88,13 +88,8 @@ function ActiveDeals(router: express.Router): void {
 
         Log.trace(`Request to buy proposal ${proposalID} for buyer ${buyerID}.`, req.id);
 
-        if (!proposedDeal || proposedDeal.status === 'deleted') {
+        if (!proposedDeal || !proposedDeal.isPurchasableByUser(req.ixmUserInfo)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        // Check that the proposal is available for purchase
-        if (!proposedDeal.isPurchasableByUser(req.ixmUserInfo)) {
-            throw HTTPError('403_NOT_FORSALE');
         }
 
         // Check that proposal has not been bought yet by this buyer, or isn't in negotiation

@@ -46,10 +46,9 @@ function Proposals(router: express.Router): void {
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
-        let availableProposals = activeProposals.filter((proposal) => { return !!proposal && proposal.isAvailableForMarket(); });
+        let availableProposals = activeProposals.filter((proposal) => { return proposal && proposal.isReadableByUser(user); });
 
         Log.trace(`Found active proposals ${Log.stringify(activeProposals)}`, req.id);
-
         Log.trace(`Found valid proposals ${Log.stringify(availableProposals)}`, req.id);
 
         res.sendPayload(availableProposals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());
@@ -68,7 +67,7 @@ function Proposals(router: express.Router): void {
         let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
 
         if (paramErrors.length > 0) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+            throw HTTPError('400', paramErrors);
         }
 
         /** Route logic */
@@ -78,10 +77,8 @@ function Proposals(router: express.Router): void {
         let user = req.ixmUserInfo;
 
         // Check that the proposal can actually be viewed by the current user. If not, send back an error.
-        if (!proposal || proposal.status === 'deleted') {
+        if (!proposal || !proposal.isReadableByUser(user)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        } else if (!proposal.isReadableByUser(user)) {
-            throw HTTPError('403');
         }
 
         res.sendPayload(proposal.toPayload());

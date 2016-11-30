@@ -46,6 +46,8 @@ class ProposedDealModel {
     public sections: DealSectionModel[];
     /** The currency the proposal is in */
     public currency: string = 'USD';
+    /** Targetted Users */
+    public targetedUsers: number[] = [];
 
      /**
      * Constructor
@@ -60,14 +62,15 @@ class ProposedDealModel {
      * that is has at least one section, that its status is active, and that its owner is active
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
-    public isAvailableForMarket(): boolean {
+    public isActive(): boolean {
+        return (this.sections.length > 0) && (this.status === 'active') && this.ownerInfo.isActive();
+    }
 
-        let startDate = this.startDate;
-        let endDate = this.endDate;
+    public isExpired(): boolean {
+
         let today = Helper.formatDate((new Date()).toDateString());
 
-        return (this.sections.length > 0) && (this.status === 'active')
-            && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00') && this.ownerInfo.isActive();
+        return !((this.startDate <= this.endDate) && (this.endDate >= today || this.endDate === '0000-00-00'));
 
     }
 
@@ -75,21 +78,25 @@ class ProposedDealModel {
      * Checks that a proposed deal is purchasable by a specific user. The proposal must be a valid purchasable 
      * proposal, its owner must be active, and the user viewing it must not have the same type as 
      * its owner (publishers can't view other publishers' proposals, and the same applies to buyers).
+     * Also ensures that if the proposal is targeted, it is targeted to the current user. 
      * @param user - the user in question
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: UserModel) {
-        return (this.isAvailableForMarket() && this.ownerInfo.userType !== user.userType);
+        return this.isActive() && !this.isExpired() && user.userType !== this.ownerInfo.userType &&
+               !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1);
     }
 
     /**
-     * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market, or
-     * the proposal must be owned by the user.
+     * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market
+     * and targeted towards the current user if it's a targeted proposal, or
+     * the proposal must be owned by the user and not deleted.
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: UserModel) {
-        return this.isAvailableForMarket() || this.ownerInfo.id === user.id;
+        return (this.isActive() && !this.isExpired() && !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1)) ||
+                this.ownerID === user.id && this.status !== 'deleted';
     }
 
     /**

@@ -129,7 +129,7 @@ export async function IXM_API_DEALS_PUT_03(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal that is paused.
-* @expect  - The response has status code 403.
+* @expect  - 404 - is not purchasable, does not exist to user
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -149,7 +149,7 @@ export async function IXM_API_DEALS_PUT_04(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 404);
 
 }
 
@@ -181,7 +181,7 @@ export async function IXM_API_DEALS_PUT_05(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal that is expired.
-* @expect  - The response has status code 403.
+* @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user 
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -202,7 +202,7 @@ export async function IXM_API_DEALS_PUT_06(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 404);
 
 }
 
@@ -236,7 +236,7 @@ export async function IXM_API_DEALS_PUT_07(assert: test.Test) {
 
 /*
  * @case    - The buyer buys a proposal that hasn't started yet.
- * @expect  - The response has status code 403.
+ * @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -411,7 +411,7 @@ export async function IXM_API_DEALS_PUT_13(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal, but no sections are active.
-* @expect  - The response has status code 403.
+* @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -435,7 +435,7 @@ export async function IXM_API_DEALS_PUT_14(assert: test.Test) {
     /** Test */
     let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
-    assert.equal(responseOne.status, 403);
+    assert.equal(responseOne.status, 404);
 
 }
 
@@ -470,7 +470,7 @@ export async function IXM_API_DEALS_PUT_15(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal, but no sites are active.
-* @expect  - The response has status code 403.
+* @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals, sites
@@ -493,6 +493,131 @@ export async function IXM_API_DEALS_PUT_16(assert: test.Test) {
     /** Test */
     let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
 
-    assert.equal(responseOne.status, 403);
+    assert.equal(responseOne.status, 404);
+
+}
+
+/*
+ * @case    - The current buyer is not targeted by proposal it is trying to accept but another buyer is  
+ * @setup   - create dsp, create buyer, create publisher, create site , create section
+ *  create proposal, create user targeting
+ * @expect  - 404 - The buyer is not able to accept proposal 
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, live, deals, proposal, targeting
+ */
+export async function IXM_API_DEALS_PUT_17(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let targetedBuyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+
+    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, targetedBuyer.user.userID);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
+
+    assert.equal(response.status, 404);
+}
+
+/*
+ * @case    - The current publisher is not targeted by proposal it is trying to accept but another publisher is  
+ * @setup   - create dsp, create buyer, create publisher, create site , create section
+ *  create proposal, create user targeting
+ * @expect  - 404 - The publisher is not able to accept proposal 
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, live, deals, proposal, targeting
+ */
+export async function IXM_API_DEALS_PUT_18(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let targetedPublisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
+
+    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, targetedPublisher.user.userID);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user.userID);
+
+    assert.equal(response.status, 404);
+
+}
+
+/*
+ * @case    - The current buyer is targeted by proposal it is trying to accept  
+ * @setup   - create dsp, create buyer, create publisher, create site , create section
+ *  create proposal, create user targeting
+ * @expect  - 200 - New deal created 
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, live, deals, proposal, targeting
+ */
+export async function IXM_API_DEALS_PUT_19(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
+
+    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, buyer.user.userID);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+
+}
+
+/*
+ * @case    - The current publisher is targeted by proposal it is trying to accept  
+ * @setup   - create dsp, create buyer, create publisher, create site , create section
+ *  create proposal, create user targeting
+ * @expect  - 200 - New deal created 
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, live, deals, proposal, targeting
+ */
+export async function IXM_API_DEALS_PUT_20(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
+
+    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, publisher.user.userID);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user.userID);
+
+    assert.equal(response.status, 200);
 
 }
