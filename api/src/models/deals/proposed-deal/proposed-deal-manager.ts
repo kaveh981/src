@@ -1,5 +1,7 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
 import { PaginationModel } from '../../pagination/pagination-model';
@@ -96,6 +98,49 @@ class ProposedDealManager {
         }
 
         return proposals;
+
+    }
+
+    /**
+     * Update a proposal with new parameters sent in the request and update new modifyDate
+     * @param proposedDeal - The proposaled deal deal to update.
+     * @param transaction - An optional transaction to use. 
+     */
+    public async updateProposedDeal(proposedDeal: ProposedDealModel, transaction?: knex.Transaction) {
+
+        if (!proposedDeal.id) {
+            throw new Error('Cannot update a proposed deal without an id.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.updateProposedDeal(proposedDeal, trx);
+            });
+            return;
+        }
+
+        await transaction.from('ixmDealProposals').update({
+            proposalID: proposedDeal.id,
+            ownerID: proposedDeal.ownerID,
+            name: proposedDeal.name,
+            description: proposedDeal.description,
+            status: proposedDeal.status,
+            startDate: proposedDeal.startDate,
+            endDate: proposedDeal.endDate,
+            price: proposedDeal.price,
+            budget: proposedDeal.budget,
+            impressions: proposedDeal.impressions,
+            auctionType: proposedDeal.auctionType,
+            terms: proposedDeal.terms,
+            createDate: proposedDeal.createDate,
+        }).where('proposalID', proposedDeal.id);
+
+        let updatedProposal = (await transaction.select('modifyDate')
+                                                .from('ixmDealProposals')
+                                                .where('proposalID', proposedDeal.id))[0];
+
+        proposedDeal.modifyDate = updatedProposal.modifyDate;
 
     }
 

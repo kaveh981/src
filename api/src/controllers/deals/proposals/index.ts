@@ -11,11 +11,9 @@ import { ProtectedRoute } from '../../../middleware/protected-route';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
-import { UserManager } from '../../../models/user/user-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
-const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ROUT');
@@ -67,7 +65,7 @@ function Proposals(router: express.Router): void {
         let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
 
         if (paramErrors.length > 0) {
-            throw HTTPError('400', paramErrors);
+            throw HTTPError('404_PROPOSAL_NOT_FOUND', paramErrors);
         }
 
         /** Route logic */

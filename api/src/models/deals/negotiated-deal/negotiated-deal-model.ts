@@ -89,6 +89,19 @@ class NegotiatedDealModel {
 
     }
 
+     /**
+     * Function to inspect if the negotiation is active
+     * @returns true if the negotiation and associated proposal are all active
+     */
+    public isActive() {
+
+        let negotiationActive = (this.publisherStatus === 'accepted' && this.buyerStatus === 'active') ||
+                                (this.buyerStatus === 'accepted' && this.publisherStatus === 'active');
+
+        return negotiationActive && this.proposedDeal.isActive();
+
+    }
+
     /**
      * Return payload formated object
      */
@@ -102,19 +115,29 @@ class NegotiatedDealModel {
             partner = this.buyerInfo.toPayload('partner_id');
         }
 
-        return {
-            proposal: this.proposedDeal.toPayload(),
-            partner: partner,
-            status: this.setPayloadStatus(userType),
-            terms: this.terms,
-            impressions: this.impressions,
-            budget: this.budget,
-            price: this.price,
-            start_date: this.startDate,
-            end_date: this.endDate,
-            created_at: this.createDate.toISOString(),
-            modified_at: this.modifyDate.toISOString()
-        };
+        if (this.proposedDeal.isDeleted()) {
+            return {
+                proposal: this.proposedDeal.toPayload(),
+                partner: partner,
+                status: this.setPayloadStatus(userType),
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString()
+            };
+        } else {
+            return {
+                proposal: this.proposedDeal.toPayload(),
+                partner: partner,
+                status: this.setPayloadStatus(userType),
+                terms: this.terms,
+                impressions: this.impressions,
+                budget: this.budget,
+                price: this.price,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString()
+            };
+        }
 
     };
 
@@ -131,6 +154,10 @@ class NegotiatedDealModel {
      * Determines the status to return to the user based on buyer and publisher status
      */
     private setPayloadStatus(userType: string) {
+
+        if (this.proposedDeal.status === 'deleted') {
+            return 'closed_by_owner';
+        }
 
         if (userType === 'IXMB') {
             if (this.buyerStatus === 'active') {

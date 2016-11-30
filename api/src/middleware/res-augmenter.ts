@@ -104,6 +104,25 @@ function augmentResponse(res: express.Response): void {
         res.sendJSON(status, msg);
 
     };
+
+    // Send an OK message
+    res.sendMessage = (message: string, payload?: any) => {
+
+        let msg: IHttpResponse = {
+            status: 200,
+            message: errorMessages[message] || errorMessages['200'],
+            data: []
+        };
+
+        if (Array.isArray(payload)) {
+            msg.data = payload;
+        } else {
+            msg.data = [payload];
+        }
+
+        res.sendJSON(200, msg);
+
+    };
 };
 
 /**

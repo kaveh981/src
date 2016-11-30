@@ -46,5 +46,12 @@ declare module 'express' {
          * @param json - The json object to send. 
          */
         sendJSON(status: number, json: any): void;
+
+        /**
+         * Send a message to the user as a 200 response
+         * @param message - the message we want to send to user
+         * @param payload - JSON object to send in the response.
+         */
+        sendMessage(message: string, payload?: any): void;
     }
 }

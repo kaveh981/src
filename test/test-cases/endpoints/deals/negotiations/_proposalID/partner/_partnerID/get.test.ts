@@ -29,7 +29,8 @@ async function commonDatabaseSetup() {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                        publisher.user.userID, buyer.user.userID);
+                                                                        publisher.user.userID, buyer.user.userID,
+                                                                        {pubStatus: 'active', buyerStatus: 'accepted'});
     let setupResponse = {userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID};
     return setupResponse;
 }
@@ -427,7 +428,7 @@ export async function ATW_API_DNPP_GET_11(assert: test.Test) {
 }
 
 /*
- * @case    - Nogotiation exists on an deleted proposal 		
+ * @case    - Nogotiation exists on an deleted proposal user is NOT the owner
  * @expect  - 200 OK
  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
@@ -438,22 +439,56 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let buyerID = buyer.user.userID;
+    let publisher = await databasePopulator.createPublisher();
+    let publisherID = publisher.publisher.userID;
     let site = await databasePopulator.createSite(publisherID);
     let section = await databasePopulator.createSection(publisherID, [site.siteID]);
-    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID], {status: 'deleted'});
+    let proposalObj = await databasePopulator.createProposal(publisherID, [section.section.sectionID], { status: 'deleted' });
     let proposalID = proposalObj.proposal.proposalID;
-    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID, { pubStatus: 'deleted' });
     let buyerPath = buildPath(proposalID, publisherID);
     let publisherPath = buildPath(proposalID, buyerID);
 
     /** Test */
     let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
     assert.equal(pubResponse.status, 200);
+    assert.deepEqual(pubResponse.body['data'], [Helper.dealNegotiationToPayload(negotiation, proposalObj, publisher.user, buyer.user)],
+        "DN1 returned");
+}
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
-    assert.equal(buyerResponse.status, 200);
+/*
+ * @case    - Nogotiation exists on an deleted proposal user is the owner
+ * @expect  - 200 OK
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_13(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    let buyerID = buyer.user.userID;
+    let publisher = await databasePopulator.createPublisher();
+    let publisherID = publisher.publisher.userID;
+    let site = await databasePopulator.createSite(publisherID);
+    let section = await databasePopulator.createSection(publisherID, [site.siteID]);
+    let proposalObj = await databasePopulator.createProposal(buyerID, [section.section.sectionID], { status: 'deleted' });
+    let proposalID = proposalObj.proposal.proposalID;
+    let negotiation = await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID, { pubStatus: 'deleted' });
+    let buyerPath = buildPath(proposalID, publisherID);
+    let publisherPath = buildPath(proposalID, buyerID);
+
+    /** Test */
+    let pubResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    assert.equal(pubResponse.status, 200);
+    assert.deepEqual(pubResponse.body['data'], [Helper.dealNegotiationToPayload(negotiation, proposalObj, buyer.user, publisher.user)],
+        "DN1 returned");
 }
 
 /*
@@ -463,7 +498,7 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
  * @status  - working
  * @tags    - get, negotiaitons, deals
  */
-export async function ATW_API_DNPP_GET_13(assert: test.Test) {
+export async function ATW_API_DNPP_GET_14(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
