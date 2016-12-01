@@ -11,6 +11,7 @@ items:
         dateOrder: 
          -  prior: startDate
             after: endDate
+    additionalProperties: false
     properties:
         proposalID:
             $ref: "#/definitions/ID"
