@@ -24,7 +24,7 @@ const Log: Logger = new Logger('ROUT');
  */
 function Proposals(router: express.Router): void {
 
-     /**
+    /**
      * DELETE request to delete a specific proposal using the proposal ID.
      * All associated deal negotiations will also be deleted.
      */

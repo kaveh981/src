@@ -130,7 +130,7 @@ class ProposedDealManager {
             impressions: proposedDeal.impressions,
             auctionType: proposedDeal.auctionType,
             terms: proposedDeal.terms,
-            createDate: proposedDeal.createDate,
+            createDate: proposedDeal.createDate
         }).where('proposalID', proposedDeal.id);
 
         let updatedProposal = (await transaction.select('modifyDate')

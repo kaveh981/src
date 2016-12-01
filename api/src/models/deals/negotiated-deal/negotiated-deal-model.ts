@@ -88,7 +88,7 @@ class NegotiatedDealModel {
 
     }
 
-     /**
+    /**
      * Function to inspect if the negotiation is active
      * @returns true if the negotiation and associated proposal are all active
      */
