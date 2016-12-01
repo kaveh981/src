@@ -99,7 +99,7 @@ class Helper {
         }
     }
 
-     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
+    public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
         proposalOwner: INewUserData, partner: INewUserData): any {
 
         if (proposal.proposal.status === 'deleted') {
