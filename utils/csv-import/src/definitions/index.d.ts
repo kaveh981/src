@@ -14,6 +14,7 @@ interface IProposal {
     createDate?: Date | string;
     modifyDate?: Date | string;
     sectionIDs: Number[];
+    targetedUsers: Number[];
 }
 
 interface IDateOrderConstraint {

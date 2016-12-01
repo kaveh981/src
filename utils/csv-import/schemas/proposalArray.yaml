@@ -8,7 +8,7 @@ items:
     type: object
     format: proposal
     constraints:
-        dateOrder: 
+        dateOrder:
          -  prior: startDate
             after: endDate
     properties:
@@ -56,8 +56,14 @@ items:
                 $ref: "#/definitions/ID"
             minItems: 1
             uniqueItems: true
+        targetedUsers:
+            type: array
+            items:
+                $ref: "#/definitions/ID"
+            minItems: 0
+            uniqueItems: true
     required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
-    terms, createDate, modifyDate, sectionIDs]
+    terms, createDate, modifyDate, sectionIDs, targetedUsers]
 definitions:
     ID:
         type: integer
