@@ -1,5 +1,5 @@
 {
-    "rulesDirectory": ["node_modules/tslint-eslint-rules/dist/rules"],
+    "rulesDirectory": ["./node_modules/tslint-eslint-rules/dist/rules"],
     "rules": {
         "member-access": true,
         "no-reference": true,
@@ -22,9 +22,9 @@
         "no-extra-boolean-cast": true,
         "no-invalid-regexp": true,
         "no-sparse-arrays": true,
-        "array-bracket-spacing": "always",
-        "block-spacing": true,
-        "object-curly-spacing": "always",
+        "array-bracket-spacing": [true, "always", { "objectsInArrays": false }],
+        "block-spacing": [true, "always"],
+        "object-curly-spacing": [true, "always"],
         "ter-prefer-arrow-callback": [true],
         "no-duplicate-case": true,
         "no-default-export": true,

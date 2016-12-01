@@ -1,3 +1,5 @@
+/* tslint:disable:no-console */
+
 'use strict';
 
 import * as test from 'tape';
