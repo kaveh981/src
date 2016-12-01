@@ -3,7 +3,6 @@
 import csv = require('csv-parse/lib/sync');
 
 import { Loader } from './loader';
-import { ConfigLoader } from './config-loader';
 
 /** CsvLoader class - Loads and parses a string of comma-separated-values (CSV) */
 class CSVLoader extends Loader {
