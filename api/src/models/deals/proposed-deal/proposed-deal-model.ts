@@ -38,14 +38,14 @@ class ProposedDealModel {
     public createDate: Date;
     /** Modified date of the proposal */
     public modifyDate: Date;
-    /** Array of sectionsID associated with the proposal*/
+    /** Array of sectionsID associated with the proposal */
     public sections: DealSectionModel[];
     /** The currency the proposal is in */
     public currency: string = 'USD';
     /** Targetted Users */
     public targetedUsers: number[] = [];
 
-     /**
+    /**
      * Constructor
      * @param initParams - Initial parameters to populate the proposal model.
      */
