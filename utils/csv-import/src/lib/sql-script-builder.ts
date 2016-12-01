@@ -19,7 +19,7 @@ class SQLScriptBuilder {
 
     /**
      * Build rollout and rollback scripts
-     * 
+     *
      * @param {string} ticketNumber JIRA Ticket Number for the csv insertion
      * @param {string} directory Path to store SQL scripts generated
      * @param {INewProposalData[]} proposals Array of proposal data objects
@@ -47,7 +47,8 @@ class SQLScriptBuilder {
         insertScript += this.getExpectedChanges(proposals);
 
         insertScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
-        insertScript += "SET @existing_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        insertScript += "SET @existing_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        insertScript += "SET @existing_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
         insertScript += "START TRANSACTION;\n";
 
@@ -56,11 +57,14 @@ class SQLScriptBuilder {
         }
 
         insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
-        insertScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        insertScript += "SET @final_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        insertScript += "SET @final_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
         insertScript += "SELECT IF(@final_proposals - @existing_proposals = @expected_proposal_changes" +
             " AND " +
-            "@final_mappings - @existing_mappings = @expected_mapping_changes" +
+            "@final_section_mappings - @existing_section_mappings = @expected_section_mapping_changes" +
+            " AND " +
+            "@final_targeted_users - @existing_targeted_users = @expected_user_targeting_changes" +
             "," +
             "'Insertion check OK, Please COMMIT', 'Insertion check FAIL, Please ROLLBACK');\n";
 
@@ -83,7 +87,8 @@ class SQLScriptBuilder {
         deleteScript += this.getExpectedChanges(proposals);
 
         deleteScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
-        deleteScript += "SET @existing_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        deleteScript += "SET @existing_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        deleteScript += "SET @existing_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
         deleteScript += "START TRANSACTION;\n";
 
@@ -91,11 +96,14 @@ class SQLScriptBuilder {
             deleteScript += await this.buildDeleteQuery(proposals[i]);
         }
         deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
-        deleteScript += "SET @final_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        deleteScript += "SET @final_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
+        deleteScript += "SET @final_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
         deleteScript += "SELECT IF(@existing_proposals - @final_proposals = @expected_proposal_changes" +
             " AND " +
-            "@existing_mappings - @final_mappings = @expected_mapping_changes" +
+            "@existing_section_mappings - @final_section_mappings = @expected_section_mapping_changes" +
+            " AND " +
+            "@existing_targeted_users - @final_targeted_users = @expected_user_targeting_changes" +
             "," +
             "'Deletion check OK, Please COMMIT', 'Deletion check FAIL, Please ROLLBACK');\n";
 
@@ -111,7 +119,8 @@ class SQLScriptBuilder {
 
         let query: string;
         let proposalCopy = Object.assign({}, proposal);
-        delete proposalCopy['sectionIDs'];
+        delete proposalCopy.sectionIDs;
+        delete proposalCopy.targetedUsers;
 
         proposalCopy.createDate = this.createDate;
 
@@ -120,6 +129,10 @@ class SQLScriptBuilder {
 
         proposal.sectionIDs.forEach((sectionID: number) => {
             query += "INSERT INTO ixmProposalSectionMappings (proposalID, sectionID) VALUES (@last_id, " + sectionID + ");\n";
+        });
+
+        proposal.targetedUsers.forEach((userID: number) => {
+            query += "INSERT INTO ixmProposalTargeting (proposalID, userID) VALUES (@last_id, " + userID + ");\n";
         });
 
         return query;
@@ -132,8 +145,9 @@ class SQLScriptBuilder {
 
         let query: string;
         let proposalCopy = Object.assign({}, proposal);
-        delete proposalCopy['sectionIDs'];
-        delete proposalCopy['modifyDate'];
+        delete proposalCopy.sectionIDs;
+        delete proposalCopy.targetedUsers;
+        delete proposalCopy.modifyDate;
 
         proposalCopy.createDate = this.createDate;
 
@@ -141,6 +155,8 @@ class SQLScriptBuilder {
                                         .from('ixmDealProposals')
                                         .where(proposalCopy)
                                         .toString() + "); ";
+
+        query += "DELETE FROM ixmProposalTargeting WHERE proposalID = @proposal_id; ";
 
         query += "DELETE FROM ixmProposalSectionMappings WHERE proposalID = @proposal_id; ";
 
@@ -151,18 +167,21 @@ class SQLScriptBuilder {
     }
 
     /**
-     * Get string of SQL commands that store changes of ixmDealProposals table and 
-     * ixmProposalSectionMappings table in variables
+     * Get string of SQL commands that store changes of ixmDealProposals,
+     * ixmProposalSectionMappings and ixmProposalTargeting tables in variables
      */
     public getExpectedChanges(proposals: IProposal[]) {
         let changes = "SET @expected_proposal_changes = " + proposals.length + ";\n" ;
-        let numberOfMappings = 0;
+        let numberOfSectionMappings = 0;
+        let numberOfTargetedUsers = 0;
 
         for (let i = 0; i < proposals.length; i += 1) {
-            numberOfMappings += proposals[i].sectionIDs.length;
+            numberOfSectionMappings += proposals[i].sectionIDs.length;
+            numberOfTargetedUsers += proposals[i].targetedUsers.length;
         }
 
-        changes += "SET @expected_mapping_changes = " + numberOfMappings + ";\n";
+        changes += "SET @expected_section_mapping_changes = " + numberOfSectionMappings + ";\n";
+        changes += "SET @expected_user_targeting_changes = " + numberOfTargetedUsers + ";\n";
 
         return changes;
     }
