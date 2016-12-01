@@ -30,12 +30,10 @@ Promise.resolve()
         return server.initialize();
     })
     .catch((err: Error) => {
-        console.error(err);
         // Clean up.
         databaseManager.shutdown();
     });
 
 process.on('SIGTERM', () => {
-    console.log('Shutting down gracefully...');
     setTimeout(process.exit, 0, 0);
 });

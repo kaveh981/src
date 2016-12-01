@@ -39,7 +39,7 @@ function ActiveDeals(router: express.Router): void {
 
         // Validate Query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -49,7 +49,7 @@ function ActiveDeals(router: express.Router): void {
 
         // Get all active deals for current user
         let user = req.ixmUserInfo;
-        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit}, req);
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let settledDeals = await settledDealManager.fetchSettledDealsFromUser(user, pagination);
         let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
 
@@ -106,6 +106,7 @@ function ActiveDeals(router: express.Router): void {
 
         // Begin transaction
         await databaseManager.transaction(async (transaction) => {
+
             // Create a new negotiation
             let acceptedNegotiation = await negotiatedDealManager.createAcceptedNegotiationFromProposedDeal(proposedDeal, buyerID);
             await negotiatedDealManager.insertNegotiatedDeal(acceptedNegotiation, transaction);

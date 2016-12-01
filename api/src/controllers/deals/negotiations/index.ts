@@ -42,7 +42,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate request query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -80,7 +80,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate request query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+            { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -108,8 +108,7 @@ function NegotiationDeals(router: express.Router): void {
     /**
      * Get specific negotiation from proposal id and partner id
      */
-    router.get('/:proposalID/partner/:partnerID', ProtectedRoute,
-               async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID/partner/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 

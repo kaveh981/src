@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 'use strict';
 
 import * as test from 'tape';
