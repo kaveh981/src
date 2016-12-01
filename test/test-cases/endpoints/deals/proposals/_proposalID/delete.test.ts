@@ -39,7 +39,7 @@ export let ATW_DELETE_PRO_AUTH = authenticationTest(route + '/1', 'delete', data
  * @case    - Common validation cases for proposalID.
  * @setup   - create proposal and apply common validation method.
  * @expect  - Validations tests to pass.
- * @route   - DEELTE deals/proposals/:proposal_id
+ * @route   - DELETE deals/proposals/:proposal_id
  * @status  - working
  * @tags    - delete, proposal, validation
  */
