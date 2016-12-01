@@ -5,10 +5,7 @@ import { ProposedDealModel } from './proposed-deal-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { UserManager } from '../../user/user-manager';
-import { Logger } from '../../../lib/logger';
 import { Helper } from '../../../lib/helper';
-
-const Log = new Logger('MODS');
 
 /** Package model manager */
 class ProposedDealManager {

@@ -3,7 +3,6 @@
 import * as knex from 'knex';
 
 import { DatabaseManager } from '../../../lib/database-manager';
-import { Logger } from '../../../lib/logger';
 import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
@@ -11,8 +10,6 @@ import { UserManager } from '../../user/user-manager';
 import { UserModel } from '../../user/user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { Helper } from '../../../lib/helper';
-
-const Log: Logger = new Logger('ACTD');
 
 /** Deal Negotiation model manager */
 class NegotiatedDealManager {

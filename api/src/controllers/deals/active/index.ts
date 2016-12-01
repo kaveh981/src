@@ -4,7 +4,6 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
@@ -12,10 +11,7 @@ import { ProtectedRoute } from '../../../middleware/protected-route';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
-import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
-import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
-import { UserManager } from '../../../models/user/user-manager';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
@@ -25,7 +21,6 @@ const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealM
 const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
-const userManager = Injector.request<UserManager>('UserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ROUT');

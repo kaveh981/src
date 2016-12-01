@@ -1,10 +1,6 @@
 'use strict';
 
 import { SiteModel } from '../site/site-model';
-import { Injector } from '../../lib/injector';
-import { ConfigLoader } from '../../lib/config-loader';
-
-const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 class DealSectionModel {
 

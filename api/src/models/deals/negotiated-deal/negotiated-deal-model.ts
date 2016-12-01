@@ -1,6 +1,5 @@
 'use strict';
 
-import { Helper } from '../../../lib/helper';
 import { UserModel } from '../../user/user-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 
