@@ -321,6 +321,36 @@ class NegotiatedDealManager {
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
 
     }
+
+    /**
+     * Delete associated negotiations of the given proposalID
+     * @param {number} proposalID the proposal ID to be deleted
+     * @param {string} userType the user type of the requester
+     * @param {knex.Transaction} [transaction] database transaction
+     */
+    public async deleteNegotiationsFromProposalId(proposalID: number, user: UserModel, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.deleteNegotiationsFromProposalId(proposalID, user, trx);
+            });
+            return;
+        }
+
+        let userStatus: { buyerStatus?: string, pubStatus?: string };
+
+        if (user.userType === 'IXMB') {
+            userStatus = { buyerStatus: 'deleted' };
+        } else {
+            userStatus = { pubStatus: 'deleted' };
+        }
+
+        await transaction.from('ixmDealNegotiations')
+                         .update(userStatus)
+                         .where('proposalID', proposalID);
+
+    }
 }
 
 export { NegotiatedDealManager };

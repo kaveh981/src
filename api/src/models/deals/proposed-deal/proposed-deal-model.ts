@@ -96,29 +96,65 @@ class ProposedDealModel {
     }
 
     /**
+     * Returns true if the proposal is deleted.
+     */
+    public isDeleted() {
+        return this.status === 'deleted';
+    }
+
+    /**
+     * Update the current proposal with new fields.
+     * @param proposalFields - Fields to update.
+     * @returns True if there was a change to the proposal.
+     */
+    public update(proposalFields: any) {
+
+        let different = false;
+
+        for (let key in proposalFields) {
+            if (proposalFields[key] && proposalFields[key] !== this[key]) {
+                this[key] = proposalFields[key];
+                different = true;
+            }
+        }
+
+        return different;
+
+    }
+
+    /**
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */
     public toPayload(): any {
 
-        return {
-            proposal_id: this.id,
-            owner: this.ownerInfo.toPayload('owner_id'),
-            name: this.name,
-            status: this.status,
-            currency: this.currency,
-            description: this.description,
-            start_date: this.startDate,
-            end_date: this.endDate,
-            price: this.price,
-            impressions: this.impressions,
-            budget: this.budget,
-            auction_type: this.auctionType,
-            terms: this.terms,
-            created_at: this.createDate.toISOString(),
-            modified_at: this.modifyDate.toISOString(),
-            inventory: this.sections.map((section) => { return section.toSubPayload(); })
-        };
+        if (this.isDeleted()) {
+            return {
+                proposal_id: this.id,
+                status: this.status,
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString()
+            };
+        } else {
+            return {
+                proposal_id: this.id,
+                owner: this.ownerInfo.toPayload('owner_id'),
+                name: this.name,
+                status: this.status,
+                currency: this.currency,
+                description: this.description,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                price: this.price,
+                impressions: this.impressions,
+                budget: this.budget,
+                auction_type: this.auctionType,
+                terms: this.terms,
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString(),
+                inventory: this.sections.map((section) => { return section.toSubPayload(); })
+            };
+        }
 
     }
 

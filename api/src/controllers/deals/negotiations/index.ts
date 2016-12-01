@@ -56,7 +56,11 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
+        let activeNegotiatedDeals = negotiatedDeals.filter((deal) => { return deal.isActive(); });
+
+        Log.trace(`Found active negotiated deals ${Log.stringify(activeNegotiatedDeals)}`, req.id);
+
+        res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -217,7 +221,7 @@ function NegotiationDeals(router: express.Router): void {
         let proposalID = req.body.proposal_id;
         let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (!targetProposal) {
+        if (!targetProposal || targetProposal.isDeleted()) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         } else if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
             throw HTTPError('403_BAD_PROPOSAL');

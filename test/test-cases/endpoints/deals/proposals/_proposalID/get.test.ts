@@ -988,3 +988,33 @@ export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
     assert.equals(response.status, 200);
     assert.deepEqual(response.body.data, [Helper.proposalToPayload(proposal, buyer.user)]);
 }
+
+/*
+ * @case    - ProposalID is deleted and user is NOT the owner and user started a negotiation on this proposal
+ * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to deleted and 
+ * set publisher as the owner and buyer as the user the create a negotiation
+ * @expect  - 200. proposal with limited properties should be returned
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - working
+ * @tags    - get, proposal
+ */
+export async function IXM_API_PROPOSAL_GET_SP_32(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user.userID);
+
+    assert.equals(response.status, 404);
+
+}
