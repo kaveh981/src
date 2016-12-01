@@ -150,7 +150,7 @@ class RamlTypeValidator {
 
         if (!typeObject) {
             Log.error(new Error(`Invalid object type ${type}.`));
-            return [this.createError('UNKNOWN_TYPE', type, null, '')];
+            return [ this.createError('UNKNOWN_TYPE', type, null, '') ];
         }
 
         let errors = this.validateNode(obj, typeObject, type, opts);
@@ -282,7 +282,7 @@ class RamlTypeValidator {
             });
 
             if (!enumValue || enumValue === null) {
-                 return [this.createError('ENUM_INVALID', valueString, node, path)];
+                 return [ this.createError('ENUM_INVALID', valueString, node, path) ];
             }
         }
 

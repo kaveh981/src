@@ -74,7 +74,7 @@ function augmentResponse(res: express.Response): void {
         if (Array.isArray(payload)) {
             msg.data = payload;
         } else {
-            msg.data = [payload];
+            msg.data = [ payload ];
         }
 
         if (pagination) {

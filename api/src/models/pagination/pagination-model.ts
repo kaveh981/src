@@ -14,10 +14,10 @@ class PaginationModel {
     public prevPageURL: string = '';
 
      /**
-     * Constructor
-     * @param initParams - Initial parameters to populate the user model.
-     * @param req - The request calling the pagination constructor
-     */
+      * Constructor
+      * @param initParams - Initial parameters to populate the user model.
+      * @param req - The request calling the pagination constructor
+      */
     constructor(initParams: any = {}, req: express.Request) {
 
         Object.assign(this, initParams);
