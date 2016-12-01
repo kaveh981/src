@@ -109,7 +109,7 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
 
  /*
  * @case    - The buyer sends a GET request to view deleted proposals created by a publisher.
- * @expect  - The buyer should receive the defined proposal.
+ * @expect  - Nothing should be returned
  * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals
@@ -136,7 +136,7 @@ export async function IXM_API_DEALS_GET_02 (assert: test.Test) {
 
  /*
  * @case    - Proposal owner send a request to see a deleted proposal
- * @expect  - The buyer should receive the defined proposal.
+ * @expect  - Nothing should be returned
  * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals
