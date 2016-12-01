@@ -4,7 +4,6 @@ import * as express from 'express';
 
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
-import { Logger } from '../lib/logger';
 import { UserManager } from '../models/user/user-manager';
 import { UserModel } from '../models/user/user-model';
 import { HTTPError } from '../lib/http-error';
@@ -13,8 +12,6 @@ const userManager = Injector.request<UserManager>('UserManager');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const authConfig = config.get('auth');
-
-const Log = new Logger('AUTH');
 
 /** Identify if the user is legitimate, and is an IXM user */
 async function identifyUser(token: string): Promise<UserModel> {

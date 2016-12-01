@@ -1,11 +1,8 @@
 'use strict';
 
 import { DatabaseManager } from '../../lib/database-manager';
-import { Logger } from '../../lib/logger';
 import { UserManager } from '../user/user-manager';
 import { BuyerModel } from './buyer-model';
-
-const Log: Logger = new Logger('mBYR');
 
 /** Buyer model manager */
 class BuyerManager {

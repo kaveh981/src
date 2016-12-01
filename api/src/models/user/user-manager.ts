@@ -2,7 +2,6 @@
 
 import { UserModel } from './user-model';
 import { DatabaseManager } from '../../lib/database-manager';
-import { Logger } from '../../lib/logger';
 import { Helper } from '../../lib/helper';
 
 /** User model manager */
