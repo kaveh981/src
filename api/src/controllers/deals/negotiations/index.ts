@@ -8,14 +8,10 @@ import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
-import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
-import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
-import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
 import { DatabaseManager } from '../../../lib/database-manager';
-import { UserModel } from '../../../models/user/user-model';
 import { UserManager } from '../../../models/user/user-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
@@ -131,28 +127,17 @@ function NegotiationDeals(router: express.Router): void {
 
         // Check proposal and partner existence
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+        let partner = await userManager.fetchUserFromId(partnerID);
 
         if (!proposal) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        let partner = await userManager.fetchUserFromId(partnerID);
-
-        if (!partner) {
+        } else if (!partner) {
             throw HTTPError('404_PARTNER_NOT_FOUND');
-        }
-
-        // Check partner user group and status
-        if (partner.userGroup !== 'Index Market') {
+        } else if (partner.userGroup !== 'Index Market') {
             throw HTTPError('403_PARTNER_NOT_IXMUSER');
-        }
-
-        if (!partner.isActive()) {
+        } else if (!partner.isActive()) {
             throw HTTPError('403_PARTNER_NOT_ACTIVE');
-        }
-
-        // Check if request sender and partner are in the same type
-        if (partner.userType === req.ixmUserInfo.userType) {
+        } else if (partner.userType === req.ixmUserInfo.userType) {
             throw HTTPError('403_PARTNER_INVALID_USERTYPE');
         }
 
@@ -239,10 +224,7 @@ function NegotiationDeals(router: express.Router): void {
 
         if (!targetProposal || targetProposal.isDeleted()) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
-            Log.trace('Proposal does belongs to neither the publisher nor the buyer');
+        } else if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
             throw HTTPError('403_BAD_PROPOSAL');
         }
 
@@ -252,17 +234,12 @@ function NegotiationDeals(router: express.Router): void {
         // If the negotiation had not started yet, then it gets created
         if (!currentNegotiation) {
 
-            // Confirm that the user is not the owner of the proposal i.e the user cannot start a negotiaion on their own proposal
-            // and confirm that the user type of the proposal owner is not same as the current user
             if (targetProposal.ownerID === user.id || targetProposal.ownerInfo.userType === user.userType) {
-                Log.trace("User starting the negotiation is the owner of the proposal "
-                          + "or the user-type of the proposal's owner is the same as the current user's user-type");
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
-            }
-
-            // A user cannot accept or reject a negotiation that doesn't exist.
-            if (responseType !== 'counter-offer') {
+            } else if (responseType !== 'counter-offer') {
                 throw HTTPError('403_NO_NEGOTIATION');
+            } else if (!targetProposal.isPurchasableByUser(req.ixmUserInfo)) {
+                throw HTTPError('404_PROPOSAL_NOT_FOUND');
             }
 
             currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(
@@ -272,10 +249,6 @@ function NegotiationDeals(router: express.Router): void {
 
             if (!fieldChanged) {
                 throw HTTPError('403_NO_CHANGE');
-            }
-
-            if (!targetProposal.isPurchasableByUser(req.ixmUserInfo)) {
-                throw HTTPError('404_PROPOSAL_NOT_FOUND');
             }
 
             await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
@@ -292,20 +265,11 @@ function NegotiationDeals(router: express.Router): void {
             // Check that proposal has not been bought yet
             if (currentNegotiation.buyerStatus === 'accepted' && currentNegotiation.publisherStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
-            }
-
-            // Check if the negotiation has been rejected by any party
-            if (otherPartyStatus === 'rejected') {
+            } else if (otherPartyStatus === 'rejected') {
                 throw HTTPError('403_OTHER_REJECTED');
-            }
-
-            // Check if you have already rejected
-            if (currentNegotiationStatus === 'rejected') {
+            } else if (currentNegotiationStatus === 'rejected') {
                 throw HTTPError('403_ALREADY_REJECTED');
-            }
-
-            // Check if the user is out of turn
-            if (currentNegotiation.sender === userType && responseType !== 'reject') {
+            } else if (currentNegotiation.sender === userType && responseType !== 'reject') {
                 throw HTTPError('403_OUT_OF_TURN');
             }
 
@@ -336,6 +300,7 @@ function NegotiationDeals(router: express.Router): void {
                     Log.trace(`New deal created with id ${settledDeal.id}.`, req.id);
 
                     res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
+
                 });
 
                 return;
@@ -346,12 +311,12 @@ function NegotiationDeals(router: express.Router): void {
 
                 let fieldChanged = currentNegotiation.update(userType, 'accepted', 'active', negotiationFields);
 
-                if (fieldChanged) {
-                    Log.trace(`Fields have changed, updating negotiation.`, req.id);
-                    await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
-                } else {
+                if (!fieldChanged) {
                     throw HTTPError('403_NO_CHANGE');
                 }
+
+                Log.trace(`Fields have changed, updating negotiation.`, req.id);
+                await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
 
             }
         }

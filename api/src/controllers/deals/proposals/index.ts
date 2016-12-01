@@ -4,13 +4,11 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
-import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');

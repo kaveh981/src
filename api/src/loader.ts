@@ -2,10 +2,6 @@
 
 /** Resolve any dependencies in this file and pass it to the injector for safe keeping. */
 
-import * as express from 'express';
-import * as http from 'http';
-import * as Promise from 'bluebird';
-
 /** Lib */
 import { Injector } from './lib/injector';
 import { ConfigLoader } from './lib/config-loader';

@@ -5,7 +5,6 @@ import * as express from 'express';
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
-import { PaginationModel } from '../models/pagination/pagination-model';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');

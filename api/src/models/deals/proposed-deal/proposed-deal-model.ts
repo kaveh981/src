@@ -3,10 +3,6 @@
 import { UserModel } from '../../user/user-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
 import { Helper } from '../../../lib/helper';
-import { ConfigLoader } from '../../../lib/config-loader';
-import { Injector } from '../../../lib/injector';
-
-const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 class ProposedDealModel {
 
