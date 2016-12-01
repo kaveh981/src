@@ -251,7 +251,7 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
 
 /*
  * @case    - Publisher accepted their own proposal after a negotiation
- * @expect  - Negotiation is returned regardless of status
+ * @expect  - Nothing should be returned
  * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
