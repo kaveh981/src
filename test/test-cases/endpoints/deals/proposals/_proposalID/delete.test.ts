@@ -33,7 +33,7 @@ async function databaseSetup() {
  * @status  - working
  * @tags    - delete, proposal, auth
  */
-export let ATW_DELETE_PRO_AUTH = authenticationTest(route + '/1', 'delete', databaseSetup);
+export let ATW_API_DELETE_DEAPROID_AUTH = authenticationTest(route + '/1', 'delete', databaseSetup);
 
 /*
  * @case    - Common validation cases for proposalID.
@@ -43,7 +43,7 @@ export let ATW_DELETE_PRO_AUTH = authenticationTest(route + '/1', 'delete', data
  * @status  - working
  * @tags    - delete, proposal, validation
  */
-export let ATW_DELETE_PRO_VALI = validationTest(route, 'delete', databaseSetup, {},
+export let ATW_API_DELETE_DEAPROID_VALI = validationTest(route, 'delete', databaseSetup, {},
     { proposalID: { type: 'integer' } });
 
 /*
@@ -55,7 +55,7 @@ export let ATW_DELETE_PRO_VALI = validationTest(route, 'delete', databaseSetup, 
  * @status  - working
  * @tags    - delete, proposal
  */
-export async function ATW_DELETE_PRO_01(assert: test.Test) {
+export async function ATW_API_DELETE_DEAPROID_01(assert: test.Test) {
 
     /** Setup */
     let dsp = await databasePopulator.createDSP(3);
@@ -93,7 +93,7 @@ export async function ATW_DELETE_PRO_01(assert: test.Test) {
  * @status  - working
  * @tags    - delete, proposal
  */
-export async function ATW_DELETE_PRO_02(assert: test.Test) {
+export async function ATW_API_DELETE_DEAPROID_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -130,7 +130,7 @@ export async function ATW_DELETE_PRO_02(assert: test.Test) {
  * @status  - working
  * @tags    - delete, proposal
  */
-export async function ATW_DELETE_PRO_03(assert: test.Test) {
+export async function ATW_API_DELETE_DEAPROID_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -158,7 +158,7 @@ export async function ATW_DELETE_PRO_03(assert: test.Test) {
  * @status  - working
  * @tags    - delete, proposal
  */
-export async function ATW_DELETE_PRO_04(assert: test.Test) {
+export async function ATW_API_DELETE_DEAPROID_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
