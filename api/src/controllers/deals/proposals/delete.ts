@@ -51,9 +51,7 @@ function Proposals(router: express.Router): void {
 
         if (!proposal || proposal.isDeleted()) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        if (proposal.ownerID !== user.id) {
+        } else if (proposal.ownerID !== user.id) {
             throw HTTPError('403');
         }
 
