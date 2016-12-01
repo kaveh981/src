@@ -4,16 +4,13 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { ConfigLoader } from '../../../lib/config-loader';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
-import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
-import { NegotiatedDealModel } from '../../../models/deals/negotiated-deal/negotiated-deal-model';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
