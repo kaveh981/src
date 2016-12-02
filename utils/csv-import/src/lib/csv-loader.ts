@@ -72,7 +72,8 @@ class CSVLoader extends Loader {
 
         return parsedCsv.map((proposal: any) => {
             proposal.sectionIDs = proposal.sectionIDs && proposal.sectionIDs.toString().split(',').map(Number);
-            proposal.targetedUsers = proposal.targetedUsers ? proposal.targetedUsers.toString().split(',').map(Number) : [];
+            // Translate falsy values to [], but have 0 translate to ["0"]
+            proposal.targetedUsers = (proposal.targetedUsers || proposal.targetedUsers === 0) ? proposal.targetedUsers.toString().split(',').map(Number) : [];
             proposal.createDate = null;
             proposal.modifyDate = null;
 
