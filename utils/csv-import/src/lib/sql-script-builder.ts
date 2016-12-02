@@ -4,6 +4,10 @@ import * as Knex from 'knex';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { Logger } from './logger';
+
+const Log = new Logger('SQLB');
+
 /**
  * Class contains methods to build rollout and rollback SQL script for proposal insertion
  */
@@ -13,7 +17,7 @@ class SQLScriptBuilder {
     private createDate: string;
 
     constructor() {
-        this.queryBuilder = Knex({client: 'mysql'});
+        this.queryBuilder = Knex({ client: 'mysql' });
         this.createDate = SQLScriptBuilder.formatDate(new Date());
     }
 
@@ -191,9 +195,9 @@ class SQLScriptBuilder {
      */
     private writeToFile(namePath: string, content: string) {
 
-        fs.writeFile(namePath , content, function(err) {
+        fs.writeFile(namePath , content, (err) => {
             if (err) {
-                return console.log(err);
+                return Log.error(err);
             }
         });
     }
