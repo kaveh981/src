@@ -56,66 +56,91 @@ class Helper {
      * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-    public static proposalToPayload(proposal: INewProposalData, owner: INewUserData) {
-
-        return {
-            auction_type: proposal.proposal.auctionType,
-            budget: proposal.proposal.budget,
-            owner: {
-                owner_id: owner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: owner.firstName + ' ' + owner.lastName,
-                    email: owner.emailAddress,
-                    phone: owner.phone
-                }
-            },
-            created_at: proposal.proposal.createDate.toISOString(),
-            currency: 'USD',
-            description: proposal.proposal.description,
-            end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
-            proposal_id: proposal.proposal.proposalID,
-            impressions: proposal.proposal.impressions,
-            inventory: proposal.sectionIDs.map((id) => {
-                return {
-                    id: id,
-                    resource: `sections/${id}`
-                };
-            }),
-            modified_at: proposal.proposal.modifyDate.toISOString(),
-            name: proposal.proposal.name,
-            price: proposal.proposal.price,
-            start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
-            status: proposal.proposal.status,
-            terms: proposal.proposal.terms,
-        };
-
+       public static proposalToPayload(proposal: INewProposalData, owner: INewUserData): any {
+        if (proposal.proposal.status === 'deleted') {
+            return {
+                created_at: proposal.proposal.createDate.toISOString(),
+                proposal_id: proposal.proposal.proposalID,
+                modified_at: proposal.proposal.modifyDate.toISOString(),
+                status: proposal.proposal.status,
+            };
+        } else {
+            return {
+                auction_type: proposal.proposal.auctionType,
+                budget: proposal.proposal.budget,
+                owner: {
+                    owner_id: owner.userID,
+                    contact: {
+                        title: 'Warlord',
+                        name: owner.firstName + ' ' + owner.lastName,
+                        email: owner.emailAddress,
+                        phone: owner.phone
+                    }
+                },
+                created_at: proposal.proposal.createDate.toISOString(),
+                currency: 'USD',
+                description: proposal.proposal.description,
+                end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
+                proposal_id: proposal.proposal.proposalID,
+                impressions: proposal.proposal.impressions,
+                inventory: proposal.sectionIDs.map((id) => {
+                    return {
+                        id: id,
+                        resource: `sections/${id}`
+                    };
+                }),
+                modified_at: proposal.proposal.modifyDate.toISOString(),
+                name: proposal.proposal.name,
+                price: proposal.proposal.price,
+                start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
+                status: proposal.proposal.status,
+                terms: proposal.proposal.terms,
+            };
+        }
     }
 
     public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-        proposalOwner: INewUserData, partner: INewUserData) {
+        proposalOwner: INewUserData, partner: INewUserData): any {
 
-        return {
-            proposal: Helper.proposalToPayload(proposal, proposalOwner),
-            partner: {
-                partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                }
-            },
-            status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
-            price: dealNegotiation.price,
-            impressions: dealNegotiation.impressions,
-            budget: dealNegotiation.budget,
-            terms: dealNegotiation.terms,
-            start_date: Helper.formatDate(dealNegotiation.startDate),
-            end_date: Helper.formatDate(dealNegotiation.endDate),
-            created_at: dealNegotiation.createDate.toISOString(),
-            modified_at: dealNegotiation.modifyDate.toISOString()
-        };
+        if (proposal.proposal.status === 'deleted') {
+            return {
+                proposal: Helper.proposalToPayload(proposal, proposalOwner),
+                partner: {
+                    partner_id: partner.userID,
+                    contact: {
+                        title: 'Warlord',
+                        name: partner.firstName + ' ' + partner.lastName,
+                        email: partner.emailAddress,
+                        phone: partner.phone
+                    }
+                },
+                status: 'closed_by_owner',
+                created_at: dealNegotiation.createDate.toISOString(),
+                modified_at: dealNegotiation.modifyDate.toISOString()
+            };
+        } else {
+            return {
+                proposal: Helper.proposalToPayload(proposal, proposalOwner),
+                partner: {
+                    partner_id: partner.userID,
+                    contact: {
+                        title: 'Warlord',
+                        name: partner.firstName + ' ' + partner.lastName,
+                        email: partner.emailAddress,
+                        phone: partner.phone
+                    }
+                },
+                status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
+                price: dealNegotiation.price,
+                impressions: dealNegotiation.impressions,
+                budget: dealNegotiation.budget,
+                terms: dealNegotiation.terms,
+                start_date: Helper.formatDate(dealNegotiation.startDate),
+                end_date: Helper.formatDate(dealNegotiation.endDate),
+                created_at: dealNegotiation.createDate.toISOString(),
+                modified_at: dealNegotiation.modifyDate.toISOString()
+            };
+        }
     }
 
     /**
@@ -248,6 +273,25 @@ class Helper {
         return 'accepted';
 
     }
+
+    public static async getProposalById(proposalID: number) {
+         let proposal: IProposal = await databaseManager.select().from('ixmDealProposals').where('proposalID', proposalID);
+         return proposal;
+     }
+
+     public static async getNegotiationsByProposalID(proposalID: number) {
+         let negotiations: IDealNegotiationData[] = await databaseManager.select().from('ixmDealNegotiations')
+             .where('proposalID', proposalID);
+         return negotiations;
+     }
+
+     public static async getDealsByProposalID(proposalID: number) {
+         let negotiations: ISettledDeal[] = await databaseManager.select().from('rtbDeals')
+             .join('ixmNegotiationDealMappings', 'ixmNegotiationDealMappings.dealID', 'rtbDeals.dealID')
+             .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
+             .where('ixmDealNegotiations.proposalID', proposalID);
+         return negotiations;
+     }
 
 }
 

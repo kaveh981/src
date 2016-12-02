@@ -96,6 +96,46 @@ class APIRequestManager {
         });
     }
 
+    /**
+      * Send a delete request to the path with given params and userID.
+      * @param path - The path to send to, relative to the base domain.
+      * @param params - The query string parameters.
+      * @param userID - The userID of the IXM Buyer you are impersonating.
+      */
+     public delete(path: string, params: any, userID: number): Promise<any> {
+         return new Promise((resolve, reject) => {
+
+             let options = {
+                 baseUrl: this.baseDomain,
+                 qs: params,
+                 uri: path,
+                 method: 'DELETE',
+                 json: true,
+                 headers: {
+                    [this.configLoader.get('api-config')['authentication-header']]: userID,
+                    Host: this.baseDomain.replace('https://', '').split('/')[0]
+                }
+             };
+
+             Log.debug('Sending DELETE request to ' + path);
+             Log.trace('Options: ' + JSON.stringify(options));
+
+             request(options, (error, response, body) => {
+                 if (error) {
+                     reject(error);
+                     return;
+                 }
+                 Log.trace(JSON.stringify(body));
+                 resolve({ status: response.statusCode, body: body });
+             });
+
+         });
+     }
+
+    public getBaseURL () {
+        return this.baseDomain;
+    }
+
 }
 
 export { APIRequestManager }

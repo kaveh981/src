@@ -42,7 +42,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate request query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -56,7 +56,11 @@ function NegotiationDeals(router: express.Router): void {
 
         Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
 
-        res.sendPayload(negotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
+        let activeNegotiatedDeals = negotiatedDeals.filter((deal) => { return deal.isActive(); });
+
+        Log.trace(`Found active negotiated deals ${Log.stringify(activeNegotiatedDeals)}`, req.id);
+
+        res.sendPayload(activeNegotiatedDeals.map((deal) => { return deal.toPayload(user.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -76,7 +80,7 @@ function NegotiationDeals(router: express.Router): void {
 
         // Validate request query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+            { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -104,8 +108,7 @@ function NegotiationDeals(router: express.Router): void {
     /**
      * Get specific negotiation from proposal id and partner id
      */
-    router.get('/:proposalID/partner/:partnerID', ProtectedRoute,
-               async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID/partner/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -218,7 +221,7 @@ function NegotiationDeals(router: express.Router): void {
         let proposalID = req.body.proposal_id;
         let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (!targetProposal) {
+        if (!targetProposal || targetProposal.isDeleted()) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         } else if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
             throw HTTPError('403_BAD_PROPOSAL');

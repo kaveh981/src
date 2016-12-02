@@ -106,3 +106,57 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
 
 }
+
+ /*
+ * @case    - The buyer sends a GET request to view deleted proposals created by a publisher.
+ * @expect  - Nothing should be returned
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, deals
+ */
+export async function IXM_API_DEALS_GET_02 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {limit: 3, offset: 0}, buyer.user.userID);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
+
+ /*
+ * @case    - Proposal owner send a request to see a deleted proposal
+ * @expect  - Nothing should be returned
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, deals
+ */
+export async function IXM_API_DEALS_GET_03 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {limit: 3, offset: 0}, publisher.user.userID);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}

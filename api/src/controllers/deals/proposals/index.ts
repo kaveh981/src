@@ -31,7 +31,7 @@ function Proposals(router: express.Router): void {
 
         // Validate request query
         let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: ['TYPE_NUMB_TOO_LARGE'], sanitizeIntegers: true });
+                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
@@ -63,7 +63,7 @@ function Proposals(router: express.Router): void {
         let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
 
         if (paramErrors.length > 0) {
-            throw HTTPError('400', paramErrors);
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         /** Route logic */
