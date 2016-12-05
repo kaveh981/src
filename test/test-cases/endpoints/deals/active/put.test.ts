@@ -597,7 +597,7 @@ export async function IXM_API_DEALS_PUT_19(assert: test.Test) {
  *  create proposal, create user targeting
  * @expect  - 200 - New deal created 
  * @route   - PUT deals/active
- * @status  - working
+ * @status  - failing: 500
  * @tags    - put, live, deals, proposal, targeting
  */
 export async function IXM_API_DEALS_PUT_20(assert: test.Test) {
@@ -621,3 +621,64 @@ export async function IXM_API_DEALS_PUT_20(assert: test.Test) {
     assert.equal(response.status, 200);
 
 }
+
+/*
+ * @case    - Publisher tries to buy proposal owned by another publisher 
+ * @setup   - create dsp, create buyer, create 2 publishers, create site, section, proposal owned by 1st publisher
+ * , send request as 2nd publisher
+ * @expect  - 400 - rejected  
+ * @route   - PUT deals/active
+ * @status  - failing: 500 
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_21(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let ownerPublisher = await databasePopulator.createPublisher();
+    let buyerPublisher = await databasePopulator.createPublisher(); 
+    let siteActive = await databasePopulator.createSite(ownerPublisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(ownerPublisher.publisher.userID);
+    let section = await databasePopulator.createSection(ownerPublisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyerPublisher.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+
+/*
+ * @case    - Publisher tries to buy own proposal
+ * @setup   - create dsp, create buyer, publisher, create site, section and proposal,
+ * , send request same publisher
+ * @expect  - 400 - rejected  
+ * @route   - PUT deals/active
+ * @status  - failing: 500
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_22(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let siteActive = await databasePopulator.createSite(publisher.publisher.userID);
+    let siteInactive = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [siteActive.siteID, siteInactive.siteID]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
