@@ -214,12 +214,23 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the proposal.
      * @returns A NegotiatedDealModel.
      */
-    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, buyerID: number) {
+    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, userInfo: UserModel) {
+
+        let buyerID: number;
+        let publisherID: number;
+
+        if (userInfo.userType === 'IXMB') {
+            buyerID = userInfo.id;
+            publisherID = proposedDeal.ownerID;
+        } else {
+            buyerID = proposedDeal.ownerID;
+            publisherID = userInfo.id;
+        }
 
         let negotiatedDeal = new NegotiatedDealModel({
             buyerID: buyerID,
             buyerInfo: await this.userManager.fetchUserFromId(buyerID),
-            publisherID: proposedDeal.ownerID,
+            publisherID: publisherID,
             publisherInfo: proposedDeal.ownerInfo,
             publisherStatus: 'accepted',
             buyerStatus: 'accepted',
