@@ -18,11 +18,6 @@ description: An object describing the request body needed to create a new propos
         required: false
         displayName: Contact Information    
         description: The primary contact information for the proposal's owner. Overrides default user contact info if provided.
-    currency:
-        type: string
-        required: true
-        displayName: Currency
-        description: Three-letter currency code for the deal.
     description:
         type: string
         required: false
@@ -34,12 +29,12 @@ description: An object describing the request body needed to create a new propos
         required: false
         displayName: End Date
         description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
-        example: 2016-10-10
+        example: 2017-10-10
     impressions:
         type: integer
         required: false
         displayName: Impressions
-        description: The projected amount of impressions for the package.
+        description: The projected amount of impressions for the deal.
         example: USD
         minimum: 0
         maximum: 16777215
@@ -47,13 +42,18 @@ description: An object describing the request body needed to create a new propos
         type: integer[]
         required: true
         displayName: Inventory Section Id(s)
-        description: An array of Inventory Section IDs, indicating which sections will be active in this deal.
+        description: An array of Inventory Section IDs, indicating which sections will be active in this deal. (See "Section" type.)
     name:
         type: string
         required: true
         displayName: Name
         description: Name of the deal.
         maxLength: 255
+    partners:
+        type: integer[]
+        required: false
+        displayName: Targeted Partners
+        description: Optional partner targeting. If this is included, the proposal will not be visible on the open market: only targeted partners will be able to see it. Partners will be notified, and will be able to accept, reject, or negotiate on the proposed deal.
     price:
         type: number
         required: true
@@ -67,7 +67,7 @@ description: An object describing the request body needed to create a new propos
         required: false
         displayName: Start Date
         description: The start date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal is set to start immediately on acceptance.
-        example: 2016-09-09
+        example: 2017-09-09
     terms:
         type: string
         required: false
@@ -76,15 +76,15 @@ description: An object describing the request body needed to create a new propos
         maxLength: 65535
 example: |
     {
+        "partners": [123, 456],
         "inventory": [4321, 9876],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
-        "start_date": "2016-09-09",
-        "end_date": "2016-10-10",
+        "start_date": "2017-09-09",
+        "end_date": "2017-10-10",
         "price": 1.99,
         "impressions": 8,
         "budget": 9999999,
-        "currency": "USD",
         "auction_type": "first",
         "contact": {
             "title": "Captain",
