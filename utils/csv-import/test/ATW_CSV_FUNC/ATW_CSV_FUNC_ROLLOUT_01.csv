@@ -1,6 +1,6 @@
 ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
-1,csvImportedProposal1,ownerID low limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
-16777215,csvImportedProposal2,ownerID high limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,188,"101010, 101011"
+1,csvImportedProposal1,ownerID low limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"1, 16777215",100129
+16777215,csvImportedProposal2,ownerID high limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51",100129
 100129,c,name minLength limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
 100129,ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc,name maxLength limit,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,188,"101010, 101011"
 100129,description maxLength limit,ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
