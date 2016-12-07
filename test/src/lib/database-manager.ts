@@ -49,7 +49,7 @@ export class DatabaseManager {
                 },
                 pool: {
                     min: 1,
-                    max: 1
+                    max: 10
                 }
             };
 

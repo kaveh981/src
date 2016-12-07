@@ -35,7 +35,7 @@ class DataSetup {
         let backupTables = await this.dbm.raw(`SHOW TABLES LIKE '${newTable}'`);
         let tables = await this.dbm.raw(`SHOW TABLES LIKE '${table}'`);
 
-        Log.debug('Backing up table ' + table);
+        Log.debug('Backing up table ' + table + '...');
 
         if (tables[0].length === 0) {
             Log.error(`Table ${table} could not be found.`);
@@ -47,13 +47,15 @@ class DataSetup {
             return;
         }
 
-        this.dbm.transaction(async (trans) => {
+        await this.dbm.transaction(async (trans) => {
             await trans.raw('SET foreign_key_checks=0');
             await trans.raw(`DROP TABLE IF EXISTS ${newTable}`);
             await trans.raw(`CREATE TABLE IF NOT EXISTS ${newTable} SELECT * FROM ${table}`);
             await trans.raw('SET foreign_key_checks=1');
         });
         await this.clearTable(table);
+
+        Log.debug(`Backed up tables ${table}.`);
 
     }
 
@@ -65,9 +67,9 @@ class DataSetup {
      */
     public async backupTables(tables: string[] = this.config.tables, suffix: string = this.config.suffix) {
 
-        for (let i = 0; i < tables.length; i += 1) {
-            await this.backupTable(tables[i], suffix);
-        }
+        await Promise.all(tables.map(async (table) => {
+            await this.backupTable(table, suffix);
+        }));
 
     }
 
@@ -84,7 +86,7 @@ class DataSetup {
         let backupTables = await this.dbm.raw(`SHOW TABLES LIKE '${backup}'`);
         let tables = await this.dbm.raw(`SHOW TABLES LIKE '${table}'`);
 
-        Log.debug('Restoring table ' + table);
+        Log.debug('Restoring table ' + table + '...');
 
         if (backupTables[0].length === 0) {
             Log.error(`Back up table ${backup} could not be found.`);
@@ -104,6 +106,8 @@ class DataSetup {
             await trans.raw('SET foreign_key_checks=1');
         });
 
+        Log.debug(`Restored table ${table}.`);
+
     }
 
     /**
@@ -114,9 +118,9 @@ class DataSetup {
      */
     public async restoreTables(tables: string[] = this.config.tables, suffix: string = this.config.suffix) {
 
-        for (let i = 0; i < tables.length; i += 1) {
-            await this.restoreTable(tables[i], suffix);
-        }
+        await Promise.all(tables.map(async (table) => {
+            await this.restoreTable(table, suffix);
+        }));
 
     }
 
@@ -153,9 +157,9 @@ class DataSetup {
      */
     public async clearTables(tables: string[] = this.config.tables, suffix: string = this.config.suffix) {
 
-        for (let i = 0; i < tables.length; i += 1) {
-            await this.clearTable(tables[i], suffix);
-        }
+        await Promise.all(tables.map(async (table) => {
+            await this.clearTable(table, suffix);
+        }));
 
     }
 
