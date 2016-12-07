@@ -666,7 +666,6 @@ export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
 
-
     let proposal = {
         auction_type: 'second',
         name: 'fabulous proposal',
@@ -703,7 +702,6 @@ export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
 
-
     let proposal = {
         auction_type: 'second',
         name: 'fabulous proposal',
@@ -739,7 +737,6 @@ export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
 
-
     let proposal = {
         name: 'fabulous proposal',
         inventory: [section.section.sectionID],
@@ -770,7 +767,6 @@ export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
-
 
     let proposal = {
         auction_type: 'second',
@@ -803,7 +799,6 @@ export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
 
-
     let proposal = {
         auction_type: 'second',
         name: 'great name',
@@ -834,7 +829,6 @@ export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
-
 
     let proposal = {
         auction_type: 'second',
