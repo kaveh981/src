@@ -4,6 +4,7 @@ import * as express from 'express';
 
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
+import { HTTPError } from '../lib/http-error';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const authConfig = config.get('auth');
@@ -14,7 +15,7 @@ const authConfig = config.get('auth');
 function PublicAccessHandler(req: express.Request, res: express.Response, next: Function): void {
 
     if (!authConfig['public'] && (!req.ixmUserInfo || !req.ixmUserInfo.id)) {
-        res.sendError('401_PRIVATE');
+        throw HTTPError('401_PRIVATE');
     } else {
         next();
     }

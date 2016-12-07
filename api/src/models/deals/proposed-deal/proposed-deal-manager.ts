@@ -99,6 +99,117 @@ class ProposedDealManager {
     }
 
     /**
+     * Create a new proposed deal from a set of proposal fields.
+     * @param proposalFields - The fields used to set the proposal properties
+     * @returns A proposed deal model with the specified properties
+     */
+    public async createProposedDeal(proposalFields: any = {}) {
+
+        // if (proposalFields.contact) {
+        //     let name = proposalFields.contact.name;
+
+        //     ownerInfo.emailAddress = proposalFields.contact.email;
+        //     ownerInfo.phone = proposalFields.contact.phone;
+        //     ownerInfo.title = proposalFields.contact.title;
+        //     ownerInfo.firstName = name.substr(0, name.indexOf(' '));
+        //     ownerInfo.lastName = proposalFields.contact.name.substr(name.indexOf(' ') + 1);
+        // }
+
+        let proposedDeal = new ProposedDealModel({
+            ownerID: proposalFields.ownerID,
+            ownerInfo: proposalFields.ownerInfo,
+            name: proposalFields.name,
+            description: proposalFields.description,
+            status: 'active',
+            startDate: proposalFields.startDate,
+            endDate: proposalFields.endDate,
+            price: proposalFields.price,
+            impressions: proposalFields.impressions,
+            budget: proposalFields.budget,
+            auctionType: proposalFields.auctionType,
+            terms: proposalFields.terms,
+            createDate: Helper.currentDate(),
+            modifyDate: Helper.currentDate(),
+            sections: proposalFields.inventory,
+            targetedUsers: proposalFields.partners
+        });
+
+        return proposedDeal;
+
+    }
+
+    /**
+     * Insert a new proposed deal into the database.
+     * @param proposedDeal - The proposed deal to insert
+     * @param transaction - A knex transaction object to use.
+     */
+    public async insertProposedDeal(proposedDeal: ProposedDealModel, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertProposedDeal(proposedDeal, trx);
+            });
+            return;
+        }
+
+        // Insert proposal into ixmDealProposals
+        let proposalID = (await transaction.insert({
+            ownerID: proposedDeal.ownerID,
+            name: proposedDeal.name,
+            description: proposedDeal.description,
+            status: 'active',
+            startDate: proposedDeal.startDate,
+            endDate: proposedDeal.endDate,
+            price: proposedDeal.price,
+            impressions: proposedDeal.impressions,
+            budget: proposedDeal.budget,
+            auctionType: proposedDeal.auctionType,
+            terms: proposedDeal.terms,
+            createDate: proposedDeal.createDate,
+            modifyDate: proposedDeal.modifyDate
+        }).into('ixmDealProposals').returning('proposalID'))[0];
+
+        // Insert proposal sections mappings into ixmProposalSectionMappings
+        if (proposedDeal.sections.length > 0) {
+
+            let proposalSectionMappings = [];
+
+            for (let i = 0; i < proposedDeal.sections.length; i++) {
+                proposalSectionMappings.push({
+                    proposalID: proposalID,
+                    sectionID: proposedDeal.sections[i].id
+                });
+            }
+
+            await transaction.insert(proposalSectionMappings).into('ixmProposalSectionMappings');
+
+        }
+
+        // If proposal is targeted, insert proposal target mappings into ixmProposalTargeting
+        if (proposedDeal.targetedUsers.length > 0) {
+
+            let proposalTargetMappings = [];
+
+            for (let i = 0; i < proposedDeal.targetedUsers.length; i++) {
+                proposalTargetMappings.push({
+                    proposalID: proposalID,
+                    userID: proposedDeal.targetedUsers[i]
+                });
+            }
+
+            await transaction.insert(proposalTargetMappings).into('ixmProposalTargeting');
+
+        }
+
+        proposedDeal.id = proposalID;
+        proposedDeal.modifyDate = (await transaction.select('modifyDate')
+                                                    .from('ixmDealProposals')
+                                                    .where('proposalID', proposalID))[0].modifyDate;
+
+    }
+
+    /**
      * Update a proposal with new parameters sent in the request and update new modifyDate
      * @param proposedDeal - The proposaled deal deal to update.
      * @param transaction - An optional transaction to use. 

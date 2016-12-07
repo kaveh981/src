@@ -139,6 +139,7 @@ class ProposedDealModel {
             return {
                 proposal_id: this.id,
                 owner: this.ownerInfo.toPayload('owner_id'),
+                partners: this.targetedUsers,
                 name: this.name,
                 status: this.status,
                 currency: this.currency,

@@ -54,6 +54,11 @@ description: An object describing the request body needed to create a new propos
         displayName: Name
         description: Name of the deal.
         maxLength: 255
+    partners:
+        type: integer[]
+        required: false
+        displayName: Partners
+        description: An array of Partner IDs, indicating which users are targeted by this proposal. If empty or not provided, this proposal is open to everyone.
     price:
         type: number
         required: true
@@ -77,6 +82,7 @@ description: An object describing the request body needed to create a new propos
 example: |
     {
         "inventory": [4321, 9876],
+        "partners": [123, 456],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
         "start_date": "2016-09-09",
