@@ -3,7 +3,6 @@
 import * as knex from 'knex';
 
 import { DatabaseManager } from '../../../lib/database-manager';
-import { Logger } from '../../../lib/logger';
 import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
@@ -11,8 +10,6 @@ import { UserManager } from '../../user/user-manager';
 import { UserModel } from '../../user/user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { Helper } from '../../../lib/helper';
-
-const Log: Logger = new Logger('ACTD');
 
 /** Deal Negotiation model manager */
 class NegotiatedDealManager {
@@ -217,12 +214,23 @@ class NegotiatedDealManager {
      * @param buyerID - The id of the buyer of the proposal.
      * @returns A NegotiatedDealModel.
      */
-    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, buyerID: number) {
+    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, userInfo: UserModel) {
+
+        let buyerID: number;
+        let publisherID: number;
+
+        if (userInfo.userType === 'IXMB') {
+            buyerID = userInfo.id;
+            publisherID = proposedDeal.ownerID;
+        } else {
+            buyerID = proposedDeal.ownerID;
+            publisherID = userInfo.id;
+        }
 
         let negotiatedDeal = new NegotiatedDealModel({
             buyerID: buyerID,
             buyerInfo: await this.userManager.fetchUserFromId(buyerID),
-            publisherID: proposedDeal.ownerID,
+            publisherID: publisherID,
             publisherInfo: proposedDeal.ownerInfo,
             publisherStatus: 'accepted',
             buyerStatus: 'accepted',
@@ -322,6 +330,36 @@ class NegotiatedDealManager {
 
         negotiatedDeal.id = negotiationUpdated.negotiationID;
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
+
+    }
+
+    /**
+     * Delete associated negotiations of the given proposalID
+     * @param {number} proposalID the proposal ID to be deleted
+     * @param {string} userType the user type of the requester
+     * @param {knex.Transaction} [transaction] database transaction
+     */
+    public async deleteNegotiationsFromProposalId(proposalID: number, user: UserModel, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.deleteNegotiationsFromProposalId(proposalID, user, trx);
+            });
+            return;
+        }
+
+        let userStatus: { buyerStatus?: string, pubStatus?: string };
+
+        if (user.userType === 'IXMB') {
+            userStatus = { buyerStatus: 'deleted' };
+        } else {
+            userStatus = { pubStatus: 'deleted' };
+        }
+
+        await transaction.from('ixmDealNegotiations')
+                         .update(userStatus)
+                         .where('proposalID', proposalID);
 
     }
 }

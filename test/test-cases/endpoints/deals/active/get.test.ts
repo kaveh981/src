@@ -37,7 +37,7 @@ async function authenticationSetup (publisher: INewPubData) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
-                                                                    buyer.user.userID);
+                                                                    buyer.user.userID, {pubStatus : 'active', buyerStatus : 'accepted'});
     let activeDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [section.section.sectionID],
                                                                negotiation.negotiationID);
 
@@ -75,7 +75,8 @@ async function createSettledDeal (data: ICreateEntityData) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
-                                                                    data.buyer.user.userID);
+                                                                    data.buyer.user.userID,
+                                                                    {pubStatus : 'active', buyerStatus : 'accepted'});
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     let settledDeal = await databasePopulator.createSettledDeal(
@@ -503,5 +504,39 @@ export async function IXM_API_DA_GET_12 (assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
+
+}
+
+/*
+* @case    - getting deals created on a proposal that is deleted now
+* @expect  - A payload containing the deal data.
+* @route   - GET deals/active
+* @status  - passing
+* @tags    - get, active, deals
+*/
+export async function IXM_API_DA_GET_13(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+    await databaseManager.from('ixmDealProposals').where('proposalID', proposal.proposal.proposalID).update({ status: 'deleted' });
+    await databaseManager.from('ixmDealNegotiations').where('proposalID', proposal.proposal.proposalID).update({ pubStatus: 'deleted' });
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
+    assert.deepEqual(response.body.data, [expectedPayload]);
 
 }

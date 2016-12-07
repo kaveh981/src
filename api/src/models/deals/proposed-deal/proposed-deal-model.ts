@@ -3,10 +3,6 @@
 import { UserModel } from '../../user/user-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
 import { Helper } from '../../../lib/helper';
-import { ConfigLoader } from '../../../lib/config-loader';
-import { Injector } from '../../../lib/injector';
-
-const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 
 class ProposedDealModel {
 
@@ -42,12 +38,14 @@ class ProposedDealModel {
     public createDate: Date;
     /** Modified date of the proposal */
     public modifyDate: Date;
-    /** Array of sectionsID associated with the proposal*/
+    /** Array of sectionsID associated with the proposal */
     public sections: DealSectionModel[];
     /** The currency the proposal is in */
     public currency: string = 'USD';
+    /** Targetted Users */
+    public targetedUsers: number[] = [];
 
-     /**
+    /**
      * Constructor
      * @param initParams - Initial parameters to populate the proposal model.
      */
@@ -60,14 +58,15 @@ class ProposedDealModel {
      * that is has at least one section, that its status is active, and that its owner is active
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
-    public isAvailableForMarket(): boolean {
+    public isActive(): boolean {
+        return (this.sections.length > 0) && (this.status === 'active') && this.ownerInfo.isActive();
+    }
 
-        let startDate = this.startDate;
-        let endDate = this.endDate;
+    public isExpired(): boolean {
+
         let today = Helper.formatDate((new Date()).toDateString());
 
-        return (this.sections.length > 0) && (this.status === 'active')
-            && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00') && this.ownerInfo.isActive();
+        return !((this.startDate <= this.endDate) && (this.endDate >= today || this.endDate === '0000-00-00'));
 
     }
 
@@ -75,21 +74,52 @@ class ProposedDealModel {
      * Checks that a proposed deal is purchasable by a specific user. The proposal must be a valid purchasable 
      * proposal, its owner must be active, and the user viewing it must not have the same type as 
      * its owner (publishers can't view other publishers' proposals, and the same applies to buyers).
+     * Also ensures that if the proposal is targeted, it is targeted to the current user. 
      * @param user - the user in question
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: UserModel) {
-        return (this.isAvailableForMarket() && this.ownerInfo.userType !== user.userType);
+        return this.isActive() && !this.isExpired() && user.userType !== this.ownerInfo.userType &&
+               !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1);
     }
 
     /**
-     * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market, or
-     * the proposal must be owned by the user.
+     * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market
+     * and targeted towards the current user if it's a targeted proposal, or
+     * the proposal must be owned by the user and not deleted.
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: UserModel) {
-        return this.isAvailableForMarket() || this.ownerInfo.id === user.id;
+        return (this.isActive() && !this.isExpired() && !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1)) ||
+                this.ownerID === user.id && this.status !== 'deleted';
+    }
+
+    /**
+     * Returns true if the proposal is deleted.
+     */
+    public isDeleted() {
+        return this.status === 'deleted';
+    }
+
+    /**
+     * Update the current proposal with new fields.
+     * @param proposalFields - Fields to update.
+     * @returns True if there was a change to the proposal.
+     */
+    public update(proposalFields: any) {
+
+        let different = false;
+
+        for (let key in proposalFields) {
+            if (proposalFields[key] && proposalFields[key] !== this[key]) {
+                this[key] = proposalFields[key];
+                different = true;
+            }
+        }
+
+        return different;
+
     }
 
     /**
@@ -98,24 +128,33 @@ class ProposedDealModel {
      */
     public toPayload(): any {
 
-        return {
-            proposal_id: this.id,
-            owner: this.ownerInfo.toPayload('owner_id'),
-            name: this.name,
-            status: this.status,
-            currency: this.currency,
-            description: this.description,
-            start_date: this.startDate,
-            end_date: this.endDate,
-            price: this.price,
-            impressions: this.impressions,
-            budget: this.budget,
-            auction_type: this.auctionType,
-            terms: this.terms,
-            created_at: this.createDate.toISOString(),
-            modified_at: this.modifyDate.toISOString(),
-            inventory: this.sections.map((section) => { return section.toSubPayload(); })
-        };
+        if (this.isDeleted()) {
+            return {
+                proposal_id: this.id,
+                status: this.status,
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString()
+            };
+        } else {
+            return {
+                proposal_id: this.id,
+                owner: this.ownerInfo.toPayload('owner_id'),
+                name: this.name,
+                status: this.status,
+                currency: this.currency,
+                description: this.description,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                price: this.price,
+                impressions: this.impressions,
+                budget: this.budget,
+                auction_type: this.auctionType,
+                terms: this.terms,
+                created_at: this.createDate.toISOString(),
+                modified_at: this.modifyDate.toISOString(),
+                inventory: this.sections.map((section) => { return section.toSubPayload(); })
+            };
+        }
 
     }
 

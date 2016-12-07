@@ -8,6 +8,7 @@ tables:
     - ixmBuyers
     - ixmDealProposals
     - ixmProposalSectionMappings
+    - ixmProposalTargeting
 #    - ixmPublishers
     - users
     - publishers

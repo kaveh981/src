@@ -63,7 +63,8 @@ async function createDealNegotiation (data: ICreateEntityData) {
 
     let buyer = await databasePopulator.createBuyer(data.dsp.dspID);
     let dealNegotiation = await databasePopulator.createDealNegotiation(data.proposal.proposal.proposalID,
-                                                                       data.publisher.user.userID, buyer.user.userID);
+                                                                       data.publisher.user.userID, buyer.user.userID,
+                                                                       {pubStatus: 'active', buyerStatus: 'accepted'});
 
     return Helper.dealNegotiationToPayload(dealNegotiation, data.proposal, data.publisher.user, buyer.user);
 
@@ -638,7 +639,7 @@ export async function ATW_DNP_GET_20 (assert: test.Test) {
 
 /*
  * @case    - Proposal has been deleted (status)
- * @expect  - 200 - 1 Deal negotiation returned anyway
+ * @expect  - 200/ 1 DN Returned
  * @route   - GET deals/negotiations/:proposalID
  * @status  - passing
  * @tags    - 
@@ -656,7 +657,7 @@ export async function ATW_DNP_GET_21 (assert: test.Test) {
                                                           status: "deleted"
                                                           });
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
+                                                                        buyer.user.userID, {pubStatus: 'active', buyerStatus: 'accepted'});
     let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Response 200");
@@ -746,4 +747,59 @@ export async function ATW_DNP_GET_24 (assert: test.Test) {
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user)],
                      "1 DN Returned");
+}
+
+/*
+  * @case    - Proposal is closed and the user is the owner
+  * @expect  - 200/ 1 DN Returned
+  * @route   - GET deals/negotiations
+  * @status  - passing
+  * @tags    - 
+  */
+export async function ATW_DNP_GET_25(assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], { status: 'deleted' });
+    let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, {buyerStatus : 'deleted'});
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+
+    assert.equals(response.status, 200, "Response ok");
+    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, publisher.user)],
+                     "1 DN Returned");
+
+}
+
+/*
+ * @case    - Proposal is closed and the user is NOT the owner 
+ * @expect  - 404
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    - 
+ */
+export async function ATW_DNP_GET_26(assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+    let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, {pubStatus : 'deleted'});
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user.userID);
+    assert.equals(response.status, 200, "Response ok");
+    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, buyer.user)],
+                     "1 DN Returned");
+
 }

@@ -109,7 +109,7 @@ class ConfigLoader {
      * Resolve the shortstop notation for config. Currently only supports 'path:'
      * @param config - The config object to resolve shortstop.
      * @returns A promise for the kraken config with shortstops resolved.
-    */
+     */
     private resolveShortstop(config: any): Promise<any> {
         return new Promise((resolve, reject) => {
 

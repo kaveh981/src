@@ -11,20 +11,20 @@ class PaginationModel {
     /** Optional URL for next page */
     public nextPageURL: string;
     /** Optional URL for prev page */
-    public prevPageURL: string;
+    public prevPageURL: string = '';
 
      /**
-     * Constructor
-     * @param initParams - Initial parameters to populate the user model.
-     * @param req - The request calling the pagination constructor
-     */
+      * Constructor
+      * @param initParams - Initial parameters to populate the user model.
+      * @param req - The request calling the pagination constructor
+      */
     constructor(initParams: any = {}, req: express.Request) {
 
         Object.assign(this, initParams);
 
-        let url = 'https://' + req.get('host') + req.originalUrl.split("?")[0];
+        let url = req.originalUrl.split(/v\d+\//)[1].split('?')[0];
+
         this.nextPageURL = url + `?page=${this.page + 1}&limit=${this.limit}`;
-        this.prevPageURL = "";
 
         if (this.page > 1) {
             this.prevPageURL = url + `?page=${this.page - 1}&limit=${this.limit}`;
@@ -50,9 +50,7 @@ class PaginationModel {
      * Calculate and return offset for SQL queries 
      */
     public getOffset () {
-
         return (this.page - 1) * this.limit;
-
     }
 
 }

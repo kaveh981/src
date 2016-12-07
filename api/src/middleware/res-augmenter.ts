@@ -5,7 +5,6 @@ import * as express from 'express';
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
-import { PaginationModel } from '../models/pagination/pagination-model';
 
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 const Log = new Logger('RESP');
@@ -75,7 +74,7 @@ function augmentResponse(res: express.Response): void {
         if (Array.isArray(payload)) {
             msg.data = payload;
         } else {
-            msg.data = [payload];
+            msg.data = [ payload ];
         }
 
         if (pagination) {
@@ -102,6 +101,25 @@ function augmentResponse(res: express.Response): void {
         }
 
         res.sendJSON(status, msg);
+
+    };
+
+    // Send an OK message
+    res.sendMessage = (message: string, payload?: any) => {
+
+        let msg: IHttpResponse = {
+            status: 200,
+            message: errorMessages[message] || errorMessages['200'],
+            data: []
+        };
+
+        if (Array.isArray(payload)) {
+            msg.data = payload;
+        } else {
+            msg.data = [ payload ];
+        }
+
+        res.sendJSON(200, msg);
 
     };
 };

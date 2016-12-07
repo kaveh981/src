@@ -8,8 +8,6 @@ import { Helper } from '../../../lib/helper';
 import { NegotiatedDealManager } from '../negotiated-deal/negotiated-deal-manager';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
-import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
-import { DealSectionModel } from '../../deal-section/deal-section-model';
 import { UserModel } from '../../user/user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 

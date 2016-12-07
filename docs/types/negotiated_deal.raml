@@ -61,7 +61,7 @@ properties:
         required: true
         displayName: Status
         description: The current status of the negotiation. Indicates whether the negotiation is currently waiting on/was rejected by the user making the request or the negotiating partner, or whether it was accepted by both parties.
-        enum: ["waiting_on_partner", "waiting_on_you", "rejected_by_partner", "rejected_by_you", "accepted"]
+        enum: ["waiting_on_partner", "waiting_on_you", "rejected_by_partner", "rejected_by_you", "accepted", "closed_by_owner"]
     terms:
         type: string
         required: false

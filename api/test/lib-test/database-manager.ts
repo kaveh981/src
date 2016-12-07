@@ -1,7 +1,8 @@
+/* tslint:disable */
+
 'use strict';
 
 import * as test from 'tape';
-import * as Promise from 'bluebird';
 
 import { Injector } from '../../src/lib/injector';
 import { ConfigLoader } from '../../src/lib/config-loader';

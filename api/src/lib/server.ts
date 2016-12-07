@@ -2,9 +2,6 @@
 
 import * as express from 'express';
 import * as http from 'http';
-import * as path from 'path';
-const handlers = require('shortstop-handlers');
-const shortstop = require('shortstop');
 const meddleware = require('meddleware');
 
 import { ConfigLoader } from './config-loader';
