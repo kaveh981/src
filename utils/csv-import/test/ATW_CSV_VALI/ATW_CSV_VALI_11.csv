@@ -2,5 +2,4 @@ ownerID,name,description,status,startDate,endDate,price,impressions,budget,aucti
 100129,csvImportedProposal1,"Invalid price value, negative",active,2015-01-01,2017-01-01,-2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
 100129,csvImportedProposal2,"Invalid price value, 0.01 below min",active,2015-01-01,2017-01-01,0.00,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
 100129,csvImportedProposal3,"Invalid price value, 0.01 above max",active,2015-01-01,2017-01-01,655.36,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
-100129,csvImportedProposal4,"Invalid price value type, integer",active,2015-01-01,2017-01-01,2,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
-100129,csvImportedProposal5,"Invalid price value type, string",active,2015-01-01,2017-01-01,"""2.5""",25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal4,"Invalid price value type, integer",active,2015-01-01,2017-01-01,"""2.5""",25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
