@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS `rtbSections_backup`;
 DROP TABLE IF EXISTS `ixmDealProposals_backup`;
 DROP TABLE IF EXISTS `ixmBuyers_backup`;
 DROP TABLE IF EXISTS `ixmProposalTargeting_backup`;
-DROP TABLE IF EXISTS `ixmProposalSectionMappings`;
+DROP TABLE IF EXISTS `ixmProposalSectionMappings_backup`;
 
 CREATE TABLE IF NOT EXISTS `users_backup` SELECT *  FROM `users`;
 CREATE TABLE IF NOT EXISTS `rtbSections_backup` SELECT *  FROM `rtbSections`;
