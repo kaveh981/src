@@ -662,7 +662,7 @@ export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID,);
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
     let currentDate = new Date();
 
