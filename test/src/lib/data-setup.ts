@@ -55,7 +55,7 @@ class DataSetup {
         });
         await this.clearTable(table);
 
-        Log.debug(`Backed up tables ${table}.`);
+        Log.debug(`Backed up table ${table}.`);
 
     }
 
