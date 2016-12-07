@@ -630,7 +630,7 @@ export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID + 1]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
 
     let proposal = {
         auction_type: 'second',
@@ -644,5 +644,207 @@ export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
     let response = await apiRequest.put(route, proposal, buyer.user.userID);
 
     assert.equal(response.status, 403);
+
+}
+
+/*
+ * @case    - Start Date after End Date
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID,);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        inventory: [section.section.sectionID],
+        price: 5,
+        partners: [publisher.user.userID],
+        start_date: new Date(currentDate.setDate(currentDate.getDate() + 10)),
+        end_date: new Date(currentDate.setDate(currentDate.getDate() - 5))
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - End date is in the past
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        inventory: [section.section.sectionID],
+        price: 5,
+        partners: [publisher.user.userID],
+        start_date: new Date(currentDate.setDate(currentDate.getDate() - 10)),
+        end_date: new Date(currentDate.setDate(currentDate.getDate() - 5))
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - auction_type is missing
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        name: 'fabulous proposal',
+        inventory: [section.section.sectionID],
+        price: 5
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - name is missing
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        auction_type: 'second',
+        inventory: [section.section.sectionID],
+        price: 5
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - Inventory is missing
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'great name',
+        price: 5
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - Inventory is missing
+ * @expect  - 400 BAD REQUEST
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let currentDate = new Date();
+
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'great name',
+        inventory: [section.section.sectionID]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+
+    assert.equal(response.status, 400);
 
 }
