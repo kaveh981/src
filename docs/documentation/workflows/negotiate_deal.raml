@@ -16,7 +16,7 @@
             $ curl -X GET \
                 -H 'X-Auth-ID: 1234' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
-                https://market.indexexchange.com/v1/deals/proposals
+                https://market.indexexchange.com/api/v1/deals/proposals
             ```
 
             This list may optionally be filtered by any of the available filters described in the [deal proposals route]( link ). Returned deals are limited to the pagination maximum.
@@ -83,8 +83,8 @@
                 "pagination": {
                     "page": 2,
                     "limit": 250,
-                    "next_page_url": "https://market.indexexchange.com/deals/proposals/?page=3&limit=250",
-                    "prev_page_url": "https://market.indexexchange.com/deals/proposals/?page=1&limit=250"
+                    "next_page_url": "https://market.indexexchange.com/api/v1/deals/proposals/?page=3&limit=250",
+                    "prev_page_url": "https://market.indexexchange.com/api/v1/deals/proposals/?page=1&limit=250"
                 }
             }
             ```
@@ -100,7 +100,7 @@
                 -H 'X-Auth-ID: 1234' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.49", "end_date": "2017-02-10", "terms": "Pending approval from the boss. How is your mother doing, by the way?" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             Upon success, a Negotiated Deal object is returned, containing the proposed updates. The original proposal object is included for reference.
@@ -180,7 +180,7 @@
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             Notification is sent of the acceptance and the deal becomes active. The deal is available to bid on, pending start date if applicable, and will appear in results from the GET deals/active route.
@@ -194,7 +194,7 @@
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             Notification of rejection is sent to the buyer. The Negotiated Deal is still available from the GET `/deals/negotiations` route, with the rejection status.
@@ -210,7 +210,7 @@
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             The buyer will be notified of the update, and the deal remains available in the GET `/deals/negotiations` route.

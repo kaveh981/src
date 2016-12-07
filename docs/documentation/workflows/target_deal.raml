@@ -42,7 +42,7 @@
                         },
                         "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs"
                     }' \
-                https://market.indexexchange.com/v1/deals/proposals
+                https://market.indexexchange.com/api/v1/deals/proposals
             ```
 
             #### 2.3.2 Receive responses
@@ -58,7 +58,7 @@
                 -H 'X-Auth-ID: 123' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             The second publisher opts to negotiate and submits a counter-offer:
@@ -68,7 +68,7 @@
                 -H 'X-Auth-ID: 456' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "price": "2.99" "terms": "Try harder bro" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             #### 2.3.3 Respond to the results.
@@ -82,7 +82,7 @@
                 -H 'X-Auth-ID: 1234' \
                 -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 456, "response": "reject" }' \
-                https://market.indexexchange.com/v1/deals/negotiations
+                https://market.indexexchange.com/api/v1/deals/negotiations
             ```
 
             #### 2.3.4 Reach an agreement
