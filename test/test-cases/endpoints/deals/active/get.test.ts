@@ -98,7 +98,7 @@ async function createSettledDeal (data: ICreateEntityData) {
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, authenticationSetup);
+export let ATW_API_GET_DEAACT_AUTH = authenticationTest(ROUTE, VERB, authenticationSetup);
 
 /*
  * @case    - Different pagination parameters are attempted.
@@ -107,7 +107,7 @@ export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, authenticationS
  * @status  - commented out (must restructure common pagination suite)
  * @tags    - get, deals, auth
  */
-export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationSetup, createSettledDeal);
+export let ATW_API_GET_DEAACT_PAGI = paginationTest(ROUTE, VERB, paginationSetup, createSettledDeal);
 
  /*
  * @case    - Proposal is still in negotiation, no rtbDeals entry present
@@ -116,7 +116,7 @@ export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationSetup, cre
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_01 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -145,7 +145,7 @@ export async function IXM_API_DA_GET_01 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_02 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -174,7 +174,7 @@ export async function IXM_API_DA_GET_02 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_03 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_03 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -215,7 +215,7 @@ export async function IXM_API_DA_GET_03 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_04 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_04 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -258,7 +258,7 @@ export async function IXM_API_DA_GET_04 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_05 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_05 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -295,7 +295,7 @@ export async function IXM_API_DA_GET_05 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_06 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_06 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -328,7 +328,7 @@ export async function IXM_API_DA_GET_06 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_07 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_07 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -361,7 +361,7 @@ export async function IXM_API_DA_GET_07 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_08 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_08 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -393,7 +393,7 @@ export async function IXM_API_DA_GET_08 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_09 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -424,7 +424,7 @@ export async function IXM_API_DA_GET_09 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_10 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_10 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -456,7 +456,7 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_11 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_11 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -487,7 +487,7 @@ export async function IXM_API_DA_GET_11 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_12 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_12 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -518,7 +518,7 @@ export async function IXM_API_DA_GET_12 (assert: test.Test) {
 * @status  - passing
 * @tags    - get, active, deals
 */
-export async function IXM_API_DA_GET_13(assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_13(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
