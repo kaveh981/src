@@ -1,0 +1,12 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+100129,csvImportedProposal1,Invalid status 'ACTIVE',ACTIVE,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal2,Invalid status 'A',A,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal3,Invalid status 'a',a,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal4,Invalid status 'PAUSED',PAUSED,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal5,Invalid status 'P',P,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal6,Invalid status 'p',p,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal7,Invalid status 'DELETED',DELETED,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal8,Invalid status 'D',D,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal9,Invalid status 'd',d,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal10,Irrelevant status '111',111,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal11,Irrelevant status 'goosed',goosed,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"

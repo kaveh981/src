@@ -1,0 +1,6 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+100129,csvImportedProposal1,"Invalid auctionType value, upper case",active,2015-01-01,2017-01-01,2.5,25000,6250000,FIRST,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal2,"Invalid auctionType value, upper case",active,2015-01-01,2017-01-01,2.5,25000,6250000,SECOND,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal3,"Invalid auctionType value, upper case",active,2015-01-01,2017-01-01,2.5,25000,6250000,FIXED,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal4,"Invalid auctionType value, numeric",active,2015-01-01,2017-01-01,2.5,25000,6250000,1,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal5,"Invalid auctionType value, not in enum",active,2015-01-01,2017-01-01,2.5,25000,6250000,goose,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
