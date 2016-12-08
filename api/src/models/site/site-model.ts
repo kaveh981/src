@@ -5,7 +5,7 @@ class SiteModel {
     /** Site id */
     public id: number;
     /** Owner id */
-    public publisherId: number;
+    public publisherID: number;
     /** Site Name */
     public name: string;
     /** URL */
@@ -17,9 +17,9 @@ class SiteModel {
     /** Description */
     public description: string;
     /** Status */
-    public status: 'active' | 'paused' | 'deleted';
+    public status: 'active' | 'deleted' | 'paused' | 'inactive';
 
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<SiteModel> = {}) {
         Object.assign(this, initParams);
     }
 
@@ -30,7 +30,7 @@ class SiteModel {
 
         return {
             id: this.id,
-            publisher_id: this.publisherId,
+            publisher_id: this.publisherID,
             name: this.name,
             url: this.url,
             categories: this.categories,

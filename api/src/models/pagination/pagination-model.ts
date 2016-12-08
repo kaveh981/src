@@ -18,7 +18,7 @@ class PaginationModel {
       * @param initParams - Initial parameters to populate the user model.
       * @param req - The request calling the pagination constructor
       */
-    constructor(initParams: any = {}, req: express.Request) {
+    constructor(initParams: Partial<PaginationModel> = {}, req: express.Request) {
 
         Object.assign(this, initParams);
 

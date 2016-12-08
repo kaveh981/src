@@ -25,7 +25,7 @@ class UserModel {
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
      */
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<UserModel> = {}) {
         Object.assign(this, initParams);
     }
 
