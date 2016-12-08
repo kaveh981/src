@@ -117,6 +117,7 @@ interface IProposal {
 interface INewProposalData {
     proposal?: IProposal;
     sectionIDs?: number[];
+    targetedUsers?: number[];
 }
 
 interface IReqOptions {

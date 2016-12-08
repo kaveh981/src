@@ -301,10 +301,10 @@ class DatabasePopulator {
      * @param proposalFields {INewProposalData} - Optional: a new proposal object to override random fields
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal) {
+    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[]) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
-        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs };
+        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || []};
 
         if (proposalFields) {
             Object.assign(newProposal.proposal, proposalFields);
@@ -324,28 +324,15 @@ class DatabasePopulator {
 
         await this.mapProposalToSections(newProposal.proposal.proposalID, newProposal.sectionIDs);
 
+        if (newProposal.targetedUsers) {
+            await this.mapProposalToTargets(newProposal.proposal.proposalID, newProposal.targetedUsers);
+        }
+
         return newProposal;
 
     }
 
     /**
-     * Creates a new mapping between a proposal and a user to describe a proposal targeting 
-     * Inserts a pair of values {proposalID, userID} into 'Viper2.ixmProposalTargeting'
-     * @param proposalID - the ID of the proposal being targeted 
-     * @param userID - the ID of the user the proposal is being targeted at 
-     * @returns {Promise<void>} - Resolves when all mapping entries are successful
-     */
-    public async targetProposalToUser (proposalID: number, userID: number) {
-
-        let targeting = {proposalID: proposalID, userID: userID};
-
-        await this.dbm.insert(targeting).into('ixmProposalTargeting');
-
-        Log.debug(`Targeted proposalID ${proposalID} to userID ${userID}`);
-
-    }
-
-     /**
      * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmDealNegotiations",
      * "Viper2.ixmDealNegotiations".
      * @param proposalID {int} - proposalID of the proposal being negotiated
@@ -415,6 +402,23 @@ class DatabasePopulator {
 
             await this.dbm.insert(mapping).into('ixmProposalSectionMappings');
             Log.debug(`Mapped proposalID ${proposalID} to sectionID ${sectionIDs[i]}`);
+        }
+
+    }
+
+    /**
+     * Maps a proposal to 1 or more targeted users.
+     * @arg proposalID {int} - the proposalID to map
+     * @arg targets {int[]} - an array of userIDs to map to the given proposalID
+     * @returns {Promise<void>} Promise that resolves when all mappings done
+     */
+    public async mapProposalToTargets(proposalID: number, targets: number[]) {
+
+        for (let i = 0; i < targets.length; i += 1) {
+            let mapping = {proposalID: proposalID, userID: targets[i]};
+
+            await this.dbm.insert(mapping).into('ixmProposalTargeting');
+            Log.debug(`Mapped proposalID ${proposalID} to target user ${targets[i]}`);
         }
 
     }

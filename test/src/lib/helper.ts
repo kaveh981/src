@@ -89,6 +89,7 @@ class Helper {
                         resource: `sections/${id}`
                     };
                 }),
+                partners: proposal.targetedUsers,
                 modified_at: proposal.proposal.modifyDate.toISOString(),
                 name: proposal.proposal.name,
                 price: proposal.proposal.price,

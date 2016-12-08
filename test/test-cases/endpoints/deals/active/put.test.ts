@@ -517,9 +517,8 @@ export async function IXM_API_DEALS_PUT_17(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, targetedBuyer.user.userID);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], {},
+                                                          [targetedBuyer.user.userID]);
 
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
@@ -547,9 +546,8 @@ export async function IXM_API_DEALS_PUT_18(assert: test.Test) {
     let targetedPublisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, targetedPublisher.user.userID);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {}
+                                                          [targetedPublisher.user.userID]);
 
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user.userID);
@@ -577,9 +575,8 @@ export async function IXM_API_DEALS_PUT_19(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, buyer.user.userID);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID], {}
+                                                          [buyer.user.userID]);
 
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user.userID);
@@ -607,9 +604,8 @@ export async function IXM_API_DEALS_PUT_20(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, publisher.user.userID);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {}
+                                                          [publisher.user.userID]);
 
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user.userID);
