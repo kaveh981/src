@@ -259,7 +259,7 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID + 1}`, {}, buyer.user.userID);
 
-    assert.equals(response.status, 400);
+    assert.equals(response.status, 404);
 
 }
 
