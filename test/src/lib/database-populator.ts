@@ -301,10 +301,10 @@ class DatabasePopulator {
      * @param proposalFields {INewProposalData} - Optional: a new proposal object to override random fields
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal) {
+    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[]) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
-        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs };
+        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || []};
 
         if (proposalFields) {
             Object.assign(newProposal.proposal, proposalFields);
@@ -323,6 +323,10 @@ class DatabasePopulator {
         newProposal.proposal.modifyDate = modifyDate[0].modifyDate;
 
         await this.mapProposalToSections(newProposal.proposal.proposalID, newProposal.sectionIDs);
+
+        if (newProposal.targetedUsers) {
+            await this.mapProposalToTargets(newProposal.proposal.proposalID, newProposal.targetedUsers);
+        }
 
         return newProposal;
 
@@ -415,6 +419,23 @@ class DatabasePopulator {
 
             await this.dbm.insert(mapping).into('ixmProposalSectionMappings');
             Log.debug(`Mapped proposalID ${proposalID} to sectionID ${sectionIDs[i]}`);
+        }
+
+    }
+
+    /**
+     * Maps a proposal to 1 or more targeted users.
+     * @arg proposalID {int} - the proposalID to map
+     * @arg targets {int[]} - an array of userIDs to map to the given proposalID
+     * @returns {Promise<void>} Promise that resolves when all mappings done
+     */
+    public async mapProposalToTargets(proposalID: number, targets: number[]) {
+
+        for (let i = 0; i < targets.length; i += 1) {
+            let mapping = {proposalID: proposalID, userID: targets[i]};
+
+            await this.dbm.insert(mapping).into('ixmProposalTargeting');
+            Log.debug(`Mapped proposalID ${proposalID} to target user ${targets[i]}`);
         }
 
     }
