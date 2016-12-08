@@ -1703,9 +1703,8 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_01(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, buyer2.user.userID);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], {}
+                                                          [buyer2.user.userID]);
 
     let buyer1RequestBody = {
         proposal_id: proposal.proposal.proposalID,
@@ -1740,9 +1739,8 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_02(assert: test.Test) {
     let publisher2 = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher2.publisher.userID);
     let section = await databasePopulator.createSection(publisher2.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, publisher2.user.userID);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {},
+                                                          [publisher2.user.userID]);
 
     let publisher1RequestBody = {
         proposal_id: proposal.proposal.proposalID,
@@ -1775,9 +1773,8 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_03(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, buyer.user.userID);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID], {}
+                                                          [buyer.user.userID]);
 
     let buyerRequestBody = {
         proposal_id: proposal.proposal.proposalID,
@@ -1810,9 +1807,8 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_04(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID]);
-
-    await databasePopulator.targetProposalToUser(proposal.proposal.proposalID, publisher.user.userID);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {},
+                                                          [publisher.user.userID]);
 
     let publisherRequestBody = {
         proposal_id: proposal.proposal.proposalID,
