@@ -50,7 +50,7 @@ class NegotiatedDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal negotiation model.
      */
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<NegotiatedDealModel> = {}) {
         Object.assign(this, initParams);
     }
 

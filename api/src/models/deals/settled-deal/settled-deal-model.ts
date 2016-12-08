@@ -44,7 +44,7 @@ class SettledDealModel {
      * Constructor
      * @param initParams - Initial parameters to populate the deal model.
      */
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<SettledDealModel> = {}) {
         Object.assign(this, initParams);
     }
 

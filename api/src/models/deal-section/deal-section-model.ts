@@ -11,7 +11,7 @@ class DealSectionModel {
     /** Coverage */
     public coverage: number;
     /** Entire Site */
-    public entireSite: number;
+    public entireSite: boolean;
     /** Frequency Restrictions */
     public frequencyRestrictions: string[];
     /** Section id */
@@ -25,9 +25,9 @@ class DealSectionModel {
     /** Site */
     public sites: SiteModel[];
     /** Status */
-    public status: 'active' | 'deleted';
+    public status: 'active' | 'deleted' | 'paused' | 'inactive';
 
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<DealSectionModel> = {}) {
         Object.assign(this, initParams);
     }
 

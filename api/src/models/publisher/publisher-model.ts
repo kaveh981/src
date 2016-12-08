@@ -13,7 +13,7 @@ class PublisherModel {
      * Constructor
      * @param initParams - Initial parameters to populate the pub model.
      */
-    constructor(initParams: any = {}) {
+    constructor(initParams: Partial<PublisherModel> = {}) {
         Object.assign(this, initParams);
     }
 
