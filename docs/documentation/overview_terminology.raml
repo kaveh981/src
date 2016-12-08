@@ -1,0 +1,67 @@
+
+ |
+
+            Index Market is a new online marketplace created by Index Exchange. IX Market provides a platform for publishers and buyers to pitch and negotiate deals. IXM additionally allows publishers of all sizes to showcase their inventory to potential buyers. 
+
+
+            IX Market may be accessed here: https://market.indexexchange.com/api/{version}
+
+            #### 1.1 Deals & Index Market Deal Lifecycle
+
+            A deal is an agreement between a buyer and publisher for the purchase of ad inventory. The terms of a deal typically specify the duration, CPM and site(s) involved.
+
+            All active deals share the following traits:
+                
+                - The terms are final. Publishers or buyers who wish to modify the terms of a deal must return to the proposal stage and renegotiate a new deal.
+                - Cancellation is an option. Active deals may be cancelled at any point by either party.
+                - Bidding is tied the start date. Bidding on a deal prior to the start date is not possible
+
+            #### 1.2 Deal Lifecycle
+
+            The lifecycle of a deal progresses through three stages:
+                
+            1. Proposal
+            2. Negotiation
+            3. Activation
+
+
+            #### 1.2.1 Proposal
+
+            A proposal is the first stage in the lifecycle of a deal. Proposals allow publishers to showcase their available inventory to buyers on the IX market while specifying their preferred deal terms. Buyers may browse publisher proposals to identify deals that suit their inventory requirements. 
+
+
+            Once a buyer isolates a proposal of interest, two paths are available: 
+                - Accept the deal as-is,
+                - Amend the proposed terms and submit a counter-offer.    
+
+
+            A proposal may also be created by a buyer in order to target specific publishers via their publisher ID. 
+
+            Publishers and buyers may target one or more specific parties in a proposal. Targeted proposals and proposals initiated by a buyer are both invisible on the open market; the targeted party receives notification of the proposal behind the scenes. 
+            
+            Example Proposal: [Types / Proposal]( link )
+
+            #### 1.2.2 Negotiation
+
+            Negotiation is the second stage in the lifecycle of a deal. During this phase, two parties reach an agreement on the exact terms of a deal by exchanging one or more counter-offers. 
+
+
+            Negotiation is initiated when a party is interested in a certain proposal but wishes to amend one or more of the terms. These amended terms are communicated via a counter-offer. The following fields are negotiable: `price`, `start_date`, `end_date`, `impressions` and `budget`.
+
+
+            A counter-offer may introduce new values for one or all of the negotiable fields above. If accepted by the other party, these amended terms overwrite all previously exchanged terms. Counter-offers share the following traits: 
+                - The terms field is optional. The terms field is a text field used for general terms and conditions, and can be used for including additional information and communications.
+                - Negotiation is a conversation. Multiple counter-offers may be exchanged between parties during negotiation before an agreement is reached (or rejected). 
+                - The conversation is private. Negotiation is always one-to-one between a buyer and a publisher. In the case where a proposal targeted more than one party, individual negotiations occur between each buyer-publisher pair.
+            
+            Example Negotiation: [Types / Negotiation]( link )
+
+            #### 1.2.3 Activation
+            
+            Activation represents the third and final stage in the lifecycle of a deal. Deals that reach this stage become active deals. A deal arrives at this stage once a publisher and buyer reach an agreement on the terms of a deal. An agreement may be reached via one of three paths: 
+
+                - A buyer chooses to buy an available proposal without negotiation,
+                - The targeted party in an offered proposal accepts the proposal without negotiation,
+                - Both parties in a negotiation accept the current terms.
+
+            Example Active Deal: Types / Active

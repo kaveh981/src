@@ -8,18 +8,23 @@ items:
     type: object
     format: proposal
     constraints:
-        dateOrder: 
+        dateOrder:
          -  prior: startDate
             after: endDate
+    additionalProperties: false
     properties:
         proposalID:
             $ref: "#/definitions/ID"
         ownerID:
             $ref: "#/definitions/ID"
         name:
-            $ref: "#/definitions/varchar255"
+            type: string
+            minLength: 1
+            maxLength: 255
         description:
-            $ref: "#/definitions/varchar255"
+            type: string
+            minLength: 0
+            maxLength: 255
             default: ""
         status:
             enum: [active, paused, deleted]
@@ -44,7 +49,7 @@ items:
             default: "second"
         terms:
             type: string
-            minLength: 1
+            minLength: 0
             maxLength: 65535
         createDate:
             type: "null"
@@ -56,8 +61,14 @@ items:
                 $ref: "#/definitions/ID"
             minItems: 1
             uniqueItems: true
+        targetedUsers:
+            type: array
+            items:
+                $ref: "#/definitions/ID"
+            minItems: 0
+            uniqueItems: true
     required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
-    terms, createDate, modifyDate, sectionIDs]
+    terms, createDate, modifyDate, sectionIDs, targetedUsers]
 definitions:
     ID:
         type: integer
@@ -71,10 +82,6 @@ definitions:
         type: integer
         minimum: 1
         maximum: 255
-    varchar255:
-        type: string
-        minLength: 1
-        maxLength: 255
     dateString:
         type: string
-        pattern: ^[0-2]\d{3}-(?:0\d|1[0-2])-(?:[0-2]\d|3[0-1])$
+        pattern: ^2\d{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[0-1])$|^0000-00-00$

@@ -2,6 +2,7 @@
 
 import { DatabaseManager } from '../../lib/database-manager';
 import { SiteModel } from './site-model';
+import { Helper } from '../../lib/helper';
 
 class SiteManager {
 
@@ -40,7 +41,7 @@ class SiteManager {
         return new SiteModel({
             publisherID: rows[0].publisherID,
             id: rows[0].id,
-            status: rows[0].status,
+            status: Helper.statusLetterToWord(rows[0].status),
             url: rows[0].url,
             monthlyUniques: rows[0].monthlyUniques,
             name: rows[0].name,

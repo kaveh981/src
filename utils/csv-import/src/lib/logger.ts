@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 'use strict';
 
 import * as fs from 'fs';
