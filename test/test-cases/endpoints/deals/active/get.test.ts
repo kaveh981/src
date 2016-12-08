@@ -98,7 +98,7 @@ async function createSettledDeal (data: ICreateEntityData) {
  * @status  - passing
  * @tags    - get, deals, auth
  */
-export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, authenticationSetup);
+export let ATW_API_GET_DEAACT_AUTH = authenticationTest(ROUTE, VERB, authenticationSetup);
 
 /*
  * @case    - Different pagination parameters are attempted.
@@ -107,7 +107,7 @@ export let IXM_API_DA_GET_AUTH = authenticationTest(ROUTE, VERB, authenticationS
  * @status  - commented out (must restructure common pagination suite)
  * @tags    - get, deals, auth
  */
-export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationSetup, createSettledDeal);
+export let ATW_API_GET_DEAACT_PAGI = paginationTest(ROUTE, VERB, paginationSetup, createSettledDeal);
 
  /*
  * @case    - Proposal is still in negotiation, no rtbDeals entry present
@@ -116,7 +116,7 @@ export let IXM_API_DA_GET_PAG = paginationTest(ROUTE, VERB, paginationSetup, cre
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_01 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -145,7 +145,7 @@ export async function IXM_API_DA_GET_01 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_02 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -171,10 +171,10 @@ export async function IXM_API_DA_GET_02 (assert: test.Test) {
  * @case    - Settled deal start date is in the future
  * @expect  - Deal is returned
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but doesn't come from rtbDeals)
+ * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_03 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_03 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -212,10 +212,10 @@ export async function IXM_API_DA_GET_03 (assert: test.Test) {
  * @case    - Settled deal end date is in the past
  * @expect  - No deals returned
  * @route   - GET deals/active
- * @status  - failing (rtbDeals insertion in setup is not recording the date properly)
+ * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_04 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_04 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -253,36 +253,40 @@ export async function IXM_API_DA_GET_04 (assert: test.Test) {
 
  /*
  * @case    - One section linked to the settled deal is deactivated
- * @expect  - No deals returned
+ * @expect  - A payload containing the deal data, with active sections returned only.
  * @route   - GET deals/active
- * @status  - failing (still showing the deal, but we shouldn't be)
+ * @status  - passing
  * @tags    - get, active, deals
  */
-// export async function IXM_API_DA_GET_05 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_05 (assert: test.Test) {
 
-//     /** Setup */
-//     assert.plan(2);
+    /** Setup */
+    assert.plan(2);
 
-//     let dsp = await databasePopulator.createDSP(1);
-//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-//     let publisher = await databasePopulator.createPublisher();
-//     let site = await databasePopulator.createSite(publisher.publisher.userID);
-//     let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-//     let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
-//     let proposal = await databasePopulator.createProposal(
-//         publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
-//     let negotiation = await databasePopulator.createDealNegotiation(
-//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-//     let settledDeal = await databasePopulator.createSettledDeal(
-//         publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'A'});
+    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID], {status: 'D'});
+    let proposal = await databasePopulator.createProposal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section1.section.sectionID, section2.section.sectionID], negotiation.negotiationID);
 
-//     /** Test */
-//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    // We only expect active sections in payload
+    proposal.sectionIDs = [section1.section.sectionID];
 
-//     assert.equal(response.status, 200);
-//     assert.deepEqual(response.body.data, []);
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
-// }
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, [expectedPayload]);
+
+}
 
  /*
  * @case    - All sections linked to the settled deal are deactivated
@@ -291,7 +295,7 @@ export async function IXM_API_DA_GET_04 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_06 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_06 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -319,35 +323,36 @@ export async function IXM_API_DA_GET_06 (assert: test.Test) {
 
  /*
  * @case    - One site linked to the settled deal is deactivated (section is active)
- * @expect  - No deals returned
+ * @expect  - A payload containing the deal data.
  * @route   - GET deals/active
- * @status  - failing (still showing the deal, but we shouldn't be)
+ * @status  - passing
  * @tags    - get, active, deals
  */
-// export async function IXM_API_DA_GET_07 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_07 (assert: test.Test) {
 
-//     /** Setup */
-//     assert.plan(2);
+    /** Setup */
+    assert.plan(2);
 
-//     let dsp = await databasePopulator.createDSP(1);
-//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-//     let publisher = await databasePopulator.createPublisher();
-//     let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
-//     let site2 = await databasePopulator.createSite(publisher.publisher.userID);
-//     let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
-//     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-//     let negotiation = await databasePopulator.createDealNegotiation(
-//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-//     let settledDeal = await databasePopulator.createSettledDeal(
-//         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
+    let site2 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'A'});
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID], {status: 'A'});
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID);
 
-//     /** Test */
-//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
-//     assert.equal(response.status, 200);
-//     assert.deepEqual(response.body.data, []);
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, [expectedPayload]);
 
-// }
+}
 
  /*
  * @case    - All sites linked to the settled deal (through 1 section) are deactivated (section is active)
@@ -356,7 +361,7 @@ export async function IXM_API_DA_GET_06 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_08 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_08 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -366,7 +371,7 @@ export async function IXM_API_DA_GET_08 (assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site1 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
     let site2 = await databasePopulator.createSite(publisher.publisher.userID, {status: 'D'});
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site1.siteID, site2.siteID], {status: 'A'});
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
     let negotiation = await databasePopulator.createDealNegotiation(
         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
@@ -388,7 +393,7 @@ export async function IXM_API_DA_GET_08 (assert: test.Test) {
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_09 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -416,10 +421,10 @@ export async function IXM_API_DA_GET_09 (assert: test.Test) {
  * @case    - Proposal got accepted and rtbDeals entry of active status is present
  * @expect  - A payload containing the deal data.
  * @route   - GET deals/active
- * @status  - failing (created_at returned, but doesn't come from rtbDeals)
+ * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_10 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_10 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -446,44 +451,43 @@ export async function IXM_API_DA_GET_10 (assert: test.Test) {
 
  /*
  * @case    - Proposal got accepted and rtbDeals entry of paused status is present
- * @expect  - A payload containing the deal data.
- * @route   - GET deals/active
- * @status  - failing (entry should show up even if paused status)
- * @tags    - get, active, deals
- */
-// export async function IXM_API_DA_GET_11 (assert: test.Test) {
-
-//     /** Setup */
-//     assert.plan(2);
-
-//     let dsp = await databasePopulator.createDSP(1);
-//     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-//     let publisher = await databasePopulator.createPublisher();
-//     let site = await databasePopulator.createSite(publisher.publisher.userID);
-//     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-//     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-//     let negotiation = await databasePopulator.createDealNegotiation(
-//         proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
-//     let settledDeal = await databasePopulator.createSettledDeal(
-//         publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'P'});
-
-//     /** Test */
-//     let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
-//     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
-
-//     assert.equal(response.status, 200);
-//     assert.deepEqual(response.body.data, [expectedPayload]);
-
-// }
-
- /*
- * @case    - Proposal got accepted and rtbDeals entry of deactivated status is present
- * @expect  - A payload containing the deal data.
+ * @expect  - No deals returned
  * @route   - GET deals/active
  * @status  - passing
  * @tags    - get, active, deals
  */
-export async function IXM_API_DA_GET_12 (assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_11 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let negotiation = await databasePopulator.createDealNegotiation(
+        proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
+    let settledDeal = await databasePopulator.createSettledDeal(
+        publisher.publisher.userID, [section.section.sectionID], negotiation.negotiationID, {status: 'P'});
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+ /*
+ * @case    - Proposal got accepted and rtbDeals entry of deactivated status is present
+ * @expect  - No deals returned
+ * @route   - GET deals/active
+ * @status  - passing
+ * @tags    - get, active, deals
+ */
+export async function ATW_API_GET_DEAACT_FUNC_12 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -514,7 +518,7 @@ export async function IXM_API_DA_GET_12 (assert: test.Test) {
 * @status  - passing
 * @tags    - get, active, deals
 */
-export async function IXM_API_DA_GET_13(assert: test.Test) {
+export async function ATW_API_GET_DEAACT_FUNC_13(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);

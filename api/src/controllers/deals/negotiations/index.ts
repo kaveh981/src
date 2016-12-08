@@ -164,7 +164,7 @@ function NegotiationDeals(router: express.Router): void {
     } catch (error) { next(error); } });
 
     /**
-     * PUT request to accept a deal and insert it into the database to activate it.
+     * PUT request to send a counter-offer to a negotiation/proposal, or to accept/reject a negotiation
      */
     router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 

@@ -36,7 +36,7 @@ properties:
         required: false # should we omit date for 'ongoing'? Or?
         displayName: End Date
         description: The end date of the deal, if applicable. RFC3339 "full-date" format. If omitted, deal does not expire.
-        example: 2016-10-10
+        example: 2017-10-10
     impressions:
         type: integer
         required: false
@@ -65,6 +65,11 @@ properties:
         required: true
         displayName: owner
         description: Information about the owner of this proposal.
+    partners:
+        type: integer[]
+        required: false
+        displayName: Partners
+        description: An array of Partner IDs, indicating which users are targeted by this proposal. If empty or not provided, this proposal is open to everyone.
     price:
         type: number
         required: true
@@ -83,7 +88,7 @@ properties:
         required: false
         displayName: Start Date
         description: The start date of the deal, if applicable. RFC3339 "full-date" format. If ommitted, deal is set to start immediately on acceptance.
-        example: 2016-09-09
+        example: 2017-09-09
     status:
         type: string
         required: true
@@ -100,11 +105,12 @@ example: |
     {
         "proposal_id": 999,
         "inventory": [4321, 9876],
+        "partners": [123, 456],
         "name": "Superfab Ultradeal",
         "description": "DWI https://media.giphy.com/media/GODSCQebffJzW/giphy.gif",
         "status": "active",
-        "start_date": "2016-09-09",
-        "end_date": "2016-10-10",
+        "start_date": "2017-09-09",
+        "end_date": "2017-10-10",
         "price": 1.99,
         "impressions": 8,
         "budget": 9999999,
@@ -120,6 +126,6 @@ example: |
             }
         },
         "terms": "Hom ngav taq yas cha'dich 'usgheb abigaile adin billy kristina lea nomi sandra stella susana tindra choronzon corson eurynomos kali mammon mephistopheles neqa'el vapula ɔouʌɐllıs ıuʇǝƃǝɹ ɯɐƃuıs sɐƃıʇʇıs nlʇɹıɔıǝs",
-        "created_at": "2016-04-04T04:00:00Z",
-        "modified_at": "2016-04-14T14:00:00Z"
+        "created_at": "2017-04-04T04:00:00Z",
+        "modified_at": "2017-04-14T14:00:00Z"
     }

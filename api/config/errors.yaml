@@ -10,11 +10,15 @@ en-US:
     200_NO_DEALS: You don't seem to have any active deals at the moment. Sorry, eh!
     200_NO_NEGOTIATIONS: You have no negotiations you agreeable bastard.
     200_PROPOSAL_DELETED: Proposal deleted.
+
+    # 201 Status Code Messages
+    201: Created.
     
     # 400 Status Code Messages
     400: Malformed request.
     400_MISSING_NEG_FIELD: At least one field must be provided for a counter-offer.
     400_EXTRA_NEG_FIELD: No negotiation field can be provided along with given response.
+    400_INVALID_DATES: Start and/or end dates are invalid.
     
     # 401 Status Code Messages
     401: Unauthorized.
@@ -39,12 +43,16 @@ en-US:
     403_PARTNER_NOT_ACTIVE: Partner is not active
     403_PARTNER_INVALID_USERTYPE: Provided partner ID has a invalid user type.
     403_ALREADY_REJECTED: You have already rejected this negotiation, please contact the partner to continue negotiation.
+    403_SECTION_OWNED: A section is not owned by any party in this proposal.
+    403_SECTION_NOT_ACTIVE: A section is not active.
+    403_SITES_NOT_ACTIVE: All sites associated with a section are not active.
 
     # 404 Status Code Messages
     404: Not found.
     404_PROPOSAL_NOT_FOUND: Proposal not found.
     404_PARTNER_NOT_FOUND: Partner not found.
     404_NEGOTIATION_NOT_FOUND: Negotiation not found.
+    404_SECTION_NOT_FOUND: Deal section not found.
 
     # 500 Status Code Messages
     500: Internal server error.
