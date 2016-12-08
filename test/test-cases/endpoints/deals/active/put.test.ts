@@ -546,7 +546,7 @@ export async function IXM_API_DEALS_PUT_18(assert: test.Test) {
     let targetedPublisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {}
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], {},
                                                           [targetedPublisher.user.userID]);
 
     /** Test */

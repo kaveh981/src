@@ -1703,7 +1703,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_01(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], {}
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], {},
                                                           [buyer2.user.userID]);
 
     let buyer1RequestBody = {
