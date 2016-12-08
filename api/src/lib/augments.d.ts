@@ -27,13 +27,6 @@ declare module 'express' {
         id: string;
 
         /**
-         * Send an error message in the correct format.
-         * @param error - The error code string in ./config/errors.json corresponding to the message.
-         * @param details - The details of the error message, optional.
-         */
-        sendError(error: string, details?: string[]): void;
-
-        /**
          * Send JSON payload with 200 status code.
          * @param payload - JSON object to send in the response.
          * @param pagination - The pagination parameters, optional.
@@ -48,9 +41,9 @@ declare module 'express' {
         sendJSON(status: number, json: any): void;
 
         /**
-         * Send a message to the user as a 200 response
-         * @param message - the message we want to send to user
-         * @param payload - JSON object to send in the response.
+         * Send a message to the user with an optional payload
+         * @param message - the message we want to send to the user from /config/errors.yaml
+         * @param payload - optional JSON object to send in the response.
          */
         sendMessage(message: string, payload?: any): void;
     }

@@ -1,0 +1,10 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+100129,csvImportedProposal1,"Invalid targetedUsers value, bad separator",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51",101010. 101011
+100129,csvImportedProposal2,"Invalid targetedUsers value, whitespace in the middle",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","101010, 10101 1"
+100129,csvImportedProposal3,"Invalid targetedUsers value, string ids",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","""101010"", ""101011"""
+100129,csvImportedProposal4,"Invalid targetedUsers value, decimal id",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","101010, 1010.11"
+100129,csvImportedProposal5,"Invalid targetedUsers value, id is 1 below min",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","0, 101011"
+100129,csvImportedProposal6,"Invalid targetedUsers value, id is 1 above max",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","101010, 16777216"
+100129,csvImportedProposal7,"Invalid targetedUsers value, array of ids",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","[101010, 101011]"
+100129,csvImportedProposal8,"Invalid targetedUsers value, JSON representation",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","{ targetedUsers: [101010, 101011] }"
+100129,csvImportedProposal8,"Invalid targetedUsers value, duplicate id",active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51","101010, 101011, 101010"

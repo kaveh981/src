@@ -46,7 +46,7 @@ class Loader {
 
     }
 
-    protected loadFile(name: string) {
+    protected loadFile(name: string): string {
 
         if (!this.folder) {
             throw new Error('No folder has been specified.');

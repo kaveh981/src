@@ -31,10 +31,11 @@ function validationTest(route: string, verb: string, setup: Function, validation
     for (let property in validationParams) {
 
         if (validationParams.hasOwnProperty(property)) {
-
-            let cases = configLoader.get(`common-validation/${validationParams[property].type}`);
-            cases = JSON.parse(JSON.stringify(cases));
-
+            let cases = [];
+            if (validationParams[property].type) {
+                cases = configLoader.get(`common-validation/${validationParams[property].type}`);
+                cases = JSON.parse(JSON.stringify(cases));
+            }
             if (validationParams[property].extraCases && validationParams[property].extraCases.length > 0) {
                 cases = cases.concat(validationParams[property].extraCases);
             }

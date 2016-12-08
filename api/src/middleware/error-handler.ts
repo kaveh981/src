@@ -15,15 +15,15 @@ function ErrorHandler(err: Error, req: express.Request, res: express.Response, n
 
     if (err.message === 'Bad Request' || (err instanceof SyntaxError && 'body' in err)) {
         Log.trace(`Bad request on ${req.url}.`, req.id);
-        res.sendError('400');
+        res.sendMessage('400');
     } else if (!err['crafted'] ) {
         Log.error(err);
-        res.sendError('500');
+        res.sendMessage('500');
     } else {
         if (err['message'].trim() || err['details']) {
             Log.trace(err['message'].trim() || JSON.stringify(err['details']), req.id);
         }
-        res.sendError(err['name'], err['details']);
+        res.sendMessage(err['name'], err['details']);
     }
 
 };

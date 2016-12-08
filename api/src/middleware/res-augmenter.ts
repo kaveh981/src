@@ -85,31 +85,14 @@ function augmentResponse(res: express.Response): void {
 
     };
 
-    // Send an error message.
-    res.sendError = (error: string, details: string[]) => {
+    // Send a JSON response with a message and an optional payload
+    res.sendMessage = (message: string, payload?: any) => {
 
-        let status = Number(error.split('_')[0]);
+        let status = Number(message.split('_')[0]);
 
         let msg: IHttpResponse = {
             status: status,
-            message: errorMessages[error] || errorMessages[status] || '',
-            data: []
-        };
-
-        if (details) {
-            msg.data = details;
-        }
-
-        res.sendJSON(status, msg);
-
-    };
-
-    // Send an OK message
-    res.sendMessage = (message: string, payload?: any) => {
-
-        let msg: IHttpResponse = {
-            status: 200,
-            message: errorMessages[message] || errorMessages['200'],
+            message: errorMessages[message] || errorMessages[status] || '',
             data: []
         };
 
@@ -119,9 +102,10 @@ function augmentResponse(res: express.Response): void {
             msg.data = [ payload ];
         }
 
-        res.sendJSON(200, msg);
+        res.sendJSON(status, msg);
 
     };
+
 };
 
 /**

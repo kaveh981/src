@@ -1,6 +1,5 @@
 'use strict';
 
-console.log('Booting CSV Import utility tool');
 import './boot';
 
 import { Injector } from './lib/injector';
