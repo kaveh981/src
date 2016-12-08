@@ -6,7 +6,7 @@
  * @param details - The details of the error.
  * @returns A crafted error object for consumption by error-handler.
  */
-function HTTPError(message: string, details: any = '') {
+function HTTPError(message: string, details?: any) {
 
     let error = new Error();
 
