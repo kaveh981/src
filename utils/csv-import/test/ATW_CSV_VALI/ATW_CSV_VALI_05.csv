@@ -1,0 +1,10 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+100129',ownerID inside '',Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+"""100129""","ownerID inside """"",Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100  129,ownerID with whitespace,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+z100129,ownerID with non-number characters,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+"100129, 100130",ownerID is comma-separated list,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+[100129],ownerID is an array representation,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+{ ownerID: 100129 },ownerID is in JSON,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+0,ownerID is 1 below limit,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+16777216,ownerID is 1 above limit,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"

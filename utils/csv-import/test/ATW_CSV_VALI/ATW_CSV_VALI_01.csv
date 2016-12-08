@@ -1,0 +1,6 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+,csvImportedProposal1,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal3,Dope proposal to be imported,,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal4,Dope proposal to be imported,active,2015-01-01,2017-01-01,,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal5,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,,"101010, 101011"

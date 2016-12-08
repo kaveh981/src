@@ -1,0 +1,2 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers,extraColumn
+100129,csvImportedProposal1,Dope proposal to be imported,active,2015-01-01,2017-01-01,2.5,25000,6250000,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011",asfd

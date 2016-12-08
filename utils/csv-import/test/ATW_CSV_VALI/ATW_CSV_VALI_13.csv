@@ -1,0 +1,4 @@
+ownerID,name,description,status,startDate,endDate,price,impressions,budget,auctionType,terms,sectionIDs,targetedUsers
+100129,csvImportedProposal1,"Invalid bugdet value, 1 below min",active,2015-01-01,2017-01-01,2.5,25000,-1,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal2,"Invalid budget value, 1 above max",active,2015-01-01,2017-01-01,2.5,25000,16777216,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
+100129,csvImportedProposal3,"Invalid budget value, decimal",active,2015-01-01,2017-01-01,2.5,25000,625000.5,fixed,Some weird deal terms,"5, 51, 10, 188","101010, 101011"
