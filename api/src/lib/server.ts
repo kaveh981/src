@@ -56,12 +56,26 @@ class Server {
             app.set(key, expressConfig[key]);
         }
 
+        // Disable middleware with wrong environments
+        for (let key in middlewareConfig) {
+            let config = middlewareConfig[key];
+
+            if (config.env && config.env !== this.config.getEnv('NODE_ENV')) {
+                Log.debug(`Disabling middleware ${key}...`);
+                config.enabled = false;
+            }
+        }
+
         // Debugging for loading middleware
         app.on('middleware:before', (event: any) => {
             let middlewarePath = event.config.name;
 
+            if (event.config.enabled === false) {
+                return;
+            }
+
             if (middlewarePath) {
-                Log.debug(`Loading middleware ${middlewarePath.split('\\').pop()}...`);
+                Log.debug(`Loading middleware ${middlewarePath}...`);
             } else {
                 Log.debug(`Loading un-named middleware...`);
             }
