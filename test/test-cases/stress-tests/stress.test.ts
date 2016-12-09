@@ -30,7 +30,8 @@ export async function ATW_STRESS_TEST_01 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 150; i++) {
+    await Promise.all(Array.from(Array(150)).map(async (val, i) => {
+
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -38,7 +39,8 @@ export async function ATW_STRESS_TEST_01 () {
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
-    }
+
+    }));
 
     let csv = new SimpleCSV();
 
@@ -79,7 +81,8 @@ export async function ATW_STRESS_TEST_02 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 1200; i++) {
+    await Promise.all(Array.from(Array(1200)).map(async (val, i) => {
+
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -87,7 +90,8 @@ export async function ATW_STRESS_TEST_02 () {
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
-    }
+
+    }));
 
     let csv = new SimpleCSV();
 
@@ -128,7 +132,8 @@ export async function ATW_STRESS_TEST_03 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 12000; i++) {
+    await Promise.all(Array.from(Array(12000)).map(async (val, i) => {
+
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -136,7 +141,8 @@ export async function ATW_STRESS_TEST_03 () {
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
-    }
+
+    }));
 
     let csv = new SimpleCSV();
 
@@ -177,7 +183,8 @@ export async function ATW_STRESS_TEST_04 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 120000; i++) {
+    await Promise.all(Array.from(Array(120000)).map(async (val, i) => {
+
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -185,7 +192,8 @@ export async function ATW_STRESS_TEST_04 () {
         let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
 
         artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
-    }
+
+    }));
 
     let csv = new SimpleCSV();
 
@@ -226,7 +234,7 @@ export async function ATW_STRESS_TEST_05 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 1200; i++) {
+    await Promise.all(Array.from(Array(1200)).map(async (val, i) => {
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -237,7 +245,7 @@ export async function ATW_STRESS_TEST_05 () {
 
             artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
         }
-    }
+    }));
 
     let csv = new SimpleCSV();
 
@@ -278,7 +286,8 @@ export async function ATW_STRESS_TEST_06 () {
     let artilleryData = [];
     let dsp = await databasePopulator.createDSP(1);
 
-    for (let i = 0; i < 1200; i++) {
+    await Promise.all(Array.from(Array(1200)).map(async (val, i) => {
+
         let buyer = await databasePopulator.createBuyer(dsp.dspID, {emailAddress: ((2 * i) + 1) + '@gmail.com'});
         let publisher = await databasePopulator.createPublisher({emailAddress: (2 * i) + '@gmail.com'});
         let site = await databasePopulator.createSite(publisher.publisher.userID);
@@ -289,7 +298,8 @@ export async function ATW_STRESS_TEST_06 () {
 
             artilleryData.push([proposal.proposal.proposalID, buyer.user.userID, publisher.user.userID]);
         }
-    }
+
+    }));
 
     let csv = new SimpleCSV();
 

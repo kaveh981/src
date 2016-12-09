@@ -50,10 +50,6 @@ class DealSectionManager {
         }
 
         let newDealSection = new DealSectionModel({
-            adUnitRestrictions: await this.fetchAdUnitsBySectionId(sectionID),
-            countryRestrictions: await this.fetchCountryRestrictionBySectionId(sectionID),
-            sites: await this.siteManager.fetchActiveSitesFromSectionId(sectionID),
-            frequencyRestrictions: await this.fetchFrequencyRestrictionsFromSectionId(sectionID),
             coverage: rows[0].coverage,
             entireSite: !!rows[0].entireSite,
             id: rows[0].id,
@@ -67,6 +63,16 @@ class DealSectionManager {
             publisherID: rows[0].publisherID,
             status: Helper.statusLetterToWord(rows[0].status)
         });
+
+        await Promise.all([ (async () => {
+            newDealSection.adUnitRestrictions = await this.fetchAdUnitsBySectionId(sectionID);
+        })(), (async () => {
+            newDealSection.countryRestrictions = await this.fetchCountryRestrictionBySectionId(sectionID);
+        })(), (async () => {
+            newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(sectionID);
+        })(), (async () => {
+            newDealSection.frequencyRestrictions = await this.fetchFrequencyRestrictionsFromSectionId(sectionID);
+        })() ]);
 
         return newDealSection;
 
@@ -92,15 +98,15 @@ class DealSectionManager {
                                               })
                                               .groupBy('rtbSections.sectionID');
 
-        for (let i = 0; i < rows.length; i++) {
-            let section = await this.fetchDealSectionById(rows[i].id);
+        await Promise.all(rows.map(async (row) => {
+            let section = await this.fetchDealSectionById(row.id);
 
             if (!section) {
-                continue;
+                return;
             }
 
             dealSections.push(section);
-        }
+        }));
 
         return dealSections;
 

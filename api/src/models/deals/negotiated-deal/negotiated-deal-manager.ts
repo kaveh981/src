@@ -65,9 +65,6 @@ class NegotiatedDealManager {
             sender: rows[0].sender,
             createDate: rows[0].createDate,
             modifyDate: rows[0].modifyDate,
-            proposedDeal: await this.proposedDealManager.fetchProposedDealFromId(proposalID),
-            buyerInfo: await this.userManager.fetchUserFromId(rows[0].buyerID),
-            publisherInfo: await this.userManager.fetchUserFromId(rows[0].publisherID),
             startDate: rows[0].startDate && Helper.formatDate(rows[0].startDate),
             endDate: rows[0].endDate && Helper.formatDate(rows[0].endDate),
             price: rows[0].price,
@@ -75,6 +72,14 @@ class NegotiatedDealManager {
             budget: rows[0].budget,
             terms: rows[0].terms
         });
+
+        await Promise.all([ (async () => {
+            negotiatedDeal.proposedDeal = await this.proposedDealManager.fetchProposedDealFromId(proposalID);
+        })(), (async () => {
+            negotiatedDeal.buyerInfo = await this.userManager.fetchUserFromId(rows[0].buyerID);
+        })(), (async () => {
+            negotiatedDeal.publisherInfo = await this.userManager.fetchUserFromId(rows[0].publisherID);
+        })() ]);
 
         return negotiatedDeal;
 
@@ -101,19 +106,21 @@ class NegotiatedDealManager {
 
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
-        for (let i = 0; i < rows.length; i++) {
+        await Promise.all(rows.map(async (row) => {
             let negotiatedDeal: NegotiatedDealModel;
 
             if (userType === 'IXMB') {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, userID, row.publisherID);
             } else {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(rows[i].proposalID, rows[i].buyerID, userID);
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, row.buyerID, userID);
             }
 
             if (negotiatedDeal) {
                 negotiatedDealArray.push(negotiatedDeal);
             }
-        }
+        }));
+
+        negotiatedDealArray.sort((a, b) => a.id - b.id);
 
         return negotiatedDealArray;
 
@@ -143,13 +150,15 @@ class NegotiatedDealManager {
                                              .limit(pagination.limit)
                                              .offset(offset);
 
-        for (let i = 0; i < rows.length; i++) {
-            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[i].buyerID, rows[i].publisherID);
+        await Promise.all(rows.map(async (row) => {
+            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, row.buyerID, row.publisherID);
 
             if (negotiatedDeal) {
                 negotiatedDealArray.push(negotiatedDeal);
             }
-        }
+        }));
+
+        negotiatedDealArray.sort((a, b) => a.id - b.id);
 
         return negotiatedDealArray;
 

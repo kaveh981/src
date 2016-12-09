@@ -1,11 +1,5 @@
 # Authentication Configuration
 
-# The server information for token verification
-httpOptions:
-    hostname: auth.indexexchange.com
-    path: /verify
-    method: POST
-
 # Usertype names of usertypes allowed to access IXM
 allowedUserTypes:
     - IXMB

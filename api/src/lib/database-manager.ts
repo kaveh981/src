@@ -44,7 +44,8 @@ export class DatabaseManager {
                     user: this.config.getEnv('DB_USER'),
                     password: this.config.getEnv('DB_PASSWORD'),
                     database: this.config.getEnv('DB_DATABASE')
-                }
+                },
+                pool: this.config.get('database')['pool']
             };
 
             let queryBuilder: Knex = Knex(databaseConfig);
