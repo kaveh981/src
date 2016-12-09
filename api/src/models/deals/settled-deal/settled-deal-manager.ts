@@ -77,13 +77,13 @@ class SettledDealManager {
             sections: []
         });
 
-        for (let i = 0; i < rows.length; i++) {
-            let section = await this.dealSectionManager.fetchDealSectionById(rows[i].sections);
+        await Promise.all(rows.map(async (row) => {
+            let section = await this.dealSectionManager.fetchDealSectionById(row.sections);
 
             if (section && section.isActive()) {
                 settledDeal.sections.push(section);
             }
-        }
+        }));
 
         return settledDeal;
 
@@ -111,19 +111,21 @@ class SettledDealManager {
                                              .limit(pagination.limit)
                                              .offset(offset);
 
-        for (let i = 0; i < rows.length; i++) {
+        await Promise.all(rows.map(async (row) => {
             let deal: SettledDealModel;
 
             if (userType === 'IXMB') {
-                deal = await this.fetchSettledDealFromIds(rows[i].proposalID, userID, rows[i].publisherID);
+                deal = await this.fetchSettledDealFromIds(row.proposalID, userID, row.publisherID);
             } else {
-                deal = await this.fetchSettledDealFromIds(rows[i].proposalID, rows[i].buyerID, userID);
+                deal = await this.fetchSettledDealFromIds(row.proposalID, row.buyerID, userID);
             }
 
             if (deal) {
                 settledDeals.push(deal);
             }
-        }
+        }));
+
+        settledDeals.sort((a, b) => a.id - b.id);
 
         return settledDeals;
 

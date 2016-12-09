@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 'use strict';
 
 /** Set up DI */
@@ -18,6 +19,7 @@ const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 /** Initialize the libraries. */
 Promise.resolve()
     .then(() => {
+        console.log('Hello.');
         return configLoader.initialize({ 'mw': './src/middleware' });
     })
     .then(() => {
@@ -30,10 +32,12 @@ Promise.resolve()
         return server.initialize();
     })
     .catch((err: Error) => {
+        console.error(err);
         // Clean up.
         databaseManager.shutdown();
     });
 
 process.on('SIGTERM', () => {
+    console.log('Goodbye.');
     setTimeout(process.exit, 0, 0);
 });

@@ -81,6 +81,12 @@ class Server {
             }
         });
 
+        // Crash on uncaught error
+        process.on('uncaughtException', (err: Error) => {
+            Log.fatal(err);
+            process.exit(1);
+        });
+
         // Use the middleware configuration
         app.use(meddleware(middlewareConfig));
 

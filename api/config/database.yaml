@@ -1,0 +1,8 @@
+# Database Manager Configuration
+
+# Pool2 configuration
+pool:
+    # Minimum pool size
+    min: 50
+    # Maximum pool size
+    max: 100

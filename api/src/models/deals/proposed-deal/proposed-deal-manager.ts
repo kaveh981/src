@@ -64,11 +64,16 @@ class ProposedDealManager {
             terms: rows[0].terms,
             createDate: rows[0].createDate,
             modifyDate: rows[0].modifyDate,
-            currency: 'USD',
-            sections: await this.dealSectionManager.fetchSectionsFromProposalId(proposalID),
-            ownerInfo: await this.userManager.fetchUserFromId(rows[0].ownerID),
-            targetedUsers: await this.fetchTargetedBuyerIdsFromProposalId(proposalID)
+            currency: 'USD'
         });
+
+        await Promise.all([ (async () => {
+            proposal.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalID);
+        })(), (async () => {
+            proposal.ownerInfo = await this.userManager.fetchUserFromId(rows[0].ownerID);
+        })(), (async () => {
+            proposal.targetedUsers = await this.fetchTargetedBuyerIdsFromProposalId(proposalID);
+        })() ]);
 
         return proposal;
 
@@ -90,9 +95,11 @@ class ProposedDealManager {
 
         let proposals: ProposedDealModel[] = [];
 
-        for (let i = 0; i < proposalIDs.length; i++) {
-            proposals.push(await this.fetchProposedDealFromId(proposalIDs[i]));
-        }
+        await Promise.all(proposalIDs.map(async (proposalID) => {
+            proposals.push(await this.fetchProposedDealFromId(proposalID));
+        }));
+
+        proposals.sort((a, b) => a.id - b.id);
 
         return proposals;
 

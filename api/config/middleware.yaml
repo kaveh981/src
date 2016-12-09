@@ -7,55 +7,49 @@ logger:
         name: mw:http-logger
 
 # Enable CORS
-corsDev:
+cors-dev:
     env: development
-    priority: 11
+    priority: 20
     module:
         name: cors
 
 # Augment the express response object
-resAugmenter:
-    priority: 20
+response-augmenter:
+    priority: 30
     module:
         name: mw:res-augmenter
 
 # Handle authentication
-authHandler:
-    priority: 30
+authentication-handler:
+    priority: 40
     module:
         name: mw:auth-handler
 
 # The public access switch
-publicHandler:
-    priority: 31
+public-handler:
+    priority: 50
     module:
         name: mw:public-access-handler
 
 # JSON body parsing
-jsonParser:
+json-parser:
     priority: 60
     module:
         name: body-parser
         method: json
 
 # URL decoding request bodies
-urlDecoder:
-    priority: 61
+url-decoder:
+    priority: 70
     module:
         name: body-parser
         method: urlencoded
         arguments:
             - extended: true
 
-# Cookie parser
-cookieParser:
-    priority: 62
-    module: 
-        name: cookie-parser
-
 # Controller routes
 router:
-    priority: 70
+    priority: 90
     route: /api/v1
     module:
         name: mw:router
@@ -63,13 +57,13 @@ router:
             - directory: path:src/controllers
 
 # Handle Not Founds
-404Handler:
+404-handler:
     priority: 99
     module:
         name: mw:404-handler
 
 # Middleware error handler
-errorHandler:
+error-handler:
     priority: 100
     module:
         name: mw:error-handler

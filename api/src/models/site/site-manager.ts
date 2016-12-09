@@ -68,16 +68,15 @@ class SiteManager {
 
         let sites = [];
 
-        for (let i = 0; i < rows.length; i++) {
-            let row = rows[i];
+        await Promise.all(rows.map(async (row) => {
             let site = await this.fetchSiteFromId(row.siteID);
 
             if (!site) {
-                continue;
+                return;
             }
 
             sites.push(site);
-        }
+        }));
 
         return sites;
 
