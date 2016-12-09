@@ -47,12 +47,6 @@ url-decoder:
         arguments:
             - extended: true
 
-# Cookie parser
-cookie-parser:
-    priority: 80
-    module: 
-        name: cookie-parser
-
 # Controller routes
 router:
     priority: 90
