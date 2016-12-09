@@ -3,6 +3,6 @@
 # Pool2 configuration
 pool:
     # Minimum pool size
-    min: 50
+    min: 10
     # Maximum pool size
-    max: 100
+    max: 25
