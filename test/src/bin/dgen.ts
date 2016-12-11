@@ -4,30 +4,32 @@
  * @file Provides a command line interface (CLI) to the data population functions
  */
 
-import * as process from 'process';
-import * as PromiseB from 'bluebird';
 import * as commander from 'commander';
 
+import { Logger } from '../lib/logger';
 import { DatabasePopulator } from '../lib/database-populator';
 import { Injector } from '../lib/injector';
 import { Bootstrap } from '../lib/bootstrap';
 
 const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
+const Log = new Logger('DGEN');
 
 /*
  * The commander interface won't have our CLI option vars by default
  * Make Typescript happy.
  */
 interface InterfaceCLI extends commander.ICommand {
-        file?: string;
-        pub?: string;
-        site?: string;
-        section?: string;
-        proposal?: string;
+    file?: string;
+    dsp?: string;
+    buyer?: string;
+    pub?: string;
+    site?: string;
+    section?: string;
+    proposal?: string;
 }
 
-/** 
- * CLI class 
+/**
+ * CLI class
  */
 class DataGenCLI {
 
@@ -41,11 +43,13 @@ class DataGenCLI {
         let fileDescription = 'A json file containing data objects';
         let publisherDescription = 'Generate a publisher, use -p <n> to generate n publishers.';
         let siteDescription = 'Generate a site, pub ID required, append a number with a comma to generate n sites:'
-                      + ' -s <id>,<n> .';
+            + ' -s <id>,<n> .';
         let sectionDescription = 'Generate a site section, pub ID, site ID required. Append a number to generate multiple:'
-                      + ' -S <pid>,<sid>,<n>';
+            + ' -S <pid>,<sid>,<n>';
         let proposalDescription = 'Generate a proposal. Owner ID, section [ID]s required:'
-                      + ' -P <pid>,<sid0>:...:<sidN>,n';
+            + ' -P <pid>,<sid0>:...:<sidN>,n';
+        let dspDescription = 'Generate a new DSP, [ID] required: -D <dspID>';
+        let buyerDescription = 'Generate a new ixmBuyer, dspID required: -b <dspID>';
 
         this.cmd = commander.version('6.6.6')
             .description('Generate IXM related data. Call with no arguments for generating a standard set.')
@@ -54,6 +58,8 @@ class DataGenCLI {
             .option('-s --site <string>', siteDescription)
             .option('-S --section <string>', sectionDescription)
             .option('-P --proposal <string>', proposalDescription)
+            .option('-D --dsp <ID>', dspDescription)
+            .option('-b --buyer <dspID>', buyerDescription)
             .parse(process.argv);
     }
 
@@ -62,72 +68,64 @@ class DataGenCLI {
      * @return {void}
      */
     public async run() {
-
-        await Bootstrap.boot(false);
-        let results = await this.runHandlers();
-        console.log("Here's what you got:");
-        console.log(JSON.stringify(results,  null, 4));
-        await Bootstrap.shutdown(false);
-        console.log("All done");
-/*        Bootstrap.boot(false)
-            .then(() => {
-                return this.runHandlers();
-            })
-            .then((results) => {
-
-                console.log("Here's what you got:");
-                console.log(results);
-                Bootstrap.shutdown(false);
-
-                console.log("All done");
-            });*/
+        try {
+            await Bootstrap.boot(false);
+            let results = await this.runHandlers();
+            console.log("Here's what you got:");
+            console.log(JSON.stringify(results, null, 4));
+            await Bootstrap.shutdown(false);
+            console.log("All done");
+        } catch (e) {
+            console.error(e);
+            await Bootstrap.shutdown(false);
+            process.exit(1);
+        }
     }
 
     /**
-     * Generate a coroutine to run each specified handler
+     * Run all handlers according to given command options
      * @return {Object} results The generated data
      */
-    private runHandlers(): Object {
-        let cocorico =  PromiseB.coroutine(function* (): Object {
-            let cmd = this.cmd;
-            console.log("cocorico");
-            console.log(cmd.site);
-            let res = {
-                file: null,
-                pub: null,
-                site: null,
-                section: null,
-                proposal: null
-            };
-            if (cmd.file) {
-                res.file = yield this.handleFile(cmd.file);
-            } else {
-                // if(!cmd.pub && !cmd.site && !cmd.section && !cmd.proposal) {
-                //  this.handleAll();
-                //  return;
-                // }
+    private async runHandlers() {
+        console.log("cocorico");
+        let res = {
+            file: null,
+            dsp: null,
+            buyer: null,
+            pub: null,
+            site: null,
+            section: null,
+            proposal: null
+        };
+        if (this.cmd.file) {
+            res.file = this.handleFile(this.cmd.file);
+        }
 
-                if (cmd.pub) {
-                    res.pub = yield this.handlePublisher(cmd.pub);
-                }
+        if (this.cmd.dsp) {
+            res.dsp = await this.handleDSP(this.cmd.dsp);
+        }
 
-                if (cmd.site) {
-                    res.site = yield this.handleSite(cmd.site);
-                }
+        if (this.cmd.buyer) {
+            res.buyer = await this.handleBuyer(this.cmd.buyer);
+        }
 
-                if (cmd.section) {
-                    res.section = yield this.handleSection(cmd.section);
-                }
+        if (this.cmd.pub) {
+            res.pub = await this.handlePublisher(this.cmd.pub);
+        }
 
-                if (cmd.proposal) {
-                    res.proposal = yield this.handlePackage(cmd.proposal);
-                }
-            }
+        if (this.cmd.site) {
+            res.site = await this.handleSite(this.cmd.site);
+        }
 
-            return res;
-        }.bind(this));
+        if (this.cmd.section) {
+            res.section = await this.handleSection(this.cmd.section);
+        }
 
-        return cocorico();
+        if (this.cmd.proposal) {
+            res.proposal = await this.handlePackage(this.cmd.proposal);
+        }
+
+        return res;
     }
 
     /**
@@ -136,9 +134,24 @@ class DataGenCLI {
      * @return {void}
      */
     private handleFile(fileArgs: string): void {
-        console.log("ratpoint.jpg?");
-        console.log("Here's what you wrote though:");
-        console.log(fileArgs);
+        Log.info("ratpoint.jpg?");
+        Log.info("Here's what you wrote though:");
+        Log.info(fileArgs);
+    }
+
+    /**
+     * Parse dspID and create new DSP via DatabasePopulator
+     * @param {string} dspID - The dspID to map the buyer with
+     * @returns {Promise<INewDSPData>}
+     */
+    private handleDSP(dspID: string): Promise<INewDSPData> {
+        console.log("Seems like you're on the DSP creation business, and I'm doing your job...");
+        return dbPopulator.createDSP(parseInt(dspID, 10));
+    }
+
+    private handleBuyer(dspID: string): Promise<INewBuyerData> {
+        console.log("Need just 1 buyer? We have up to 16777215 for you");
+        return dbPopulator.createBuyer(parseInt(dspID, 10));
     }
 
     /**
@@ -146,7 +159,7 @@ class DataGenCLI {
      * @param {string | boolean} pubArgs The publisher arguments from the command line
      * @return {Promise<INewPubData>}
      */
-    private handlePublisher(pubArgs: string | boolean) {
+    private handlePublisher(pubArgs: string) {
         console.log("Sure would be nice to have some pubs");
         console.log("Here's what you wrote though:");
         console.log(pubArgs);
@@ -160,9 +173,9 @@ class DataGenCLI {
      * @return {Promise<INewSiteData>}
      */
     private handleSite(siteArgs: string) {
-        console.log("Maybe for your birthday");
-        console.log("Here's what you wrote though:");
-        console.log(siteArgs);
+        Log.info("Maybe for your birthday");
+        Log.info("Here's what you wrote though:");
+        Log.info(siteArgs);
 
         let parts = siteArgs.split(',');
         let ownerID = parseInt(parts[0], 10);
@@ -176,9 +189,9 @@ class DataGenCLI {
      * @return {Promise<INewSectionData>}
      */
     private handleSection(sectionArgs: string) {
-        console.log("Sections too?");
-        console.log("Here's what you wrote though:");
-        console.log(sectionArgs);
+        Log.info("Sections too?");
+        Log.info("Here's what you wrote though:");
+        Log.info(sectionArgs);
 
         let parts = sectionArgs.split(',');
         let ownerID = parseInt(parts[0], 10);
@@ -193,9 +206,9 @@ class DataGenCLI {
      * @return {Promise<INewPackageData>}
      */
     private handlePackage(proposalArgs: string) {
-        console.log("Pretend this is a new proposal");
-        console.log("Here's what you wrote though:");
-        console.log(proposalArgs);
+        Log.info("Pretend this is a new proposal");
+        Log.info("Here's what you wrote though:");
+        Log.info(proposalArgs);
 
         let parts = proposalArgs.split(',');
         let ownerID = parseInt(parts[0], 10);
@@ -208,32 +221,11 @@ class DataGenCLI {
      * Create each object type in sequence
      * @return {void}
      */
-    private handleAll(): void {
-        console.log("Pretending to look real busy now");
-        // let pub:INewPubData;
-        // let sites:INewSiteData[];
+     private handleAll(): void {
+     console.log("Pretending to look real busy now");
+     }
 
-        // this.handlePublisher(true)
-        // .then((newPub:INewPubData) => {
-        //  pub = newPub;
-        //  return this.handleSite(pub.user.userID.toString());
-        // })
-        // .then(() => {
-
-        // })
-
-        // dbPopulator.newPub()
-        // .then((newPub:INewPubData)=>{
-        //  pub = newPub;
-        //  return dbPopulator.newSite(pub.user.userID);
-        // })
-        // .then((newSite) => {
-        //  sites= [newSite];
-        //  return 
-        // })
-    }
-
-    /**
+     /**
      * Parse an array of integer ID values from a CLI string
      * @param {string} args The passed list of IDs
      * @return {number[]} The parsed array of numeric IDs
