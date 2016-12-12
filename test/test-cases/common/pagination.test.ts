@@ -76,11 +76,11 @@ async function ATW_PAG_03 (route: string, verb: string, setup: () => Promise<ICr
 
     /** Test */
     let cases = [
-        { input: 1, expect: { limit: 1, data: [ entity1Payload ] } },
-        { input: 2, expect: { limit: 2, data: [ entity1Payload, entity2Payload ] } },
-        { input: 249, expect: { limit: 249, data: [ entity1Payload, entity2Payload ] } },
-        { input: 250, expect: { limit: 250, data: [ entity1Payload, entity2Payload ] } },
-        { input: 251, expect: { limit: 250, data: [ entity1Payload, entity2Payload ] } }
+        { input: 1, expect: { page: 1, limit: 1, data: [ entity1Payload ] } },
+        { input: 2, expect: { page: 1, limit: 2, data: [ entity1Payload, entity2Payload ] } },
+        { input: 249, expect: { page: 1, limit: 249, data: [ entity1Payload, entity2Payload ] } },
+        { input: 250, expect: { page: 1, limit: 250, data: [ entity1Payload, entity2Payload ] } },
+        { input: 251, expect: { page: 1, limit: 250, data: [ entity1Payload, entity2Payload ] } }
     ];
 
     for (let caseObject of cases) {
@@ -92,7 +92,7 @@ async function ATW_PAG_03 (route: string, verb: string, setup: () => Promise<ICr
         let expectedPagination = {
             page: 1,
             limit: caseObject.expect.limit,
-            next_page_url: route + `?page=2&limit=${caseObject.expect.limit}`,
+            next_page_url: caseObject.input === 1 ? route + `?page=${caseObject.expect.page + 1}&limit=${caseObject.expect.limit}` : '',
             prev_page_url: ''
         };
 
@@ -187,7 +187,7 @@ async function ATW_PAG_06 (route: string, verb: string, setup: () => Promise<ICr
         let expectedPagination = {
             page: caseObject.expect.page,
             limit: 1,
-            next_page_url: route + `?page=${caseObject.expect.page + 1}&limit=1`,
+            next_page_url: caseObject.input === 1 ? route + `?page=${caseObject.expect.page + 1}&limit=1` : '',
             prev_page_url: caseObject.input > 1 ? route + `?page=${caseObject.expect.page - 1}&limit=1` : ''
         };
 

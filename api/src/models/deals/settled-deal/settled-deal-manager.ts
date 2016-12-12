@@ -98,7 +98,6 @@ class SettledDealManager {
     public async fetchSettledDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
 
         let offset = pagination.getOffset();
-        let settledDeals: SettledDealModel[] = [];
         let userID = user.id;
         let userType = user.userType;
 
@@ -108,8 +107,88 @@ class SettledDealManager {
                                                    'ixmNegotiationDealMappings.negotiationID')
                                              .where('ixmDealNegotiations.buyerID', userID)
                                              .orWhere('ixmDealNegotiations.publisherID', userID)
-                                             .limit(pagination.limit)
+                                             .limit(pagination.limit + 1)
                                              .offset(offset);
+
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the deals
+        let settledDeals: SettledDealModel[] = [];
+
+        await Promise.all(rows.map(async (row) => {
+            let deal: SettledDealModel;
+
+            if (userType === 'IXMB') {
+                deal = await this.fetchSettledDealFromIds(row.proposalID, userID, row.publisherID);
+            } else {
+                deal = await this.fetchSettledDealFromIds(row.proposalID, row.buyerID, userID);
+            }
+
+            if (deal) {
+                settledDeals.push(deal);
+            }
+        }));
+
+        settledDeals.sort((a, b) => a.id - b.id);
+
+        return settledDeals;
+
+    }
+
+    /**
+     * Get all available settled deals for the given user.
+     * @param user - The user in question.
+     * @param pagination - The pagination parameters.
+     * @returns A promise for the settled deals with the given user.
+     */
+    public async fetchActiveSettledDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
+
+        let offset = pagination.getOffset();
+        let userID = user.id;
+        let userType = user.userType;
+        let today = Helper.formatDate(Helper.currentDate());
+
+        let rows = await this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'buyerID', 'publisherID')
+                                             .select()
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .join('rtbDeals', 'ixmNegotiationDealMappings.dealID', 'rtbDeals.dealID')
+                                             .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
+                                             .join('rtbSections', 'rtbSections.sectionID', 'rtbDealSections.sectionID')
+                                             .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
+                                             .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
+                                             .join('users', 'users.userID', 'ixmDealNegotiations.publisherID')
+                                             .where(function() {
+                                                 this.where('ixmDealNegotiations.buyerID', userID)
+                                                     .orWhere('ixmDealNegotiations.publisherID', userID);
+                                             })
+                                             .andWhere('rtbDeals.status', 'A')
+                                             .andWhere('rtbSections.status', 'A')
+                                             .andWhere('sites.status', 'A')
+                                             .andWhere('rtbDeals.startDate', '<=', 'rtbDeals.endDate')
+                                             .andWhere(function() {
+                                                 this.where('rtbDeals.endDate', '>=', today)
+                                                     .orWhere('rtbDeals.endDate', '0000-00-00');
+                                             })
+                                             .andWhere('users.status', 'A')
+                                             .limit(pagination.limit + 1)
+                                             .offset(offset);
+
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the deals
+        let settledDeals: SettledDealModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
             let deal: SettledDealModel;

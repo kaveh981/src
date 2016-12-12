@@ -41,10 +41,8 @@ function Proposals(router: express.Router): void {
 
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let activeProposals = await proposedDealManager.fetchProposedDealsFromStatus('active', pagination);
-        let availableProposals = activeProposals.filter((proposal) => { return proposal && proposal.isReadableByUser(user); });
+        let availableProposals = await proposedDealManager.fetchAvailableProposedDealsFromUser(user, pagination);
 
-        Log.trace(`Found active proposals ${Log.stringify(activeProposals)}`, req.id);
         Log.trace(`Found valid proposals ${Log.stringify(availableProposals)}`, req.id);
 
         res.sendPayload(availableProposals.map((deal) => { return deal.toPayload(); }), pagination.toPayload());

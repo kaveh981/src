@@ -52,11 +52,7 @@ function NegotiationDeals(router: express.Router): void {
 
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUser(user, pagination);
-
-        Log.trace(`Found negotiated deals ${Log.stringify(negotiatedDeals)}`, req.id);
-
-        let activeNegotiatedDeals = negotiatedDeals.filter((deal) => { return deal.isActive(); });
+        let activeNegotiatedDeals = await negotiatedDealManager.fetchActiveNegotiatedDealsFromUser(user, pagination);
 
         Log.trace(`Found active negotiated deals ${Log.stringify(activeNegotiatedDeals)}`, req.id);
 

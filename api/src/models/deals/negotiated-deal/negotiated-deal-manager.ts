@@ -86,7 +86,7 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get list of latest deals in negotiation for the buyer  
+     * Get list of latest deals in negotiation for the user  
      * @param user - the user in question
      * @param pagination - pagination details for this query
      * @returns A list of negotiated deal objects.
@@ -101,9 +101,89 @@ class NegotiatedDealManager {
                                              .from('ixmDealNegotiations')
                                              .where('buyerID', userID)
                                              .orWhere('publisherID', userID)
-                                             .limit(pagination.limit)
+                                             .limit(pagination.limit + 1)
                                              .offset(offset);
 
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the negotiations
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
+
+        await Promise.all(rows.map(async (row) => {
+            let negotiatedDeal: NegotiatedDealModel;
+
+            if (userType === 'IXMB') {
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, userID, row.publisherID);
+            } else {
+                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, row.buyerID, userID);
+            }
+
+            if (negotiatedDeal) {
+                negotiatedDealArray.push(negotiatedDeal);
+            }
+        }));
+
+        negotiatedDealArray.sort((a, b) => a.id - b.id);
+
+        return negotiatedDealArray;
+
+    }
+
+    /**
+     * Get list of available deals in negotiation for the user  
+     * @param user - the user in question
+     * @param pagination - pagination details for this query
+     * @returns A list of negotiated deal objects.
+     */
+    public async fetchActiveNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
+
+        let userID = user.id;
+        let userType = user.userType;
+        let offset = pagination.getOffset();
+
+        let rows = await this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'buyerID', 'publisherID')
+                                             .select()
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                             .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+                                             .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
+                                             .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
+                                             .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
+                                             .join('users', 'users.userID', 'ixmDealProposals.ownerID')
+                                             .where(function() {
+                                                 this.where('buyerID', userID)
+                                                     .orWhere('publisherID', userID);
+                                             })
+                                             .andWhere(function() {
+                                                 this.where(function() {
+                                                     this.where('pubStatus', 'accepted')
+                                                         .andWhere('buyerStatus', 'active');
+                                                 })
+                                                 .orWhere(function() {
+                                                     this.where('buyerStatus', 'accepted')
+                                                         .andWhere('pubStatus', 'active');
+                                                 });
+                                             })
+                                             .andWhere('ixmDealProposals.status', 'active')
+                                             .andWhere('users.status', 'A')
+                                             .andWhere('rtbSections.status', 'A')
+                                             .andWhere('sites.status', 'A')
+                                             .limit(pagination.limit + 1)
+                                             .offset(offset);
+
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the negotiations
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
@@ -136,7 +216,6 @@ class NegotiatedDealManager {
 
         let offset = pagination.getOffset();
 
-        let negotiatedDealArray: NegotiatedDealModel[] = [];
         let rows = await this.databaseManager.select('publisherID', 'buyerID')
                                              .from('ixmDealNegotiations')
                                              .where({
@@ -147,8 +226,18 @@ class NegotiatedDealManager {
                                                  proposalID: proposalID,
                                                  publisherID: userID
                                              })
-                                             .limit(pagination.limit)
+                                             .limit(pagination.limit + 1)
                                              .offset(offset);
+
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the negotiations
+        let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
             let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, row.buyerID, row.publisherID);
