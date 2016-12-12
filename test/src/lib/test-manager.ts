@@ -7,8 +7,10 @@ import * as deep from 'deep-diff';
 /** Lib */
 import { DataSetup } from './data-setup';
 import { Injector  } from './injector';
+import { Logger    } from './logger';
 
 /** request dependencies */
+const Log = new Logger('TMGR');
 const dataSetup = Injector.request<DataSetup>('DataSetup');
 
 /**
@@ -34,7 +36,7 @@ class TestManager {
      */
     public runTest() {
         return new Promise((resolve, reject) => {
-            test(this.testName, async function (t: test.Test) {
+            test(this.testName, async (t: test.Test) => {
                 try {
                     this.upgradeTapeObject(t);
                     await dataSetup.clearTables();
@@ -43,7 +45,7 @@ class TestManager {
                 } catch (e) {
                     reject(e);
                 }
-            }.bind(this));
+            });
         });
 
     }
@@ -63,10 +65,10 @@ class TestManager {
                 message: message || 'Both objects should be identical.',
                 operator: 'deepEquals',
                 expected: JSON.stringify(expectedObject),
-                actual: JSON.stringify(actualObject),
+                actual: JSON.stringify(actualObject)
             });
 
-            console.log(deepDifference.map((diff) => {
+            Log.info(deepDifference.map((diff) => {
                         return `Error at: ${diff.path && diff.path.join(' -> ')}. Expected '${diff.lhs}' got '${diff.rhs}'.`;
                     }).join('\n'));
 

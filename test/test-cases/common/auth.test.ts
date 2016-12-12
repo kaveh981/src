@@ -89,7 +89,7 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
     response = await apiRequest[verb](route, {}, true );
     assert.equal(response.status, 401);
 
-    response = await apiRequest[verb](route, {}, [3, 1, 4] );
+    response = await apiRequest[verb](route, {}, [ 3, 1, 4 ] );
     assert.equal(response.status, 401);
 
     response = await apiRequest[verb](route, {}, { goose: 314 } );

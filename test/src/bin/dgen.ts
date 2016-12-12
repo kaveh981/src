@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 'use strict';
 
 /**
@@ -122,7 +123,7 @@ class DataGenCLI {
         }
 
         if (this.cmd.proposal) {
-            res.proposal = await this.handlePackage(this.cmd.proposal);
+            res.proposal = await this.handleProposal(this.cmd.proposal);
         }
 
         return res;
@@ -203,9 +204,9 @@ class DataGenCLI {
     /**
      * Parse proposal input and trigger creation functions
      * @param {string} proposalArgs The proposal arguments from the command line
-     * @return {Promise<INewPackageData>}
+     * @return {Promise<INewProposalData>}
      */
-    private handlePackage(proposalArgs: string) {
+    private handleProposal(proposalArgs: string) {
         Log.info("Pretend this is a new proposal");
         Log.info("Here's what you wrote though:");
         Log.info(proposalArgs);
@@ -218,14 +219,6 @@ class DataGenCLI {
     }
 
     /**
-     * Create each object type in sequence
-     * @return {void}
-     */
-     private handleAll(): void {
-     console.log("Pretending to look real busy now");
-     }
-
-     /**
      * Parse an array of integer ID values from a CLI string
      * @param {string} args The passed list of IDs
      * @return {number[]} The parsed array of numeric IDs

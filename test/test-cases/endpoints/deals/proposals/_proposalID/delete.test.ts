@@ -16,11 +16,11 @@ const route = 'deals/proposals';
 async function databaseSetup() {
 
     let dsp = await databasePopulator.createDSP(123);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
     return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
 
@@ -62,9 +62,9 @@ export async function ATW_API_DELETE_DEAPROID_01(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID);
     /** Test */
     let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
@@ -102,20 +102,20 @@ export async function ATW_API_DELETE_DEAPROID_02(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID);
-    let activeDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [section.section.sectionID],
+    await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
         dealNegotiation.negotiationID);
 
     /** Test */
     let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
 
-    let proposalDeals = await Helper.getDealsByProposalID(proposal.proposal.proposalID);
+    let rtbDeals = await Helper.getDealsByProposalID(proposal.proposal.proposalID);
 
     assert.equals(response.status, 200);
-    proposalDeals.forEach((proposalDeal) => {
+    rtbDeals.forEach((proposalDeal) => {
         assert.equal(proposalDeal.status, 'A');
     });
 
@@ -139,8 +139,8 @@ export async function ATW_API_DELETE_DEAPROID_03(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.user.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], { status: 'deleted' });
+    let section = await databasePopulator.createSection(publisher.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
     let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, buyer.user.userID);
@@ -164,12 +164,12 @@ export async function ATW_API_DELETE_DEAPROID_04(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(3);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    const currentDate = new Date();
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID],
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let currentDate = new Date();
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
         { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */

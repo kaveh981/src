@@ -96,7 +96,7 @@ class APIRequestManager {
         });
     }
 
-    /**
+     /**
       * Send a delete request to the path with given params and userID.
       * @param path - The path to send to, relative to the base domain.
       * @param params - The query string parameters.

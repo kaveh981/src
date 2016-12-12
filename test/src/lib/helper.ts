@@ -1,12 +1,10 @@
 'use strict';
 
+import * as crypto from 'crypto';
+
 import { DatabaseManager } from './database-manager';
 import { Injector } from './injector';
-import { ConfigLoader} from './config-loader';
 
-let crypto = require('crypto');
-
-const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 class Helper {
@@ -62,7 +60,7 @@ class Helper {
                 created_at: proposal.proposal.createDate.toISOString(),
                 proposal_id: proposal.proposal.proposalID,
                 modified_at: proposal.proposal.modifyDate.toISOString(),
-                status: proposal.proposal.status,
+                status: proposal.proposal.status
             };
         } else {
             return {
@@ -95,7 +93,7 @@ class Helper {
                 price: proposal.proposal.price,
                 start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
                 status: proposal.proposal.status,
-                terms: proposal.proposal.terms,
+                terms: proposal.proposal.terms
             };
         }
     }
@@ -245,8 +243,8 @@ class Helper {
     }
 
      /**
-     * Determines the status to return to the user based on buyer and publisher status
-     */
+      * Determines the status to return to the user based on buyer and publisher status
+      */
     private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
 
         if (partnerType === 23) {
