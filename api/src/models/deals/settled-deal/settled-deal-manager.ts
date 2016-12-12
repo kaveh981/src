@@ -92,7 +92,8 @@ class SettledDealManager {
     /**
      * Get all settled deals for the given user.
      * @param user - The user in question.
-     * @param pagination - The pagination parameters.
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * is more data left to get or not.
      * @returns A promise for the settled deals with the given user.
      */
     public async fetchSettledDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
@@ -143,7 +144,8 @@ class SettledDealManager {
     /**
      * Get all available settled deals for the given user.
      * @param user - The user in question.
-     * @param pagination - The pagination parameters.
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * is more data left to get or not.
      * @returns A promise for the settled deals with the given user.
      */
     public async fetchActiveSettledDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {

@@ -88,7 +88,8 @@ class NegotiatedDealManager {
     /**
      * Get list of latest deals in negotiation for the user  
      * @param user - the user in question
-     * @param pagination - pagination details for this query
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * is more data left to get or not.
      * @returns A list of negotiated deal objects.
      */
     public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
@@ -137,7 +138,8 @@ class NegotiatedDealManager {
     /**
      * Get list of available deals in negotiation for the user  
      * @param user - the user in question
-     * @param pagination - pagination details for this query
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * is more data left to get or not.
      * @returns A list of negotiated deal objects.
      */
     public async fetchActiveNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
@@ -210,6 +212,8 @@ class NegotiatedDealManager {
      * Get proposalID specific deal negotiations from proposal id and user id 
      * @param userID - The user id of one of the negotiating parties
      * @param proposalID - The id of the proposal being negotiated
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * is more data left to get or not.
      * @returns A list of negotiated deal objects.
      */
     public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number, pagination: PaginationModel) {
