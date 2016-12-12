@@ -54,8 +54,7 @@ function ActiveDeals(router: express.Router): void {
         // Get all active deals for current user
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let settledDeals = await settledDealManager.fetchSettledDealsFromUser(user, pagination);
-        let activeDeals = settledDeals.filter((deal) => { return deal.isActive(); });
+        let activeDeals = await settledDealManager.fetchActiveSettledDealsFromUser(user, pagination);
 
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
 

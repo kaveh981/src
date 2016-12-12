@@ -50,7 +50,7 @@ export let ATW_API_PUT_DEAPRO_AUTH = authenticationTest(route, 'put', commonData
  */
 export let ATW_API_PUT_DEAPRO_VALI = validationTest(route, 'put', commonDatabaseSetup, {
 
-    aucntion_type: {
+    auction_type: {
         type: 'integer',
         validParam: 'first'
     },
