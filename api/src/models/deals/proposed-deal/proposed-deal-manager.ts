@@ -83,7 +83,7 @@ class ProposedDealManager {
     /**
      * Get list of objects by status
      * @param proposalStatus - status of the proposal, a enum value which could be active, paused or deleted.
-     * @param pagination - The pagination parameters. This function modifies this parameter by setting its next_page_url field based on whether there is more
+     * @param pagination - The pagination parameters. This function modifies this parameter by setting its nextPageURL field based on whether there is more
      * data left to get or not.
      * @returns Returns an array of proposed deal objects with the given status.
      */
@@ -121,7 +121,7 @@ class ProposedDealManager {
 
     /**
      * Get list of available proposed deals
-     * @param pagination - The pagination parameters. This function modifies this parameter by setting its next_page_url field based on whether there is more
+     * @param pagination - The pagination parameters. This function modifies this parameter by setting its nextPageURL field based on whether there is more
      * data left to get or not.
      * @returns Returns an array of available proposed deal objects.
      */
