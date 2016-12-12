@@ -92,7 +92,7 @@ class SettledDealManager {
     /**
      * Get all settled deals for the given user.
      * @param user - The user in question.
-     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
      * is more data left to get or not.
      * @returns A promise for the settled deals with the given user.
      */
@@ -144,7 +144,7 @@ class SettledDealManager {
     /**
      * Get all available settled deals for the given user.
      * @param user - The user in question.
-     * @param pagination - pagination details for this query. This function modifies this parameter by setting its next_page_url field based on whether there
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
      * is more data left to get or not.
      * @returns A promise for the settled deals with the given user.
      */
