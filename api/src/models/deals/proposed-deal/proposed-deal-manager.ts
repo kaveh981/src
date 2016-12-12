@@ -106,7 +106,7 @@ class ProposedDealManager {
 
         await Promise.all(proposalIDs.map(async (proposalID) => {
 
-            if (proposalID.proposalID) {
+            if (proposalID) {
                 proposals.push(await this.fetchProposedDealFromId(proposalID));
             }
 
