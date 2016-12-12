@@ -4,8 +4,11 @@
 import * as program from 'commander';
 
 /** Lib */
+import { Logger } from './lib/logger';
 import { Bootstrap } from './lib/bootstrap';
 import { SuiteManager } from './lib/suite-manager';
+
+const Log = new Logger('TEST');
 
 program.version('1.0.0')
     .option('-d, --directory [dir]', 'The directory which houses the tests.')
@@ -18,7 +21,7 @@ let regex = program['regex'] && new RegExp(program['regex']);
 let isStress = program['stress'];
 
 if (!directory && !isStress) {
-    console.log('Please specify a directory.');
+    Log.error('Please specify a directory.');
 } else {
     Bootstrap.boot()
         .then(() => {
@@ -34,6 +37,6 @@ if (!directory && !isStress) {
 }
 
 process.on('SIGINT', () => {
-        console.log('Shutting down gracefully');
+        Log.info('Shutting down gracefully');
         Bootstrap.crash();
 });

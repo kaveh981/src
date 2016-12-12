@@ -1,3 +1,5 @@
+/* tslint:disable:no-console */
+
 'use strict';
 
 /** node_modules */

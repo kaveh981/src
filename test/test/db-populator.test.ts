@@ -5,23 +5,23 @@
 import * as Promise from 'bluebird';
 import * as test from 'tape';
 
-import { DatabasePopulator } from '../src/lib/database-populator';
-import { DatabaseManager   } from '../src/lib/database-manager';
+// import { DatabasePopulator } from '../src/lib/database-populator';
+// import { DatabaseManager   } from '../src/lib/database-manager';
 import { DataSetup         } from '../src/lib/data-setup';
 import { Injector          } from '../src/lib/injector';
 import { Logger            } from '../src/lib/logger';
 import { Bootstrap         } from '../src/lib/bootstrap';
 
 const Log         = new Logger('TEST');
-const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
-const dbManager   = Injector.request<DatabaseManager>('DatabaseManager');
+// const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
+// const dbManager   = Injector.request<DatabaseManager>('DatabaseManager');
 const dbSetup     = Injector.request<DataSetup>('DataSetup');
-const TABLES      = ['users', 'ixmBuyers', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections', 'ixmPackages',
-    'ixmPackageSectionMappings'];
+const TABLES      = [ 'users', 'ixmBuyers', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections', 'ixmPackages',
+    'ixmPackageSectionMappings' ];
 const beforeAll   = test;
 const afterAll    = test;
 
-const backupTables = Promise.coroutine(function* (tables: string[]): any {
+/*const backupTables = Promise.coroutine(function* (tables: string[]): any {
     for (let i = 0; i < tables.length; i += 1) {
         let table = tables[i];
         yield dbSetup.backupTable(table);
@@ -33,7 +33,7 @@ const clearTables = Promise.coroutine(function* (tables: string[]): any {
         let table = tables[i];
         yield dbSetup.clearTable(table);
     }
-}) as (tables: string[]) => Promise<void>;
+}) as (tables: string[]) => Promise<void>;*/
 
 const restoreTables = Promise.coroutine(function* (tables: string[]): any {
     for (let i = 0; i < tables.length; i += 1) {

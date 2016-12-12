@@ -9,11 +9,9 @@ import { Injector } from '../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../src/lib/request-manager';
 import { DatabasePopulator } from '../../../../src/lib/database-populator';
 import { Helper } from '../../../../src/lib/helper';
-import { DatabaseManager } from '../../../../src/lib/database-manager';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
-const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 /** Test constants */
 const route = 'deals/negotiations';
@@ -23,11 +21,11 @@ async function authenticationSetup() {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID,
-                                                                        {pubStatus: 'accepted' , buyerStatus : 'active'});
+                                                                        { pubStatus: 'accepted' , buyerStatus : 'active' });
 
 }
 
@@ -42,15 +40,12 @@ async function paginationSetup () {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
 
-    let data: ICreateEntityData = {
+    return {
         buyer: buyer,
         publisher: publisher,
         site: site,
         sender: buyer.user
     };
-
-    return data;
-
 }
 
 /**
@@ -60,11 +55,11 @@ async function paginationSetup () {
  */
 async function createDealNegotiation (data: ICreateEntityData) {
 
-   let section = await databasePopulator.createSection(data.publisher.publisher.userID, [data.site.siteID]);
-   let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [section.section.sectionID]);
+   let section = await databasePopulator.createSection(data.publisher.publisher.userID, [ data.site.siteID ]);
+   let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [ section.section.sectionID ]);
    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                        data.publisher.user.userID, data.buyer.user.userID,
-                                                                        {pubStatus: 'accepted' , buyerStatus : 'active'});
+                                                                        { pubStatus: 'accepted' , buyerStatus : 'active' });
 
     return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.publisher.user, data.publisher.user);
 
@@ -103,7 +98,7 @@ export async function ATW_DN_GET_01 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Response 200");
@@ -125,8 +120,8 @@ export async function ATW_DN_GET_02 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Response 200");
@@ -150,10 +145,9 @@ export async function ATW_DN_GET_03 (assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let publisher2 = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                        publisher.user.userID, buyer.user.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let response = await apiRequest.get(route, {}, publisher2.publisher.userID);
 
     assert.equal(response.status, 200, "Response 200");
@@ -176,8 +170,8 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'accepted',
@@ -186,8 +180,8 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
                                                                          });
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
-    assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user)],
+    assert.equal(response.status, 200, "Response 200");
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
                      "1 DN Returned");
 }
 
@@ -206,8 +200,8 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'active',
@@ -217,7 +211,7 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user)],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
                      "1 DN Returned");
 }
 
@@ -236,9 +230,9 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             buyerStatus: 'accepted',
                                                                             pubStatus: 'accepted'
@@ -264,9 +258,9 @@ export async function ATW_DN_GET_07 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'accepted',
                                                                              pubStatus: 'accepted',
@@ -293,9 +287,9 @@ export async function ATW_DN_GET_08 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'rejected',
                                                                              pubStatus: 'active',
@@ -322,9 +316,9 @@ export async function ATW_DN_GET_09 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'active',
                                                                              pubStatus: 'rejected',
@@ -352,9 +346,9 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
     let buyer2 = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let unusedProposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                           publisher.user.userID, buyer1.user.userID, {
                                                                              buyerStatus: 'active',
@@ -370,8 +364,8 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user.userID);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, buyer1.user),
-                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal, publisher.user, buyer2.user)],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, buyer1.user),
+                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal, publisher.user, buyer2.user) ],
                      "DN1 and DN2 returned");
 }
 
@@ -391,24 +385,23 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
     let buyer2 = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                           publisher.user.userID, buyer1.user.userID, {
                                                                              buyerStatus: 'active',
                                                                              pubStatus: 'accepted',
                                                                              sender: 'publisher'
                                                                          });
-    let dealNegotiation2 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                          publisher.user.userID, buyer2.user.userID, {
-                                                                             buyerStatus: 'accepted',
-                                                                             pubStatus: 'active',
-                                                                             sender: 'buyer'
-                                                                         });
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer2.user.userID, {
+                                                                                                                            buyerStatus: 'accepted',
+                                                                                                                            pubStatus: 'active',
+                                                                                                                            sender: 'buyer'
+                                                                                                                            });
      let response = await apiRequest.get(route, {}, buyer1.user.userID);
 
      assert.equals(response.status, 200, "Response 200");
-     assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, publisher.user)],
+     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, publisher.user) ],
                       "1 DN for buyer1 returned returned");
 }
 
@@ -427,9 +420,9 @@ export async function ATW_DN_GET_12 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal1 = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
-    let proposal2 = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal1 = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let proposal2 = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal1.proposal.proposalID,
                                                                           publisher.user.userID, buyer.user.userID, {
                                                                              buyerStatus: 'active',
@@ -445,8 +438,8 @@ export async function ATW_DN_GET_12 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, publisher.user, publisher.user),
-                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, publisher.user, publisher.user)],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, publisher.user, publisher.user),
+                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, publisher.user, publisher.user) ],
                      "DN1 and DN2 returned");
 
 }
@@ -466,9 +459,9 @@ export async function ATW_DN_GET_13(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal1 = await databasePopulator.createProposal(buyer.user.userID, [section.section.sectionID], { status: 'deleted' });
-    let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal1.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal1 = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ], { status: 'deleted' });
+    await databasePopulator.createDealNegotiation(proposal1.proposal.proposalID,
         publisher.user.userID, buyer.user.userID , { buyerStatus: 'deleted' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
@@ -493,9 +486,9 @@ export async function ATW_DN_GET_14(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal1 = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
-    let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal1.proposal.proposalID,
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal1 = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
+    await databasePopulator.createDealNegotiation(proposal1.proposal.proposalID,
         publisher.user.userID, buyer.user.userID, { pubStatus: 'deleted' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
@@ -521,13 +514,13 @@ export async function ATW_DN_GET_15(assert: test.Test) {
     let buyer2 = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID], { status: 'deleted' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ], { status: 'deleted' });
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID);
-    let activeDeal = await databasePopulator.createSettledDeal(buyer.user.userID, [section.section.sectionID],
+    await databasePopulator.createSettledDeal(buyer.user.userID, [ section.section.sectionID ],
         dealNegotiation1.negotiationID);
-    let dealNegotiation2 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer2.user.userID , { pubStatus: 'deleted' });
 
     let response = await apiRequest.get(route, {}, publisher.user.userID);
@@ -552,10 +545,10 @@ export async function ATW_DN_GET_16(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'accepted', buyerStatus: 'accepted' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'accepted', buyerStatus: 'accepted' });
 
     let response = await apiRequest.get(route, {}, publisher.user.userID);
 
@@ -579,15 +572,15 @@ export async function ATW_DN_GET_17(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'accepted', buyerStatus: 'active' });
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'accepted', buyerStatus: 'active' });
 
     let response = await apiRequest.get(route, {}, publisher.user.userID);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, buyer.user )],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, buyer.user) ],
         "DN returned");
 
 }
@@ -607,10 +600,10 @@ export async function ATW_DN_GET_18(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'accepted', buyerStatus: 'rejected' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'accepted', buyerStatus: 'rejected' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
@@ -634,10 +627,10 @@ export async function ATW_DN_GET_19(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'active', buyerStatus: 'active' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'active', buyerStatus: 'active' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
@@ -661,10 +654,10 @@ export async function ATW_DN_GET_20(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'active', buyerStatus: 'archived' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'active', buyerStatus: 'archived' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 
@@ -688,10 +681,10 @@ export async function ATW_DN_GET_21(assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [section.section.sectionID]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID, {pubStatus: 'active', buyerStatus: 'deleted' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
+        publisher.user.userID, buyer.user.userID, { pubStatus: 'active', buyerStatus: 'deleted' });
 
     let response = await apiRequest.get(route, {}, buyer.user.userID);
 

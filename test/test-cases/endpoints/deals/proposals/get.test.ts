@@ -19,11 +19,11 @@ const route = 'deals/proposals';
 async function authDatabaseSetup() {
 
     let dsp = await databasePopulator.createDSP(123);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
 }
 
@@ -37,16 +37,13 @@ async function paginationDatabaseSetup() {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
 
-    let data: ICreateEntityData = {
+    return {
         publisher: publisher,
         section: section,
         sender: buyer.user
     };
-
-    return data;
-
 }
 
 /**
@@ -56,7 +53,7 @@ async function paginationDatabaseSetup() {
  */
 async function createProposal(data: ICreateEntityData) {
 
-    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [data.section.section.sectionID]);
+    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [ data.section.section.sectionID ]);
 
     return Helper.proposalToPayload(proposal, data.publisher.user);
 
@@ -96,11 +93,11 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID]);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
     /** Test */
-    let response = await apiRequest.get(route, {limit: 3, offset: 0}, buyer.user.userID);
+    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, buyer.user.userID);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
@@ -123,11 +120,11 @@ export async function IXM_API_DEALS_GET_02 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.get(route, {limit: 3, offset: 0}, buyer.user.userID);
+    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, buyer.user.userID);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'], []);
@@ -147,14 +144,14 @@ export async function IXM_API_DEALS_GET_03 (assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    await databasePopulator.createBuyer(dsp.dspID);
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [site.siteID]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [section.section.sectionID], { status: 'deleted' });
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.get(route, {limit: 3, offset: 0}, publisher.user.userID);
+    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, publisher.user.userID);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'], []);

@@ -48,7 +48,7 @@ class DatabasePopulator {
             Object.assign(newUserData, userFields);
         }
 
-        let newUserIds = await this.dbm.insert(newUserData, ['userID', 'modifyDate']).into('users');
+        let newUserIds = await this.dbm.insert(newUserData, [ 'userID', 'modifyDate' ]).into('users');
         newUserData.userID = newUserIds[0];
 
         let modifyDate = await this.dbm.select('modifyDate').from('users').where('userID', newUserData.userID);
@@ -152,7 +152,7 @@ class DatabasePopulator {
             Object.assign(newSiteData, siteFields);
         }
 
-        let siteIDs = await this.dbm.insert(newSiteData, ['siteID']).into('sites');
+        let siteIDs = await this.dbm.insert(newSiteData, [ 'siteID' ]).into('sites');
         newSiteData.siteID = siteIDs[0];
 
         Log.debug(`Created site ownerID: ${newSiteData.userID}, siteID: ${siteIDs[0]}`);
@@ -299,12 +299,13 @@ class DatabasePopulator {
      * @param ownerID {int} - the userID of the proposal owner
      * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new proposal
      * @param proposalFields {INewProposalData} - Optional: a new proposal object to override random fields
+     * @param targetedUsers {int[]} - Optional: userIDs of targeted ixmUsers
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
     public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[]) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
-        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || []};
+        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || [] };
 
         if (proposalFields) {
             Object.assign(newProposal.proposal, proposalFields);
@@ -398,7 +399,7 @@ class DatabasePopulator {
     public async mapProposalToSections(proposalID: number, sectionIDs: number[]) {
 
         for (let i = 0; i < sectionIDs.length; i += 1) {
-            let mapping = {proposalID: proposalID, sectionID: sectionIDs[i]};
+            let mapping = { proposalID: proposalID, sectionID: sectionIDs[i] };
 
             await this.dbm.insert(mapping).into('ixmProposalSectionMappings');
             Log.debug(`Mapped proposalID ${proposalID} to sectionID ${sectionIDs[i]}`);
@@ -415,7 +416,7 @@ class DatabasePopulator {
     public async mapProposalToTargets(proposalID: number, targets: number[]) {
 
         for (let i = 0; i < targets.length; i += 1) {
-            let mapping = {proposalID: proposalID, userID: targets[i]};
+            let mapping = { proposalID: proposalID, userID: targets[i] };
 
             await this.dbm.insert(mapping).into('ixmProposalTargeting');
             Log.debug(`Mapped proposalID ${proposalID} to target user ${targets[i]}`);
@@ -433,7 +434,7 @@ class DatabasePopulator {
         let mappings = [];
 
         for (let i = 0; i < siteIDs.length; i += 1) {
-            let mapping = {sectionID: sectionID, siteID: siteIDs[i]};
+            let mapping = { sectionID: sectionID, siteID: siteIDs[i] };
             mappings.push(mapping);
         }
 
@@ -469,7 +470,7 @@ class DatabasePopulator {
         }
 
         for (let i = 0; i < restrictionIDs.length; ++i) {
-            let mapping = {sectionID: sectionID};
+            let mapping = { sectionID: sectionID };
             mapping[restrictionID] = restrictionIDs[i];
             mappings.push(mapping);
         }
@@ -530,7 +531,7 @@ class DatabasePopulator {
         let mappings = [];
 
         for (let i = 0; i < sectionIDs.length; i += 1) {
-            let mapping = {dealID: dealID, sectionID: sectionIDs[i]};
+            let mapping = { dealID: dealID, sectionID: sectionIDs[i] };
             mappings.push(mapping);
         }
 
@@ -548,7 +549,7 @@ class DatabasePopulator {
      * @returns {Promise<void>} Resolves when all mapping entries have been successful
      */
     public async mapSettledDealToNegotiation(dealID: number, negotiationID: number) {
-        let mapping = {dealID: dealID, negotiationID: negotiationID, createDate: null};
+        let mapping = { dealID: dealID, negotiationID: negotiationID, createDate: null };
 
         await this.dbm.insert(mapping).into('ixmNegotiationDealMappings');
 
@@ -568,7 +569,7 @@ class DatabasePopulator {
 
         schema = this.extendSchemaObject(schema);
 
-        let data = <T>jsf(schema);
+        let data: T = jsf(schema);
         data = this.extendDataObject(data);
 
         return data;
@@ -635,21 +636,6 @@ class DatabasePopulator {
         }
 
         return schema;
-    }
-
-    /**
-     * Get the current date in a MySQL datetime format.
-     * @returns string the current formatted date
-     */
-    private currentMySQLDate(): string {
-        let date = new Date();
-
-        return date.getFullYear() + '-' +
-            ('00' + (date.getMonth() + 1)).slice(-2) + '-' +
-            ('00' + date.getDate()).slice(-2) + ' ' +
-            ('00' + date.getHours()).slice(-2) + ':' +
-            ('00' + date.getMinutes()).slice(-2) + ':' +
-            ('00' + date.getSeconds()).slice(-2);
     }
 
     private currentMidnightDate(): Date {
