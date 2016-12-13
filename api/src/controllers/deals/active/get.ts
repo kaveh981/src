@@ -49,6 +49,54 @@ function ActiveDeals(router: express.Router): void {
 
     } catch (error) { next(error); } });
 
+    /**
+     * GET request to get active deals by proposalID.
+     */
+    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        /** Validation */
+
+        // Validate request params
+        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+
+        if (paramErrors.length > 0) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Validate request query
+        let validationErrors = validator.validateType(req.query, 'Pagination',
+                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
+        }
+
+        /** Route logic */
+
+        // Get all active deals for current user
+        // let user = req.ixmUserInfo;
+        // let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
+
+    } catch (error) { next(error); } });
+
+    /**
+     * GET request to get active deals by proposalID/partnerID.
+     */
+    router.get('/:proposalID/partner/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        /** Validation */
+
+        // Validate Query
+        let validationErrors = validator.validateType(req.params, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
+
+        if (validationErrors.length > 0) {
+            throw HTTPError('404_DEAL_NOT_FOUND', validationErrors);
+        }
+
+        /** Route logic */
+
+    } catch (error) { next(error); } });
+
 };
 
 module.exports = ActiveDeals;
