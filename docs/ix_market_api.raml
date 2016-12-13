@@ -427,6 +427,20 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 404: # 404 = "Not found" provided proposal ID does not exist in the database
                 500: # 500 = "Internal Server Error" something done broke
+        /legacy:
+            get:
+                is: [ auth_required ]
+                description: |
+                     Get all active and paused deals of a publisher no matter the deals are created from Index Market or not.
+                     Forwarding request to Index Exchange API, details could be found at http://www.indexexchange.com/api/#deals
+                queryParameters:
+                    userID:
+                        type: integer
+                        required: true
+                        displayName: User ID
+                        description: The ID of the publisher associated to the deals we want to get.
+                        minimum: 1
+                        maximum: 16777215
         /{proposal_id}:
             uriParameters:
                 proposal_id:
