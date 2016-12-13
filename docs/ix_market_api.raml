@@ -433,14 +433,6 @@ types:
                 description: |
                      Get all active and paused deals of a publisher despite if they are created from Index Market. The request will be forwarded to Index Exchange API. 
                      Details about the response values could be found at http://www.indexexchange.com/api/#deals
-                queryParameters:
-                    userID:
-                        type: integer
-                        required: true
-                        displayName: User ID
-                        description: The ID of the publisher associated to the deals we want to get.
-                        minimum: 1
-                        maximum: 16777215
         /{proposal_id}:
             uriParameters:
                 proposal_id:
