@@ -73,10 +73,6 @@ function ActiveDeals(router: express.Router): void {
 
         /** Route logic */
 
-        // Get all active deals for current user
-        // let user = req.ixmUserInfo;
-        // let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-
     } catch (error) { next(error); } });
 
     /**
@@ -87,7 +83,7 @@ function ActiveDeals(router: express.Router): void {
         /** Validation */
 
         // Validate Query
-        let validationErrors = validator.validateType(req.params, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
+        let validationErrors = validator.validateType(req.params, 'SpecificDealParameters', { sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('404_DEAL_NOT_FOUND', validationErrors);
