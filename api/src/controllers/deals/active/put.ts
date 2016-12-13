@@ -15,7 +15,6 @@ import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/neg
 import { DatabaseManager } from '../../../lib/database-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
 import { PublisherManager } from '../../../models/publisher/publisher-manager';
-import { PaginationModel } from '../../../models/pagination/pagination-model';
 import { BuyerModel } from '../../../models/buyer/buyer-model';
 import { PublisherModel } from '../../../models/publisher/publisher-model';
 
@@ -30,37 +29,9 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 const Log: Logger = new Logger('ROUT');
 
 /**
- * Function that takes care of all /deals/active routes
+ * Function that takes care of PUT /deals/active routes
  */
 function ActiveDeals(router: express.Router): void {
-
-    /**
-     * GET request to get all active deals.
-     */
-    router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
-
-        /** Validation */
-
-        // Validate Query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
-                               { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
-
-        if (validationErrors.length > 0) {
-            throw HTTPError('400', validationErrors);
-        }
-
-        /** Route logic */
-
-        // Get all active deals for current user
-        let user = req.ixmUserInfo;
-        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let activeDeals = await settledDealManager.fetchActiveSettledDealsFromUser(user, pagination);
-
-        Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
-
-        res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
-
-    } catch (error) { next(error); } });
 
     /**
      * PUT request to accept a deal and insert it into the database to activate it.
