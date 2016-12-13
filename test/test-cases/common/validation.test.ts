@@ -55,7 +55,7 @@ function validationTest(route: string, verb: string, setup: Function, validation
                 // loop through cases
                 for (let i = 0; i < cases.length; i++) {
                     let input = cases[i].input;
-                    validRequestParams[property] = typeof input === 'object' ? JSON.stringify(input) : input;
+                    validRequestParams[property] = input;
                     let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.userID);
                     t.equal(res.status, cases[i].expect || 400);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
