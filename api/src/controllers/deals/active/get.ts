@@ -79,6 +79,31 @@ function ActiveDeals(router: express.Router): void {
 
         /** Route logic */
 
+        let proposalID: number = req.params.proposalID;
+        let user = req.ixmUserInfo;
+        let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
+
+        // Check that proposal exists and can be accessed by the user
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+        if (!proposal || !proposal.targetsUser(user)) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Check that user has interacted with the proposal. If they haven't, and the proposal is deleted, then it should behave as if the proposal does not and
+        // has never existed. However, if they have at least negotiated on it, then it should be possible for them to use its ID to get associated deals.
+        let tempPagination = new PaginationModel({ page: 1, limit: 1 }, req);
+        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(user.id, proposalID, tempPagination);
+
+        if (negotiatedDeals.length === 0 && proposal.isDeleted()) {
+            throw HTTPError('404_PROPOSAL_NOT_FOUND');
+        }
+
+        // Fetch the settled deals
+        let settledDeals = await settledDealManager.fetchSettledDealsFromUserProposalIds(user.id, proposalID, pagination);
+
+        res.sendPayload(settledDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
+
     } catch (error) { next(error); } });
 
     /**
