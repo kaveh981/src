@@ -59,7 +59,7 @@ function ActiveDeals(router: express.Router): void {
 
         Log.trace(`Request to buy proposal ${proposalID} for user ${userID}.`, req.id);
 
-        if (!proposedDeal || proposedDeal.status === 'deleted') {
+        if (!proposedDeal || proposedDeal.status === 'deleted' || !proposedDeal.targetsUser(userInfo)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
