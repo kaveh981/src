@@ -66,7 +66,7 @@ class ProposedDealModel {
 
         let today = Helper.formatDate((new Date()).toDateString());
 
-        return !((this.startDate <= this.endDate) && (this.endDate >= today || this.endDate === '0000-00-00'));
+        return !((this.startDate <= this.endDate && this.endDate >= today) || this.endDate === '0000-00-00');
 
     }
 

@@ -64,7 +64,7 @@ function ActiveDeals(router: express.Router): void {
         }
 
         if (!proposedDeal.isPurchasableByUser(req.ixmUserInfo)) {
-            throw HTTPError('403_FORBIDDEN');
+            throw HTTPError('403_NOT_FORSALE');
         }
 
         if (req.ixmUserInfo.userType === 'IXMB') {
