@@ -72,6 +72,13 @@ class DatabasePopulator {
             Object.assign(newBuyerData.user, userFields);
         }
 
+        let dsps = await this.dbm.from('rtbDSPs').where('dspID', dspID);
+
+        if (dsps.length === 0) {
+            Log.error(`DSP with dspID: ${dspID} not found`);
+            return;
+        }
+
         let newUserData = await this.createUser(newBuyerData.user);
         if (dspID) { newBuyerData.dspID = dspID; }
         newBuyerData.user = newUserData;
