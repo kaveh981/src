@@ -427,6 +427,12 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 404: # 404 = "Not found" provided proposal ID does not exist in the database
                 500: # 500 = "Internal Server Error" something done broke
+        /legacy:
+            get:
+                is: [ auth_required ]
+                description: |
+                     Get all active and paused deals for the current user, including those predating Index Market. Available to Publisher users only. The request will be forwarded to Index Exchange API.
+                     Details about the response values available at http://www.indexexchange.com/api/#deals
         /{proposal_id}:
             uriParameters:
                 proposal_id:
