@@ -184,7 +184,6 @@ async function ATW_AUTH_06 (route: string, verb: string, setup: Function, assert
 
     let dsp = await databasePopulator.createDSP(1);
     await databasePopulator.createBuyer(dsp.dspID);
-    await databasePopulator.createBuyer(dsp.dspID);
 
     /** Test */
     let response = await apiRequest[verb](route, {}, {
