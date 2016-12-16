@@ -40,7 +40,7 @@ async function identifyUser(userID: number, accessToken: string): Promise<UserMo
     let userInfo = await userManager.fetchUserFromId(userID);
 
     // User not found or not an IXM buyer
-    if (!userInfo || !authConfig.allowedUserTypes.includes(userInfo.userType)) {
+    if (!userInfo || authConfig.allowedUserTypes.indexOf(userInfo.userType) === -1) {
         throw HTTPError('401_NOT_IXMUSER');
     } else if (!userInfo.isActive()) {
         throw HTTPError('401_NOT_ACTIVE');

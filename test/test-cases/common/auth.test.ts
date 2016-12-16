@@ -133,7 +133,7 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     let pubResponse = await apiRequest[verb](route, {}, {
         userID: user.userID,
         userType: user.userType,
-        accessToken: ''
+        accessToken: ' '
     });
 
     assert.equal(pubResponse.status, 401);

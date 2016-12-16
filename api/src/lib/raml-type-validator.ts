@@ -111,8 +111,7 @@ class RamlTypeValidator {
             let parsedYAML = yaml.safeLoad(fileContent);
 
             for (let key in parsedYAML) {
-                Log.trace('Reading ' + key + '...');
-                Log.trace(`${Log.stringify(parsedYAML[key])}`);
+                Log.trace('Loading ' + key + ' from schemas...');
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
@@ -128,7 +127,7 @@ class RamlTypeValidator {
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
                 this.types = ramlObj['types'];
-                Log.debug('Loaded types: ' + Object.keys(this.types).join(', '));
+                Log.debug('Loaded types ' + Object.keys(this.types).join(', ') + ' from schemas.');
                 Log.info('Initialized RAML validator.');
             })
             .catch((err) => {
