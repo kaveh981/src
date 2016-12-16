@@ -193,7 +193,7 @@ export async function ATW_API_DNPP_GET_04(assert: test.Test) {
     await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
     let invalidPublisher = await databasePopulator.createPublisher();
 
-    let invalidPublisherPath = buildPath(invalidPublisher.user.userID, publisherUser.userID);
+    let invalidPublisherPath = buildPath(proposalID, buyerUser.userID);
 
     /** Test */
     let invalidPubResponse = await apiRequest.get(invalidPublisherPath, {}, invalidPublisher.user);
