@@ -18,6 +18,40 @@ const route = 'deals/negotiations';
 const DSP_ID = 1;
 const currentDate: Date = new Date();
 
+/**
+ * Create a buyer and return ID of the buyer
+ */
+async function generateBuyer() {
+    await databasePopulator.createDSP(DSP_ID);
+    let buyer = await databasePopulator.createBuyer(DSP_ID);
+    return buyer.user;
+}
+
+/**
+ * Create a publisher and return ID of the publisher
+ */
+async function generatePublisher() {
+    let publisher = await databasePopulator.createPublisher();
+    return publisher.user;
+}
+
+/**
+ * Create a proposal based on a given publisher and return ID of the proposal
+ */
+async function generateProposalID(publisherID: number) {
+    let site = await databasePopulator.createSite(publisherID);
+    let section = await databasePopulator.createSection(publisherID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(publisherID, [ section.section.sectionID ]);
+    return proposalObj.proposal.proposalID;
+}
+
+/**
+ * Build get specific negotiation URL /:proposalID/partner/:partnerID
+ */
+function buildPath(proposalID: number, partnerID: number) {
+    return route + '/' + proposalID + '/partner/' + partnerID;
+}
+
 async function commonDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
@@ -28,7 +62,9 @@ async function commonDatabaseSetup() {
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
                                                                         publisher.user.userID, buyer.user.userID,
                                                                         { pubStatus: 'active', buyerStatus: 'accepted' });
-    let setupResponse = { userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
+    let setupResponse = { user: buyer.user, userID: buyer.user.userID,
+                        proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
+
     return setupResponse;
 }
 
@@ -66,19 +102,19 @@ export async function ATW_API_DNPP_GET_01(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
-    let buyerPath = buildPath(proposalID, publisherID);
-    let publisherPath = buildPath(proposalID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherUser.userID);
+    let publisherPath = buildPath(proposalID, buyerUser.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 200);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 200);
  }
 
@@ -94,18 +130,18 @@ export async function ATW_API_DNPP_GET_02(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
     let nonExistingProposalID = 514;
 
-    let buyerPath = buildPath(nonExistingProposalID, buyerID);
-    let publisherPath = buildPath(nonExistingProposalID, publisherID);
+    let buyerPath = buildPath(nonExistingProposalID, buyerUser.userID);
+    let publisherPath = buildPath(nonExistingProposalID, publisherUser.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 404);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 404);
 }
 
@@ -121,21 +157,21 @@ export async function ATW_API_DNPP_GET_03(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
     let invalidBuyer = await databasePopulator.createBuyer(DSP_ID);
 
-    let validBuyerPath = buildPath(proposalID, publisherID);
-    let invalidBuyerPath = buildPath(invalidBuyer.user.userID, publisherID);
+    let validBuyerPath = buildPath(proposalID, publisherUser.userID);
+    let invalidBuyerPath = buildPath(invalidBuyer.user.userID, publisherUser.userID);
 
     /** Test */
-    let invalidBuyerResponse = await apiRequest.get(invalidBuyerPath, {}, invalidBuyer.user.userID);
+    let invalidBuyerResponse = await apiRequest.get(invalidBuyerPath, {}, invalidBuyer.user);
     assert.equal(invalidBuyerResponse.status, 404);
 
     // For reference, make sure API works correctly 
-    let buyerResponse = await apiRequest.get(validBuyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(validBuyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 200);
 }
 
@@ -151,17 +187,16 @@ export async function ATW_API_DNPP_GET_04(assert: test.Test) {
     /** Setup */
     assert.plan(1);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
     let invalidPublisher = await databasePopulator.createPublisher();
 
-    /*let validPublisherPath = buildPath(proposalID, buyerID);*/
-    let invalidPublisherPath = buildPath(invalidPublisher.user.userID, buyerID);
+    let invalidPublisherPath = buildPath(invalidPublisher.user.userID, publisherUser.userID);
 
     /** Test */
-    let invalidPubResponse = await apiRequest.get(invalidPublisherPath, {}, invalidPublisher.user.userID);
+    let invalidPubResponse = await apiRequest.get(invalidPublisherPath, {}, invalidPublisher.user);
     assert.equal(invalidPubResponse.status, 404);
 }
 
@@ -177,29 +212,29 @@ export async function ATW_API_DNPP_GET_05(assert: test.Test) {
    /** Setup */
     assert.plan(4);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
-    let buyerPath = buildPath(proposalID, publisherID);
-    let publisherPath = buildPath(proposalID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherUser.userID);
+    let publisherPath = buildPath(proposalID, buyerUser.userID);
 
-    let invalidBuyerPath = buildPath(proposalID, buyerID + 10);
-    let invalidPublisherPath = buildPath(proposalID, publisherID + 10);
+    let invalidBuyerPath = buildPath(proposalID, buyerUser.userID + 10);
+    let invalidPublisherPath = buildPath(proposalID, publisherUser.userID + 10);
 
     /** Test */
     // For reference, make sure API works correctly 
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 200);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 200);
 
-    let wrongPubResponse = await apiRequest.get(invalidPublisherPath, {}, publisherID);
+    let wrongPubResponse = await apiRequest.get(invalidPublisherPath, {}, publisherUser);
     assert.equal(wrongPubResponse.status, 404);
 
-    let wrongBuyerResponse = await apiRequest.get(invalidBuyerPath, {}, buyerID);
+    let wrongBuyerResponse = await apiRequest.get(invalidBuyerPath, {}, buyerUser);
     assert.equal(wrongBuyerResponse.status, 404);
 }
 
@@ -215,10 +250,10 @@ export async function ATW_API_DNPP_GET_06(assert: test.Test) {
    /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
     let invalidPartner = await databasePopulator.createUser({ userType: 2 });
 
@@ -226,10 +261,10 @@ export async function ATW_API_DNPP_GET_06(assert: test.Test) {
     let publisherPath = buildPath(proposalID, invalidPartner.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 403);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 403);
 }
 
@@ -245,23 +280,23 @@ export async function ATW_API_DNPP_GET_07(assert: test.Test) {
    /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
     let anotherBuyer = await databasePopulator.createBuyer(DSP_ID);
     let anotherBuyerID = anotherBuyer.user.userID;
-    let anotherPubID = await generatePublisherID();
+    let anotherPubUser = await generatePublisher();
 
-    let buyerPath = buildPath(proposalID, anotherPubID);
+    let buyerPath = buildPath(proposalID, anotherPubUser.userID);
     let publisherPath = buildPath(proposalID, anotherBuyerID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 404);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 404);
 }
 
@@ -277,16 +312,16 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
    /** Setup */
     assert.plan(1);
 
-    let buyerID = await generateBuyerID();
+    let buyerUser = await generateBuyer();
     let publisher = await databasePopulator.createPublisher({ status: 'N' });
     let publisherID = publisher.user.userID;
     let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerUser.userID);
 
     let buyerPath = buildPath(proposalID, publisherID);
 
     /** Test */
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 403);
 }
 
@@ -305,14 +340,14 @@ export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
     await databasePopulator.createDSP(DSP_ID);
     let buyer = await databasePopulator.createBuyer(DSP_ID, { status: 'N' });
     let buyerID = buyer.user.userID;
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerID);
 
     let publisherPath = buildPath(proposalID, buyerID);
 
     /** Test */
-    let buyerResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let buyerResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(buyerResponse.status, 403);
 }
 
@@ -328,17 +363,17 @@ export async function ATW_API_DNPP_GET_09_01(assert: test.Test) {
    /** Setup */
     assert.plan(1);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
     let wrongPub = await databasePopulator.createBuyer(DSP_ID);
     let wrongPubID = wrongPub.user.userID;
     let buyerPath = buildPath(proposalID, wrongPubID);
 
     /** Test */
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 403);
 }
 
@@ -354,16 +389,16 @@ export async function ATW_API_DNPP_GET_09_02(assert: test.Test) {
    /** Setup */
     assert.plan(1);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
 
-    let wrongBuyerID = await generatePublisherID();
-    let buyerPath = buildPath(proposalID, wrongBuyerID);
+    let wrongBuyerUser = await generatePublisher();
+    let buyerPath = buildPath(proposalID, wrongBuyerUser.userID);
 
     /** Test */
-    let buyerResponse = await apiRequest.get(buyerPath, {}, publisherID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, publisherUser);
     assert.equal(buyerResponse.status, 403);
 }
 
@@ -379,18 +414,18 @@ export async function ATW_API_DNPP_GET_10(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let proposalID = await generateProposalID(publisherID);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let proposalID = await generateProposalID(publisherUser.userID);
 
-    let buyerPath = buildPath(proposalID, publisherID);
-    let publisherPath = buildPath(proposalID, buyerID);
+    let buyerPath = buildPath(proposalID, publisherUser.userID);
+    let publisherPath = buildPath(proposalID, buyerUser.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 404);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 404);
 }
 
@@ -406,21 +441,21 @@ export async function ATW_API_DNPP_GET_11(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let site = await databasePopulator.createSite(publisherID);
-    let section = await databasePopulator.createSection(publisherID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(publisherID, [ section.section.sectionID ], { status: 'paused' });
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let site = await databasePopulator.createSite(publisherUser.userID);
+    let section = await databasePopulator.createSection(publisherUser.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(publisherUser.userID, [ section.section.sectionID ], { status: 'paused' });
     let proposalID = proposalObj.proposal.proposalID;
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let buyerPath = buildPath(proposalID, publisherID);
-    let publisherPath = buildPath(proposalID, buyerID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
+    let buyerPath = buildPath(proposalID, publisherUser.userID);
+    let publisherPath = buildPath(proposalID, buyerUser.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 200);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 200);
 }
 
@@ -449,7 +484,7 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
     let publisherPath = buildPath(proposalID, buyerID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisher.user);
     assert.equal(pubResponse.status, 200);
     assert.deepEqual(pubResponse.body['data'], [ Helper.dealNegotiationToPayload(negotiation, proposalObj, publisher.user, buyer.user) ],
         "DN1 returned");
@@ -480,7 +515,7 @@ export async function ATW_API_DNPP_GET_13(assert: test.Test) {
     let buyerPath = buildPath(proposalID, publisherID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let pubResponse = await apiRequest.get(buyerPath, {}, buyer.user);
     assert.equal(pubResponse.status, 200);
     assert.deepEqual(pubResponse.body['data'], [ Helper.dealNegotiationToPayload(negotiation, proposalObj, buyer.user, publisher.user) ],
         "DN1 returned");
@@ -498,55 +533,21 @@ export async function ATW_API_DNPP_GET_14(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let buyerID = await generateBuyerID();
-    let publisherID = await generatePublisherID();
-    let site = await databasePopulator.createSite(publisherID);
-    let section = await databasePopulator.createSection(publisherID, [ site.siteID ]);
+    let buyerUser = await generateBuyer();
+    let publisherUser = await generatePublisher();
+    let site = await databasePopulator.createSite(publisherUser.userID);
+    let section = await databasePopulator.createSection(publisherUser.userID, [ site.siteID ]);
     let passedDate = new Date(currentDate.setDate(currentDate.getDate() - 5));
-    let proposalObj = await databasePopulator.createProposal(publisherID, [ section.section.sectionID ], { endDate: passedDate });
+    let proposalObj = await databasePopulator.createProposal(publisherUser.userID, [ section.section.sectionID ], { endDate: passedDate });
     let proposalID = proposalObj.proposal.proposalID;
-    await databasePopulator.createDealNegotiation(proposalID, publisherID, buyerID);
-    let buyerPath = buildPath(proposalID, publisherID);
-    let publisherPath = buildPath(proposalID, buyerID);
+    await databasePopulator.createDealNegotiation(proposalID, publisherUser.userID, buyerUser.userID);
+    let buyerPath = buildPath(proposalID, publisherUser.userID);
+    let publisherPath = buildPath(proposalID, buyerUser.userID);
 
     /** Test */
-    let pubResponse = await apiRequest.get(publisherPath, {}, publisherID);
+    let pubResponse = await apiRequest.get(publisherPath, {}, publisherUser);
     assert.equal(pubResponse.status, 200);
 
-    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerID);
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyerUser);
     assert.equal(buyerResponse.status, 200);
-}
-
-/**
- * Create a buyer and return ID of the buyer
- */
-async function generateBuyerID() {
-    await databasePopulator.createDSP(DSP_ID);
-    let buyer = await databasePopulator.createBuyer(DSP_ID);
-    return buyer.user.userID;
-}
-
-/**
- * Create a publisher and return ID of the publisher
- */
-async function generatePublisherID() {
-    let publisher = await databasePopulator.createPublisher();
-    return publisher.user.userID;
-}
-
-/**
- * Create a proposal based on a given publisher and return ID of the proposal
- */
-async function generateProposalID(publisherID: number) {
-    let site = await databasePopulator.createSite(publisherID);
-    let section = await databasePopulator.createSection(publisherID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(publisherID, [ section.section.sectionID ]);
-    return proposalObj.proposal.proposalID;
-}
-
-/**
- * Build get specific negotiation URL /:proposalID/partner/:partnerID
- */
-function buildPath(proposalID: number, partnerID: number) {
-    return route + '/' + proposalID + '/partner/' + partnerID;
 }

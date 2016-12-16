@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "chalk": "registry:npm/chalk#1.1.1+20160812215109",
+    "jsonwebtoken": "registry:npm/jsonwebtoken#7.1.8+20160811031426",
     "request": "registry:npm/request#2.69.0+20160428223725"
   }
 }

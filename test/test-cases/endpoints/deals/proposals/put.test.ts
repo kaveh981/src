@@ -24,6 +24,7 @@ async function commonDatabaseSetup() {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     return {
+        user: buyer.user,
         userID: buyer.user.userID,
         proposal_id: proposal.proposal.proposalID,
         partner_id: publisher.user.userID,
@@ -128,7 +129,7 @@ export async function ATW_API_PUT_DEAPRO_01 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 201);
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
@@ -164,7 +165,7 @@ export async function ATW_API_PUT_DEAPRO_02 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -197,7 +198,7 @@ export async function ATW_API_PUT_DEAPRO_03 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 201);
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
@@ -236,7 +237,7 @@ export async function ATW_API_PUT_DEAPRO_04 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 201);
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
@@ -273,7 +274,7 @@ export async function ATW_API_PUT_DEAPRO_05 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 404);
 
@@ -306,7 +307,7 @@ export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -340,7 +341,7 @@ export async function ATW_API_PUT_DEAPRO_07 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -374,7 +375,7 @@ export async function ATW_API_PUT_DEAPRO_08 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -408,7 +409,7 @@ export async function ATW_API_PUT_DEAPRO_09 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -442,7 +443,7 @@ export async function ATW_API_PUT_DEAPRO_10 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -474,7 +475,7 @@ export async function ATW_API_PUT_DEAPRO_11 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 400);
 
@@ -507,7 +508,7 @@ export async function ATW_API_PUT_DEAPRO_12 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -540,7 +541,7 @@ export async function ATW_API_PUT_DEAPRO_13 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -574,7 +575,7 @@ export async function ATW_API_PUT_DEAPRO_14 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -607,7 +608,7 @@ export async function ATW_API_PUT_DEAPRO_15 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -640,7 +641,7 @@ export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -676,7 +677,7 @@ export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 400);
 
@@ -712,7 +713,7 @@ export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user.userID);
+    let response = await apiRequest.put(route, proposal, buyer.user);
 
     assert.equal(response.status, 400);
 
@@ -742,7 +743,7 @@ export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 400);
 
@@ -772,7 +773,7 @@ export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 400);
 
@@ -802,7 +803,7 @@ export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 400);
 
@@ -832,7 +833,7 @@ export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user.userID);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 400);
 

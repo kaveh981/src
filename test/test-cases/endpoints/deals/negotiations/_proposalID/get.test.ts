@@ -100,7 +100,7 @@ export async function ATW_DNP_GET_01 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ], "1 DN Returned");
@@ -126,7 +126,7 @@ export async function ATW_DNP_GET_02 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let badProposalID = proposal.proposal.proposalID + 'a';
-    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user);
 
     assert.equal(response.status, 404, "Response 404");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -150,7 +150,7 @@ export async function ATW_DNP_GET_03 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let badProposalID = -proposal.proposal.proposalID;
-    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user);
 
     assert.equal(response.status, 404, "Response 404");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -173,10 +173,9 @@ export async function ATW_DNP_GET_04 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
-    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-                                                                        publisher.user.userID, buyer.user.userID);
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let badProposalID = Math.pow(2, 24);
-    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user);
 
     assert.equal(response.status, 404, "Response 404");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -201,7 +200,7 @@ export async function ATW_DNP_GET_05 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let badProposalID = proposal.proposal.proposalID + 1;
-    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + badProposalID, {}, buyer.user);
 
     assert.equal(response.status, 404, "Response 404");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -223,13 +222,13 @@ export async function ATW_DNP_GET_06 (assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let site2 = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ] );
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     await databasePopulator.createSection(publisher.publisher.userID, [ site2.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let proposal2 = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     await databasePopulator.createDealNegotiation(proposal2.proposal.proposalID, publisher.user.userID, buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -256,7 +255,7 @@ export async function ATW_DNP_GET_07 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer2.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -283,7 +282,7 @@ export async function ATW_DNP_GET_08 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ]);
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher2.user.userID, buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyer.user, buyer.user) ],
@@ -309,7 +308,7 @@ export async function ATW_DNP_GET_09 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, otherBuyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, otherBuyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -334,7 +333,8 @@ export async function ATW_DNP_GET_10 (assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, otherPublisher.user.userID);
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, otherPublisher.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -357,7 +357,7 @@ export async function ATW_DNP_GET_11 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [], "No Data Returned");
@@ -385,7 +385,7 @@ export async function ATW_DNP_GET_12 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             pubStatus: "deleted"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -413,7 +413,7 @@ export async function ATW_DNP_GET_13 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             pubStatus: "rejected"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -441,7 +441,7 @@ export async function ATW_DNP_GET_14 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             pubStatus: "accepted"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -469,7 +469,7 @@ export async function ATW_DNP_GET_15 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             buyerStatus: "deleted"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -497,7 +497,7 @@ export async function ATW_DNP_GET_16 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             buyerStatus: "rejected"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -525,7 +525,7 @@ export async function ATW_DNP_GET_17 (assert: test.Test) {
                                                                         publisher.user.userID, buyer.user.userID, {
                                                                             buyerStatus: "accepted"
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -554,7 +554,7 @@ export async function ATW_DNP_GET_18 (assert: test.Test) {
                                                                             startDate: new Date (3000, 1, 1),
                                                                             endDate: new Date (3001, 1, 1)
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -583,7 +583,7 @@ export async function ATW_DNP_GET_19 (assert: test.Test) {
                                                                             startDate: new Date (1989, 1, 1),
                                                                             endDate: new Date (1990, 1, 1)
                                                                         });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -609,9 +609,9 @@ export async function ATW_DNP_GET_20 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], {
                                                           status: "paused"
                                                           });
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -634,12 +634,10 @@ export async function ATW_DNP_GET_21 (assert: test.Test) {
     let publisher = await databasePopulator.createPublisher();
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], {
-                                                          status: "deleted"
-                                                          });
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: "deleted" });
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
                                                                         buyer.user.userID, { pubStatus: 'active', buyerStatus: 'accepted' });
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -663,9 +661,9 @@ export async function ATW_DNP_GET_22 (assert: test.Test) {
     let site = await databasePopulator.createSite(publisher.publisher.userID);
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -692,9 +690,9 @@ export async function ATW_DNP_GET_23 (assert: test.Test) {
                                                           startDate: new Date(1990, 1, 1),
                                                           endDate: new Date(1995, 1, 1)
                                                           });
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -721,9 +719,9 @@ export async function ATW_DNP_GET_24 (assert: test.Test) {
                                                           startDate: new Date(3000, 1, 1),
                                                           endDate: new Date(3001, 1, 1)
                                                           });
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID,
-                                                                        buyer.user.userID);
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID);
+
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, publisher.user, publisher.user) ],
@@ -750,7 +748,7 @@ export async function ATW_DNP_GET_25(assert: test.Test) {
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID, { buyerStatus : 'deleted' });
 
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, publisher.user) ],
@@ -778,7 +776,7 @@ export async function ATW_DNP_GET_26(assert: test.Test) {
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID, { pubStatus : 'deleted' });
 
-    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user.userID);
+    let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, publisher.user);
     assert.equals(response.status, 200, "Response ok");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, publisher.user, buyer.user) ],
                      "1 DN Returned");

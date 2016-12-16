@@ -56,7 +56,7 @@ function validationTest(route: string, verb: string, setup: Function, validation
                 for (let i = 0; i < cases.length; i++) {
                     let input = cases[i].input;
                     validRequestParams[property] = input;
-                    let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.userID);
+                    let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.user);
                     t.equal(res.status, cases[i].expect || 400);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {
@@ -116,7 +116,7 @@ function validationTest(route: string, verb: string, setup: Function, validation
                             routeParam += `/${validUriParams[validParam]}`;
                         }
                     }
-                    let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.userID);
+                    let res = await apiRequest[verb.toLowerCase()](routeParam, validRequestParams, setupRes.user);
                     t.equal(res.status, cases[i].expect || 404);
                     // clear table and run setup if the api call succeed for any reason to start with fresh data for the next test
                     if (res.status === 200) {

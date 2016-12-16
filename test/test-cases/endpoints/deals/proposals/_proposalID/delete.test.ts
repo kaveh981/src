@@ -22,7 +22,7 @@ async function databaseSetup() {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
-    return { userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
+    return { user: publisher.user, userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
 
 }
 
@@ -67,7 +67,7 @@ export async function ATW_API_DELETE_DEAPROID_01(assert: test.Test) {
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
         publisher.user.userID, buyer.user.userID);
     /** Test */
-    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
+    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     let deletedProposal = await Helper.getProposalById(proposal.proposal.proposalID);
     let deletedNegotiations = await Helper.getNegotiationsByProposalID(proposal.proposal.proposalID);
@@ -110,7 +110,7 @@ export async function ATW_API_DELETE_DEAPROID_02(assert: test.Test) {
         dealNegotiation.negotiationID);
 
     /** Test */
-    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
+    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     let rtbDeals = await Helper.getDealsByProposalID(proposal.proposal.proposalID);
 
@@ -143,7 +143,7 @@ export async function ATW_API_DELETE_DEAPROID_03(assert: test.Test) {
     let proposal = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, buyer.user.userID);
+    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 404);
 
@@ -173,7 +173,7 @@ export async function ATW_API_DELETE_DEAPROID_04(assert: test.Test) {
         { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
-    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user.userID);
+    let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200, "Response ok");
     assert.equals(response.body.data[0].proposal_id, proposal.proposal.proposalID);

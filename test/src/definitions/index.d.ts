@@ -103,8 +103,8 @@ interface IProposal {
     name?: string;
     description?: string;
     status?: string;
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: Date | string;
+    endDate?: Date | string;
     price?: number;
     impressions?: number;
     budget?: number;

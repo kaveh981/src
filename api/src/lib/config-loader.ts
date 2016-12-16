@@ -58,6 +58,17 @@ class ConfigLoader {
             this.configMap[configName] = await this.loadConfig(file);
         }
 
+        // Apply overrides
+        if (this.configMap['override']) {
+            for (let key in this.configMap['override']) {
+                if (!this.configMap[key]) {
+                    throw new Error(`Unknown override key ${key}.`);
+                }
+
+                Object.assign(this.configMap[key], this.configMap['override'][key]);
+            }
+        }
+
     }
 
     /**

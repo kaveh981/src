@@ -81,6 +81,8 @@ class RamlTypeValidator {
      */
     public initialize(schemaDirectory: string = '../schemas'): Promise<{}> {
 
+        Log.info('Initializing RAML validator...');
+
         // First we load up the error templates
         let templateStrings = this.config.get('validator')['en-US'];
 
@@ -126,7 +128,8 @@ class RamlTypeValidator {
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
                 this.types = ramlObj['types'];
-                Log.trace('Loaded types: ' + Object.keys(this.types).join(', '));
+                Log.debug('Loaded types: ' + Object.keys(this.types).join(', '));
+                Log.info('Initialized RAML validator.');
             })
             .catch((err) => {
                 Log.error(err);
