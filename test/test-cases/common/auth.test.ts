@@ -178,7 +178,7 @@ async function ATW_AUTH_05 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_06 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(5);
+    assert.plan(6);
 
     await setup();
 
@@ -191,6 +191,7 @@ async function ATW_AUTH_06 (route: string, verb: string, setup: Function, assert
         userID: 'goose bear',
         userType: 'goose bear'
     });
+    assert.equal(response.status, 401);
 
     response = await apiRequest[verb](route, {}, {
         userID: 3.1415926,
