@@ -10,6 +10,8 @@ import { SuiteManager } from './lib/suite-manager';
 
 const Log = new Logger('TEST');
 
+const ON_DEATH = require('death')({ uncaughtException: true });
+
 program.version('1.0.0')
     .option('-d, --directory [dir]', 'The directory which houses the tests.')
     .option('-s, --stress', 'A signal to run stress tests')
@@ -21,6 +23,7 @@ let directory = program['directory'];
 let regex = program['regex'] && new RegExp(program['regex']);
 let isStress = program['stress'];
 let restore = program['restore'];
+let suiteManager: SuiteManager;
 
 if (restore) {
     Bootstrap.boot()
@@ -36,7 +39,7 @@ if (restore) {
     } else {
         Bootstrap.boot()
             .then(() => {
-                let suiteManager = new SuiteManager(directory, !!isStress, regex);
+                suiteManager = new SuiteManager(directory, !!isStress, regex);
                 return suiteManager.runSuite();
             })
             .then(() => {
@@ -47,3 +50,10 @@ if (restore) {
             });
     }
 }
+
+ON_DEATH((signal, err) => {
+    if (suiteManager) {
+        suiteManager.stopTesting();
+    }
+    Bootstrap.crash();
+});
