@@ -213,6 +213,56 @@ class SettledDealManager {
     }
 
     /**
+     * Get proposalID specific deals from proposal id and user id
+     * @param userID - The user id of one of the deal's parties
+     * @param proposalID - The id of the proposal whose deals are needed
+     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
+     * is more data left to get or not.
+     * @returns A list of settled deal objects.
+     */
+    public async fetchSettledDealsFromUserProposalIds(userID: number, proposalID: number, pagination: PaginationModel) {
+
+        let offset = pagination.getOffset();
+
+        let rows = await this.databaseManager.select('publisherID', 'buyerID')
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                                   'ixmNegotiationDealMappings.negotiationID')
+                                             .join('rtbDeals', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
+                                             .whereNot('rtbDeals.status', 'D')
+                                             .andWhere('proposalID', proposalID)
+                                             .andWhere(function() {
+                                                 this.where('ixmDealNegotiations.buyerID', userID)
+                                                     .orWhere('ixmDealNegotiations.publisherID', userID);
+                                             })
+                                             .limit(pagination.limit + 1)
+                                             .offset(offset);
+
+        // Check that there is more data to retrieve to appropriately set the next page URL
+        if (rows.length <= pagination.limit) {
+            pagination.nextPageURL = '';
+        } else {
+            rows.pop();
+        }
+
+        // Fetch the negotiations
+        let settledDealArray: SettledDealModel[] = [];
+
+        await Promise.all(rows.map(async (row) => {
+            let settledDeal = await this.fetchSettledDealFromIds(proposalID, row.buyerID, row.publisherID);
+
+            if (settledDeal) {
+                settledDealArray.push(settledDeal);
+            }
+        }));
+
+        settledDealArray.sort((a, b) => a.id - b.id);
+
+        return settledDealArray;
+
+    }
+
+    /**
      * Create a settled deal model from a negotiation.
      * @param negotiatedDeal - The negotiated deal model.
      * @param dspID - The dspID to associate to the settled deal.

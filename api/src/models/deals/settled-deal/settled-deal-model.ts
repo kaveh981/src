@@ -65,6 +65,13 @@ class SettledDealModel {
     }
 
     /**
+     * Returns true if deal is deleted.
+     */
+    public isDeleted() {
+        return this.status === 'deleted';
+    }
+
+    /**
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */

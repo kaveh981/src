@@ -53,6 +53,7 @@ en-US:
     404_PARTNER_NOT_FOUND: Partner not found.
     404_NEGOTIATION_NOT_FOUND: Negotiation not found.
     404_SECTION_NOT_FOUND: Deal section not found.
+    404_DEAL_NOT_FOUND: Deal not found.
 
     # 500 Status Code Messages
     500: Internal server error.

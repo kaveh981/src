@@ -79,8 +79,7 @@ class ProposedDealModel {
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: UserModel) {
-        return this.isActive() && !this.isExpired() && user.userType !== this.ownerInfo.userType &&
-               !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1);
+        return this.isActive() && !this.isExpired() && user.userType !== this.ownerInfo.userType && this.targetsUser(user);
     }
 
     /**
@@ -91,8 +90,7 @@ class ProposedDealModel {
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: UserModel) {
-        return (this.isActive() && !this.isExpired() && !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1)) ||
-                this.ownerID === user.id && this.status !== 'deleted';
+        return (this.isActive() && !this.isExpired() && this.targetsUser(user)) || this.ownerID === user.id && !this.isDeleted();
     }
 
     /**
@@ -100,6 +98,13 @@ class ProposedDealModel {
      */
     public isDeleted() {
         return this.status === 'deleted';
+    }
+
+    /**
+     * Returns true if the proposal targets the user
+     */
+    public targetsUser(user: UserModel) {
+        return !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1);
     }
 
     /**

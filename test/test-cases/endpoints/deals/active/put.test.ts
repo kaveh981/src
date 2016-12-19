@@ -516,7 +516,7 @@ export async function IXM_API_DEALS_PUT_17(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 404);
 }
 
 /*
@@ -545,7 +545,7 @@ export async function IXM_API_DEALS_PUT_18(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, publisher.user);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 404);
 
 }
 
