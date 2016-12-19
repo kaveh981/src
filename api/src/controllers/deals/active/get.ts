@@ -1,12 +1,14 @@
 'use strict';
 
 import * as express from 'express';
+import * as request from 'request-promise-native';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
+import { ConfigLoader } from '../../../lib/config-loader';
 
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
@@ -19,6 +21,9 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const userManager = Injector.request<UserManager>('UserManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
+const config = Injector.request<ConfigLoader>('ConfigLoader');
+
+const authConfig = config.get('auth');
 
 const Log: Logger = new Logger('ROUT');
 
@@ -52,6 +57,34 @@ function ActiveDeals(router: express.Router): void {
         Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
 
         res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
+
+    } catch (error) { next(error); } });
+
+    /**
+     * GET request to get all active and paused deals.
+     */
+    router.get('/legacy', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+
+        Log.trace(`Get deals request received, retrieve from Index Exchange API`, req.id);
+
+        let accessToken = req.get(authConfig['tokenHeader']);
+
+        let options = {
+            url: `https://api01.indexexchange.com/api/publishers/deals?userID=${req.ixmUserInfo.id}`,
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            },
+            json: true,
+            rejectUnauthorized: false
+        };
+
+        let response = await request(options).catch((err) => {
+            if (err.name === 'StatusCodeError') {
+                return err.error;
+            }
+        });
+
+        res.status(response.responseCode).send(response);
 
     } catch (error) { next(error); } });
 

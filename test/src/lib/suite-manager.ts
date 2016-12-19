@@ -23,6 +23,7 @@ class SuiteManager {
     private stressTestsPath: string;
     private regex: RegExp;
     private testCases: TestManager[];
+    private shuttingDown: boolean = false;
 
     /**
      * Instance constructor. Assigns params and loads test cases
@@ -86,7 +87,12 @@ class SuiteManager {
      * Runs all test cases loaded by calling runTest() on each of the testCases
      */
     public async runSuite() {
+
         for (let i = 0; i < this.testCases.length; i += 1) {
+            if (this.shuttingDown) {
+                break;
+            }
+
             let testCase = this.testCases[i];
 
             try {
@@ -95,6 +101,11 @@ class SuiteManager {
                 Log.error(error);
             }
         }
+
+    }
+
+    public stopTesting() {
+        this.shuttingDown = true;
     }
 
 }

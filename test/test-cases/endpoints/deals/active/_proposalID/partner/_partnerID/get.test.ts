@@ -39,7 +39,7 @@ async function commonDatabaseSetup (publisher: INewPubData) {
     await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
                                                                negotiation.negotiationID);
 
-    let setupResponse = { userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
+    let setupResponse = { userID: buyer.user.userID, user: buyer.user, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
     return setupResponse;
 
 }
@@ -97,7 +97,7 @@ export async function ATW_API_GET_DAPP_FUNC_01 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user) ]);
@@ -128,7 +128,7 @@ export async function ATW_API_GET_DAPP_FUNC_02 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -157,7 +157,7 @@ export async function ATW_API_GET_DAPP_FUNC_03 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -185,7 +185,7 @@ export async function ATW_API_GET_DAPP_FUNC_04 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -213,7 +213,7 @@ export async function ATW_API_GET_DAPP_FUNC_05 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID + 1, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -244,12 +244,12 @@ export async function ATW_API_GET_DAPP_FUNC_06 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user) ]);
 
-    let response2 = await apiRequest.get(route, {}, buyer2.user.userID);
+    let response2 = await apiRequest.get(route, {}, buyer2.user);
 
     assert.equal(response2.status, 404);
 
@@ -280,12 +280,12 @@ export async function ATW_API_GET_DAPP_FUNC_07 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user) ]);
 
-    let response2 = await apiRequest.get(route, {}, buyer2.user.userID);
+    let response2 = await apiRequest.get(route, {}, buyer2.user);
 
     assert.equal(response2.status, 404);
 
@@ -315,7 +315,7 @@ export async function ATW_API_GET_DAPP_FUNC_08 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID + 1);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 404);
 
@@ -345,7 +345,7 @@ export async function ATW_API_GET_DAPP_FUNC_09 (assert: test.Test) {
     let route = buildPath(proposal.proposal.proposalID, publisher.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(route, {}, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 403);
 
