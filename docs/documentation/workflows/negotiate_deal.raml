@@ -14,8 +14,8 @@
 
             ```
             $ curl -X GET \
-                -H 'X-Auth-ID: 1234' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 1234' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 https://market.indexexchange.com/api/v1/deals/proposals
             ```
 
@@ -97,8 +97,8 @@
 
             ```
             $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 1234' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 123, "price": 1.49", "end_date": "2017-02-10", "terms": "Pending approval from the boss. How is your mother doing, by the way?" }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```
@@ -177,8 +177,8 @@
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 123' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 123' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "response": "accept" }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```
@@ -191,8 +191,8 @@
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 123' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 123' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "response": "reject" }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```
@@ -207,8 +207,8 @@
 
             ```
             $ curl -X PUT \
-                -H 'X-Auth-ID: 123' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 123' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 1234, "price": 1.59", "end_date": "2017-12-10", "terms": "Like the extension, but floor too low, happy to reduce length to compensate. Understand re: approval. She's doing well, thanks." }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```

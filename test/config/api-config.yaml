@@ -1,2 +1,17 @@
-# API Authentication Header
-authentication-header: X-IXM-UserId
+# --- API ---
+
+# API Access Token Header
+token-header: IXM-AccessToken
+
+# API User ID Header
+user-header: IXM-UserId
+
+# --- AUTH ---
+
+# Auth host
+auth-domain: https://auth.indexexchange.com/
+
+# Password Hashing and Salting
+salt-bytes: 9
+hash-bytes: 48
+iterations: 35000

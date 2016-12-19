@@ -6,7 +6,10 @@ allowedUserTypes:
     - IXMP
 
 # The header which contains the access token
-header: X-IXM-UserId
+tokenHeader: IXM-AccessToken
+
+# The header containig the user id
+userHeader: IXM-UserID
 
 # A switch for allowing public use of API
 public: true

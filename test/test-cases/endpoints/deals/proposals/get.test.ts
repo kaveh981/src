@@ -97,7 +97,7 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
     /** Test */
-    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
@@ -124,7 +124,7 @@ export async function IXM_API_DEALS_GET_02 (assert: test.Test) {
     await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, buyer.user.userID);
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'], []);
@@ -151,7 +151,117 @@ export async function IXM_API_DEALS_GET_03 (assert: test.Test) {
     await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
-    let response = await apiRequest.get(route, { limit: 3, offset: 0 }, publisher.user.userID);
+    let response = await apiRequest.get(route, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
+
+ /*
+ * @case    - Buyer sends a request to see a proposal with no end date.
+ * @expect  - Proposal should be returned.
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, deals
+ */
+export async function IXM_API_DEALS_GET_04 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { endDate: '0000-00-00' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, publisher.user) ]);
+
+}
+
+ /*
+  * @case    - Buyer sends a request to see a proposal with no start date.
+  * @expect  - Proposal should be returned.
+  * @route   - GET deals/proposals
+  * @status  - working
+  * @tags    - get, deals
+  */
+export async function IXM_API_DEALS_GET_05 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { startDate: '0000-00-00' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, publisher.user) ]);
+
+}
+
+ /*
+  * @case    - Buyer sends a request to see a proposal that has expired.
+  * @expect  - No proposal should be returned.
+  * @route   - GET deals/proposals
+  * @status  - working
+  * @tags    - get, deals
+  */
+export async function IXM_API_DEALS_GET_06 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+                                                          { startDate: '0000-00-00', endDate: '1960-03-03' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
+
+ /*
+  * @case    - Buyer sends a request to see a proposal that has invalid dates.
+  * @expect  - No proposal should be returned.
+  * @route   - GET deals/proposals
+  * @status  - working
+  * @tags    - get, deals
+  */
+export async function IXM_API_DEALS_GET_07 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+                                                          { startDate: '2008-04-05', endDate: '1960-03-03' });
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body['data'], []);

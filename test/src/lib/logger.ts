@@ -141,7 +141,7 @@ class Logger {
      * @param message - The JSON message to display, and write to configured files.
      */
     private outputLog(message: IMessage): void {
-        if (message.LEVEL >= loggerConfig['consoleLevel'] && !loggerConfig['consoleFilter'].includes(message.ORIGIN)) {
+        if (message.LEVEL >= loggerConfig['consoleLevel'] && loggerConfig['consoleFilter'].indexOf(message.ORIGIN) === -1) {
             let msg = `(${this.name}) [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
             let color = loggerConfig['levelMetadata'][message.LEVEL].color;
 

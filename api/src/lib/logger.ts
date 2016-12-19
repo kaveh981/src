@@ -147,28 +147,8 @@ class Logger {
      */
     private outputLog(message: IMessage): void {
 
-        let consoleLevel = loggerConfig['consoleLevel'];
-        let filewriteLevel =  loggerConfig['filewriteLevel'];
-
-        for (let key in loggerConfig['sourceOverrides']) {
-            if (message.ORIGIN.match(key)) {
-                let consoleOverride = loggerConfig['sourceOverrides'][key]['consoleLevel'];
-                let filewriteOverride = loggerConfig['sourceOverrides'][key]['filewriteLevel'];
-
-                if (typeof consoleOverride === 'number') {
-                    consoleLevel = consoleOverride;
-                }
-
-                if (typeof filewriteOverride === 'number') {
-                    filewriteLevel = filewriteOverride;
-                }
-
-                break;
-            }
-        }
-
-        let displayMessage = message.LEVEL >= consoleLevel;
-        let writeMessage = message.LEVEL >= filewriteLevel;
+        let displayMessage = message.LEVEL >= this.getConsoleLevel(message.ORIGIN);
+        let writeMessage = message.LEVEL >= this.getFilewriteLevel(message.ORIGIN);
 
         if (displayMessage) {
             let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
@@ -198,11 +178,70 @@ class Logger {
             DATE: date.toISOString(),
             LEVEL: logLevel,
             LOG_LEVEL: loggerConfig['levelMetadata'][logLevel].name,
-            LABEL: 'IXM BUYER API',
+            LABEL: loggerConfig['label'],
             ORIGIN: origin,
             MESSAGE: message
         };
 
+    }
+
+    /**
+     * Get the filewrite level corresponding to the given origin.
+     * @origin - The 4 letter word indicating the origin.
+     * @returns A number which corresponds to the filewrite level of that origin, including overrides.
+     */
+    public getFilewriteLevel(origin: string) {
+
+        let filewriteLevel = loggerConfig['filewriteLevel'];
+
+        for (let key in loggerConfig['sourceOverrides']) {
+            if (origin.match(key)) {
+                let filewriteOverride = loggerConfig['sourceOverrides'][key]['filewriteLevel'];
+
+                if (typeof filewriteOverride === 'number') {
+                    filewriteLevel = filewriteOverride;
+                }
+
+                break;
+            }
+        }
+
+        return filewriteLevel;
+
+    }
+
+    /**
+     * Get the console level corresponding to the given origin.
+     * @origin - The 4 letter word indicating the origin.
+     * @returns A number which corresponds to the console level of that origin, including overrides.
+     */
+    public getConsoleLevel(origin: string) {
+
+        let consoleLevel = loggerConfig['consoleLevel'];
+
+        for (let key in loggerConfig['sourceOverrides']) {
+            if (origin.match(key)) {
+                let consoleOverride = loggerConfig['sourceOverrides'][key]['consoleLevel'];
+
+                if (typeof consoleOverride === 'number') {
+                    consoleLevel = consoleOverride;
+                }
+
+                break;
+            }
+        }
+
+        return consoleLevel;
+
+    }
+
+    /**
+     * Meaningful function for humans to print javascript objects
+     * @param obj - The object to stringify.
+     * @returns A string consisting of the obj properly indented.
+     */
+    public stringify(obj: any) {
+        return JSON.stringify(obj, null, 4);
     }
 
     /**
@@ -223,15 +262,6 @@ class Logger {
             return fs.createWriteStream(logFile, { flags: 'a' });
         });
 
-    }
-
-    /**
-     * Meaningful function for humans to print javascript objects
-     * @param obj - The object to stringify.
-     * @returns A string consisting of the obj properly indented.
-     */
-    public stringify(obj: any) {
-        return JSON.stringify(obj, null, 4);
     }
 
 };

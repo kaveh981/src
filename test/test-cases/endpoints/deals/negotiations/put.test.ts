@@ -74,7 +74,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
     };
 
     /** Test */
-    let responseNoOptional = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNoOptional = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNoOptional.status, 400);
 }
@@ -103,7 +103,7 @@ export async function ATW_API_NEGOTIATION_GENERAL_02 (assert: test.Test) {
     };
 
     /** Test */
-    let responseInvalidCombination = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseInvalidCombination = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseInvalidCombination.status, 400);
 }
@@ -135,7 +135,7 @@ export async function ATW_API_NEGOTIATION_PROPOSALID_01 (assert: test.Test) {
     };
 
     /** Test */
-    let responseNoOptional = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNoOptional = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNoOptional.status, 400);
 }
@@ -168,16 +168,16 @@ export async function ATW_API_COMMON_PROPOSALID (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { proposal_id: 'goose' });
-    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { proposal_id: 0 });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { proposal_id: 16777216 });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { proposal_id: '123' });
-    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -185,10 +185,10 @@ export async function ATW_API_COMMON_PROPOSALID (assert: test.Test) {
     assert.equal(responseStringInt.status, 400);
 
     Object.assign(negotiation, { proposal_id: 1 });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { proposal_id: 16777215 });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -224,16 +224,16 @@ export async function ATW_API_NEGOTIATION_PARTNERID (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { partner_id: 'goose' });
-    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { partner_id: 0 });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { partner_id: 16777216 });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { partner_id: '123' });
-    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -241,10 +241,10 @@ export async function ATW_API_NEGOTIATION_PARTNERID (assert: test.Test) {
     assert.equal(responseStringInt.status, 400);
 
     Object.assign(negotiation, { partner_id: 1 });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { partner_id: 16777215 });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -280,16 +280,16 @@ export async function ATW_API_NEGOTIATION_PRICE (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { price: 'goose' });
-    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { price: 0 });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { price: 655.36 });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { price: '123' });
-    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -297,10 +297,10 @@ export async function ATW_API_NEGOTIATION_PRICE (assert: test.Test) {
     assert.equal(responseStringInt.status, 400);
 
     Object.assign(negotiation, { price: 0.01 });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { price: 655.35 });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -313,7 +313,7 @@ export async function ATW_API_NEGOTIATION_PRICE (assert: test.Test) {
         price: 123
     };
 
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -347,16 +347,16 @@ export async function ATW_API_NEGOTIATION_IMPRESSIONS (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { impressions: 'goose' });
-    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { impressions: 0 });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { impressions: 16777216 });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { impressions: '123' });
-    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -364,9 +364,9 @@ export async function ATW_API_NEGOTIATION_IMPRESSIONS (assert: test.Test) {
     assert.equal(responseStringInt.status, 400);
 
     Object.assign(negotiation, { impressions: 1 });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
     Object.assign(negotiation, { impressions: 16777215 });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -379,7 +379,7 @@ export async function ATW_API_NEGOTIATION_IMPRESSIONS (assert: test.Test) {
         impressions: 123
     };
 
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -413,16 +413,16 @@ export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { budget: 'goose' });
-    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonInt = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { budget: 0 });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { budget: 16777216 });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { budget: '123' });
-    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseStringInt = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonInt.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -430,9 +430,9 @@ export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
     assert.equal(responseStringInt.status, 400);
 
     Object.assign(negotiation, { budget: 1 });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
     Object.assign(negotiation, { budget: 16777215 });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -445,7 +445,7 @@ export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
         budget: 123
     };
 
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -479,23 +479,23 @@ export async function ATW_API_NEGOTIATION_TERMS (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { terms: 123 });
-    let responseNonString = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonString = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { terms: ('a'.repeat(65536)) });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { terms: '' });
-    let responseEmptyString = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseEmptyString = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonString.status, 400);
     assert.equal(responseMaxMore.status, 400);
     assert.equal(responseEmptyString.status, 400);
 
     Object.assign(negotiation, { terms: 'K' });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { terms: ('a'.repeat(65535)) });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -508,7 +508,7 @@ export async function ATW_API_NEGOTIATION_TERMS (assert: test.Test) {
         terms: 'I want goose'
     };
 
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -537,7 +537,7 @@ export async function ATW_API_NEGOTIATION_STARTDATE (assert: test.Test) {
     };
 
     /** Test */
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -571,19 +571,19 @@ export async function ATW_API_COMMON_STARTDATE (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { start_date: '0000-00-00' });
-    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { start_date: '999-12-31' });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { start_date: '10000-01-01' });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { start_date: '10-31-2016' });
-    let responseWrongFormat = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseWrongFormat = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { start_date: 'goose' });
-    let responseNonDate = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonDate = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseZeroDate.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -592,10 +592,10 @@ export async function ATW_API_COMMON_STARTDATE (assert: test.Test) {
     assert.equal(responseNonDate.status, 400);
 
     Object.assign(negotiation, { start_date: '1000-01-01' });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { start_date: '9999-12-31' });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -626,7 +626,7 @@ export async function ATW_API_NEGOTIATION_ENDDATE (assert: test.Test) {
     };
 
     /** Test */
-    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user.userID);
+    let responseOptional = await apiRequest.put(route, optionalNegotiation, buyer.user);
 
     assert.notEqual(responseOptional.status, 400);
     assert.notEqual(responseOptional.status, 500);
@@ -660,19 +660,19 @@ export async function ATW_API_COMMON_ENDDATE (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { end_date: '0000-00-00' });
-    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { end_date: '999-12-31' });
-    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { end_date: '10000-01-01' });
-    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMaxMore = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { end_date: '10-31-2016' });
-    let responseWrongFormat = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseWrongFormat = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { end_date: 'goose' });
-    let responseNonDate = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonDate = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseZeroDate.status, 400);
     assert.equal(responseMinLess.status, 400);
@@ -681,10 +681,10 @@ export async function ATW_API_COMMON_ENDDATE (assert: test.Test) {
     assert.equal(responseNonDate.status, 400);
 
     Object.assign(negotiation, { end_date: '1000-01-01' });
-    let responseMin = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMin = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { end_date: '9999-12-31' });
-    let responseMax = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseMax = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseMin.status, 400);
     assert.notEqual(responseMin.status, 500);
@@ -715,23 +715,23 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
 
     /** Test */
     Object.assign(negotiation, { response: 123 });
-    let responseNonString = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonString = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { response: '' });
-    let responseEmptyString = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseEmptyString = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { response: 'goose' });
-    let responseNonOption = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseNonOption = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.equal(responseNonString.status, 400);
     assert.equal(responseEmptyString.status, 400);
     assert.equal(responseNonOption.status, 400);
 
     Object.assign(negotiation, { response: 'AcCePt' });
-    let responseAccept = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseAccept = await apiRequest.put(route, negotiation, buyer.user);
 
     Object.assign(negotiation, { response: 'rEjEcT' });
-    let responseReject = await apiRequest.put(route, negotiation, buyer.user.userID);
+    let responseReject = await apiRequest.put(route, negotiation, buyer.user);
 
     assert.notEqual(responseAccept.status, 400);
     assert.notEqual(responseAccept.status, 500);
@@ -762,7 +762,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_01_01(assert: test.Test) {
             partner_id: publisher.user.userID,
             terms: 'Are you a goose'
     };
-    let response = await apiRequest.put(route, requestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, requestBody, publisher.user);
 
     assert.equal(response.status, 403);
 }
@@ -792,7 +792,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_01_02(assert: test.Test) {
             partner_id: buyer.user.userID,
             terms: 'Are you a goose'
     };
-    let response = await apiRequest.put(route, requestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, requestBody, publisher.user);
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'Are you a goose');
@@ -821,7 +821,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     /** Test */
     let pubRequestBody = {
@@ -829,7 +829,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_01(assert: test.Test) {
             partner_id: buyer.user.userID,
             terms: 'no you are a duck'
     };
-    let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
@@ -859,14 +859,14 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_02(assert: test.Test) {
         partner_id: buyer.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     let pubRequestBody1 = {
             proposal_id: proposalObj.proposal.proposalID,
             partner_id: buyer.user.userID,
             terms: 'no you are a duck'
     };
-    await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody1, publisher.user);
 
     /** Test */
     let pubRequestBody2 = {
@@ -874,7 +874,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_02(assert: test.Test) {
             partner_id: buyer.user.userID,
             terms: 'ok maybe you are a goose'
     };
-    let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
 
     assert.equal(response.status, 403);
 }
@@ -905,7 +905,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_03_ (assert: test.Test) {
             partner_id: publisher.user.userID,
             terms: 'hello other pub'
     };
-    let response = await apiRequest.put(route, pubRequestBody, annoyingPublisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody, annoyingPublisher.user);
 
     assert.equal(response.status, 403);
 
@@ -937,14 +937,14 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_04(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     let pubRequestBody = {
             proposal_id: proposalObj.proposal.proposalID,
             partner_id: innocentBuyer.user.userID,
             terms: 'i have no idea what I am doing'
     };
-    let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -975,7 +975,7 @@ export async function ATW_API_NEGOTIATION_BUYER_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, requestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, requestBody, buyer.user);
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'i am a goose');
@@ -1006,13 +1006,13 @@ export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
     let pubRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         terms: 'no you are a duck'
     };
-    await apiRequest.put(route, pubRequestBody, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody, publisher.user);
 
     /** Test */
     let buyerRequestBody2 = {
@@ -1020,7 +1020,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'honk honk honk'
     };
-    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
@@ -1050,7 +1050,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     /** Test */
     let buyerRequestBody2 = {
@@ -1058,7 +1058,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'honk honk honk'
     };
-    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     assert.equal(response.status, 403);
 
@@ -1090,7 +1090,7 @@ export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a montreal goose'
     };
-    let buyerOneResponse = await apiRequest.put(route, buyerOneRequest, buyer1.user.userID);
+    let buyerOneResponse = await apiRequest.put(route, buyerOneRequest, buyer1.user);
 
     /** Test */
     let buyerTwoRequest = {
@@ -1098,7 +1098,7 @@ export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a toronto goose'
     };
-    let buyerTwoResponse = await apiRequest.put(route, buyerTwoRequest, buyer2.user.userID);
+    let buyerTwoResponse = await apiRequest.put(route, buyerTwoRequest, buyer2.user);
 
     assert.equal(buyerTwoResponse.status, 200);
     assert.equal(buyerOneResponse.body.data[0].terms, 'i am a montreal goose');
@@ -1130,14 +1130,14 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     let publisherRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         response: 'reject'
     };
-    await apiRequest.put(route, publisherRequestBody, publisher.user.userID);
+    await apiRequest.put(route, publisherRequestBody, publisher.user);
 
     /** Test */
     let buyerRequestBody2 = {
@@ -1145,7 +1145,7 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'honk honk honk'
     };
-    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
@@ -1179,21 +1179,21 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     let pubRequestBody1 = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         terms: 'no you are a duck'
     };
-    await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody1, publisher.user);
 
     let buyerRequestBody2 = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: publisher.user.userID,
         response: 'reject'
     };
-    await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     /** Test */
     let pubRequestBody2 = {
@@ -1201,7 +1201,7 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
         partner_id: buyer.user.userID,
         terms: 'ok maybe you are a goose'
     };
-    let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
 
     let actualPubStatus = await getPubStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
     let actualBuyerStatus = await getBuyerStatus(proposalObj.proposal.proposalID, publisher.user.userID, buyer.user.userID);
@@ -1235,14 +1235,14 @@ export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     let pubRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         response: 'accept'
     };
-    await apiRequest.put(route, pubRequestBody, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody, publisher.user);
 
     /** Test */
     let buyerRequestBody2 = {
@@ -1250,7 +1250,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'honk honk honk'
     };
-    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     assert.equal(response.status, 403);
 }
@@ -1278,14 +1278,14 @@ export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
         proposal_id: proposalObj.proposal.proposalID,
         terms: 'i am a goose'
     };
-    await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     let pubRequestBody1 = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         response: 'accept'
     };
-    await apiRequest.put(route, pubRequestBody1, publisher.user.userID);
+    await apiRequest.put(route, pubRequestBody1, publisher.user);
 
     /** Test */
     let pubRequestBody2 = {
@@ -1293,7 +1293,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
         partner_id: buyer.user.userID,
         terms: 'no you are a duck'
     };
-    let response = await apiRequest.put(route, pubRequestBody2, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
 
     assert.equal(response.status, 403);
 }
@@ -1323,7 +1323,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         response: 'reject'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 403);
 }
@@ -1353,7 +1353,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
         partner_id: buyer.user.userID,
         response: 'reject'
     };
-    let response = await apiRequest.put(route, pubRequestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
 
     assert.equal(response.status, 403);
 }
@@ -1381,7 +1381,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 404);
 }
@@ -1409,7 +1409,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 400);
 }
@@ -1435,7 +1435,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 400);
 }
@@ -1465,7 +1465,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 404);
 }
@@ -1495,7 +1495,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 404);
 }
@@ -1525,7 +1525,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 404);
 }
@@ -1554,7 +1554,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     // Test
     let buyerRequestBody2 = {
@@ -1562,8 +1562,8 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
         partner_id: publisher.user.userID,
         response: 'reject'
     };
-    let response2 = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
-    let response3 = await apiRequest.put(route, buyerRequestBody2, buyer.user.userID);
+    let response2 = await apiRequest.put(route, buyerRequestBody2, buyer.user);
+    let response3 = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
     assert.equal(response1.status, 200);
     assert.equal(response2.status, 200);
@@ -1595,14 +1595,14 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
         partner_id: publisher.user.userID,
         terms: 'i am a goose'
     };
-    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user.userID);
+    let response1 = await apiRequest.put(route, buyerRequestBody1, buyer.user);
 
     let publisherRequestBody1 = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: buyer.user.userID,
         terms: 'i am a goober'
     };
-    let response2 = await apiRequest.put(route, publisherRequestBody1, publisher.user.userID);
+    let response2 = await apiRequest.put(route, publisherRequestBody1, publisher.user);
 
     // Test
     let publisherRequestBody2 = {
@@ -1610,8 +1610,8 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
         partner_id: buyer.user.userID,
         response: 'reject'
     };
-    let response3 = await apiRequest.put(route, publisherRequestBody2, publisher.user.userID);
-    let response4 = await apiRequest.put(route, publisherRequestBody2, publisher.user.userID);
+    let response3 = await apiRequest.put(route, publisherRequestBody2, publisher.user);
+    let response4 = await apiRequest.put(route, publisherRequestBody2, publisher.user);
 
     assert.equal(response1.status, 200);
     assert.equal(response2.status, 200);
@@ -1646,7 +1646,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
          terms: 'i am a goose'
      };
 
-     let response = await apiRequest.put(route, requestBody, buyer.user.userID);
+     let response = await apiRequest.put(route, requestBody, buyer.user);
 
      assert.equal(response.status, 403);
 
@@ -1676,7 +1676,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
          terms: 'i am a goose'
      };
 
-     let response = await apiRequest.put(route, requestBody, publisher.user.userID);
+     let response = await apiRequest.put(route, requestBody, publisher.user);
 
      assert.equal(response.status, 403);
 
@@ -1711,7 +1711,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_01(assert: test.Test) {
         terms: 'i am a goose'
     };
 
-    let response = await apiRequest.put(route, buyer1RequestBody, buyer1.user.userID);
+    let response = await apiRequest.put(route, buyer1RequestBody, buyer1.user);
 
     assert.equal(response.status, 404);
     assert.deepEqual(response.body.data, []);
@@ -1747,7 +1747,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_02(assert: test.Test) {
         terms: 'i am a goose'
     };
 
-    let response = await apiRequest.put(route, publisher1RequestBody, publisher1.user.userID);
+    let response = await apiRequest.put(route, publisher1RequestBody, publisher1.user);
 
     assert.equal(response.status, 404);
     assert.deepEqual(response.body.data, []);
@@ -1781,7 +1781,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_03(assert: test.Test) {
         terms: 'i am a goose'
     };
 
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user.userID);
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
 
     assert.equal(response.status, 200);
 
@@ -1815,7 +1815,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_04(assert: test.Test) {
         terms: 'i am a goose'
     };
 
-    let response = await apiRequest.put(route, publisherRequestBody, publisher.user.userID);
+    let response = await apiRequest.put(route, publisherRequestBody, publisher.user);
 
     assert.equal(response.status, 200);
 

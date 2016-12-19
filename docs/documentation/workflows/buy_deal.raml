@@ -12,8 +12,8 @@
 
             ```
             $ curl -X GET \
-                -H 'X-Auth-ID: 1234' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 1234' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 https://market.indexexchange.com/api/v1/deals/proposals
             ```
 
@@ -97,8 +97,8 @@
 
             ```
             $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 1234' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -H 'Content-Type: application/json' \
                 -d '{ "proposalID": 888 }' \
                 https://market.indexexchange.com/api/v1/deals/active

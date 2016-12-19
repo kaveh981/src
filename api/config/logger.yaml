@@ -1,5 +1,8 @@
 # Logger Configuration
 
+# Label for the logger
+label: IXM API
+
 # Default level of messages to write to stdout.
 consoleLevel: 0
 

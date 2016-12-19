@@ -2,6 +2,7 @@
 
 /** node_modules */
 import * as faker   from 'faker/locale/es_MX';
+import * as crypto from 'crypto';
 const jsf = require('json-schema-faker');
 
 /** Lib */
@@ -48,7 +49,24 @@ class DatabasePopulator {
             Object.assign(newUserData, userFields);
         }
 
-        let newUserIds = await this.dbm.insert(newUserData, [ 'userID', 'modifyDate' ]).into('users');
+        // Hash the password for SH Auth.
+
+        let hashConfig = this.config.get('api-config');
+        let hashedPassword: string;
+
+        await new Promise((resolve, reject) => {
+            crypto.randomBytes(hashConfig['salt-bytes'], (err, salt) => {
+                let saltString = salt.toString('base64');
+                let hash = crypto.pbkdf2Sync(newUserData.password, saltString, hashConfig['iterations'], hashConfig['hash-bytes'], 'sha1');
+                hashedPassword = hash.toString('base64') + saltString;
+                resolve();
+            });
+        });
+
+        let newUserDataCopy = Object.assign({}, newUserData);
+        newUserDataCopy.password = hashedPassword;
+
+        let newUserIds = await this.dbm.insert(newUserDataCopy, [ 'userID' ]).into('users');
         newUserData.userID = newUserIds[0];
 
         let modifyDate = await this.dbm.select('modifyDate').from('users').where('userID', newUserData.userID);
@@ -320,8 +338,14 @@ class DatabasePopulator {
 
         newProposal.proposal.ownerID = ownerID;
         newProposal.proposal.createDate = this.currentMidnightDate();
-        newProposal.proposal.startDate.setHours(0, 0, 0, 0);
-        newProposal.proposal.endDate.setHours(0, 0, 0, 0);
+
+        if (typeof newProposal.proposal.startDate !== 'string') {
+            newProposal.proposal.startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (typeof newProposal.proposal.endDate !== 'string') {
+            newProposal.proposal.endDate.setHours(0, 0, 0, 0);
+        }
 
         let proposalID = await this.dbm.insert(newProposal.proposal, 'proposalID').into('ixmDealProposals');
         Log.debug(`Created proposal ID: ${proposalID[0]}`);
