@@ -27,6 +27,7 @@
     "raml-1-parser": "1.1.3",
     "raml-definition-system": "0.0.48",
     "raml2obj": "git://github.com/raml2html/raml2obj.git#4.0.0-beta6",
+    "request-promise-native": "1.0.3",
     "shortstop": "1.0.3",
     "shortstop-handlers": "1.0.1",
     "tape": "4.6.0",
