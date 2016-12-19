@@ -14,9 +14,6 @@ const Log: Logger = new Logger("DBMA");
  */
 export class DatabaseManager {
 
-    /** The internal db client pool, no actual type for this */
-    private clientPool: any;
-
     /** Internal config loader */
     private config: ConfigLoader;
 
@@ -56,7 +53,6 @@ export class DatabaseManager {
                     Log.info(`Database connection established successfully.`);
 
                     Object.assign(this, queryBuilder);
-                    this.clientPool = queryBuilder.client;
 
                     // Log all queries
                     queryBuilder.on('query', (query) => {
@@ -88,9 +84,9 @@ export class DatabaseManager {
 
         Log.info('Shutting down the DatabaseManager...');
 
-        if (this.clientPool) {
+        if (this.client) {
             Log.debug('Destroying client pool...');
-            this.clientPool.destroy();
+            this.client.destroy();
         }
 
         Log.info('DatabaseManager has been shutdown.');

@@ -90,10 +90,9 @@ class SuiteManager {
             let testCase = this.testCases[i];
 
             try {
-                await testCase.runTest().catch((e) => { throw e; });
+                await testCase.runTest();
             } catch (error) {
                 Log.error(error);
-                break;
             }
         }
     }

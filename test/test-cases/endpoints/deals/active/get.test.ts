@@ -125,7 +125,7 @@ export async function ATW_API_GET_DEAACT_FUNC_01 (assert: test.Test) {
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID, buyer.user.userID);
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -155,7 +155,7 @@ export async function ATW_API_GET_DEAACT_FUNC_02 (assert: test.Test) {
     );
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -194,7 +194,7 @@ export async function ATW_API_GET_DEAACT_FUNC_03 (assert: test.Test) {
         });
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
     assert.equal(response.status, 200);
@@ -237,7 +237,7 @@ export async function ATW_API_GET_DEAACT_FUNC_04 (assert: test.Test) {
         });
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -273,7 +273,7 @@ export async function ATW_API_GET_DEAACT_FUNC_05 (assert: test.Test) {
     proposal.sectionIDs = [ section1.section.sectionID ];
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
     assert.equal(response.status, 200);
@@ -306,7 +306,7 @@ export async function ATW_API_GET_DEAACT_FUNC_06 (assert: test.Test) {
     );
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -338,7 +338,7 @@ export async function ATW_API_GET_DEAACT_FUNC_07 (assert: test.Test) {
         publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID);
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
     assert.equal(response.status, 200);
@@ -371,7 +371,7 @@ export async function ATW_API_GET_DEAACT_FUNC_08 (assert: test.Test) {
         publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID);
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -400,7 +400,7 @@ export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
     await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID);
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -431,7 +431,7 @@ export async function ATW_API_GET_DEAACT_FUNC_10 (assert: test.Test) {
     );
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
 
     assert.equal(response.status, 200);
@@ -463,7 +463,7 @@ export async function ATW_API_GET_DEAACT_FUNC_11 (assert: test.Test) {
         publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID, { status: 'P' });
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -492,7 +492,7 @@ export async function ATW_API_GET_DEAACT_FUNC_12 (assert: test.Test) {
     await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID, { status: 'D' });
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
@@ -523,7 +523,7 @@ export async function ATW_API_GET_DEAACT_FUNC_13(assert: test.Test) {
         publisher.publisher.userID, [ section.section.sectionID ], negotiation.negotiationID);
 
     /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user.userID);
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);

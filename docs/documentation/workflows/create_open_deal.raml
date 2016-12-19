@@ -19,8 +19,8 @@
 
             ```
             $ curl -X PUT \
-                -H 'X-Auth-ID: 123' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 123' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{
                         "inventory": [4321, 9876],
                         "name": "Superfab Ultradeal",
@@ -55,8 +55,8 @@
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 1234' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 1234' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888 }' \
                 https://market.indexexchange.com/api/v1/deals/active
             ```
@@ -65,8 +65,8 @@
             
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 456' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 456' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, "partner_id": 123, "price": "2.99" "terms": "Try harder bro" }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```
@@ -79,8 +79,8 @@
 
             ```
              $ curl -X PUT \
-                -H 'X-Auth-ID: 123' \
-                -H 'X-Auth-Token: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
+                -H 'IXM-UserID: 123' \
+                -H 'IXM-AccessToken: oFimaL5gCz9yJq2IKenrev2pclk5ul7P' \
                 -d '{ "proposal_id": 888, partner_id: 456, "response": "reject" }' \
                 https://market.indexexchange.com/api/v1/deals/negotiations
             ```

@@ -34,12 +34,12 @@ documentation:
 traits:
     auth_required:
         headers:
-            X-Auth-ID:
+            IXM-UserID:
                 type: integer
                 description: The current user's ID
-            X-Auth-Token:
+            IXM-AccessToken:
                 type: string
-                description: An OAuth token, obtained from the auth route #TODO: insert details/link when available
+                description: An OAuth token, obtained from the auth route https://auth.indexexchange.com/auth/oauth/token.
     pageable:
         queryParameters:
             limit:

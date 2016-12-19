@@ -27,15 +27,30 @@ async function ATW_AUTH_01 (route: string, verb: string, setup: Function, assert
     let publisher = await databasePopulator.createPublisher();
 
     /** Test */
-    let buyerResponse = await apiRequest[verb](route, {}, buyer.user.userID);
+    let buyerAuthResponse = await apiRequest.getAuthToken(buyer.user.emailAddress, buyer.user.password);
+    let buyerAccessToken = buyerAuthResponse.body.data.accessToken;
+
+    let buyerResponse = await apiRequest[verb](route, {}, {
+        userID: buyer.user.userID,
+        userType: buyer.user.userType,
+        accessToken: buyerAccessToken
+    });
 
     assert.not(buyerResponse.status, 401);
     assert.not(buyerResponse.status, 500);
 
-    let pubResponse = await apiRequest[verb](route, {}, publisher.user.userID);
+    let pubAuthResponse = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
+    let pubAccessToken = pubAuthResponse.body.data.accessToken;
+
+    let pubResponse = await apiRequest[verb](route, {}, {
+        userID: publisher.user.userID,
+        userType: publisher.user.userType,
+        accessToken: pubAccessToken
+    });
 
     assert.not(pubResponse.status, 401);
     assert.not(pubResponse.status, 500);
+
 }
 
  /*
@@ -51,66 +66,171 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
 
     await setup();
 
-    let user = await databasePopulator.createUser({ userType: 1 });
-
     /** Test */
-    let response = await apiRequest[verb](route, {}, user.userID);
+    let user = await databasePopulator.createUser({ userType: 1 });
+    let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
+    let accessToken = authResponse.body.data.accessToken;
 
-    assert.equal(response.status, 401);
+    let pubResponse = await apiRequest[verb](route, {}, {
+        userID: user.userID,
+        userType: user.userType,
+        accessToken: accessToken
+    });
+
+    assert.equal(pubResponse.status, 401);
 
 }
 
  /*
- * @case    - The user id is not a valid integer (String, Float, Negative, Boolean, Array, Object, Function).
+ * @case    - The user provides a wrong user id.
  * @expect  - The response has status code 401.
  * @status  - working
- * @tags    - get, auth, buyer
+ * @tags    - get,auth,buyer
  */
 async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(8);
+    assert.plan(1);
 
     await setup();
 
+    /** Test */
     let dsp = await databasePopulator.createDSP(1);
     let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let anotherBuyer = await databasePopulator.createBuyer(dsp.dspID);
+    let user = buyer.user;
+    let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
+    let accessToken = authResponse.body.data.accessToken;
 
-    /** Test */
-    let response = await apiRequest[verb](route, {}, 'goose bear');
+    let pubResponse = await apiRequest[verb](route, {}, {
+        userID: user.userID + 185,
+        userType: user.userType,
+        accessToken: accessToken
+    });
 
-    response = await apiRequest[verb](route, {}, 3.1415926 );
-    assert.equal(response.status, 401);
+    assert.equal(pubResponse.status, 401);
 
-    response = await apiRequest[verb](route, {}, -1 );
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, true );
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, [ 3, 1, 4 ] );
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, { goose: 314 } );
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, "() => {}" );
-    assert.equal(response.status, 401);
-
-    response = await apiRequest[verb](route, {}, buyer.user.userID.toString() + "," + anotherBuyer.user.userID.toString());
-    assert.equal(response.status, 401);
-
-    assert.equal(response.status, 401);
 }
 
  /*
- * @case    - The user id is not supplied.
+ * @case    - The user does not provide an access token.
+ * @expect  - The response has status code 401.
+ * @status  - working
+ * @tags    - get,auth
+ */
+async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    await setup();
+
+    /** Test */
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let user = buyer.user;
+    await apiRequest.getAuthToken(user.emailAddress, user.password);
+
+    let pubResponse = await apiRequest[verb](route, {}, {
+        userID: user.userID,
+        userType: user.userType,
+        accessToken: ' '
+    });
+
+    assert.equal(pubResponse.status, 401);
+
+}
+
+ /*
+ * @case    - The user provides no user id.
+ * @expect  - The response has status code 401.
+ * @status  - working
+ * @tags    - get,auth,buyer
+ */
+async function ATW_AUTH_05 (route: string, verb: string, setup: Function, assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    await setup();
+
+    /** Test */
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let user = buyer.user;
+    let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    let pubResponse = await apiRequest[verb](route, {}, {
+        userType: user.userType,
+        accessToken: accessToken
+    });
+
+    assert.equal(pubResponse.status, 401);
+
+}
+
+ /*
+ * @case    - The user id and user types are not valid integers.
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - get, auth, buyer
  */
-async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_06 (route: string, verb: string, setup: Function, assert: test.Test) {
+
+    /** Setup */
+    assert.plan(6);
+
+    await setup();
+
+    let dsp = await databasePopulator.createDSP(1);
+    await databasePopulator.createBuyer(dsp.dspID);
+
+    /** Test */
+    let response = await apiRequest[verb](route, {}, {
+        userID: 'goose bear',
+        userType: 'goose bear'
+    });
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, {
+        userID: 3.1415926,
+        userType: 3.14159265
+    });
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, {
+        userID: -1,
+        userType: -1
+    });
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, {
+        userID: true,
+        userType: true
+    });
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, {
+        userID: [ 3, 1, 4 ],
+        userType: [ 3, 1, 4 ]
+    });
+    assert.equal(response.status, 401);
+
+    response = await apiRequest[verb](route, {}, {
+        userID: { goose: 314 },
+        userType: { goose: 314 }
+    });
+    assert.equal(response.status, 401);
+
+}
+
+ /*
+ * @case    - Nothing is supplied.
+ * @expect  - The response has status code 401.
+ * @status  - working
+ * @tags    - get, auth, buyer
+ */
+async function ATW_AUTH_07 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -121,6 +241,7 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
     let response = await apiRequest[verb](route, {});
 
     assert.equal(response.status, 401);
+
 }
 
 /**
@@ -131,7 +252,10 @@ function authenticationTest(route: string, verb: string, setup: Function) {
         (assert: test.Test) => { return ATW_AUTH_01(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_02(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_03(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_04(route, verb, setup, assert); }
+        (assert: test.Test) => { return ATW_AUTH_04(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_05(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_06(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_07(route, verb, setup, assert); }
     ];
 }
 

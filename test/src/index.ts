@@ -14,29 +14,36 @@ program.version('1.0.0')
     .option('-d, --directory [dir]', 'The directory which houses the tests.')
     .option('-s, --stress', 'A signal to run stress tests')
     .option('-r, --regex [regex]', 'A regular expression matching the test name.')
+    .option('-b, --restore', 'Restore the database.')
     .parse(process.argv);
 
 let directory = program['directory'];
 let regex = program['regex'] && new RegExp(program['regex']);
 let isStress = program['stress'];
+let restore = program['restore'];
 
-if (!directory && !isStress) {
-    Log.error('Please specify a directory.');
-} else {
+if (restore) {
     Bootstrap.boot()
-        .then(() => {
-            let suiteManager = new SuiteManager(directory, !!isStress, regex);
-            return suiteManager.runSuite();
-        })
         .then(() => {
             Bootstrap.shutdown();
         })
         .catch((e) => {
             Bootstrap.shutdown();
         });
+} else {
+    if (!directory && !isStress) {
+        Log.error('Please specify a directory.');
+    } else {
+        Bootstrap.boot()
+            .then(() => {
+                let suiteManager = new SuiteManager(directory, !!isStress, regex);
+                return suiteManager.runSuite();
+            })
+            .then(() => {
+                Bootstrap.shutdown();
+            })
+            .catch((e) => {
+                Bootstrap.shutdown();
+            });
+    }
 }
-
-process.on('SIGINT', () => {
-        Log.info('Shutting down gracefully');
-        Bootstrap.crash();
-});

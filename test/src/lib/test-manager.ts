@@ -42,8 +42,9 @@ class TestManager {
                     await dataSetup.clearTables();
                     await this.testFunction(t);
                     resolve();
-                } catch (e) {
-                    reject(e);
+                } catch (err) {
+                    reject(err);
+                    t.end();
                 }
             });
         });

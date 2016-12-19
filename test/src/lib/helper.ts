@@ -78,7 +78,7 @@ class Helper {
                 created_at: proposal.proposal.createDate.toISOString(),
                 currency: 'USD',
                 description: proposal.proposal.description,
-                end_date: this.formatDate(proposal.proposal.endDate.toISOString()),
+                end_date: this.formatDate(proposal.proposal.endDate),
                 proposal_id: proposal.proposal.proposalID,
                 impressions: proposal.proposal.impressions,
                 inventory: proposal.sectionIDs.map((id) => {
@@ -91,7 +91,7 @@ class Helper {
                 modified_at: proposal.proposal.modifyDate.toISOString(),
                 name: proposal.proposal.name,
                 price: proposal.proposal.price,
-                start_date: this.formatDate(proposal.proposal.startDate.toISOString()),
+                start_date: this.formatDate(proposal.proposal.startDate),
                 status: proposal.proposal.status,
                 terms: proposal.proposal.terms
             };
