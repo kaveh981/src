@@ -36,10 +36,11 @@ async function commonDatabaseSetup (publisher: INewPubData) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
                                                                     buyer.user.userID, { pubStatus : 'active', buyerStatus : 'accepted' });
-    let activeDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
+    await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
                                                                negotiation.negotiationID);
 
-    return Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, publisher.user);
+    let setupResponse = { userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
+    return setupResponse;
 
 }
 

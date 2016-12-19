@@ -37,10 +37,11 @@ async function commonDatabaseSetup (publisher: INewPubData) {
     let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
                                                                     buyer.user.userID, { pubStatus : 'active', buyerStatus : 'accepted' });
-    let activeDeal = await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
+    await databasePopulator.createSettledDeal(publisher.publisher.userID, [ section.section.sectionID ],
                                                                negotiation.negotiationID);
 
-    return Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, publisher.user);
+    let setupResponse = { userID: buyer.user.userID, proposalID: proposal.proposal.proposalID, partnerID: publisher.user.userID };
+    return setupResponse;
 
 }
 
@@ -51,11 +52,17 @@ async function commonDatabaseSetup (publisher: INewPubData) {
 async function paginationSetup () {
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 
     return {
-        buyer: buyer,
-        sender: buyer.user
+        dsp: dsp,
+        publisher: publisher,
+        proposal: proposal,
+        section: section,
+        sender: publisher.user
     };
 }
 
@@ -66,24 +73,14 @@ async function paginationSetup () {
  */
 async function createSettledDeal (data: ICreateEntityData) {
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
-    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.publisher.userID,
-                                                                    data.buyer.user.userID,
+    let buyer = await databasePopulator.createBuyer(data.dsp.dspID);
+    let negotiation = await databasePopulator.createDealNegotiation(data.proposal.proposal.proposalID, data.publisher.publisher.userID,
+                                                                    buyer.user.userID,
                                                                     { pubStatus : 'active', buyerStatus : 'accepted' });
-    let tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
     let settledDeal = await databasePopulator.createSettledDeal(
-        publisher.publisher.userID,
-        [ section.section.sectionID ],
-        negotiation.negotiationID, {
-            startDate: tomorrow,
-            rate: negotiation.price
-        });
+                        data.publisher.publisher.userID, [ data.section.section.sectionID ], negotiation.negotiationID);
 
-    return Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, publisher.user);
+    return Helper.dealsActiveGetToPayload(settledDeal, negotiation, data.proposal, buyer.user);
 
 }
 
