@@ -1,7 +1,7 @@
 'use strict';
 
 import * as express from 'express';
-import * as request from 'request-promise-native'
+import * as request from 'request-promise-native';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
@@ -9,7 +9,6 @@ import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { ProtectedRoute } from '../../../middleware/protected-route';
 import { ConfigLoader } from '../../../lib/config-loader';
-
 
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
@@ -30,7 +29,7 @@ const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const publisherManager = Injector.request<PublisherManager>('PublisherManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
- 
+
 const authConfig = config.get('auth');
 
 const Log: Logger = new Logger('ROUT');
@@ -67,10 +66,10 @@ function ActiveDeals(router: express.Router): void {
         res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
-    
+
     /**
-      * GET request to get all active and paused deals.
-      */
+     * GET request to get all active and paused deals.
+     */
     router.get('/legacy', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
 
         Log.trace(`Get deals request received, retrieve from Index Exchange API`, req.id);
