@@ -11,6 +11,7 @@
     "knex": "registry:dt/knex#0.0.0+20161009195237",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "node": "registry:dt/node#6.0.0+20160928143418",
+    "request-promise-native": "registry:dt/request-promise-native#1.0.3+20161006212032",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "tape": "registry:dt/tape#4.2.2+20160317120654"
   },
