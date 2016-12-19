@@ -37,6 +37,6 @@ if (!directory && !isStress) {
 }
 
 process.on('SIGINT', () => {
-        Log.info('Shutting down gracefully');
-        Bootstrap.crash();
+    Log.info('Shutting down gracefully');
+    Bootstrap.crash();
 });
