@@ -1,0 +1,17 @@
+#%RAML 1.0 DataType
+Ghoul:
+    type: object
+    properties:
+        attack: 
+            type: integer
+            default: 3
+        defense:
+            type: string
+        equipable:
+            type: boolean
+            default: true
+        pets:
+            type: array
+            maxItems: 3
+            items:
+                type: Turtle

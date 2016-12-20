@@ -8,7 +8,7 @@ import { Injector } from '../../src/lib/injector';
 import { ConfigLoader } from '../../src/lib/config-loader';
 import { RamlTypeValidator } from '../../src/lib/raml-type-validator';
 
-const configLoader = new ConfigLoader();
+const configLoader = new ConfigLoader('../..');
 Injector.put(configLoader, 'ConfigLoader');
 
 const validator = new RamlTypeValidator(configLoader);
@@ -34,6 +34,7 @@ function ppErrors(errorList: any[]): string {
 }
 
 // Test validation errors
+configLoader.initialize().then(() => {
 validator.initialize('../../test/schemas')
     .then(() => {
 
@@ -62,7 +63,7 @@ validator.initialize('../../test/schemas')
             }, 'Pet');
 
             t.ok(hasError('TYPE_BOOL_INVALID', res1), ppErrors(res1));
-            t.ok(!hasError('TYPE_BOOL_INVALID', res2), ppErrors(res2));
+            t.ok(hasError('TYPE_BOOL_INVALID', res2), ppErrors(res2));
             t.ok(hasError('TYPE_BOOL_INVALID', res3), ppErrors(res3));
             t.ok(hasError('TYPE_BOOL_INVALID', res4), ppErrors(res4));
         });
@@ -224,6 +225,52 @@ validator.initialize('../../test/schemas')
             t.ok(res3.length > 0);
         });
 
+        test('Property custom type check 2 - Schema: Ghoul, Turtle, Pet', (t) => {
+            t.plan(3);
+
+            let res1 = validator.validateType({
+                attack: 8,
+                defense: 'peck',
+                equipable: false,
+                pets: [{
+                    hp: 40,
+                    edible: false,
+                    shellStrength: 38.94,
+                    eatingPower: 5
+                }]
+            }, 'Ghoul');
+
+            let res2 = validator.validateType({
+                attack: 8,
+                defense: 'peck',
+                equipable: false,
+                pets: [{
+                    hp: 40,
+                    edible: false,
+                    eatingPower: 5
+                }]
+            }, 'Ghoul');
+
+            let res3 = validator.validateType({
+                attack: 8,
+                defense: 'peck',
+                equipable: false,
+                pets: [{
+                    edible: false,
+                    shellStrength: 38.94,
+                    eatingPower: 5
+                }]
+            }, 'Ghoul');
+
+            console.log('1: ' + ppErrors(res1));
+            console.log('2: ' + ppErrors(res2));
+            console.log('3: ' + ppErrors(res3));
+
+            t.ok(res1.length === 0);
+            t.ok(res2.length > 0);
+            t.ok(res3.length > 0);
+        });
+
         test('Union types - Schema: Dog, Pet, Turtle', (t) => {
             t.plan(3);
 
@@ -361,3 +408,4 @@ validator.initialize('../../test/schemas')
         });
 
     });
+});
