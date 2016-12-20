@@ -1,0 +1,31 @@
+# Mailer Configuration
+
+# Enable/Disable notifications
+enabled: true
+
+# Location of sendmail module 
+sendmailPath: /usr/sbin/sendmail
+
+# General templates for subject line and message body
+templates:
+    en-US:
+        PROPOSAL_BOUGHT:
+            subject: You done sold dat shit.
+            body: "Your proposal {{ proposalID }} was purchased. \n
+                   Proposal Name: {{ proposalName }} \n
+                   Purchased By: {{ proposalBuyer }} \n
+                   Deal ID: {{ dealID }} \n
+                   Auction Type: {{ auctionType }} \n
+                   Rate: {{ rate }} \n
+                   Start Date: {{ startDate }} \n
+                   End Date: {{ endDate }} \n"
+        NEGOTIATED_PROPOSAL_BOUGHT: 
+            subject: You done sold dat shit after some negotiations and shit.
+            body: "Your proposal {{ proposalID }} was purchased. \n 
+                   Proposal Name: {{ proposalName }} \n
+                   Purchased By: {{ proposalBuyer }} \n
+                   Deal ID: {{ dealID }} \n
+                   Auction Type: {{ auctionType }} \n
+                   Rate: {{ rate }} \n
+                   Start Date: {{ startDate }} \n
+                   End Date: {{ endDate }} \n"

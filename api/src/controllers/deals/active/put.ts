@@ -17,6 +17,7 @@ import { BuyerManager } from '../../../models/buyer/buyer-manager';
 import { PublisherManager } from '../../../models/publisher/publisher-manager';
 import { BuyerModel } from '../../../models/buyer/buyer-model';
 import { PublisherModel } from '../../../models/publisher/publisher-model';
+import { Notifier } from '../../../lib/notifier';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
@@ -25,6 +26,7 @@ const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const publisherManager = Injector.request<PublisherManager>('PublisherManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
+const notifier = Injector.request<Notifier>('Notifier');
 
 const Log: Logger = new Logger('ROUT');
 
@@ -110,6 +112,8 @@ function ActiveDeals(router: express.Router): void {
         });
 
         res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
+
+        notifier.sendNotification('PROPOSAL_BOUGHT', userInfo, proposedDeal, settledDeal);
 
     } catch (error) { next(error); } });
 

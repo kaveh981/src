@@ -27,6 +27,8 @@
     "raml-1-parser": "1.1.9",
     "raml2obj": "^4.0.2",
     "request": "^2.79.0",
+    "nodemailer": "*",
+    "nodemailer-smtp-transport": "*",
     "request-promise-native": "1.0.3",
     "shortstop": "1.0.3",
     "shortstop-handlers": "1.0.1",

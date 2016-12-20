@@ -8,6 +8,8 @@ import { ConfigLoader } from './lib/config-loader';
 import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { RamlTypeValidator } from './lib/raml-type-validator';
+import { Mailer } from './lib/mailer';
+import { Notifier } from './lib/notifier';
 
 /** Library Resolution */
 const config = new ConfigLoader('../../');
@@ -21,6 +23,12 @@ Injector.put(databaseManager, 'DatabaseManager');
 
 const server = new Server(config);
 Injector.put(server, 'Server');
+
+const mailer = new Mailer(config);
+Injector.put(mailer, 'Mailer');
+
+const notifier = new Notifier(config, [ mailer ]);
+Injector.put(notifier, 'Notifier');
 
 /** Models */
 import { UserManager } from './models/user/user-manager';
