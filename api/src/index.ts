@@ -10,11 +10,15 @@ import { Server } from './lib/server';
 import { DatabaseManager } from './lib/database-manager';
 import { RamlTypeValidator } from './lib/raml-type-validator';
 import { ConfigLoader } from './lib/config-loader';
+import { Mailer } from './lib/mailer';
+import { Notifier } from './lib/notifier';
 
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const server = Injector.request<Server>('Server');
 const configLoader = Injector.request<ConfigLoader>('ConfigLoader');
+const mailer = Injector.request<Mailer>('Mailer');
+const notifier = Injector.request<Notifier>('Notifier');
 
 /** Initialize the libraries. */
 Promise.resolve()
@@ -27,6 +31,12 @@ Promise.resolve()
     })
     .then(() => {
         return databaseManager.initialize();
+    })
+    .then(() => {
+        return mailer.initialize();
+    })
+    .then(() => {
+        return notifier.initialize();
     })
     .then(() => {
         return server.initialize();
