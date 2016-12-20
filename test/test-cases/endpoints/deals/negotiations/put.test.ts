@@ -1838,9 +1838,7 @@ export async function ATW_API_ACCEPT_NEGOTIATION_01(assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID,
-                                                  {
-                                                    sender: 'publisher'
-                                                  });
+                                                  { sender: 'publisher' });
 
     let buyerRequestBody = {
         proposal_id: proposal.proposal.proposalID,
@@ -1874,9 +1872,7 @@ export async function ATW_API_ACCEPT_NEGOTIATION_02(assert: test.Test) {
     let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, publisher.user.userID, buyer.user.userID,
-                                                  {
-                                                    sender: 'buyer'
-                                                  });
+                                                  { sender: 'buyer' });
 
     let publisherRequestBody = {
         proposal_id: proposal.proposal.proposalID,
