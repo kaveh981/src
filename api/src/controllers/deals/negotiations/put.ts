@@ -13,6 +13,7 @@ import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/neg
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { BuyerManager } from '../../../models/buyer/buyer-manager';
+import { Notifier } from '../../../lib/notifier';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
@@ -20,6 +21,7 @@ const settledDealManager = Injector.request<SettledDealManager>('SettledDealMana
 const buyerManager = Injector.request<BuyerManager>('BuyerManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
+const notifier = Injector.request<Notifier>('Notifier');
 
 const Log: Logger = new Logger('ROUT');
 
@@ -106,8 +108,7 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('404_PROPOSAL_NOT_FOUND');
             }
 
-            currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(
-                                        targetProposal, buyerID, publisherID, 'buyer');
+            currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(targetProposal, buyerID, publisherID, 'buyer');
 
             let fieldChanged = currentNegotiation.update('buyer', 'accepted', 'active', negotiationFields);
 
@@ -156,6 +157,7 @@ function NegotiationDeals(router: express.Router): void {
                     currentNegotiation.update(userType, 'accepted', 'accepted');
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
 
+                    let dealPartnerInfo = targetProposal.ownerInfo.userType === 'buyer' ? currentNegotiation.buyerInfo : currentNegotiation.publisherInfo;
                     let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
                     let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
 
@@ -164,6 +166,8 @@ function NegotiationDeals(router: express.Router): void {
                     Log.trace(`New deal created with id ${settledDeal.id}.`, req.id);
 
                     res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
+
+                    notifier.sendNotification('NEGOTIATED_PROPOSAL_BOUGHT', dealPartnerInfo, targetProposal, settledDeal);
 
                 });
 
