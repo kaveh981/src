@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as raml from 'raml-1-parser';
 import * as handlebars from 'handlebars';
+import * as raml2obj from 'raml2obj';
 
 import { ConfigLoader } from './config-loader';
 import { Logger } from './logger';
@@ -13,7 +14,6 @@ import { Logger } from './logger';
 const Log = new Logger('VLDT');
 
 const validator = require('validator');
-const raml2obj = require('raml2obj');
 
 /**
  * I'm just a validation error.
@@ -111,23 +111,27 @@ class RamlTypeValidator {
             let parsedYAML = yaml.safeLoad(fileContent);
 
             for (let key in parsedYAML) {
-                Log.trace('Loading ' + key + ' from schemas...');
+                Log.debug('Loading ' + key + ' from schemas...');
                 apiFormat.types[key] = parsedYAML[key];
             }
         });
 
-        let parsedAPI: any = raml.parseRAMLSync('#%RAML 1.0\n' + yaml.dump(apiFormat));
+        Log.trace('Parsing RAML...');
+
+        let parsedAPI: any = raml.parseRAMLSync(`#%RAML 1.0\n${yaml.dump(apiFormat)}`);
 
         if (parsedAPI.errors().length > 0) {
             Log.error(Log.stringify(parsedAPI.errors()));
             throw new Error('Compilation error in schemas.');
         }
 
+        Log.trace('Converting RAML to object...');
+
         // We parse the raml api object into a JSON object and put it in the types variable.
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
                 this.types = ramlObj['types'];
-                Log.debug('Loaded types ' + Object.keys(this.types).join(', ') + ' from schemas.');
+                Log.trace(Log.stringify(this.types));
                 Log.info('Initialized RAML validator.');
             })
             .catch((err) => {
@@ -189,7 +193,7 @@ class RamlTypeValidator {
         // Check for additional properties.
         if (typeof node.additionalProperties === 'boolean' && !node.additionalProperties) {
             if (typeof obj === 'object' && !Array.isArray(obj) && node.properties) {
-                let nodeKeys = node.properties.map((prop) => { return prop.key; });
+                let nodeKeys = Object.keys(node.properties);
                 let additionals = Object.keys(obj).filter((key) => { return nodeKeys.indexOf(key) === -1; });
 
                 if (additionals.length > 0) {
@@ -202,55 +206,57 @@ class RamlTypeValidator {
 
         // Verify all of the properties of the node against obj.
         if (node.properties) {
-            node.properties.forEach((property) => {
+            for (let key in node.properties) {
+
+                let property = node.properties[key];
 
                 // Fill defaults for properties if fillDefault is true.
-                if (opts.fillDefaults && typeof obj[property.key] === 'undefined' && typeof property.default !== 'undefined') {
-                    obj[property.key] = property.default;
+                if (opts.fillDefaults && typeof obj[key] === 'undefined' && typeof property.default !== 'undefined') {
+                    obj[key] = property.default;
                 }
 
                 // Sanitize string to lower case if desired
-                if (opts.sanitizeString && typeof obj[property.key] === 'string') {
-                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                if (opts.sanitizeString && typeof obj[key] === 'string') {
+                    obj[key] = obj[key].trim().toLowerCase();
                 }
 
                 // Sanitize strings to lower case if the key is an enum
-                if (opts.sanitizeStringEnum && typeof obj[property.key] === 'string' && property.enum) {
-                    obj[property.key] = obj[property.key].trim().toLowerCase();
+                if (opts.sanitizeStringEnum && typeof obj[key] === 'string' && property.enum) {
+                    obj[key] = obj[key].trim().toLowerCase();
                 }
 
                 // Trim trailing whitespace from strings
-                if (opts.trimStrings && typeof obj[property.key] === 'string') {
-                    obj[property.key] = obj[property.key].trim();
+                if (opts.trimStrings && typeof obj[key] === 'string') {
+                    obj[key] = obj[key].trim();
                 }
 
                 // Sanitize integers to numbers
-                if (opts.sanitizeIntegers && typeof obj[property.key] === 'string' && validator.isInt(obj[property.key])) {
-                    obj[property.key] = Number(obj[property.key]);
+                if (opts.sanitizeIntegers && typeof obj[key] === 'string' && validator.isInt(obj[key])) {
+                    obj[key] = Number(obj[key]);
                 }
 
                 // Sanitize booleans
-                if (opts.sanitizeBooleans && typeof obj[property.key] === 'string' && validator.isBoolean(obj[property.key])) {
-                    obj[property.key] = Boolean(obj[property.key]);
+                if (opts.sanitizeBooleans && typeof obj[key] === 'string' && validator.isBoolean(obj[key])) {
+                    obj[key] = Boolean(obj[key]);
                 }
 
                 // Remove null values
-                if (opts.removeNull && obj[property.key] === null) {
-                    delete obj[property.key];
+                if (opts.removeNull && obj[key] === null) {
+                    delete obj[key];
                 }
 
-                let propertyErrors = this.validateNode(obj[property.key], property, path + ' -> ' + property.key);
+                let propertyErrors = this.validateNode(obj[key], property, path + ' -> ' + key);
 
                 // If there are errors, and we force defaults, reassign.
                 if (opts.forceDefaults && property.default && propertyErrors.length > 0) {
-                    obj[property.key] = property.default;
+                    obj[key] = property.default;
                 } else if (opts.forceOnError && property.default && this.containsErrors(propertyErrors, opts.forceOnError)) {
-                    obj[property.key] = property.default;
+                    obj[key] = property.default;
                 } else {
                     errors = errors.concat(propertyErrors);
                 }
 
-            });
+            }
         }
 
         // If the type isn't object, run the type checks
@@ -271,9 +277,8 @@ class RamlTypeValidator {
      */
     private validateNodeType(value: any, node: any, path: string): IValidationError[] {
 
-        let types = node.type.join(' | ').split(' | ');
+        let nodeType = node.type;
         let valueString = typeof value === 'object' ? JSON.stringify(value) : value.toString();
-        let errorList: IValidationError[] = [];
 
         /**
          * Verify enum
@@ -291,182 +296,181 @@ class RamlTypeValidator {
         /**
          * Validate all of the types
          */
-        for (let i = 0; i < types.length; i++) {
-            // Keep track of the errors
-            let errors: IValidationError[] = [];
+        let errors: IValidationError[] = [];
 
-            switch (types[i]) {
+        switch (nodeType) {
 
-                /**
-                 * Verify booleans
-                 */
-                case 'boolean':
-                    if (typeof value !== 'boolean' || !validator.isBoolean(valueString)) {
-                        errors.push(this.createError('TYPE_BOOL_INVALID', valueString, node, path));
+            /** Verify booleans */
+            case 'boolean':
+                if (typeof value !== 'boolean' || !validator.isBoolean(valueString)) {
+                    errors.push(this.createError('TYPE_BOOL_INVALID', valueString, node, path));
+                }
+            break;
+
+            /** Verify integers */
+            case 'integer':
+                if (!validator.isInt(valueString)) {
+                    errors.push(this.createError('TYPE_INT_INVALID', valueString, node, path));
+                    break;
+                }
+            // Fall through to test facets
+
+            /** Verify numbers */
+            case 'number':
+                if (typeof value !== 'number' || isNaN(Number(valueString))) {
+                    errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
+                } else {
+                    // Verify number facets
+                    if (value < node.minimum) {
+                        errors.push(this.createError('TYPE_NUMB_TOO_SMALL', valueString, node, path));
                     }
-                break;
 
-                /**
-                 * Verify integers
-                 */
-                case 'integer':
-                    if (!validator.isInt(valueString)) {
-                        errors.push(this.createError('TYPE_INT_INVALID', valueString, node, path));
+                    if (value > node.maximum) {
+                        errors.push(this.createError('TYPE_NUMB_TOO_LARGE', valueString, node, path));
+                    }
+                }
+            break;
+
+            /** Verify strings */
+            case 'string':
+                if (typeof value !== 'string') {
+                    errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
+                } else {
+                    // Verify string facets
+                    if (value.length < node.minLength) {
+                        errors.push(this.createError('TYPE_STRING_TOO_SHORT', valueString, node, path));
                         break;
                     }
-                // Fall through to test facets
 
-                /**
-                 * Verify numbers
-                 */
-                case 'number':
-                    if (typeof value !== 'number' || isNaN(Number(valueString))) {
-                        errors.push(this.createError('TYPE_NUMB_INVALID', valueString, node, path));
-                    } else {
-                        // Verify number facets
-                        if (value < node.minimum) {
-                            errors.push(this.createError('TYPE_NUMB_TOO_SMALL', valueString, node, path));
-                        }
-
-                        if (value > node.maximum) {
-                            errors.push(this.createError('TYPE_NUMB_TOO_LARGE', valueString, node, path));
-                        }
+                    if (value.length > node.maxLength) {
+                        errors.push(this.createError('TYPE_STRING_TOO_LONG', valueString, node, path));
+                        break;
                     }
-                break;
 
-                /**
-                 * Verify strings
-                 */
-                case 'string':
-                    if (typeof value !== 'string') {
-                        errors.push(this.createError('TYPE_STRING_INVALID', valueString, node, path));
-                    } else {
-                        // Verify string facets
-                        if (value.length < node.minLength) {
-                            errors.push(this.createError('TYPE_STRING_TOO_SHORT', valueString, node, path));
-                            break;
-                        }
-
-                        if (value.length > node.maxLength) {
-                            errors.push(this.createError('TYPE_STRING_TOO_LONG', valueString, node, path));
-                            break;
-                        }
-
-                        if (node.pattern && value.match(node.pattern) === null) {
-                            errors.push(this.createError('TYPE_STRING_BAD_PATTERN', valueString, node, path));
-                            break;
-                        }
+                    if (node.pattern && value.match(node.pattern) === null) {
+                        errors.push(this.createError('TYPE_STRING_BAD_PATTERN', valueString, node, path));
+                        break;
                     }
-                break;
+                }
+            break;
 
-                /**
-                 * Verify dates
-                 */
-                case 'date-only':
-                    let dateOnlyRegex = /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/;
+            /** Verify dates */
+            case 'date-only':
+                let dateOnlyRegex = /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/;
 
-                    if (!dateOnlyRegex.test(valueString) || !Date.parse(valueString)) {
-                        errors.push(this.createError('TYPE_DATE_ONLY_INVALID', valueString, node, path));
+                if (!dateOnlyRegex.test(valueString) || !Date.parse(valueString)) {
+                    errors.push(this.createError('TYPE_DATE_ONLY_INVALID', valueString, node, path));
+                }
+            break;
+
+            case 'time-only':
+                let timeOnlyRegex = /^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/;
+
+                if (!timeOnlyRegex.test(valueString) || !Date.parse('1992-07-29 ' + valueString)) {
+                    errors.push(this.createError('TYPE_TIME_ONLY_INVALID', valueString, node, path));
+                }
+            break;
+
+            case 'datetime-only':
+                let dateTimeOnlyRegex = /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/;
+
+                if (!dateTimeOnlyRegex.test(valueString) || !Date.parse(valueString)) {
+                    errors.push(this.createError('TYPE_DATE_TIME_ONLY_INVALID', valueString, node, path));
+                }
+            break;
+
+            case 'datetime':
+                if (!Date.parse(valueString)) {
+                    errors.push(this.createError('TYPE_DATETIME_INVALID', valueString, node, path));
+                }
+            break;
+
+            /** Verify arrays */
+            case 'array':
+                if (!Array.isArray(value)) {
+                    errors.push(this.createError('TYPE_ARRAY_INVALID', valueString, node, path));
+                } else {
+
+                    // Verify array facets
+                    if (value.length < node.minItems) {
+                        errors.push(this.createError('TYPE_ARRAY_TOO_SHORT', valueString, node, path));
+                        break;
                     }
-                break;
 
-                case 'time-only':
-                    let timeOnlyRegex = /^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/;
-
-                    if (!timeOnlyRegex.test(valueString) || !Date.parse('1992-07-29 ' + valueString)) {
-                        errors.push(this.createError('TYPE_TIME_ONLY_INVALID', valueString, node, path));
+                    if (value.length > node.maxItems) {
+                        errors.push(this.createError('TYPE_ARRAY_TOO_LONG', valueString, node, path));
+                        break;
                     }
-                break;
 
-                case 'datetime-only':
-                    let dateTimeOnlyRegex = /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/;
+                    // Check for unique items
+                    if (node.uniqueItems) {
+                        let lookupMap = {};
+                        let duplicates = false;
 
-                    if (!dateTimeOnlyRegex.test(valueString) || !Date.parse(valueString)) {
-                        errors.push(this.createError('TYPE_DATE_TIME_ONLY_INVALID', valueString, node, path));
-                    }
-                break;
+                        for (let j = 0; j < value.length; j++) {
+                            let stringKey = JSON.stringify(value[j]);
 
-                case 'datetime':
-                    if (!Date.parse(valueString)) {
-                        errors.push(this.createError('TYPE_DATETIME_INVALID', valueString, node, path));
-                    }
-                break;
-
-                /**
-                 * Verify arrays
-                 */
-                case 'array':
-                    if (!Array.isArray(value)) {
-                        errors.push(this.createError('TYPE_ARRAY_INVALID', valueString, node, path));
-                    } else {
-
-                        // Verify array facets
-                        if (value.length < node.minItems) {
-                            errors.push(this.createError('TYPE_ARRAY_TOO_SHORT', valueString, node, path));
-                            break;
-                        }
-
-                        if (value.length > node.maxItems) {
-                            errors.push(this.createError('TYPE_ARRAY_TOO_LONG', valueString, node, path));
-                            break;
-                        }
-
-                        // Check for unique items
-                        if (node.uniqueItems) {
-                            let lookupMap = {};
-                            let duplicates = false;
-
-                            for (let j = 0; j < value.length; j++) {
-                                let stringKey = JSON.stringify(value[j]);
-
-                                if (lookupMap[stringKey]) {
-                                    duplicates = true;
-                                    break;
-                                } else {
-                                    lookupMap[stringKey] = 1;
-                                }
-                            }
-
-                            if (duplicates) {
-                                errors.push(this.createError('TYPE_ARRAY_UNIQUE', valueString, node, path));
+                            if (lookupMap[stringKey]) {
+                                duplicates = true;
                                 break;
+                            } else {
+                                lookupMap[stringKey] = 1;
                             }
                         }
 
-                        // Validate all of the items in the array
-                        for (let i = 0; i < value.length; i++) {
-                            errors = errors.concat(this.validateNode(value[i], node.items, path + `[${i}]`));
+                        if (duplicates) {
+                            errors.push(this.createError('TYPE_ARRAY_UNIQUE', valueString, node, path));
+                            break;
                         }
                     }
-                break;
 
-                // If any, do nothing
-                case 'any':
-                break;
+                    // Validate all of the items in the array
+                    for (let i = 0; i < value.length; i++) {
+                        let type: { type: string };
 
-                /**
-                 * Verify custom types
-                 */
-                default:
-                    let type = this.types[types[i]];
-
-                    if (type) {
-                        errors = errors.concat(this.validateNode(value, type, path));
-                    } else {
-                        errors.push(this.createError('UNKNOWN_TYPE', types[i], node, path));
+                        if (node.items.type) {
+                            type = node.items;
+                        } else {
+                            type = { type: node.items };
+                        }
+                        errors = errors.concat(this.validateNode(value[i], type, path + `[${i}]`));
                     }
-                break;
-            }
+                }
+            break;
 
-            // No errors means we have a valid type
-            if (errors.length === 0) {
-                return [];
-            } else {
-                errorList = errorList.concat(errors);
-            }
+            case 'union':
+                for (let i = 0; i < node.anyOf.length; i++) {
+                    let subNode = node.anyOf[i];
+                    let typeErrors = this.validateNode(value, subNode, path);
+
+                    if (typeErrors.length === 0) {
+                        errors = [];
+                        break;
+                    } else {
+                        errors = errors.concat(typeErrors);
+                    }
+                }
+            break;
+
+            // If any, do nothing
+            case 'any':
+            break;
+
+            /**
+             * Verify custom types
+             */
+            default:
+                let type = this.types[nodeType];
+
+                if (type) {
+                    errors = errors.concat(this.validateNode(value, type, path));
+                } else {
+                    errors.push(this.createError('UNKNOWN_TYPE', nodeType, node, path));
+                }
+            break;
         }
 
-        return errorList;
+        return errors;
 
     }
 

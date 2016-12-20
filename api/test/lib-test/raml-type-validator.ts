@@ -8,7 +8,7 @@ import { Injector } from '../../src/lib/injector';
 import { ConfigLoader } from '../../src/lib/config-loader';
 import { RamlTypeValidator } from '../../src/lib/raml-type-validator';
 
-const configLoader = new ConfigLoader();
+const configLoader = new ConfigLoader('../..');
 Injector.put(configLoader, 'ConfigLoader');
 
 const validator = new RamlTypeValidator(configLoader);
@@ -34,6 +34,7 @@ function ppErrors(errorList: any[]): string {
 }
 
 // Test validation errors
+configLoader.initialize().then(() => {
 validator.initialize('../../test/schemas')
     .then(() => {
 
@@ -62,7 +63,7 @@ validator.initialize('../../test/schemas')
             }, 'Pet');
 
             t.ok(hasError('TYPE_BOOL_INVALID', res1), ppErrors(res1));
-            t.ok(!hasError('TYPE_BOOL_INVALID', res2), ppErrors(res2));
+            t.ok(hasError('TYPE_BOOL_INVALID', res2), ppErrors(res2));
             t.ok(hasError('TYPE_BOOL_INVALID', res3), ppErrors(res3));
             t.ok(hasError('TYPE_BOOL_INVALID', res4), ppErrors(res4));
         });
@@ -361,3 +362,4 @@ validator.initialize('../../test/schemas')
         });
 
     });
+});
