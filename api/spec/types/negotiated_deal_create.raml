@@ -8,6 +8,8 @@ properties:
         required: false
         displayName: Budget
         description: The projected amount to be spent by the buyer
+        minimum: 1
+        maximum: 16777215
     end_date:
         type: date-only
         required: false
@@ -19,16 +21,22 @@ properties:
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package.
+        minimum: 1
+        maximum: 16777215
     partner_id:
         type: integer
         required: true
         displayName: Partner ID
         description: The ID of the partner involved in this negotiation.
+        minimum: 1
+        maximum: 16777215
     proposal_id:
         type: integer
         required: true
         displayName: Proposal ID
         description: The unique identifier for the proposal.
+        minimum: 1
+        maximum: 16777215
     price:
         type: number
         required: false
@@ -54,14 +62,16 @@ properties:
         required: false
         displayName: Terms & Conditions
         description: The terms & conditions for the deal - extra information describing the deal.
-    example: |
-    {
-        "proposal_id": 999,
-        "partner_id": 666,
-        "start_date": "2017-09-09",
-        "end_date": "2017-10-10",
-        "price": 1.99,
-        "impressions": 8,
-        "budget": 9999999,
-        "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror."
-    }
+        minLength: 1
+        maxLength: 65535
+example: |
+{
+    "proposal_id": 999,
+    "partner_id": 666,
+    "start_date": "2017-09-09",
+    "end_date": "2017-10-10",
+    "price": 1.99,
+    "impressions": 8,
+    "budget": 9999999,
+    "terms": "There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away. Give me your pump, the oil, the gasoline, and the whole compound, and I'll spare your lives. Just walk away and we'll give you a safe passageway in the wastelands. Just walk away and there will be an end to the horror."
+}

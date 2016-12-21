@@ -1,7 +1,7 @@
 # Mailer Configuration
 
 # Enable/Disable notifications
-enabled: true
+enabled: false
 
 # Location of sendmail module 
 sendmailPath: /usr/sbin/sendmail

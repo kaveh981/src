@@ -35,7 +35,7 @@ function NegotiationDeals(router: express.Router): void {
         /** Validation */
 
         // Validate request query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
+        let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
@@ -62,14 +62,14 @@ function NegotiationDeals(router: express.Router): void {
         /** Validation */
 
         // Validate request params
-        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let proposalID = Number(req.params['proposalID']);
 
-        if (paramErrors.length > 0) {
+        if (isNaN(proposalID)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         // Validate request query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
+        let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
             { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
@@ -80,7 +80,6 @@ function NegotiationDeals(router: express.Router): void {
 
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let userID = req.ixmUserInfo.id;
-        let proposalID: number = req.params.proposalID;
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
         if (!proposal) {
@@ -103,16 +102,14 @@ function NegotiationDeals(router: express.Router): void {
         /** Validation */
 
         // Validate request params
-        let validationErrors = validator.validateType(req.params, 'SpecificNegotiationParameters', { sanitizeIntegers: true });
+        let proposalID = Number(req.params.proposalID);
+        let partnerID = Number(req.params.partnerID);
 
-        if (validationErrors.length > 0) {
+        if (isNaN(proposalID) || isNaN(partnerID)) {
             throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
 
         /** Route logic */
-
-        let proposalID: number = req.params.proposalID;
-        let partnerID: number = req.params.partnerID;
 
         // Check proposal and partner existence
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);

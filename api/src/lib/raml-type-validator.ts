@@ -85,6 +85,7 @@ class RamlTypeValidator {
 
         // First we load up the error templates
         let templateStrings = this.config.get('validator')['en-US'];
+        let parsedAPI: any;
 
         for (let key in templateStrings) {
             this.templates[key] = handlebars.compile(templateStrings[key]);
@@ -93,45 +94,61 @@ class RamlTypeValidator {
         // Now we load up the schemas
         schemaDirectory = path.join(__dirname, schemaDirectory);
 
-        let files: string[] = fs.readdirSync(schemaDirectory);
-        let apiFormat: any = {
-            title: 'Goose',
-            types: {}
-        };
+        if (this.config.get('validator')['file']) {
 
-        // No schemas :(
-        if (!files[0]) {
-            Log.info('No schemas found.');
-            return;
-        }
+            let ramlFile = this.config.get('validator')['file'];
 
-        // We need to create a fake RAML API spec in order for it to be used by raml-1-parser.
-        files.forEach((file: string) => {
-            let fileContent: string = fs.readFileSync(path.join(schemaDirectory, file), 'utf8');
-            let parsedYAML = yaml.safeLoad(fileContent);
+            Log.debug(`Loading from ${ramlFile}...`);
 
-            for (let key in parsedYAML) {
-                Log.debug('Loading ' + key + ' from schemas...');
-                apiFormat.types[key] = parsedYAML[key];
+            parsedAPI = raml.loadApiSync(path.join(schemaDirectory, ramlFile));
+
+        } else {
+
+            let files: string[] = fs.readdirSync(schemaDirectory);
+            let apiFormat: any = { title: 'Goose', types: {} };
+
+            // No schemas :(
+            if (!files[0]) {
+                Log.info('No schemas found.');
+                return;
             }
-        });
 
-        Log.trace('Parsing RAML...');
+            // We need to create a fake RAML API spec in order for it to be used by raml-1-parser.
+            files.forEach((file: string) => {
 
-        let parsedAPI: any = raml.parseRAMLSync(`#%RAML 1.0\n${yaml.dump(apiFormat)}`);
+                let fileContent: string = fs.readFileSync(path.join(schemaDirectory, file), 'utf8');
+                let parsedYAML = yaml.safeLoad(fileContent);
 
-        if (parsedAPI.errors().length > 0) {
-            Log.error(Log.stringify(parsedAPI.errors()));
-            throw new Error('Compilation error in schemas.');
+                for (let key in parsedYAML) {
+                    Log.debug('Loading ' + key + ' from schemas...');
+                    apiFormat.types[key] = parsedYAML[key];
+                }
+
+            });
+
+            Log.trace('Parsing RAML...');
+
+            parsedAPI = raml.parseRAMLSync(`#%RAML 1.0\n${yaml.dump(apiFormat)}`);
+
+            if (parsedAPI.errors().length > 0) {
+                Log.error(Log.stringify(parsedAPI.errors()));
+                throw new Error('Compilation error in schemas.');
+            }
+
+            Log.trace('Converting RAML to object...');
+
         }
-
-        Log.trace('Converting RAML to object...');
 
         // We parse the raml api object into a JSON object and put it in the types variable.
         return raml2obj.parse(parsedAPI.expand(true).toJSON({ serializeMetadata: false }))
             .then((ramlObj) => {
                 this.types = ramlObj['types'];
-                Log.trace(Log.stringify(this.types));
+
+                if (this.config.get('validator')['loadTraits']) {
+                    Log.debug('Loading traits...');
+                    Object.assign(this.types, this.parseTraits(ramlObj));
+                }
+
                 Log.info('Initialized RAML validator.');
             })
             .catch((err) => {
@@ -206,9 +223,18 @@ class RamlTypeValidator {
 
         // Verify all of the properties of the node against obj.
         if (node.properties) {
-            for (let key in node.properties) {
 
-                let property = node.properties[key];
+            let properties: any = [];
+
+            if (!Array.isArray(node.properties)) {
+                properties = Object.keys(node.properties).map(key => node.properties[key]);
+            } else {
+                properties = node.properties;
+            }
+
+            for (let property of properties) {
+
+                let key = property.name;
 
                 // Fill defaults for properties if fillDefault is true.
                 if (opts.fillDefaults && typeof obj[key] === 'undefined' && typeof property.default !== 'undefined') {
@@ -517,6 +543,37 @@ class RamlTypeValidator {
             }
         }
         return false;
+
+    }
+
+    /**
+     * Parse RAML traits into types to be used by the validator.
+     * 
+     */
+    private parseTraits(ramlObj) {
+
+        let types = {};
+
+        // Load traits
+        if (ramlObj['traits']) {
+            for (let trait in ramlObj['traits']) {
+                for (let key in ramlObj['traits'][trait]) {
+                    if (key === 'name') {
+                        continue;
+                    }
+
+                    // Create the type node.
+                    let newNode = { type: 'object', properties: {} };
+
+                    ramlObj['traits'][trait][key].forEach(type => newNode.properties[type.name] = type);
+                    types[`traits/${key}/${trait}`] = newNode;
+
+                    Log.trace(`traits/${key}/${trait}` + Log.stringify(newNode));
+                }
+            }
+        }
+
+        return types;
 
     }
 

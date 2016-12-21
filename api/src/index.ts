@@ -27,7 +27,7 @@ Promise.resolve()
         return configLoader.initialize({ 'mw': './src/middleware' });
     })
     .then(() => {
-        return validator.initialize();
+        return validator.initialize('../../spec/');
     })
     .then(() => {
         return databaseManager.initialize();

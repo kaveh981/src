@@ -33,16 +33,15 @@ function Proposals(router: express.Router): void {
         /** Validation */
 
         // Validate the parameter
-        let validationErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let proposalID = Number(req.params['proposalID']);
 
-        if (validationErrors.length > 0) {
+        if (isNaN(proposalID)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         /** Route logic */
 
         // Fetch the desired proposal
-        let proposalID: number = req.params.proposalID;
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
         let user = req.ixmUserInfo;
 

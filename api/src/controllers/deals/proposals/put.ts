@@ -24,9 +24,9 @@ function Proposals(router: express.Router): void {
 
         /** Validation */
 
-        // Validate request params
-        let validationErrors = validator.validateType(req.body, 'CreateProposalRequest',
-                            { sanitizeStringEnum: true, fillDefaults: true, removeNull: true, trimStrings: true, sanitizeIntegers: true });
+        // Validate request body
+        let validationErrors = validator.validateType(req.body, 'ProposedDealCreate',
+                            { sanitizeStringEnum: true, fillDefaults: true, removeNull: true, trimStrings: true });
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);

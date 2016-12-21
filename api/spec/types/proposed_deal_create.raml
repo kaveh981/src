@@ -2,6 +2,7 @@
 
 type: object
 description: An object describing the request body needed to create a new proposal
+properties:
     auction_type:
         type: string
         required: true
@@ -13,11 +14,33 @@ description: An object describing the request body needed to create a new propos
         required: false
         displayName: Budget
         description: The projected amount to be spent by the buyer.
+        minimum: 1
+        maximum: 16777215
     contact:
-        type: Contact
+        type: object
         required: false
-        displayName: Contact Information    
-        description: The primary contact information for the proposal's owner. Overrides default user contact info if provided.
+        description: An object containing contact information, which may be associated with deals, available deal sections or profiles.
+        properties:
+            email:
+                type: string
+                required: true
+                displayName: Contact Email
+                description: The contact's email address.
+            name:
+                type: string
+                required: true
+                displayName: Contact Name
+                description: The contact's name.
+            phone:
+                type: string
+                required: true
+                displayName: Contact Phone Number
+                description: The contact's phone number.
+            title:
+                type: string
+                required: false
+                displayName: Job Title
+                description: The contact's job title or position.
     description:
         type: string
         required: false
@@ -39,8 +62,13 @@ description: An object describing the request body needed to create a new propos
         minimum: 0
         maximum: 16777215
     inventory:
-        type: integer[]
+        type: array
         required: true
+        minItems: 1
+        items:
+            type: integer
+            minimum: 1
+            maximum: 16777215
         displayName: Inventory Section Id(s)
         description: An array of Inventory Section IDs, indicating which sections will be active in this deal. (See "Section" type.)
     name:
@@ -48,10 +76,16 @@ description: An object describing the request body needed to create a new propos
         required: true
         displayName: Name
         description: Name of the deal.
+        minLength: 1
         maxLength: 255
     partners:
-        type: integer[]
+        type: array
         required: false
+        minItems: 1
+        items:
+            type: integer
+            minimum: 1
+            maximum: 16777215
         displayName: Targeted Partners
         description: Optional partner targeting. If this is included, the proposal will not be visible on the open market: only targeted partners will be able to see it. Partners will be notified, and will be able to accept, reject, or negotiate on the proposed deal.
     price:
@@ -73,6 +107,7 @@ description: An object describing the request body needed to create a new propos
         required: false
         displayName: Terms & Conditions
         description: The terms & conditions for the deal - extra information describing the deal.
+        minLength: 1
         maxLength: 65535
 example: |
     {

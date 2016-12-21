@@ -1,3 +1,9 @@
+# RAML API File (Remove if loading all files)
+file: ix_market_api.raml
+
+# Load traits from the api files as types.
+loadTraits: true
+
 # Validator Error Codes 
 
 # US English

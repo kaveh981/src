@@ -35,7 +35,7 @@ function ActiveDeals(router: express.Router): void {
         /** Validation */
 
         // Validate Query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
+        let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
@@ -63,14 +63,14 @@ function ActiveDeals(router: express.Router): void {
         /** Validation */
 
         // Validate request params
-        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let proposalID = Number(req.params['proposalID']);
 
-        if (paramErrors.length > 0) {
+        if (isNaN(proposalID)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         // Validate request query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
+        let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
@@ -79,7 +79,6 @@ function ActiveDeals(router: express.Router): void {
 
         /** Route logic */
 
-        let proposalID: number = req.params.proposalID;
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
 
@@ -115,17 +114,16 @@ function ActiveDeals(router: express.Router): void {
 
         /** Validation */
 
-        // Validate Query
-        let validationErrors = validator.validateType(req.params, 'SpecificDealParameters', { sanitizeIntegers: true });
+        // Validate Params
+        let proposalID = Number(req.params.proposalID);
+        let partnerID = Number(req.params.partnerID);
 
-        if (validationErrors.length > 0) {
-            throw HTTPError('404_DEAL_NOT_FOUND', validationErrors);
+        if (isNaN(proposalID) || isNaN(partnerID)) {
+            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
         }
 
         /** Route logic */
 
-        let proposalID: number = req.params.proposalID;
-        let partnerID: number = req.params.partnerID;
         let user = req.ixmUserInfo;
 
         // Check that proposal exists and can be accessed by the user
