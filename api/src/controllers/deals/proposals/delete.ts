@@ -4,7 +4,6 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProtectedRoute } from '../../../middleware/protected-route';
@@ -14,7 +13,6 @@ import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/neg
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
-const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('ROUT');
