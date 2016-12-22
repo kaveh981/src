@@ -23,6 +23,7 @@ program.version('1.0.0')
 keypress(process.stdin);
 
 let suiteManager: SuiteManager;
+let killCount: number = 0;
 
 async function start() {
 
@@ -53,16 +54,22 @@ async function start() {
         await suiteManager.runSuite().catch(e => Log.error(e));
     }
 
-    await Bootstrap.shutdown().then(() => process.exit(0));
+    await Bootstrap.shutdown();
+    process.exit(0);
 
 }
 
 process.stdin.on('keypress', (ch, key) => {
     if (key && key.ctrl && key.name === 'c') {
+        killCount++;
+
         if (suiteManager) {
             suiteManager.stopTesting();
         }
-        process.stdin.pause();
+
+        if (killCount >= 3) {
+            process.exit(1);
+        }
     }
 });
 
