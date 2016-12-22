@@ -260,4 +260,3 @@ export async function SH_OAUTH_12 (assert: test.Test) {
     assert.ok(!response.body.data, 'Access token should not be returned.');
 
 }
-
