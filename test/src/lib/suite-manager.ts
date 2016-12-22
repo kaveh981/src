@@ -21,10 +21,11 @@ interface ITestCaseFunction {
  */
 class SuiteManager {
 
+    public shuttingDown: boolean = false;
+
     private testsPath: string;
     private regex: RegExp;
     private testCases: TestManager[] = [];
-    private shuttingDown: boolean = false;
 
     /**
      * Instance constructor. Assigns params and loads test cases

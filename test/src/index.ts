@@ -56,11 +56,16 @@ Bootstrap.boot()
 
     })
     .then(() => {
-        Bootstrap.shutdown();
+        if (suiteManager && !suiteManager.shuttingDown) {
+            Bootstrap.shutdown();
+        }
     })
     .catch((e) => {
         Log.error(e);
-        Bootstrap.shutdown();
+
+        if (suiteManager && !suiteManager.shuttingDown) {
+            Bootstrap.shutdown();
+        }
     });
 
 ON_DEATH((signal, err) => {
