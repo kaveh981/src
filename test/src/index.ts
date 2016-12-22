@@ -3,6 +3,7 @@
 /** node_modules */
 import * as program from 'commander';
 import * as path from 'path';
+const keypress = require('keypress');
 
 /** Lib */
 import { Logger } from './lib/logger';
@@ -10,7 +11,6 @@ import { Bootstrap } from './lib/bootstrap';
 import { SuiteManager } from './lib/suite-manager';
 
 const Log = new Logger('TEST');
-const ON_DEATH = require('death')({ uncaughtException: true });
 
 program.version('1.0.0')
     .option('-d, --directory [dir]', 'The directory which houses the tests.')
@@ -20,57 +20,55 @@ program.version('1.0.0')
     .option('-f --file [file]', 'Run the tests exported in a given file.')
     .parse(process.argv);
 
-let directory = program['directory'];
-let regex = program['regex'] && new RegExp(program['regex']);
-let isStress = program['stress'];
-let restore = program['restore'];
-let file = program['file'];
+keypress(process.stdin);
 
 let suiteManager: SuiteManager;
 
-if (!directory && !isStress && !file && !restore) {
-    Log.error('Please specify a file (-f) or directory (-d).');
-    process.exit(1);
+async function start() {
+
+    let directory = program['directory'];
+    let regex = program['regex'] && new RegExp(program['regex']);
+    let isStress = program['stress'];
+    let restore = program['restore'];
+    let file = program['file'];
+    let testDirectory: string;
+
+    if (!directory && !isStress && !file && !restore) {
+        Log.error('Please specify a file (-f) or directory (-d).');
+        process.exit(1);
+    }
+
+    if (file) {
+        testDirectory = file;
+    } else if (directory) {
+        testDirectory = path.join('/test-cases/endpoints', directory);
+    } else if (isStress) {
+        testDirectory = '/test-cases/stress-tests';
+    }
+
+    await Bootstrap.boot();
+
+    if (!restore) {
+        suiteManager = new SuiteManager(testDirectory, regex);
+        await suiteManager.runSuite().catch(e => Log.error(e));
+    }
+
+    await Bootstrap.shutdown().then(() => process.exit(0));
+
 }
 
-Bootstrap.boot()
-    .then(() => {
-
-        if (restore) {
-            return;
+process.stdin.on('keypress', (ch, key) => {
+    if (key && key.ctrl && key.name === 'c') {
+        if (suiteManager) {
+            suiteManager.stopTesting();
         }
-
-        let testDirectory: string;
-
-        if (file) {
-            testDirectory = file;
-        } else if (directory) {
-            testDirectory = path.join('/test-cases/endpoints', directory);
-        } else if (isStress) {
-            testDirectory = '/test-cases/stress-tests';
-        }
-
-        suiteManager = new SuiteManager(testDirectory, regex);
-
-        return suiteManager.runSuite();
-
-    })
-    .then(() => {
-        if (suiteManager && !suiteManager.shuttingDown) {
-            Bootstrap.shutdown();
-        }
-    })
-    .catch((e) => {
-        Log.error(e);
-
-        if (suiteManager && !suiteManager.shuttingDown) {
-            Bootstrap.shutdown();
-        }
-    });
-
-ON_DEATH((signal, err) => {
-    if (suiteManager) {
-        suiteManager.stopTesting();
+        process.stdin.pause();
     }
-    Bootstrap.crash();
 });
+
+process.stdin['setRawMode'](true);
+process.stdin.resume();
+
+process.on('uncaughtException', () => { process.exit(1); });
+
+start();
