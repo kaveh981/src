@@ -79,6 +79,37 @@ class DatabasePopulator {
     }
 
     /**
+     * Create an apiKey for the given user
+     * @param userID - The user ID to create the API Key.
+     * @param phrase - The phrase to hash for the key.
+     * @returns The hashed apiKey.
+     */
+    public async createAPIKey(userID: number, phrase: string) {
+
+        let hashConfig = this.config.get('api-config');
+        let hashedPassword: string;
+
+        await new Promise((resolve, reject) => {
+            crypto.randomBytes(hashConfig['salt-bytes'], (err, salt) => {
+                let saltString = salt.toString('base64');
+                let hash = crypto.pbkdf2Sync(phrase, saltString, hashConfig['iterations'], hashConfig['hash-bytes'], 'sha1');
+                hashedPassword = hash.toString('base64') + saltString;
+                resolve();
+            });
+        });
+
+        await this.dbm.insert({
+            userID: userID,
+            apiKey: hashedPassword,
+            status: 'A',
+            version: 1
+        }).into('apiKeys');
+
+        return hashedPassword;
+
+    }
+
+    /**
      * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmBuyers"
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */

@@ -34,36 +34,18 @@ class APIRequestManager {
      * @param userID - The userID of the IXM Buyer you are impersonating.
      */
     public get(path: string, params: any, user: { userID?: number, userType?: number, accessToken?: string }) {
-        return new Promise((resolve: ({ status: number, body: any }) => any , reject) => {
 
-            let options = {
-                baseUrl: this.baseDomain,
-                qs: params,
-                uri: path,
-                method: 'GET',
-                json: true
+        let headers: any;
+
+        if (user) {
+            headers = {
+                [this.configLoader.get('api-config')['user-header']]: user.userID,
+                [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
             };
+        }
 
-            if (user) {
-                options['headers'] = {
-                    [this.configLoader.get('api-config')['user-header']]: user.userID,
-                    [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
-                };
-            }
+        return this.sendRequest(this.baseDomain, path, 'GET', params, headers);
 
-            Log.debug('Sending GET request to ' + path);
-            Log.trace('Options: ' + JSON.stringify(options));
-
-            request(options, (error, response, body) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                Log.trace(JSON.stringify(body));
-                resolve({ status: response.statusCode, body: body });
-            });
-
-        });
     }
 
     /**
@@ -73,36 +55,18 @@ class APIRequestManager {
      * @param userID - The userID of the IXM Buyer you are impersonating.
      */
     public put(path: string, body: any, user: { userID?: number, userType?: number, accessToken?: string }) {
-        return new Promise((resolve: ({ status: number, body: any }) => any, reject) => {
 
-            let options = {
-                baseUrl: this.baseDomain,
-                body: body,
-                uri: path,
-                method: 'PUT',
-                json: true
+        let headers: any;
+
+        if (user) {
+            headers = {
+                [this.configLoader.get('api-config')['user-header']]: user.userID,
+                [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
             };
+        }
 
-            if (user) {
-                options['headers'] = {
-                    [this.configLoader.get('api-config')['user-header']]: user.userID,
-                    [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
-                };
-            }
+        return this.sendRequest(this.baseDomain, path, 'PUT', body, headers);
 
-            Log.debug('Sending PUT request to ' + path);
-            Log.trace('Options: ' + JSON.stringify(options));
-
-            request(options, (error, response, resBody) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                Log.trace(JSON.stringify(resBody));
-                resolve({ status: response.statusCode, body: resBody });
-            });
-
-        });
     }
 
      /**
@@ -112,56 +76,54 @@ class APIRequestManager {
       * @param userID - The userID of the IXM Buyer you are impersonating.
       */
      public delete(path: string, params: any, user: { userID?: number, userType?: number, accessToken?: string }) {
-         return new Promise((resolve: ({ status: number, body: any }) => any, reject) => {
 
-             let options = {
-                 baseUrl: this.baseDomain,
-                 qs: params,
-                 uri: path,
-                 method: 'DELETE',
-                 json: true
-             };
+        let headers: any;
 
-             if (user) {
-                options['headers'] = {
-                    [this.configLoader.get('api-config')['user-header']]: user.userID,
-                    [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
-                };
-            }
+        if (user) {
+            headers = {
+                [this.configLoader.get('api-config')['user-header']]: user.userID,
+                [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
+            };
+        }
 
-             Log.debug('Sending DELETE request to ' + path);
-             Log.trace('Options: ' + JSON.stringify(options));
+        return this.sendRequest(this.baseDomain, path, 'DELETE', undefined, headers);
 
-             request(options, (error, response, body) => {
-                 if (error) {
-                     reject(error);
-                     return;
-                 }
-                 Log.trace(JSON.stringify(body));
-                 resolve({ status: response.statusCode, body: body });
-             });
-
-         });
     }
 
     /** 
      * Get an access token from SH Auth.
+     * @param username - The email address for the user.
+     * @param password - The password for the user.
+     * @param key - The api key for the user.
+     * @returns The response from SH Auth.
      */
-    public getAuthToken(username: string, password: string) {
+    public getAuthToken(username: string, password: string, apiKey?: string) {
+        return this.sendRequest(this.configLoader.get('api-config')['auth-domain'],
+                'auth/oauth/token', 'POST', { username: username, password: password, key: apiKey });
+    }
+
+    /**
+     * Send request function, to clean up the code.
+     * @param domain - The domain to send the request to.
+     * @param uri - The URI to send the request to, relative to domain.
+     * @param verb - The verb to use.
+     * @param body - The body (or query if GET) to send.
+     * @param headers - The headers to send.
+     * @returns The response from the server.
+     */
+    public sendRequest(domain: string, uri: string, verb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS', body?: any, headers?: any) {
         return new Promise((resolve: ({ status: number, body: any }) => any, reject) => {
 
             let options = {
-                baseUrl: this.configLoader.get('api-config')['auth-domain'],
-                body: {
-                    username: username,
-                    password: password
-                },
-                uri: 'auth/oauth/token',
-                method: 'POST',
+                baseUrl: domain,
+                [ verb === 'GET' ? 'qs' : 'body']: body,
+                uri: uri,
+                method: verb,
+                headers: headers,
                 json: true
             };
 
-            Log.debug('Sending POST request to auth...');
+            Log.debug(`Sending ${verb} request to ` + uri);
             Log.trace('Options: ' + JSON.stringify(options));
 
             request(options, (error, response, resBody) => {
@@ -181,10 +143,8 @@ class APIRequestManager {
     }
 
     public createAccessToken(user: INewUserData) {
-
          return jwt.sign({ userID: user.userID, userType: user.userType }, this.configLoader.getVar('AUTH_JWT_PASSWORD'),
                     { algorithm: "HS256" });
-
     }
 
 }
