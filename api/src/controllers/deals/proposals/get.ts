@@ -30,7 +30,7 @@ function Proposals(router: express.Router): void {
         /** Validation */
 
         // Validate request query
-        let validationErrors = validator.validateType(req.query, 'Pagination',
+        let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
         if (validationErrors.length > 0) {
@@ -58,16 +58,16 @@ function Proposals(router: express.Router): void {
         /** Validation */
 
         // Validate request params
-        let paramErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let proposalID = Number(req.params['proposalID']);
 
-        if (paramErrors.length > 0) {
+        if (isNaN(proposalID)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         /** Route logic */
 
         // Fetch the desired proposal
-        let proposal = await proposedDealManager.fetchProposedDealFromId(req.params.proposalID);
+        let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
         let user = req.ixmUserInfo;
 
         // Check that the proposal can actually be viewed by the current user. If not, send back an error.

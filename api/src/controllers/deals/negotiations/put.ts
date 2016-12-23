@@ -38,7 +38,7 @@ function NegotiationDeals(router: express.Router): void {
         /** Validation */
 
         // Validate the request body
-        let validationErrors = validator.validateType(req.body, 'NegotiateDealRequest',
+        let validationErrors = validator.validateType(req.body, 'NegotiatedDealCreate',
                                 { sanitizeStringEnum: true, fillDefaults: true, removeNull: true, trimStrings: true });
 
         if (validationErrors.length > 0) {

@@ -8,6 +8,8 @@ properties:
         required: false
         displayName: Budget
         description: The projected amount to be spent by the buyer
+        minimum: 1
+        maximum: 16777215
     end_date:
         type: date-only
         required: false
@@ -19,16 +21,22 @@ properties:
         required: false
         displayName: Impressions
         description: The projected amount of impressions for the package.
+        minimum: 1
+        maximum: 16777215
     partner_id:
         type: integer
         required: true
         displayName: Partner ID
         description: The ID of the partner involved in this negotiation.
+        minimum: 1
+        maximum: 16777215
     proposal_id:
         type: integer
         required: true
         displayName: Proposal ID
         description: The unique identifier for the proposal.
+        minimum: 1
+        maximum: 16777215
     price:
         type: number
         required: false
@@ -54,7 +62,9 @@ properties:
         required: false
         displayName: Terms & Conditions
         description: The terms & conditions for the deal - extra information describing the deal.
-    example: |
+        minLength: 1
+        maxLength: 65535
+example: |
     {
         "proposal_id": 999,
         "partner_id": 666,

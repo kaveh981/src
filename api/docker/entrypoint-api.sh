@@ -25,6 +25,7 @@ if [ -d $SRC_DIR ]; then
     cp -rf $SRC_DIR/src/schemas $DEST_DIR/src
     cp -rf $SRC_DIR/node_modules $DEST_DIR
     cp -rf $SRC_DIR/package.json $DEST_DIR
+    cp -rf $SRC_DIR/spec $DEST_DIR
 
     # Deploy secrets if found. Won't be found during image building, but will be found in workstation deployments when
     # the /src/ dir is mounted to the container (development).

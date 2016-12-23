@@ -4,7 +4,6 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProtectedRoute } from '../../../middleware/protected-route';
@@ -14,7 +13,6 @@ import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/neg
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
-const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 
 const Log: Logger = new Logger('ROUT');
@@ -33,16 +31,15 @@ function Proposals(router: express.Router): void {
         /** Validation */
 
         // Validate the parameter
-        let validationErrors = validator.validateType(req.params, 'SpecificProposalParameter', { sanitizeIntegers: true });
+        let proposalID = Number(req.params['proposalID']);
 
-        if (validationErrors.length > 0) {
+        if (isNaN(proposalID)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
         /** Route logic */
 
         // Fetch the desired proposal
-        let proposalID: number = req.params.proposalID;
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
         let user = req.ixmUserInfo;
 

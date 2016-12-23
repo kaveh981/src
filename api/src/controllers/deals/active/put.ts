@@ -43,7 +43,7 @@ function ActiveDeals(router: express.Router): void {
         /** Validation */
 
         // Validate body
-        let validationErrors = validator.validateType(req.body, 'AcceptDealRequest');
+        let validationErrors = validator.validateType(req.body, 'ActiveDealCreate');
 
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
