@@ -22,3 +22,4 @@ tables:
     - sectionCountryMappings
     - sectionDepthMappings
     - rtbSectionMatches
+    - apiKeys
