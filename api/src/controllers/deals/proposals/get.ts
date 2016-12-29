@@ -37,11 +37,15 @@ function Proposals(router: express.Router): void {
             throw HTTPError('400', validationErrors);
         }
 
-        /** Route logic */
+        validationErrors = validator.validateType(req.query, 'traits/queryParameters/deal_filterable', { sanitizeIntegers: true });
 
-        let user = req.ixmUserInfo;
+        if (validationErrors.length > 0) {
+            throw HTTPError('400', validationErrors);
+        }
+
+        /** Route logic */
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let availableProposals = await proposedDealManager.fetchAvailableProposedDealsFromUser(user, pagination);
+        let availableProposals = await proposedDealManager.fetchAvailableProposedDeals(pagination, req.query);
 
         Log.trace(`Found valid proposals ${Log.stringify(availableProposals)}`, req.id);
 

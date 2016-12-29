@@ -267,3 +267,220 @@ export async function IXM_API_DEALS_GET_07 (assert: test.Test) {
     assert.deepEqual(response.body['data'], []);
 
 }
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID with some proposals targeting a different user
+ * @expect  - Proposals not targetting a different user from ownerID should be returned 
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals,ownerID, targeting
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_08 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let dspTargeted = await databasePopulator.createDSP(2);
+    let buyerTargeted = await databasePopulator.createBuyer(dspTargeted.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], {}, [ buyerTargeted.user.userID ]);
+
+    // This publisher's proposals should be filtered out.
+    let filteredPublisher = await databasePopulator.createPublisher();
+    let filteredSite =  await databasePopulator.createSite(filteredPublisher.publisher.userID);
+    let filteredSection = await databasePopulator.createSection(filteredPublisher.publisher.userID, [ filteredSite.siteID ]);
+    await databasePopulator.createProposal(filteredPublisher.publisher.userID, [ filteredSection.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=${publisher.publisher.userID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, publisher.user) ]);
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID with page and limit
+ * @expect  - Proposals from ownerID should be returned on only one page with no next page url
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_09 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(3);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+
+    // First owner to be filtered out
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+
+    // Second owner to be included in results
+    let publisher2 = await databasePopulator.createPublisher();
+    let site2 = await databasePopulator.createSite(publisher2.publisher.userID);
+    let section2 = await databasePopulator.createSection(publisher2.publisher.userID, [ site2.siteID ]);
+    let proposal1 = await databasePopulator.createProposal(publisher2.publisher.userID, [ section2.section.sectionID ]);
+    let proposal2 = await databasePopulator.createProposal(publisher2.publisher.userID, [ section2.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?page=1&limit=2&owner_id=${publisher2.publisher.userID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal1, publisher2.user), Helper.proposalToPayload(proposal2, publisher2.user) ]);
+    // Check that response is not expecting any more data
+    assert.deepEqual(response.body.pagination.next_page_url, '');
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID with page and limit
+ * @expect  - One proposal from ownerID should be returned on one page with next page url
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals, ownerID, pagination
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_10 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(3);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+
+    // First owner to be filtered out
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+
+    // Second owner to be included in results
+    let publisher2 = await databasePopulator.createPublisher();
+    let site2 = await databasePopulator.createSite(publisher2.publisher.userID);
+    let section2 = await databasePopulator.createSection(publisher2.publisher.userID, [ site2.siteID ]);
+    let proposal1 = await databasePopulator.createProposal(publisher2.publisher.userID, [ section2.section.sectionID ]);
+    await databasePopulator.createProposal(publisher2.publisher.userID, [ section2.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?page=1&limit=1&owner_id=${publisher2.publisher.userID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal1, publisher2.user) ]);
+    // Check that response is expecting more data
+    assert.deepEqual(response.body.pagination.next_page_url, 'deals/proposals?page=2&limit=1');
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID which does not exist
+ * @expect  - No proposals to be returned
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_11 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=1`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID which is invalid
+ * @expect  - 400 - TYPE NUMB TOO SMALL
+ * @route   - GET deals/proposals
+ * @status  - in progress
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_12 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=0`, {}, buyer.user);
+
+    assert.equals(response.status, 400);
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID which is invalid
+ * @expect  - 400
+ * @route   - GET deals/proposals
+ * @status  - in progress
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_13 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+    let site = await databasePopulator.createSite(publisher.publisher.userID);
+    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=someString`, {}, buyer.user);
+
+    assert.equals(response.status, 400);
+
+}
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID which does not have any proposals
+ * @expect  - No proposals to be returned
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_14 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let publisher = await databasePopulator.createPublisher();
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=${publisher.publisher.userID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}

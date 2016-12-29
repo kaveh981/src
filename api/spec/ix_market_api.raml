@@ -59,6 +59,13 @@ traits:
                 default: 1
     deal_filterable:
         queryParameters:
+            owner_id:
+                type: number
+                required: false
+                displayName: Owner ID
+                description: The ID owner of the proposal. Used to only obtain proposals that are owned by a specific user.
+                minimum: 1
+                maximum: 16777215
             auction_type:
                 type: string
                 required: false

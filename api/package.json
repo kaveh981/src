@@ -5,7 +5,7 @@
   "author": "Index Exchange",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/index.ts --no-cache",
     "build-docs": "bash ./bin/compile-docs.sh",
     "postinstall": "typings install",
     "tslint": "tslint -e./typings/** -e./node_modules/** -e./test/** './**/*.ts'"

@@ -78,6 +78,34 @@ export class DatabaseManager {
     }
 
     /**
+     * Function to do the db filtering. It formats the filters and then returns a function that will apply these filters
+     * @param filters - An array of filters, each with a name (including table name it applies to), operator and value
+     * @param filterMapping - An object mapping filter names to operators and the associated sql table
+     * @returns A function that uses knex to do the filtering
+     */
+    public createFilter(filters: {[s: string]: any}, filterMapping: {[s: string]: {table: string, operator: string, column: string}}) {
+
+        let formattedFilters: any[] = [];
+
+        for (let filterName in filters) {
+            if (filterMapping[filterName]) {
+               formattedFilters.push({
+                    nameWithTable : filterMapping[filterName].table + "." + filterMapping[filterName].column,
+                    operator: filterMapping[filterName].operator,
+                    value: filters[filterName]
+                });
+            }
+        }
+
+        return (db) => {
+            formattedFilters.forEach((filter) => {
+                db.where(filter.nameWithTable, filter.operator, filter.value);
+            });
+        };
+
+    }
+
+    /**
      * Close down the database connection. If the client pool is open, destroys it.
      */
     public shutdown(): void {
