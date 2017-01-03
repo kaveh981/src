@@ -1,6 +1,6 @@
 {
   "config": {
-    "target": "https://market.indexexchange.com/ixm",
+    "target": "http://localhost:8000/ixm",
     "phases": [
       {"duration": 12000, "arrivalRate": 10}
     ],
