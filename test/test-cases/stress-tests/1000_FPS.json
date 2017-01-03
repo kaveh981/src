@@ -1,6 +1,6 @@
 {
   "config": {
-    "target": "https://market.indexexchange.com/ixm",
+    "target": "http://localhost:8000/api/v1",
     "phases": [
       {"duration": 120, "arrivalRate": 1000}
     ],
@@ -11,14 +11,15 @@
       "order": "sequence"
     }]
   },
-  "scenarios": [
+    "scenarios": [
     {
       "name": "Main Flow",
       "flow": [
         {"get": {
           "url": "/users/{{ pub }}",
           "headers": {
-                "X-IXM-UserId": "{{ buyer }}"
+                "IXM-UserID": "{{ buyer }}",
+                "IXM-AccessToken": "{\"userID\":{{ buyer }}, \"userType\":22}"
                 }
             }
         },
@@ -26,7 +27,8 @@
         {"get": {
             "url": "/deals/proposals/{{ proposalID }}",   
             "headers": {
-                "X-IXM-UserId": "{{ buyer }}"
+                "IXM-UserID": "{{ buyer }}",
+                "IXM-AccessToken": "{\"userID\":{{ buyer }}, \"userType\":22}"
                 }   
             }
         },
@@ -35,16 +37,18 @@
           "url": "/deals/negotiations",
           "beforeRequest": "stringToNumber",
           "headers": {
-              "X-IXM-UserId": "{{ buyer }}" 
+              "IXM-UserID": "{{ buyer }}", 
+              "IXM-AccessToken": "{\"userID\":{{ buyer }}, \"userType\":22}"
             },
           "json": {"proposal_id": "{{ proposalID }}", "partner_id": "{{ pub }}", "terms": "THESE ARE MY NEW TERMS"}
          }
         },
          
         {"get": {
-            "url": "/deals/negotiations/{{ proposalID }}/{{ buyer }}",  
+            "url": "/deals/negotiations/{{ proposalID }}/partner/{{ buyer }}",  
             "headers": {
-                "X-IXM-UserId": "{{ pub }}"
+                "IXM-UserID": "{{ pub }}",
+                "IXM-AccessToken": "{\"userID\":{{ pub }}, \"userType\":23}"
                 }   
             }
         },
@@ -53,16 +57,18 @@
           "url": "/deals/negotiations", 
           "beforeRequest": "stringToNumber",
           "headers": {
-              "X-IXM-UserId": "{{ pub }}"  
+              "IXM-UserID": "{{ pub }}",  
+              "IXM-AccessToken": "{\"userID\":{{ pub }}, \"userType\":23}"
             },
           "json": {"proposal_id": "{{ proposalID }}", "partner_id": "{{ buyer }}", "response": "accept"}
          }
         },
          
         {"get": {
-            "url": "/deals/negotiations/{{ proposalID }}/{{ pub }}", 
+            "url": "/deals/negotiations/{{ proposalID }}/partner/{{ pub }}", 
             "headers": {
-                "X-IXM-UserId": "{{ buyer }}" 
+                "IXM-UserID": "{{ buyer }}",
+                "IXM-AccessToken": "{\"userID\":{{ buyer }}, \"userType\":22}"
                 }   
             }
         },
@@ -70,7 +76,8 @@
         {"get": { 
             "url": "/deals/active",  
             "headers": {
-                "X-IXM-UserId": "{{ buyer }}"
+                "IXM-UserID": "{{ buyer }}",
+                "IXM-AccessToken": "{\"userID\":{{ buyer }}, \"userType\":22}"
                 }   
             }
         }
