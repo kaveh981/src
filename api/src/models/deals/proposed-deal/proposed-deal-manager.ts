@@ -6,12 +6,19 @@ import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
-import { UserModel } from '../../user/user-model';
 import { UserManager } from '../../user/user-manager';
 import { Helper } from '../../../lib/helper';
 
 /** Package model manager */
 class ProposedDealManager {
+
+    private readonly filterMapping = {
+        owner_id: {
+            table: 'ixmDealProposals',
+            operator: '=',
+            column: 'ownerID'
+        }
+    };
 
     /** Internal databaseManager  */
     private databaseManager: DatabaseManager;
@@ -125,10 +132,11 @@ class ProposedDealManager {
      * data left to get or not.
      * @returns Returns an array of available proposed deal objects.
      */
-    public async fetchAvailableProposedDealsFromUser(user: UserModel, pagination: PaginationModel): Promise<ProposedDealModel[]> {
+    public async fetchAvailableProposedDeals(pagination: PaginationModel, filters: {[s: string]: any}): Promise<ProposedDealModel[]> {
 
         let today = Helper.formatDate(Helper.currentDate());
-        let userID = user.id;
+
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
         let rows = await this.databaseManager.distinct('ixmDealProposals.proposalID as proposalID')
                                              .select()
@@ -148,14 +156,8 @@ class ProposedDealManager {
                                              .andWhere('users.status', 'A')
                                              .andWhere('rtbSections.status', 'A')
                                              .andWhere('sites.status', 'A')
-                                             .andWhere(function() {
-                                                 this.where('ixmProposalTargeting.userID', userID)
-                                                     .orWhereNull('ixmProposalTargeting.userID');
-                                             })
-                                             .orWhere(function() {
-                                                 this.where('ownerID', userID)
-                                                     .andWhereNot('ixmDealProposals.status', 'deleted');
-                                             })
+                                             .andWhere('ixmProposalTargeting.userID', null)
+                                             .andWhere(dbFiltering)
                                              .limit(pagination.limit + 1)
                                              .offset(pagination.getOffset());
 
