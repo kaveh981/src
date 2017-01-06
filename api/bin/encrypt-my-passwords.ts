@@ -47,9 +47,9 @@ async function start() { try {
     await Promise.all(rows.map(async (row) => {
 
         let hashedPassword = await new Promise((resolve, reject) => {
-            crypto.randomBytes(48, (err, salt) => {
+            crypto.randomBytes(9, (err, salt) => {
                 let saltString = salt.toString('base64');
-                let hash = crypto.pbkdf2Sync(row.password, saltString, 35000, 9, 'sha1');
+                let hash = crypto.pbkdf2Sync(row.password, saltString, 35000, 48, 'sha1');
                 let saltPassword = hash.toString('base64') + saltString;
                 resolve(saltPassword);
             });
