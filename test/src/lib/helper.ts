@@ -66,14 +66,12 @@ class Helper {
             return {
                 auction_type: proposal.proposal.auctionType,
                 budget: proposal.proposal.budget,
-                owner: {
-                    owner_id: owner.userID,
-                    contact: {
-                        title: 'Warlord',
-                        name: owner.firstName + ' ' + owner.lastName,
-                        email: owner.emailAddress,
-                        phone: owner.phone
-                    }
+                owner_id: owner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: owner.firstName + ' ' + owner.lastName,
+                    email: owner.emailAddress,
+                    phone: owner.phone
                 },
                 created_at: proposal.proposal.createDate.toISOString(),
                 currency: 'USD',
@@ -104,14 +102,12 @@ class Helper {
         if (proposal.proposal.status === 'deleted') {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
-                partner: {
-                    partner_id: partner.userID,
-                    contact: {
-                        title: 'Warlord',
-                        name: partner.firstName + ' ' + partner.lastName,
-                        email: partner.emailAddress,
-                        phone: partner.phone
-                    }
+                partner_id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
                 },
                 status: 'closed_by_owner',
                 created_at: dealNegotiation.createDate.toISOString(),
@@ -120,16 +116,14 @@ class Helper {
         } else {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
-                partner: {
-                    partner_id: partner.userID,
-                    contact: {
-                        title: 'Warlord',
-                        name: partner.firstName + ' ' + partner.lastName,
-                        email: partner.emailAddress,
-                        phone: partner.phone
-                    }
+                partner_id: partner.userID,
+                contact: {
+                    title: 'Warlord',
+                    name: partner.firstName + ' ' + partner.lastName,
+                    email: partner.emailAddress,
+                    phone: partner.phone
                 },
-                status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userType),
+                status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userID !== proposalOwner.userID),
                 price: dealNegotiation.price,
                 impressions: dealNegotiation.impressions,
                 budget: dealNegotiation.budget,
@@ -161,14 +155,12 @@ class Helper {
                 currency: 'USD',
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
+            partner_id: partner.userID,
             partner: {
-                partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                }
+                title: 'Warlord',
+                name: partner.firstName + ' ' + partner.lastName,
+                email: partner.emailAddress,
+                phone: partner.phone
             },
             inventory: proposal.sectionIDs.map((id) => {
                 return {
@@ -193,7 +185,7 @@ class Helper {
     }
 
     public static dealsActivePutToPayload(proposal: INewProposalData,
-        owner: INewUserData, buyer: INewBuyerData, modifiedDate: Date, createDate: Date) {
+        owner: INewUserData, buyerCompany: INewCompanyData, modifiedDate: Date, createDate: Date) {
 
         return {
             proposal: {
@@ -203,14 +195,12 @@ class Helper {
                 currency: 'USD',
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
+            partner_id: owner.userID,
             partner: {
-                partner_id: owner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: owner.firstName + ' ' + owner.lastName,
-                    email: owner.emailAddress,
-                    phone: owner.phone
-                }
+                title: 'Warlord',
+                name: owner.firstName + ' ' + owner.lastName,
+                email: owner.emailAddress,
+                phone: owner.phone
             },
             auction_type: proposal.proposal.auctionType,
             inventory: proposal.sectionIDs.map((id) => {
@@ -219,11 +209,11 @@ class Helper {
                     resource: `sections/${id}`
                 };
             }),
-            dsp_id: buyer.dspID,
+            dsp_id: buyerCompany.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,
             budget: proposal.proposal.budget,
-            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyer.user.userID + '-' + owner.userID)}`,
+            external_id: `ixm-${proposal.proposal.proposalID}-${this.encrypt(buyerCompany.user.userID + '-' + owner.userID)}`,
             start_date: Helper.formatDate(proposal.proposal.startDate),
             end_date: Helper.formatDate(proposal.proposal.endDate),
             status: proposal.proposal.status,
@@ -245,26 +235,26 @@ class Helper {
      /**
       * Determines the status to return to the user based on buyer and publisher status
       */
-    private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, partnerType: number) {
+    private static setNegotiationPayloadStatus(dealNegotiation: IDealNegotiationData, isOwner: boolean) {
 
-        if (partnerType === 23) {
-            if (dealNegotiation.buyerStatus === 'active') {
+        if (isOwner) {
+            if (dealNegotiation.ownerStatus === 'active') {
                 return 'waiting_on_you';
-            } else if (dealNegotiation.buyerStatus === 'rejected') {
+            } else if (dealNegotiation.ownerStatus === 'rejected') {
                 return 'rejected_by_you';
-            } else if (dealNegotiation.pubStatus === 'active') {
+            } else if (dealNegotiation.partnerStatus === 'active') {
                 return 'waiting_on_partner';
-            } else if (dealNegotiation.pubStatus === 'rejected') {
+            } else if (dealNegotiation.partnerStatus === 'rejected') {
                 return 'rejected_by_partner';
             }
         } else {
-            if (dealNegotiation.pubStatus === 'active') {
+            if (dealNegotiation.partnerStatus === 'active') {
                 return 'waiting_on_you';
-            } else if (dealNegotiation.pubStatus === 'rejected') {
+            } else if (dealNegotiation.partnerStatus === 'rejected') {
                 return 'rejected_by_you';
-            } else if (dealNegotiation.buyerStatus === 'active') {
+            } else if (dealNegotiation.ownerStatus === 'active') {
                 return 'waiting_on_partner';
-            } else if (dealNegotiation.buyerStatus === 'rejected') {
+            } else if (dealNegotiation.ownerStatus === 'rejected') {
                 return 'rejected_by_partner';
             }
         }

@@ -108,24 +108,24 @@ class NegotiatedDealModel {
      */
     public toPayload(user: MarketUserModel): any {
 
-        let partner: any;
-        let partnerID: number;
+        let otherParty: any;
+        let otherPartyID: number;
 
         let person: 'partner' | 'owner' = user.company.id === this.partner.company.id ? 'partner' : 'owner';
 
         if (person === 'owner') {
-            partner = this.partner.contact.toContactPayload();
-            partnerID = this.partner.company.id;
+            otherParty = this.partner.contact.toContactPayload();
+            otherPartyID = this.partner.company.id;
         } else {
-            partner = this.proposedDeal.owner.contact.toContactPayload();
-            partnerID = this.proposedDeal.owner.company.id;
+            otherParty = this.proposedDeal.owner.contact.toContactPayload();
+            otherPartyID = this.proposedDeal.owner.company.id;
         }
 
         if (this.proposedDeal.isDeleted()) {
             return {
                 proposal: this.proposedDeal.toPayload(),
-                partner_id: partnerID,
-                contact: partner,
+                partner_id: otherPartyID,
+                contact: otherParty,
                 status: this.setPayloadStatusFor(person),
                 created_at: this.createDate.toISOString(),
                 modified_at: this.modifyDate.toISOString()
@@ -133,8 +133,8 @@ class NegotiatedDealModel {
         } else {
             return {
                 proposal: this.proposedDeal.toPayload(),
-                partner_id: partnerID,
-                contact: partner,
+                partner_id: otherPartyID,
+                contact: otherParty,
                 status: this.setPayloadStatusFor(person),
                 terms: this.terms,
                 impressions: this.impressions,

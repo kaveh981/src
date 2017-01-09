@@ -17,14 +17,15 @@
             "chance": {
                 "pickone": [
                     [
-                        "buyer",
-                        "publisher"
+                        "owner",
+                        "partner"
                     ]
                 ]
             }
         },
-        "pubStatus": "active",
-        "buyerStatus": "active",
+        "ownerStatus": "active",
+        "partnerStatus": "active",
+        "partnerContactID": 1,
         "createDate": {
             "faker": "date.past"
         },
@@ -32,6 +33,6 @@
             "faker": "date.recent"
         }
     },
-    "required": ["startDate", "endDate", "price", "impressions", "budget", "terms", "sender", "pubStatus", "buyerStatus", "createDate", "modifyDate"] 
+    "required": ["startDate", "endDate", "price", "impressions", "budget", "terms", "sender", "ownerStatus", "partnerStatus", "partnerContactID", "createDate", "modifyDate"] 
 
 }
