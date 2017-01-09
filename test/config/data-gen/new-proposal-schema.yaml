@@ -2,6 +2,7 @@
     "type": "object",
     "properties": {
         "ownerID": 1,
+        "ownerContactID": 1,
         "name": {
             "faker": "company.bs"
         },
@@ -36,6 +37,7 @@
     },
     "required": [
         "ownerID",
+        "ownerContactID",
         "name",
         "description",
         "status",

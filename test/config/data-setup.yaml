@@ -5,11 +5,13 @@ suffix: _backup
 tables:
     - ixmDealNegotiations
     - ixmNegotiationDealMappings
-    - ixmBuyers
+#    - ixmBuyers
     - ixmDealProposals
     - ixmProposalSectionMappings
     - ixmProposalTargeting
 #    - ixmPublishers
+    - ixmUserCompanyMapping
+    - ixmCompanyWhitelist
     - users
     - publishers
     - sites
@@ -18,6 +20,7 @@ tables:
     - rtbSections
     - rtbDealSections
     - rtbSiteSections
+    - rtbTradingDesks
     - sectionAdUnitMappings
     - sectionCountryMappings
     - sectionDepthMappings

@@ -23,8 +23,10 @@ async function ATW_AUTH_01 (route: string, verb: string, setup: Function, assert
     await setup();
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
 
     /** Test */
     let buyerAuthResponse = await apiRequest.getAuthToken(buyer.user.emailAddress, buyer.user.password);
@@ -96,7 +98,8 @@ async function ATW_AUTH_03 (route: string, verb: string, setup: Function, assert
 
     /** Test */
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let user = buyer.user;
     let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
     let accessToken = authResponse.body.data.accessToken;
@@ -126,7 +129,8 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
 
     /** Test */
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let user = buyer.user;
     await apiRequest.getAuthToken(user.emailAddress, user.password);
 
@@ -155,7 +159,8 @@ async function ATW_AUTH_05 (route: string, verb: string, setup: Function, assert
 
     /** Test */
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let user = buyer.user;
     let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
     let accessToken = authResponse.body.data.accessToken;
@@ -183,7 +188,8 @@ async function ATW_AUTH_06 (route: string, verb: string, setup: Function, assert
     await setup();
 
     let dsp = await databasePopulator.createDSP(1);
-    await databasePopulator.createBuyer(dsp.dspID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
 
     /** Test */
     let response = await apiRequest[verb](route, {}, {

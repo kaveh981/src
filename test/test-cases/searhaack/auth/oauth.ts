@@ -20,7 +20,8 @@ export async function SH_OAUTH_01 (assert: test.Test) {
 
     assert.plan(4);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, undefined, 'gooselegs');
     let shResponse = await apiRequest.sendRequest('https://api01.indexexchange.com',
@@ -44,7 +45,8 @@ export async function SH_OAUTH_02 (assert: test.Test) {
 
     assert.plan(4);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
     let shResponse = await apiRequest.sendRequest('https://api01.indexexchange.com',
@@ -68,7 +70,8 @@ export async function SH_OAUTH_03 (assert: test.Test) {
 
     assert.plan(4);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
     let shResponse = await apiRequest.sendRequest('https://api01.indexexchange.com',
             'api/publishers/deals', 'GET', { userID: publisher.user.userID },
@@ -91,7 +94,8 @@ export async function SH_OAUTH_04 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password, 'gooselegs');
 
@@ -111,7 +115,8 @@ export async function SH_OAUTH_05 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, undefined);
 
@@ -131,7 +136,8 @@ export async function SH_OAUTH_06 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, 'beepboopiamagoose');
 
@@ -151,7 +157,8 @@ export async function SH_OAUTH_07 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password, 'this is wrong');
 
@@ -171,7 +178,8 @@ export async function SH_OAUTH_08 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(undefined, publisher.user.password);
 
@@ -191,7 +199,8 @@ export async function SH_OAUTH_09 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(undefined, undefined, 'gooselegs');
 
@@ -211,7 +220,8 @@ export async function SH_OAUTH_10 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher();
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, undefined, 'beesekegs');
 
@@ -231,7 +241,8 @@ export async function SH_OAUTH_11 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher({ status: 'N' });
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write', { status: 'N' });
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
 
@@ -251,7 +262,8 @@ export async function SH_OAUTH_12 (assert: test.Test) {
 
     assert.plan(3);
 
-    let publisher = await databasePopulator.createPublisher({ status: 'N' });
+    let pubCompany = await await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write', { status: 'N' });
     await databasePopulator.createAPIKey(publisher.user.userID, 'gooselegs');
     let response = await apiRequest.getAuthToken(publisher.user.emailAddress, undefined, 'gooselegs');
 
