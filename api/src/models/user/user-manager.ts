@@ -7,16 +7,13 @@ import { Helper } from '../../lib/helper';
 /** User model manager */
 class UserManager {
 
-    /** Internal databaseManager  */
-    private databaseManager: DatabaseManager;
-
     /**
      * Constructor
      * @param databaseManager - An instance of the database manager.
      */
-    constructor(databaseManager: DatabaseManager) {
-        this.databaseManager = databaseManager;
-    }
+    constructor (
+        private databaseManager: DatabaseManager
+    ) {}
 
     /**
      * Returns a user model from an id
@@ -30,7 +27,7 @@ class UserManager {
                                              .from('users')
                                              .innerJoin('userTypes', 'userType', '=', 'userTypeID')
                                              .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
-                                             .where('userID', userID);
+                                             .where('users.userID', userID);
 
         if (!rows[0]) {
             return;

@@ -27,6 +27,7 @@ Promise.resolve()
         return configLoader.initialize({ 'mw': './src/middleware' });
     })
     .then(() => {
+        global['IXM_CONSTANTS'] = configLoader.get('constants');
         return validator.initialize('../../spec/');
     })
     .then(() => {

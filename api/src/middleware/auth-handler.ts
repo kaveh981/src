@@ -6,11 +6,10 @@ import * as jwt from 'jsonwebtoken';
 import { ConfigLoader } from '../lib/config-loader';
 import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
-import { UserManager } from '../models/user/user-manager';
-import { UserModel } from '../models/user/user-model';
+import { MarketUserManager } from '../models/market-user/market-user-manager';
 import { HTTPError } from '../lib/http-error';
 
-const userManager = Injector.request<UserManager>('UserManager');
+const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const authConfig = config.get('auth');
@@ -18,7 +17,7 @@ const authConfig = config.get('auth');
 const Log = new Logger('AUTH');
 
 /** Identify if the user is legitimate, and is an IXM user */
-async function identifyUser(userID: number, accessToken: string): Promise<UserModel> {
+async function identifyUser(userID: number, accessToken: string, req: express.Request) {
 
     let jwtPassphrase = config.getEnv('AUTH_JWT_PASSWORD');
     let userToken: { userID: number, userType: number };
@@ -33,16 +32,20 @@ async function identifyUser(userID: number, accessToken: string): Promise<UserMo
         throw HTTPError('401');
     }
 
-    if (userID !== userToken.userID) {
+    // Internal users can impersonate anyone.
+    if (userToken.userType === IXM_CONSTANTS.INTERNAL_USER_TYPE) {
+        req.impersonatorID = userToken.userID;
+        req.isInternalUser = true;
+    } else if (userID !== userToken.userID) {
         throw HTTPError('401_CANNOT_IMPERSONATE');
     }
 
-    let userInfo = await userManager.fetchUserFromId(userID);
+    let userInfo = await marketUserManager.fetchMarketUserFromId(userID);
 
     // User not found or not an IXM buyer
-    if (!userInfo || authConfig.allowedUserTypes.indexOf(userInfo.userType) === -1) {
+    if (!userInfo) {
         throw HTTPError('401_NOT_IXMUSER');
-    } else if (!userInfo.isActive()) {
+    } else if (!userInfo.contact.isActive()) {
         throw HTTPError('401_NOT_ACTIVE');
     }
 
@@ -61,7 +64,7 @@ async function AuthHandler (req: express.Request, res: express.Response, next: F
 
     if (accessToken || userID) {
         Log.trace(`Authentication attempt for ${userID}${accessToken ? ' with access token' : ''}...`, req.id);
-        req.ixmUserInfo = await identifyUser(userID, accessToken);
+        req.ixmUserInfo = await identifyUser(userID, accessToken, req);
     }
 
     next();

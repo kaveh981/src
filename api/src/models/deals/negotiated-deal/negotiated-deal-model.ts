@@ -1,26 +1,20 @@
 'use strict';
 
-import { UserModel } from '../../user/user-model';
+import { MarketUserModel } from '../../market-user/market-user-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 
 class NegotiatedDealModel {
 
     /** ID of the negotation in ixmDealNegotiation */
     public id: number;
-    /** The id of the buyer in this negotiation */
-    public buyerID: number;
-    /** Contact info for the buyer */
-    public buyerInfo: UserModel;
-    /** The id of the publisher in this negotiation */
-    public publisherID: number;
-    /** The contact info for the publisher */
-    public publisherInfo: UserModel;
+    /** The partner in this negotiation */
+    public partner: MarketUserModel;
     /** Publisher's status */
-    public publisherStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
+    public ownerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Buyer's status */
-    public buyerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
+    public partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected';
     /** Which party last updated this offer */
-    public sender: 'publisher' | 'buyer';
+    public sender: 'owner' | 'partner';
     /** Created date of the negotation */
     public createDate: Date;
     /** Modified date of the negotation */
@@ -62,8 +56,8 @@ class NegotiatedDealModel {
      * @param partnerStatus - The status of the receiving party.
      * @returns True if there was a change to the negotiation terms.
      */
-    public update(sender: 'buyer' | 'publisher', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        partnerStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
+    public update(sender: 'owner' | 'partner', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
+        receiverStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
 
         let existDifference = false;
 
@@ -76,12 +70,12 @@ class NegotiatedDealModel {
             }
         }
 
-        if (sender === 'publisher') {
-            this.publisherStatus = senderStatus;
-            this.buyerStatus = partnerStatus;
+        if (sender === 'partner') {
+            this.partnerStatus = senderStatus;
+            this.ownerStatus = receiverStatus;
         } else {
-            this.buyerStatus = senderStatus;
-            this.publisherStatus = partnerStatus;
+            this.ownerStatus = senderStatus;
+            this.partnerStatus = receiverStatus;
         }
 
         return existDifference;
@@ -94,39 +88,54 @@ class NegotiatedDealModel {
      */
     public isActive() {
 
-        let negotiationActive = (this.publisherStatus === 'accepted' && this.buyerStatus === 'active') ||
-                                (this.buyerStatus === 'accepted' && this.publisherStatus === 'active');
+        let negotiationActive = (this.ownerStatus === 'accepted' && this.partnerStatus === 'active')
+                                || (this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
 
         return negotiationActive && this.proposedDeal.isActive();
 
     }
 
+    public getPublisher(): MarketUserModel {
+        if (this.partner.isBuyer()) {
+            return this.proposedDeal.owner;
+        } else {
+            return this.partner;
+        }
+    }
+
     /**
      * Return payload formated object
      */
-    public toPayload(userType: string): any {
+    public toPayload(user: MarketUserModel): any {
 
-        let partner;
+        let partner: any;
+        let partnerID: number;
 
-        if (userType === 'IXMB') {
-            partner = this.publisherInfo.toPayload('partner_id');
+        let person: 'partner' | 'owner' = user.company.id === this.partner.company.id ? 'partner' : 'owner';
+
+        if (person === 'owner') {
+            partner = this.partner.contact.toContactPayload();
+            partnerID = this.partner.company.id;
         } else {
-            partner = this.buyerInfo.toPayload('partner_id');
+            partner = this.proposedDeal.owner.contact.toContactPayload();
+            partnerID = this.proposedDeal.owner.company.id;
         }
 
         if (this.proposedDeal.isDeleted()) {
             return {
                 proposal: this.proposedDeal.toPayload(),
-                partner: partner,
-                status: this.setPayloadStatus(userType),
+                partner_id: partnerID,
+                contact: partner,
+                status: this.setPayloadStatusFor(person),
                 created_at: this.createDate.toISOString(),
                 modified_at: this.modifyDate.toISOString()
             };
         } else {
             return {
                 proposal: this.proposedDeal.toPayload(),
-                partner: partner,
-                status: this.setPayloadStatus(userType),
+                partner_id: partnerID,
+                contact: partner,
+                status: this.setPayloadStatusFor(person),
                 terms: this.terms,
                 impressions: this.impressions,
                 budget: this.budget,
@@ -145,37 +154,37 @@ class NegotiatedDealModel {
      * @param user - the user in question
      * @returns true if the negotiation is readable by the user
      */
-    public isReadableByUser(user: UserModel) {
-        return (user.id === this.buyerID || user.id === this.publisherID);
+    public isReadableByUser(user: MarketUserModel) {
+        return user.company.id === this.partner.company.id || user.company.id === this.proposedDeal.owner.company.id;
     }
 
     /**
      * Determines the status to return to the user based on buyer and publisher status
      */
-    private setPayloadStatus(userType: string) {
+    private setPayloadStatusFor(person: 'partner' | 'owner') {
 
         if (this.proposedDeal.status === 'deleted') {
             return 'closed_by_owner';
         }
 
-        if (userType === 'IXMB') {
-            if (this.buyerStatus === 'active') {
+        if (person === 'partner') {
+            if (this.partnerStatus === 'active') {
                 return 'waiting_on_you';
-            } else if (this.buyerStatus === 'rejected') {
+            } else if (this.partnerStatus === 'rejected') {
                 return 'rejected_by_you';
-            } else if (this.publisherStatus === 'active') {
+            } else if (this.ownerStatus === 'active') {
                 return 'waiting_on_partner';
-            } else if (this.publisherStatus === 'rejected') {
+            } else if (this.ownerStatus === 'rejected') {
                 return 'rejected_by_partner';
             }
         } else {
-            if (this.publisherStatus === 'active') {
+            if (this.ownerStatus === 'active') {
                 return 'waiting_on_you';
-            } else if (this.publisherStatus === 'rejected') {
+            } else if (this.ownerStatus === 'rejected') {
                 return 'rejected_by_you';
-            } else if (this.buyerStatus === 'active') {
+            } else if (this.partnerStatus === 'active') {
                 return 'waiting_on_partner';
-            } else if (this.buyerStatus === 'rejected') {
+            } else if (this.partnerStatus === 'rejected') {
                 return 'rejected_by_partner';
             }
         }

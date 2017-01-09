@@ -1,6 +1,6 @@
 'use strict';
 
-import { UserModel } from '../../user/user-model';
+import { MarketUserModel } from '../../market-user/market-user-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
 import { Helper } from '../../../lib/helper';
 
@@ -8,10 +8,8 @@ class ProposedDealModel {
 
     /** ID of the proposal */
     public id: number;
-    /** ID of the proposal's owner, corresponding to users in database */
-    public ownerID: number;
-    /** Contact information for the owner */
-    public ownerInfo: UserModel;
+    /** The owner user model */
+    public owner: MarketUserModel;
     /** Name of the proposal, unique value */
     public name: string;
     /** Description of the proposal */
@@ -59,7 +57,7 @@ class ProposedDealModel {
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isActive(): boolean {
-        return (this.sections.length > 0) && (this.status === 'active') && this.ownerInfo.isActive();
+        return (this.sections.length > 0) && (this.status === 'active') && this.owner.isActive();
     }
 
     public isExpired(): boolean {
@@ -78,8 +76,8 @@ class ProposedDealModel {
      * @param user - the user in question
      * @returns true if the proposal is purchasable by this user
      */
-    public isPurchasableByUser(user: UserModel) {
-        return this.isActive() && !this.isExpired() && user.userType !== this.ownerInfo.userType && this.targetsUser(user);
+    public isPurchasableByUser(user: MarketUserModel) {
+        return this.isActive() && !this.isExpired() && user.isBuyer() !== this.owner.isBuyer() && this.targetsUser(user);
     }
 
     /**
@@ -89,8 +87,17 @@ class ProposedDealModel {
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */
-    public isReadableByUser(user: UserModel) {
-        return (this.isActive() && !this.isExpired() && this.targetsUser(user)) || this.ownerID === user.id && !this.isDeleted();
+    public isReadableByUser(user: MarketUserModel) {
+        return this.isActive() && !this.isExpired() && this.targetsUser(user) || this.owner.company.id === user.company.id && !this.isDeleted();
+    }
+
+    /**
+     * Check that negotiations on this proposal can be viewed by the user.
+     * @param user - The user in question.
+     * @param hasNegotiations - If the user already has negotiations on this proposal.
+     */
+    public hasNegotiationsViewableBy(user: MarketUserModel, hasNegotiations: boolean) {
+        return this.targetsUser(user) || this.owner.company.id === user.company.id || !hasNegotiations && this.isReadableByUser(user);
     }
 
     /**
@@ -103,8 +110,8 @@ class ProposedDealModel {
     /**
      * Returns true if the proposal targets the user
      */
-    public targetsUser(user: UserModel) {
-        return !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.id) === -1);
+    public targetsUser(user: MarketUserModel) {
+        return !(this.targetedUsers.length > 0 && this.targetedUsers.indexOf(user.company.id) === -1);
     }
 
     /**
@@ -143,7 +150,8 @@ class ProposedDealModel {
         } else {
             return {
                 proposal_id: this.id,
-                owner: this.ownerInfo.toPayload('owner_id'),
+                owner_id: this.owner.company.id,
+                contact: this.owner.contact.toContactPayload(),
                 partners: this.targetedUsers,
                 name: this.name,
                 status: this.status,

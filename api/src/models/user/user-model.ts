@@ -36,6 +36,13 @@ class UserModel {
         return this.status === 'active';
     }
 
+    /**
+     * The user is a buyer if they aren't a publisher.
+     */
+    public isBuyer() {
+        return IXM_CONSTANTS.BUYER_TYPES.indexOf(this.userType) !== -1;
+    }
+
     /** 
      * Craft the contact information as payload
      */
@@ -50,6 +57,10 @@ class UserModel {
 
     }
 
+    /** 
+     * Craft the user information as payload
+     * @param userIDKey - The key to use for ID.
+     */
     public toPayload(userIdKey: string = 'id') {
 
         return {

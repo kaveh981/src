@@ -6,7 +6,7 @@ import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { Permission } from '../../../middleware/permission';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
@@ -25,11 +25,11 @@ function Proposals(router: express.Router): void {
      * GET request to get all available proposals. The function first validates pagination query parameters. It then retrieves all
      * proposals from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
      */
-    router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/', Permission('public'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
-        // Validate request query
+        // Validate request queryy
         let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 
@@ -57,7 +57,7 @@ function Proposals(router: express.Router): void {
      * GET request to get a specific proposal using the proposal ID. The function first makes sure the requested proposal is accessible,
      * then it returns it if successful.
      */
-    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
