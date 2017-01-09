@@ -39,18 +39,27 @@ class Validator {
         this.logger = new Logger('VLDT');
 
         ZSchema.registerFormat("proposal", (proposal) => {
-
             let schema = this.loader.getSchema("proposalArray");
 
             for (let key in schema.items.properties) {
-
-                if (!proposal[key] && typeof schema.items.properties[key].default  !== 'undefined') {
-
+                if (!proposal[key] && typeof schema.items.properties[key].default !== 'undefined') {
                     proposal[key] = schema.items.properties[key].default;
                 }
             }
             return true;
         });
+
+        ZSchema.registerFormat("section", (section) => {
+            let schema = this.loader.getSchema("sectionArray");
+
+            for (let key in schema.items.properties) {
+                if (!section[key] && typeof schema.items.properties[key].default !== 'undefined') {
+                    section[key] = schema.items.properties[key].default;
+                }
+            }
+            return true;
+        });
+
     }
 
     /**
@@ -60,6 +69,17 @@ class Validator {
      * @returns {boolean} - true if valid, false if invalid
      */
     public validateProposals(jsonArray: any[], schema: any = this.loader.getSchema('proposalArray')) {
+
+        if (this.validator.validate(jsonArray, schema)) {
+            return true;
+        } else {
+            this.logger.error(JSON.stringify(this.validator.getLastErrors(), undefined, 4));
+            return false;
+        }
+
+    }
+
+    public validateSections(jsonArray: any[], schema: any = this.loader.getSchema('sectionArray')) {
 
         if (this.validator.validate(jsonArray, schema)) {
             return true;
@@ -86,7 +106,6 @@ class Validator {
             if (!constraints.hasOwnProperty(constraint)) { return; }
 
             switch (constraint) {
-
                 case 'dateOrder':
                     constraints.dateOrder.forEach((dates: IDateOrderConstraint) => {
                         let prior = json[dates.prior];
@@ -104,7 +123,38 @@ class Validator {
                         }
                     });
                     break;
+                case 'urlMatch':
+                    constraints.urlMatch.forEach((urlMatch: IUrlMatchConstraint) => {
 
+                        let entireSite: number = json[urlMatch.entireSite];
+                        let matches: IMatch[] = json[urlMatch.matches];
+
+                        if (entireSite === 1 && matches) {
+                            report.addCustomError('UNEXPECTED_MATCHES',
+                                'If entireSite is 1, no matches should be provided');
+                        }
+
+                        if (entireSite === 0 && !matches) {
+                            report.addCustomError('MISSING_MATCHES',
+                                'EntireSite is 0, matches must be provided');
+                            return;
+                        }
+
+                        if (entireSite === 0 && matches) {
+                            let seenURLs: string[] = [];
+
+                            matches.forEach((match: IMatch) => {
+                                if (seenURLs.indexOf(match.url) !== -1) {
+                                    report.addCustomError('DUPLICATED_MATCH_URL',
+                                        'Match URL "{0}" is duplicated.',
+                                    [ match.url ], null, schema.description);
+                                }
+                                seenURLs.push(match.url);
+                            });
+                        }
+
+                    });
+                    break;
                 default:
                     this.logger.warn(`Constraint: ${constraint} is not a valid constraint keyword}`);
             }
