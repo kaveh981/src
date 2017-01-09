@@ -33,6 +33,21 @@ class CSVLoader extends Loader {
     }
 
     /**
+     * Gets sections from a csv file, contained in the CSV_DIR path
+     * @param name - the name of the csv file without the .csv extension
+     * @returns {ISection[]}
+     */
+    public getSections(name: string): ISection[] {
+
+        if (!this.loadedMap[name]) {
+            this.loadedMap[name] = this.parseSections(this.loadCsvFile(name));
+        }
+
+        return this.loadedMap[name];
+
+    }
+
+    /**
      * Returns JSON Array from parsed csv file
      * @param name - the file name without the .csv file extension
      */
@@ -80,6 +95,55 @@ class CSVLoader extends Loader {
             return proposal;
         });
 
+    }
+
+    /**
+     * Sanitises an array of section-like objects to conform with the ISection Interface
+     * @param parsedCsv - an array of section-like objects parsed from a csv file
+     * @returns {ISection[]} - An array of section objects, sanitised into a valid ISection[] type
+     */
+    private parseSections(parsedCsv: ISection[]): ISection[] {
+        return parsedCsv.map((section: any) => {
+
+            section.matches = [];
+
+            if (section.fullMatchesURL) {
+                section.fullMatchesURL.toString().split(',').forEach((matchURL) => {
+                    section.matches.push({ matchType: 1, url: matchURL });
+                });
+            }
+            delete section.fullMatchesURL;
+
+            if (section.partialMatchesURL) {
+                section.partialMatchesURL.toString().split(',').forEach((matchURL) => {
+                    section.matches.push({ matchType: 2, url: matchURL });
+                });
+            }
+            delete section.partialMatchesURL;
+
+            if (section.matches.length < 1) {
+                delete section.matches;
+            }
+
+            // Replace siteIDs with siteID because in Searhaack siteID array in request body is named 'siteID'
+            section.siteID = section.siteIDs && section.siteIDs.toString().split(',').map(Number);
+            delete section.siteIDs;
+
+            section.frequencyRestrictions = (section.frequencyRestrictions || section.frequencyRestrictions === 0) ?
+                                             section.frequencyRestrictions.toString().split(',').map(Number) : [];
+
+            section.audienceRestrictions = (section.audienceRestrictions || section.audienceRestrictions === 0) ?
+                                            section.audienceRestrictions.toString().split(',').map(Number) : [];
+
+            section.adUnitRestrictions = (section.adUnitRestrictions || section.adUnitRestrictions === 0) ?
+                                          section.adUnitRestrictions.toString().split(',').map(Number) : [];
+
+            section.countryRestrictions = section.countryRestrictions ?
+                                          section.countryRestrictions.toString().split(',') : [];
+
+            return section;
+
+        });
     }
 
 }

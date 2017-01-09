@@ -1,0 +1,4 @@
+userID,name,percent,entireSite,fullMatchesURL,partialMatchesURL,siteIDs,frequencyRestrictions,audienceRestrictions,countryRestrictions,adUnitRestrictions
+100129,csvImportedProposal1,10,1,,,"1,2,3","4,5","6,7","CAD,US","8,9"
+100129,csvImportedProposal1,10,1,,,"1,2,3","4,5","6,7","C,US","8,9"
+100129,csvImportedProposal1,10,1,,,"1,2,3","4,5","6,7","XX,US","8,9"

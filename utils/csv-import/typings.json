@@ -7,9 +7,13 @@
     "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
     "knex": "registry:dt/knex#0.0.0+20161009195237",
     "node": "registry:dt/node#6.0.0+20161102143327",
+    "request-promise-native": "registry:dt/request-promise-native#1.0.3+20161006212032",
     "z-schema": "registry:dt/z-schema#3.16.0+20160622084406"
   },
   "dependencies": {
-    "bluebird": "registry:npm/bluebird#3.4.1+20160909132857"
+    "bluebird": "registry:npm/bluebird#3.4.1+20160909132857",
+    "form-data": "registry:dt/form-data#0.0.0+20161115134730",
+    "prompt-sync": "registry:dt/prompt-sync#4.1.4+20161110161159",
+    "request": "registry:dt/request#0.0.0+20161226134949"
   }
 }

@@ -1,0 +1,3 @@
+userID,name,percent,entireSite,fullMatchesURL,partialMatchesURL,siteIDs,frequencyRestrictions,audienceRestrictions,countryRestrictions,adUnitRestrictions
+100129,csvImportedProposal1,10,0,,"http://qq.com,http://qq.com","1,2,3","4,5","6,7","CA,US","8,9"
+100129,csvImportedProposal1,10,0,,"","1,2,3","4,5","6,7","CA,US","8,9"

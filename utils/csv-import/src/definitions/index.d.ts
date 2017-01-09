@@ -17,11 +17,55 @@ interface IProposal {
     targetedUsers: Number[];
 }
 
+interface ISection {
+    userID?: number;
+    name?: string;
+    percent?: number;
+    entireSite?: number;
+    matches?: IMatch[];
+    fullMatchesURL?: string[];
+    partialMatchesURL?: string[];
+    siteIDs?: number[];
+    frequencyRestrictions?: number[];
+    audienceRestrictions?: number[];
+    countryRestrictions?: string[];
+    adUnitRestrictions?: number[];
+}
+
+interface IMatch {
+    matchType: number;
+    url: string;
+}
+
+interface ISectionResult {
+    userID?: number;
+    name?: string;
+    percent?: number;
+    entireSite?: number;
+    matches?: IMatch[];
+    fullMatchesURL?: string[];
+    partialMatchesURL?: string[];
+    siteIDs?: number[];
+    frequencyRestrictions?: number[];
+    audienceRestrictions?: number[];
+    countryRestrictions?: string[];
+    adUnitRestrictions?: number[];
+    responseCode: string;
+    responseErrors?: any;
+    newSectionID?: number;
+}
+
 interface IDateOrderConstraint {
     prior: string;
     after: string;
 }
 
+interface IUrlMatchConstraint {
+    entireSite: string;
+    matches: string;
+}
+
 interface IConstraints {
     dateOrder?: IDateOrderConstraint[];
+    urlMatch?: IUrlMatchConstraint[];
 }
