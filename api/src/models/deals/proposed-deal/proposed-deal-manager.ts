@@ -6,7 +6,7 @@ import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
-import { UserManager } from '../../user/user-manager';
+import { MarketUserManager } from '../../market-user/market-user-manager';
 import { Helper } from '../../../lib/helper';
 
 /** Package model manager */
@@ -23,8 +23,8 @@ class ProposedDealManager {
     /** Internal databaseManager  */
     private databaseManager: DatabaseManager;
 
-    /** To populate the contact info */
-    private userManager: UserManager;
+    /** A market user manager */
+    private marketUserManager: MarketUserManager;
 
     /** To get deal section info */
     private dealSectionManager: DealSectionManager;
@@ -34,9 +34,9 @@ class ProposedDealManager {
      * @param database - An instance of the database manager.
      * @param userManager - An instance of the user manager.
      */
-    constructor(databaseManager: DatabaseManager, userManager: UserManager, dealSectionManager: DealSectionManager) {
+    constructor(databaseManager: DatabaseManager, marketUserManager: MarketUserManager, dealSectionManager: DealSectionManager) {
         this.databaseManager = databaseManager;
-        this.userManager = userManager;
+        this.marketUserManager = marketUserManager;
         this.dealSectionManager = dealSectionManager;
     }
 
@@ -47,7 +47,7 @@ class ProposedDealManager {
      */
     public async fetchProposedDealFromId(proposalID: number): Promise<ProposedDealModel> {
 
-        let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'name', 'description', 'status',
+        let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'ownerContactID', 'name', 'description', 'status',
                                                      'startDate', 'endDate', 'price', 'impressions', 'budget',
                                                      'auctionType', 'terms', 'createDate', 'modifyDate')
                                              .from('ixmDealProposals')
@@ -59,7 +59,6 @@ class ProposedDealManager {
 
         let proposal = new ProposedDealModel({
             id: proposalID,
-            ownerID: rows[0].ownerID,
             name: rows[0].name,
             description: rows[0].description,
             status: rows[0].status,
@@ -78,51 +77,12 @@ class ProposedDealManager {
         await Promise.all([ (async () => {
             proposal.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalID);
         })(), (async () => {
-            proposal.ownerInfo = await this.userManager.fetchUserFromId(rows[0].ownerID);
+            proposal.owner = await this.marketUserManager.fetchMarketUserFromId(rows[0].ownerContactID);
         })(), (async () => {
-            proposal.targetedUsers = await this.fetchTargetedBuyerIdsFromProposalId(proposalID);
+            proposal.targetedUsers = await this.fetchTargetedIdsFromProposalId(proposalID);
         })() ]);
 
         return proposal;
-
-    }
-
-    /**
-     * Get list of objects by status
-     * @param proposalStatus - status of the proposal, a enum value which could be active, paused or deleted.
-     * @param pagination - The pagination parameters. This function modifies this parameter by setting its nextPageURL field based on whether there is more
-     * data left to get or not.
-     * @returns Returns an array of proposed deal objects with the given status.
-     */
-    public async fetchProposedDealsFromStatus(proposalStatus: string, pagination: PaginationModel): Promise<ProposedDealModel[]> {
-
-        let proposalIDs = await this.databaseManager.pluck('proposalID')
-                                         .from('ixmDealProposals')
-                                         .where('status', proposalStatus)
-                                         .limit(pagination.limit + 1)
-                                         .offset(pagination.getOffset());
-
-        // Check that there is more data to retrieve to appropriately set the next page URL
-        if (proposalIDs.length <= pagination.limit) {
-            pagination.nextPageURL = '';
-        } else {
-            proposalIDs.pop();
-        }
-
-        // Fetch the proposals
-        let proposals: ProposedDealModel[] = [];
-
-        await Promise.all(proposalIDs.map(async (proposalID) => {
-
-            if (proposalID) {
-                proposals.push(await this.fetchProposedDealFromId(proposalID));
-            }
-
-        }));
-
-        proposals.sort((a, b) => a.id - b.id);
-
-        return proposals;
 
     }
 
@@ -186,46 +146,6 @@ class ProposedDealManager {
     }
 
     /**
-     * Create a new proposed deal from a set of proposal fields.
-     * @param proposalFields - The fields used to set the proposal properties
-     * @returns A proposed deal model with the specified properties
-     */
-    public async createProposedDeal(proposalFields: any = {}) {
-
-        // if (proposalFields.contact) {
-        //     let name = proposalFields.contact.name;
-
-        //     ownerInfo.emailAddress = proposalFields.contact.email;
-        //     ownerInfo.phone = proposalFields.contact.phone;
-        //     ownerInfo.title = proposalFields.contact.title;
-        //     ownerInfo.firstName = name.substr(0, name.indexOf(' '));
-        //     ownerInfo.lastName = proposalFields.contact.name.substr(name.indexOf(' ') + 1);
-        // }
-
-        let proposedDeal = new ProposedDealModel({
-            ownerID: proposalFields.ownerID,
-            ownerInfo: proposalFields.ownerInfo,
-            name: proposalFields.name,
-            description: proposalFields.description,
-            status: 'active',
-            startDate: proposalFields.startDate,
-            endDate: proposalFields.endDate,
-            price: proposalFields.price,
-            impressions: proposalFields.impressions,
-            budget: proposalFields.budget,
-            auctionType: proposalFields.auctionType,
-            terms: proposalFields.terms,
-            createDate: Helper.currentDate(),
-            modifyDate: Helper.currentDate(),
-            sections: proposalFields.inventory,
-            targetedUsers: proposalFields.partners
-        });
-
-        return proposedDeal;
-
-    }
-
-    /**
      * Insert a new proposed deal into the database.
      * @param proposedDeal - The proposed deal to insert
      * @param transaction - A knex transaction object to use.
@@ -242,7 +162,8 @@ class ProposedDealManager {
 
         // Insert proposal into ixmDealProposals
         let proposalID = (await transaction.insert({
-            ownerID: proposedDeal.ownerID,
+            ownerID: proposedDeal.owner.company.id,
+            ownerContactID: proposedDeal.owner.contact.id,
             name: proposedDeal.name,
             description: proposedDeal.description,
             status: 'active',
@@ -298,7 +219,7 @@ class ProposedDealManager {
 
     /**
      * Update a proposal with new parameters sent in the request and update new modifyDate
-     * @param proposedDeal - The proposaled deal deal to update.
+     * @param proposedDeal - The proposal to update.
      * @param transaction - An optional transaction to use. 
      */
     public async updateProposedDeal(proposedDeal: ProposedDealModel, transaction?: knex.Transaction) {
@@ -317,7 +238,8 @@ class ProposedDealManager {
 
         await transaction.from('ixmDealProposals').update({
             proposalID: proposedDeal.id,
-            ownerID: proposedDeal.ownerID,
+            ownerID: proposedDeal.owner.company.id,
+            ownerContactID: proposedDeal.owner.contact.id,
             name: proposedDeal.name,
             description: proposedDeal.description,
             status: proposedDeal.status,
@@ -344,12 +266,8 @@ class ProposedDealManager {
      * @param proposalID - the id of the proposal targeted towards buyers 
      * @return An array of buyerIDs targeted by the proposalID specified (if any)
      */
-    private async fetchTargetedBuyerIdsFromProposalId(proposalID: number): Promise<number[]> {
-
-        return await this.databaseManager.pluck('userID')
-                                         .from('ixmProposalTargeting')
-                                         .where('proposalID', proposalID);
-
+    private async fetchTargetedIdsFromProposalId(proposalID: number): Promise<number[]> {
+        return await this.databaseManager.pluck('userID').from('ixmProposalTargeting').where('proposalID', proposalID);
     }
 
 }

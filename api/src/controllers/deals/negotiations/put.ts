@@ -6,19 +6,19 @@ import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { Permission } from '../../../middleware/permission';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { DatabaseManager } from '../../../lib/database-manager';
-import { BuyerManager } from '../../../models/buyer/buyer-manager';
+import { DspManager } from '../../../models/dsp/dsp-manager';
 import { Notifier } from '../../../lib/notifier';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
-const buyerManager = Injector.request<BuyerManager>('BuyerManager');
+const dspManager = Injector.request<DspManager>('DspManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const notifier = Injector.request<Notifier>('Notifier');
@@ -33,7 +33,7 @@ function NegotiationDeals(router: express.Router): void {
     /**
      * PUT request to send a counter-offer to a negotiation/proposal, or to accept/reject a negotiation
      */
-    router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.put('/', Permission('write'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -44,8 +44,6 @@ function NegotiationDeals(router: express.Router): void {
         if (validationErrors.length > 0) {
             throw HTTPError('400', validationErrors);
         }
-
-        /** Route Logic */
 
         // Populate negotiation information used in the rest of the route
         let responseType: string = req.body.response;
@@ -68,49 +66,33 @@ function NegotiationDeals(router: express.Router): void {
             throw HTTPError('400_EXTRA_NEG_FIELD');
         }
 
+        /** Route Logic */
+
         // Check whether the user is a publisher or a buyer and populate user fields accordingly
-        let userType: 'buyer' | 'publisher' = req.ixmUserInfo.userType === 'IXMB' ? 'buyer' : 'publisher';
-        let buyerID: number;
-        let publisherID: number;
-        let user = req.ixmUserInfo;
 
-        if (userType === 'publisher') {
-            buyerID = req.body.partner_id;
-            publisherID = req.ixmUserInfo.id;
-        } else {
-            buyerID = req.ixmUserInfo.id;
-            publisherID = req.body.partner_id;
-        }
-
-        Log.trace(`User is a ${userType} with ID ${req.ixmUserInfo.id}.`, req.id);
-
-        // Confirm that the proposal is available and belongs to one of buyer or publisher
-        let proposalID = req.body.proposal_id;
-        let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-
-        if (!targetProposal || targetProposal.isDeleted()) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        } else if (targetProposal.ownerID !== publisherID && targetProposal.ownerID !== buyerID) {
-            throw HTTPError('403_BAD_PROPOSAL');
-        }
-
-        // Check whether there are negotiations started already between the users at stake
-        let currentNegotiation = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
+        let proposalID: number = req.body.proposal_id;
+        let sender = req.ixmUserInfo;
+        let receiverID = req.body.partner_id;
+        let currentNegotiation = await negotiatedDealManager.fetchNegotiatedDealFromPartyIds(proposalID, receiverID, sender.company.id);
 
         // If the negotiation had not started yet, then it gets created
         if (!currentNegotiation) {
 
-            if (targetProposal.ownerID === user.id || targetProposal.ownerInfo.userType === user.userType) {
+            let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+
+            if (!targetProposal || !targetProposal.isReadableByUser(sender)) {
+                throw HTTPError('404_PROPOSAL_NOT_FOUND');
+            } else if (targetProposal.owner.company.id !== receiverID) {
+                throw HTTPError('403_BAD_PROPOSAL');
+            } else if (!targetProposal.isPurchasableByUser(sender)) {
                 throw HTTPError('403_CANNOT_START_NEGOTIATION');
             } else if (responseType !== 'counter-offer') {
                 throw HTTPError('403_NO_NEGOTIATION');
-            } else if (!targetProposal.isPurchasableByUser(req.ixmUserInfo)) {
-                throw HTTPError('404_PROPOSAL_NOT_FOUND');
             }
 
-            currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(targetProposal, buyerID, publisherID, 'buyer');
+            currentNegotiation = await negotiatedDealManager.createNegotiationFromProposedDeal(targetProposal, sender, 'partner');
 
-            let fieldChanged = currentNegotiation.update('buyer', 'accepted', 'active', negotiationFields);
+            let fieldChanged = currentNegotiation.update('partner', 'accepted', 'active', negotiationFields);
 
             if (!fieldChanged) {
                 throw HTTPError('403_NO_CHANGE');
@@ -121,20 +103,23 @@ function NegotiationDeals(router: express.Router): void {
             Log.trace(`Inserted the new negotiation with ID: ${currentNegotiation.id}`, req.id);
 
         } else {
-
+            // A negotiation already exists
             Log.trace('Found negotiation with ID: ' + currentNegotiation.id, req.id);
 
-            let otherPartyStatus = userType === 'buyer' ? currentNegotiation.publisherStatus : currentNegotiation.buyerStatus;
-            let currentNegotiationStatus = userType === 'buyer' ? currentNegotiation.buyerStatus : currentNegotiation.publisherStatus;
+            let partnerID = currentNegotiation.partner.company.id;
+            let receiver =  receiverID === partnerID ? currentNegotiation.partner : currentNegotiation.proposedDeal.owner;
+            let senderType: 'owner' | 'partner' = receiverID === partnerID ? 'owner' : 'partner';
+            let senderStatus = receiverID === partnerID ? currentNegotiation.ownerStatus : currentNegotiation.partnerStatus;
+            let receiverStatus = receiverID === partnerID ? currentNegotiation.partnerStatus : currentNegotiation.ownerStatus;
 
             // Check that proposal has not been bought yet
-            if (currentNegotiation.buyerStatus === 'accepted' && currentNegotiation.publisherStatus === 'accepted') {
+            if (senderStatus === 'accepted' && receiverStatus === 'accepted') {
                 throw HTTPError('403_PROPOSAL_BOUGHT');
-            } else if (otherPartyStatus === 'rejected') {
+            } else if (receiverStatus === 'rejected') {
                 throw HTTPError('403_OTHER_REJECTED');
-            } else if (currentNegotiationStatus === 'rejected') {
+            } else if (senderStatus === 'rejected') {
                 throw HTTPError('403_ALREADY_REJECTED');
-            } else if (currentNegotiation.sender === userType && responseType !== 'reject') {
+            } else if (currentNegotiation.sender === senderType && responseType !== 'reject') {
                 throw HTTPError('403_OUT_OF_TURN');
             }
 
@@ -143,7 +128,7 @@ function NegotiationDeals(router: express.Router): void {
 
                 Log.trace('User is rejecting the negotiation', req.id);
 
-                currentNegotiation.update(userType, 'rejected', otherPartyStatus);
+                currentNegotiation.update(senderType, 'rejected', receiverStatus);
                 await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
 
             } else if (responseType === 'accept') {
@@ -154,20 +139,18 @@ function NegotiationDeals(router: express.Router): void {
 
                 await databaseManager.transaction(async (transaction) => {
 
-                    currentNegotiation.update(userType, 'accepted', 'accepted');
+                    let dspID = await dspManager.fetchDspIdByCompanyId(sender.isBuyer() ? sender.company.id : receiver.company.id);
+                    let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, dspID);
+                    currentNegotiation.update(senderType, 'accepted', 'accepted');
+
                     await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
-
-                    let dealPartnerInfo = targetProposal.ownerInfo.userType === 'buyer' ? currentNegotiation.buyerInfo : currentNegotiation.publisherInfo;
-                    let buyerIXMInfo = await buyerManager.fetchBuyerFromId(buyerID);
-                    let settledDeal = settledDealManager.createSettledDealFromNegotiation(currentNegotiation, buyerIXMInfo.dspIDs[0]);
-
                     await settledDealManager.insertSettledDeal(settledDeal, transaction);
 
                     Log.trace(`New deal created with id ${settledDeal.id}.`, req.id);
 
-                    res.sendPayload(settledDeal.toPayload(req.ixmUserInfo.userType));
+                    notifier.sendNotification('NEGOTIATED_PROPOSAL_BOUGHT', receiver.contact , currentNegotiation.proposedDeal, settledDeal);
 
-                    notifier.sendNotification('NEGOTIATED_PROPOSAL_BOUGHT', dealPartnerInfo, targetProposal, settledDeal);
+                    res.sendPayload(settledDeal.toPayload(sender));
 
                 });
 
@@ -177,7 +160,7 @@ function NegotiationDeals(router: express.Router): void {
 
                 Log.trace(`User has sent a counter-offer.`, req.id);
 
-                let fieldChanged = currentNegotiation.update(userType, 'accepted', 'active', negotiationFields);
+                let fieldChanged = currentNegotiation.update(senderType, 'accepted', 'active', negotiationFields);
 
                 if (!fieldChanged) {
                     throw HTTPError('403_NO_CHANGE');
@@ -189,7 +172,7 @@ function NegotiationDeals(router: express.Router): void {
             }
         }
 
-        res.sendPayload(currentNegotiation.toPayload(req.ixmUserInfo.userType));
+        res.sendPayload(currentNegotiation.toPayload(sender));
 
     } catch (error) { next(error); } });
 

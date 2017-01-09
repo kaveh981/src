@@ -1,10 +1,14 @@
 // Declaration merging goes here.
 import * as Knex from 'knex';
-import { UserModel } from '../models/user/user-model';
+import { MarketUserModel } from '../models/market-user/market-user-model';
 
 declare module './database-manager' {
     // Promise that the dbm will extend knex
     interface DatabaseManager extends Knex {}
+}
+
+declare global {
+    let IXM_CONSTANTS: any;
 }
 
 declare module 'express' {
@@ -13,10 +17,16 @@ declare module 'express' {
     interface Request {
 
         /** Information about the user. This should only be populated if the request comes from a real IXM Buyer. */
-        ixmUserInfo: UserModel;
+        ixmUserInfo: MarketUserModel;
 
         /** Request ID */
         id: string;
+
+        /** Person impersonating the user. */
+        impersonatorID?: number;
+
+        /** If the user is actually an internal user. */
+        isInternalUser?: boolean;
 
     }
 

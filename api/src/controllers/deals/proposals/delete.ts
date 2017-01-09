@@ -4,9 +4,9 @@ import * as express from 'express';
 
 import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
-import { HTTPError } from '../../../lib/http-error';
 import { DatabaseManager } from '../../../lib/database-manager';
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { HTTPError } from '../../../lib/http-error';
+import { Permission } from '../../../middleware/permission';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
@@ -26,7 +26,7 @@ function Proposals(router: express.Router): void {
      * DELETE request to delete a specific proposal using the proposal ID.
      * All associated deal negotiations will also be deleted.
      */
-    router.delete('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.delete('/:proposalID', Permission('write'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -43,26 +43,24 @@ function Proposals(router: express.Router): void {
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
         let user = req.ixmUserInfo;
 
-        if (!proposal || proposal.isDeleted()) {
+        if (!proposal || !proposal.isReadableByUser(user)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        } else if (proposal.ownerID !== user.id) {
+        } else if (proposal.owner.company.id !== user.company.id) {
             throw HTTPError('403');
         }
 
         Log.debug(`Beginning transaction, updating proposal ${proposalID} and related negotiations...`, req.id);
 
+        proposal.update({ status: 'deleted' });
+
         await databaseManager.transaction(async (transaction) => {
-
-            proposal.update({ status: 'deleted' });
-
             await proposedDealManager.updateProposedDeal(proposal, transaction);
 
-            Log.trace(`Proposal ${proposalID} status set to deleted.`, req.id);
+            Log.trace(`Proposal ${proposalID} has been set to deleted.`, req.id);
 
-            await negotiatedDealManager.deleteNegotiationsFromProposalId(proposalID, user, transaction);
+            await negotiatedDealManager.deleteOwnerNegotiationsFromProposalId(proposal.id, transaction);
 
-            Log.trace(`All status of negotiations related to proposal ${proposalID} are set to deleted.`, req.id);
-
+            Log.trace(`Deleted all negotiations associated to ${proposalID}.`, req.id);
         });
 
         res.sendMessage('200_PROPOSAL_DELETED', { proposal_id: proposal.id });

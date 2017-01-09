@@ -6,8 +6,8 @@ import { DatabaseManager } from '../../../lib/database-manager';
 import { NegotiatedDealModel } from './negotiated-deal-model';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
-import { UserManager } from '../../user/user-manager';
-import { UserModel } from '../../user/user-model';
+import { MarketUserManager } from '../../market-user/market-user-manager';
+import { MarketUserModel } from '../../market-user/market-user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { Helper } from '../../../lib/helper';
 
@@ -20,37 +20,34 @@ class NegotiatedDealManager {
     /** Internal proposed deal manager */
     private proposedDealManager: ProposedDealManager;
 
-    /** Internal user manager */
-    private userManager: UserManager;
+    /** Internal market user manager */
+    private marketUserManager: MarketUserManager;
 
     /**
      * Constructor
      * @param databaseManager - An instance of the database manager.
      * @param proposedDealManager - An instance of the ProposedDealManager.
-     * @param userManager - An instance of the User Manager.
+     * @param marketUserManager - An instance of the Market User Manager.
      */
-    constructor(databaseManager: DatabaseManager, proposedDealManager: ProposedDealManager, userManager: UserManager) {
+    constructor(databaseManager: DatabaseManager, proposedDealManager: ProposedDealManager, marketUserManager: MarketUserManager) {
         this.databaseManager = databaseManager;
         this.proposedDealManager = proposedDealManager;
-        this.userManager = userManager;
+        this.marketUserManager = marketUserManager;
     }
 
     /**
-     * Get a negotation from the primary id keys: proposalID, buyerID, publisherID.
+     * Get a negotation from the primary id keys: proposalID, partnerID.
      * @param proposalID - The id of the original proposed deal.
-     * @param buyerID - The id of the buyer of the negotiation.
-     * @param publisherID - The id of the publisher of the negotiation.
+     * @param partnerID - The id of the partner for the negotiation.
      * @returns A negotiated deal object or nothing if none can be found.
      */
-    public async fetchNegotiatedDealFromIds(proposalID: number, buyerID: number, publisherID: number): Promise<NegotiatedDealModel> {
+    public async fetchNegotiatedDealFromIds(proposalID: number, partnerID: number): Promise<NegotiatedDealModel> {
 
-        let rows = await this.databaseManager.select('negotiationID as id', 'buyerID', 'publisherID', 'startDate', 'endDate', 'terms',
-                                                     'price', 'pubStatus as publisherStatus', 'buyerStatus', 'sender', 'createDate',
-                                                     'modifyDate', 'budget', 'impressions')
+        let rows = await this.databaseManager.select('negotiationID as id', 'partnerID', 'partnerContactID', 'startDate', 'endDate', 'terms', 'price',
+                                                     'partnerStatus', 'ownerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
                                              .from('ixmDealNegotiations')
                                              .where('proposalID', proposalID)
-                                             .andWhere('buyerID', buyerID)
-                                             .andWhere('publisherID', publisherID);
+                                             .andWhere('partnerID', partnerID);
 
         if (!rows[0]) {
             return;
@@ -58,10 +55,8 @@ class NegotiatedDealManager {
 
         let negotiatedDeal = new NegotiatedDealModel({
             id: rows[0].id,
-            buyerID: rows[0].buyerID,
-            publisherID: rows[0].publisherID,
-            publisherStatus: rows[0].publisherStatus,
-            buyerStatus: rows[0].buyerStatus,
+            partnerStatus: rows[0].partnerStatus,
+            ownerStatus: rows[0].ownerStatus,
             sender: rows[0].sender,
             createDate: rows[0].createDate,
             modifyDate: rows[0].modifyDate,
@@ -76,9 +71,7 @@ class NegotiatedDealManager {
         await Promise.all([ (async () => {
             negotiatedDeal.proposedDeal = await this.proposedDealManager.fetchProposedDealFromId(proposalID);
         })(), (async () => {
-            negotiatedDeal.buyerInfo = await this.userManager.fetchUserFromId(rows[0].buyerID);
-        })(), (async () => {
-            negotiatedDeal.publisherInfo = await this.userManager.fetchUserFromId(rows[0].publisherID);
+            negotiatedDeal.partner = await this.marketUserManager.fetchMarketUserFromId(rows[0].partnerContactID);
         })() ]);
 
         return negotiatedDeal;
@@ -86,69 +79,16 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Get list of latest deals in negotiation for the user  
-     * @param user - the user in question
-     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
-     * is more data left to get or not.
-     * @returns A list of negotiated deal objects.
-     */
-    public async fetchNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
-
-        let userID = user.id;
-        let userType = user.userType;
-        let offset = pagination.getOffset();
-
-        let rows = await this.databaseManager.select('proposalID', 'buyerID', 'publisherID')
-                                             .from('ixmDealNegotiations')
-                                             .where('buyerID', userID)
-                                             .orWhere('publisherID', userID)
-                                             .limit(pagination.limit + 1)
-                                             .offset(offset);
-
-        // Check that there is more data to retrieve to appropriately set the next page URL
-        if (rows.length <= pagination.limit) {
-            pagination.nextPageURL = '';
-        } else {
-            rows.pop();
-        }
-
-        // Fetch the negotiations
-        let negotiatedDealArray: NegotiatedDealModel[] = [];
-
-        await Promise.all(rows.map(async (row) => {
-            let negotiatedDeal: NegotiatedDealModel;
-
-            if (userType === 'IXMB') {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, userID, row.publisherID);
-            } else {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, row.buyerID, userID);
-            }
-
-            if (negotiatedDeal) {
-                negotiatedDealArray.push(negotiatedDeal);
-            }
-        }));
-
-        negotiatedDealArray.sort((a, b) => a.id - b.id);
-
-        return negotiatedDealArray;
-
-    }
-
-    /**
      * Get list of available deals in negotiation for the user  
-     * @param user - the user in question
-     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
-     * is more data left to get or not.
+     * @param user - The user in question.
+     * @param pagination - Pagination details for this query. This function modifies this parameter by setting its nextPageURL.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchActiveNegotiatedDealsFromUser(user: UserModel, pagination: PaginationModel) {
+    public async fetchActiveNegotiatedDealsForUser(user: MarketUserModel, pagination: PaginationModel) {
 
-        let userID = user.id;
-        let userType = user.userType;
         let offset = pagination.getOffset();
 
-        let rows = await this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'buyerID', 'publisherID')
+        let rows = await this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'ownerID', 'partnerID')
                                              .select()
                                              .from('ixmDealNegotiations')
                                              .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
@@ -158,18 +98,14 @@ class NegotiatedDealManager {
                                              .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
                                              .join('users', 'users.userID', 'ixmDealProposals.ownerID')
                                              .where(function() {
-                                                 this.where('buyerID', userID)
-                                                     .orWhere('publisherID', userID);
+                                                 this.where('ownerID', user.company.id)
+                                                     .orWhere('partnerID', user.company.id);
                                              })
                                              .andWhere(function() {
-                                                 this.where(function() {
-                                                     this.where('pubStatus', 'accepted')
-                                                         .andWhere('buyerStatus', 'active');
-                                                 })
-                                                 .orWhere(function() {
-                                                     this.where('buyerStatus', 'accepted')
-                                                         .andWhere('pubStatus', 'active');
-                                                 });
+                                                 this.where('partnerStatus', 'accepted')
+                                                     .andWhere('ownerStatus', 'active')
+                                                     .orWhere('ownerStatus', 'accepted')
+                                                     .andWhere('partnerStatus', 'active');
                                              })
                                              .andWhere('ixmDealProposals.status', 'active')
                                              .andWhere('users.status', 'A')
@@ -189,13 +125,7 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
-            let negotiatedDeal: NegotiatedDealModel;
-
-            if (userType === 'IXMB') {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, userID, row.publisherID);
-            } else {
-                negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, row.buyerID, userID);
-            }
+            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(row.proposalID, row.partnerID);
 
             if (negotiatedDeal) {
                 negotiatedDealArray.push(negotiatedDeal);
@@ -210,25 +140,23 @@ class NegotiatedDealManager {
 
     /**
      * Get proposalID specific deal negotiations from proposal id and user id 
-     * @param userID - The user id of one of the negotiating parties
      * @param proposalID - The id of the proposal being negotiated
-     * @param pagination - pagination details for this query. This function modifies this parameter by setting its nextPageURL field based on whether there
-     * is more data left to get or not.
+     * @param partyID - The id of one of the parties.
      * @returns A list of negotiated deal objects.
      */
-    public async fetchNegotiatedDealsFromUserProposalIds(userID: number, proposalID: number, pagination: PaginationModel) {
+    public async fetchNegotiatedDealsFromUserProposalIds(proposalID: number, partyID: number, pagination: PaginationModel) {
 
         let offset = pagination.getOffset();
-
-        let rows = await this.databaseManager.select('publisherID', 'buyerID')
+        let rows = await this.databaseManager.select('ownerID', 'partnerID')
                                              .from('ixmDealNegotiations')
+                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
                                              .where({
-                                                 proposalID: proposalID,
-                                                 buyerID: userID
+                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 partnerID: partyID
                                              })
                                              .orWhere({
-                                                 proposalID: proposalID,
-                                                 publisherID: userID
+                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 ownerID: partyID
                                              })
                                              .limit(pagination.limit + 1)
                                              .offset(offset);
@@ -244,7 +172,7 @@ class NegotiatedDealManager {
         let negotiatedDealArray: NegotiatedDealModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
-            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, row.buyerID, row.publisherID);
+            let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, row.partnerID);
 
             if (negotiatedDeal) {
                 negotiatedDealArray.push(negotiatedDeal);
@@ -254,6 +182,39 @@ class NegotiatedDealManager {
         negotiatedDealArray.sort((a, b) => a.id - b.id);
 
         return negotiatedDealArray;
+
+    }
+
+    /**
+     * Get negotiation from negotiation on proposal between two parties.
+     * @param proposalID - The id of the proposal being negotiated
+     * @param partyID - The id of one of the parties.
+     * @param otherPartyID - The id of the other party.
+     * @returns A lnegotiated deal object.
+     */
+    public async fetchNegotiatedDealFromPartyIds(proposalID: number, partyID: number, otherPartyID: number) {
+
+        let rows = await this.databaseManager.select('ownerID', 'partnerID')
+                                             .from('ixmDealNegotiations')
+                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                             .where({
+                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 partnerID: partyID,
+                                                 ownerID: otherPartyID
+                                             })
+                                             .orWhere({
+                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 ownerID: partyID,
+                                                 partnerID: otherPartyID
+                                             });
+
+        if (!rows[0]) {
+            return;
+        }
+
+        let negotiatedDeal = await this.fetchNegotiatedDealFromIds(proposalID, rows[0].partnerID);
+
+        return negotiatedDeal;
 
     }
 
@@ -283,8 +244,8 @@ class NegotiatedDealManager {
 
         await transaction.insert({
             proposalID: negotiatedDeal.proposedDeal.id,
-            publisherID: negotiatedDeal.publisherID,
-            buyerID: negotiatedDeal.buyerID,
+            partnerID: negotiatedDeal.partner.company.id,
+            partnerContactID: negotiatedDeal.partner.contact.id,
             price: negotiatedDeal.price,
             startDate: negotiatedDeal.startDate,
             endDate: negotiatedDeal.endDate,
@@ -292,8 +253,8 @@ class NegotiatedDealManager {
             impressions: negotiatedDeal.impressions,
             terms: negotiatedDeal.terms,
             sender: negotiatedDeal.sender,
-            pubStatus: negotiatedDeal.publisherStatus,
-            buyerStatus: negotiatedDeal.buyerStatus,
+            ownerStatus: negotiatedDeal.ownerStatus,
+            partnerStatus: negotiatedDeal.partnerStatus,
             createDate: negotiatedDeal.createDate,
             modifyDate: negotiatedDeal.modifyDate
         }).into('ixmDealNegotiations');
@@ -302,8 +263,7 @@ class NegotiatedDealManager {
         let negotiationInserted = (await transaction.select('negotiationID', 'modifyDate')
                                                     .from('ixmDealNegotiations')
                                                     .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                                    .andWhere('buyerID', negotiatedDeal.buyerID)
-                                                    .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+                                                    .andWhere('partnerID', negotiatedDeal.partner.company.id))[0];
 
         negotiatedDeal.id = negotiationInserted.negotiationID;
         negotiatedDeal.modifyDate = negotiationInserted.modifyDate;
@@ -313,30 +273,17 @@ class NegotiatedDealManager {
     /**
      * Create a negotiation from proposed deal where both parties have accepted.
      * @param proposedDeal - The proposed deal to build off of.
-     * @param buyerID - The id of the buyer of the proposal.
+     * @param partner - The partner in the negotiation.
+     * @param sender - The one who is sending the accepted request.
      * @returns A NegotiatedDealModel.
      */
-    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, userInfo: UserModel) {
-
-        let buyerID: number;
-        let publisherID: number;
-
-        if (userInfo.userType === 'IXMB') {
-            buyerID = userInfo.id;
-            publisherID = proposedDeal.ownerID;
-        } else {
-            buyerID = proposedDeal.ownerID;
-            publisherID = userInfo.id;
-        }
+    public async createAcceptedNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, partner: MarketUserModel, sender: 'owner' | 'partner') {
 
         let negotiatedDeal = new NegotiatedDealModel({
-            buyerID: buyerID,
-            buyerInfo: await this.userManager.fetchUserFromId(buyerID),
-            publisherID: publisherID,
-            publisherInfo: proposedDeal.ownerInfo,
-            publisherStatus: 'accepted',
-            buyerStatus: 'accepted',
-            sender: 'buyer',
+            partner: partner,
+            partnerStatus: 'accepted',
+            ownerStatus: 'accepted',
+            sender: sender,
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
             proposedDeal: proposedDeal,
@@ -354,23 +301,19 @@ class NegotiatedDealManager {
 
     /**
      * Create a new negotiation between a buyer and a sender.
-     * @param proposedDeal - The proposed deal model this is based off of.
-     * @param buyerID - The buyer id for the buyer of this negotiation.
-     * @param publisherID - The id of the publisher for this negotiation.
-     * @param sender - The person who is creating this counter-offer.
+     * @param proposedDeal - The proposed deal to build off of.
+     * @param partner - The partner in the negotiation.
+     * @param sender - The one who is sending the accepted request.
      * @param negotiationFields - The fields to use as the negotiation terms.
      * @returns A negotiated deal model with the appropriate fields updated.
      */
-    public async createNegotiationFromProposedDeal(
-        proposedDeal: ProposedDealModel, buyerID: number, publisherID: number, sender: 'buyer' | 'publisher', negotiationFields: any = {}) {
+    public async createNegotiationFromProposedDeal(proposedDeal: ProposedDealModel, partner: MarketUserModel, sender: 'owner' | 'partner',
+                                                                                                              negotiationFields: any = {}) {
 
         let negotiatedDeal = new NegotiatedDealModel({
-            buyerID: buyerID,
-            buyerInfo: await this.userManager.fetchUserFromId(buyerID),
-            publisherID: publisherID,
-            publisherInfo: await this.userManager.fetchUserFromId(publisherID),
-            publisherStatus: sender === 'publisher' ? 'accepted' : 'active',
-            buyerStatus: sender === 'buyer' ? 'accepted' : 'active',
+            partnerStatus: sender === 'partner' ? 'accepted' : 'active',
+            ownerStatus: sender === 'partner' ? 'active' : 'accepted',
+            partner: partner,
             sender: sender,
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
@@ -408,8 +351,8 @@ class NegotiatedDealManager {
 
         await transaction.from('ixmDealNegotiations').update({
             proposalID: negotiatedDeal.proposedDeal.id,
-            publisherID: negotiatedDeal.publisherID,
-            buyerID: negotiatedDeal.buyerID,
+            partnerID: negotiatedDeal.partner.company.id,
+            partnerContactID: negotiatedDeal.partner.contact.id,
             price: negotiatedDeal.price,
             startDate: negotiatedDeal.startDate,
             endDate: negotiatedDeal.endDate,
@@ -417,8 +360,8 @@ class NegotiatedDealManager {
             impressions: negotiatedDeal.impressions,
             terms: negotiatedDeal.terms,
             sender: negotiatedDeal.sender,
-            pubStatus: negotiatedDeal.publisherStatus,
-            buyerStatus: negotiatedDeal.buyerStatus,
+            partnerStatus: negotiatedDeal.partnerStatus,
+            ownerStatus: negotiatedDeal.ownerStatus,
             createDate: negotiatedDeal.createDate,
             modifyDate: negotiatedDeal.modifyDate
         }).where('negotiationID', negotiatedDeal.id);
@@ -427,8 +370,7 @@ class NegotiatedDealManager {
         let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
                                                    .from('ixmDealNegotiations')
                                                    .where('proposalID', negotiatedDeal.proposedDeal.id)
-                                                   .andWhere('buyerID', negotiatedDeal.buyerID)
-                                                   .andWhere('publisherID', negotiatedDeal.publisherID))[0];
+                                                   .andWhere('partnerID', negotiatedDeal.partner.company.id))[0];
 
         negotiatedDeal.id = negotiationUpdated.negotiationID;
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
@@ -436,34 +378,27 @@ class NegotiatedDealManager {
     }
 
     /**
-     * Delete associated negotiations of the given proposalID
-     * @param {number} proposalID the proposal ID to be deleted
-     * @param {string} userType the user type of the requester
-     * @param {knex.Transaction} [transaction] database transaction
+     * Set the ownerStatus to deleted on all negotiation with this proposalID.
+     * @param proposalID - The ID of the proposal.
      */
-    public async deleteNegotiationsFromProposalId(proposalID: number, user: UserModel, transaction?: knex.Transaction) {
+    public async deleteOwnerNegotiationsFromProposalId(proposalID: number, transaction?: knex.Transaction) {
 
         // If there is no transaction, start one.
         if (!transaction) {
             await this.databaseManager.transaction(async (trx) => {
-                await this.deleteNegotiationsFromProposalId(proposalID, user, trx);
+                await this.deleteOwnerNegotiationsFromProposalId(proposalID, trx);
             });
             return;
         }
 
-        let userStatus: { buyerStatus?: string, pubStatus?: string };
-
-        if (user.userType === 'IXMB') {
-            userStatus = { buyerStatus: 'deleted' };
-        } else {
-            userStatus = { pubStatus: 'deleted' };
-        }
-
         await transaction.from('ixmDealNegotiations')
-                         .update(userStatus)
+                         .update({
+                             ownerStatus: 'deleted'
+                         })
                          .where('proposalID', proposalID);
 
     }
+
 }
 
 export { NegotiatedDealManager };

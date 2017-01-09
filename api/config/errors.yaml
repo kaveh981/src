@@ -46,6 +46,9 @@ en-US:
     403_SECTION_OWNED: A section is not owned by any party in this proposal.
     403_SECTION_NOT_ACTIVE: A section is not active.
     403_SITES_NOT_ACTIVE: All sites associated with a section are not active.
+    403_NEGOTIATION_EXISTS: A negotiation already exists on this proposal.
+    403_NEGOTIATION_REJECTED_SELF: You have already rejected a negotiation on this proposal.
+    403_NEGOTIATION_REJECTED_OWNER: The proposal owner has already rejected a negotiation for this proposal.
 
     # 404 Status Code Messages
     404: Not found.
