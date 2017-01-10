@@ -221,6 +221,48 @@ types:
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
+        /owned:
+            get:
+                is: [ auth_required, pageable, deal_filterable ]
+                description: Retrieve proposals owned by the company you represent.
+                queryParameters:
+                    owner_id:
+                        type: integer
+                        required: false
+                        displayName: Owner ID
+                        description: The ID owner of the proposal. Used to only obtain proposals that are owned by a specific user.
+                        minimum: 1
+                        maximum: 16777215
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    500: # 500 = "Internal Server Error" something done broke
+        /incoming:
+            get:
+                is: [ auth_required, pageable, deal_filterable ]
+                description: Retrieve proposals which are targeted at you.
+                queryParameters:
+                    owner_id:
+                        type: integer
+                        required: false
+                        displayName: Owner ID
+                        description: The ID owner of the proposal. Used to only obtain proposals that are owned by a specific user.
+                        minimum: 1
+                        maximum: 16777215
+                responses:
+                    200: # 200 = "OK"
+                        body:
+                            application/json:
+                                type: Response
+                    400: # 400 = "Bad Request" use for malformed requests
+                    401: # 401 = "Unauthorized" authentication has failed or was not provided
+                    403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                    500: # 500 = "Internal Server Error" something done broke
         /{proposal_id}:
             uriParameters:
                 proposal_id:

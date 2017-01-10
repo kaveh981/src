@@ -129,10 +129,12 @@ class ProposedDealManager {
      * @param pagination - The pagination to use, this is modified.
      * @returns The proposals targeted at the user.
      */
-    public async fetchTargetedProposedDealsForUser(user: MarketUserModel, pagination: PaginationModel) {
-        let today = Helper.formatDate(Helper.currentDate());
+    public async fetchTargetedProposedDealsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
 
-        return await this.fetchProposedDeals(pagination,
+        let today = Helper.formatDate(Helper.currentDate());
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
+
+        return await this.fetchProposedDeals(pagination, dbFiltering,
             (db) => {
                 db.where('ixmProposalTargeting.userID', user.company.id);
             },
@@ -150,9 +152,11 @@ class ProposedDealManager {
 
     }
 
-    public async fetchProposedDealsOwnedByUser(user: MarketUserModel, pagination: PaginationModel) {
+    public async fetchProposedDealsOwnedByUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
 
-        return await this.fetchProposedDeals(pagination,
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
+
+        return await this.fetchProposedDeals(pagination, dbFiltering,
             (db) => {
                 db.where('ixmDealProposals.ownerID', user.company.id)
                   .whereNot('ixmDealProposals.status', 'deleted');

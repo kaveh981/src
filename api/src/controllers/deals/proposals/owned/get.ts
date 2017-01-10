@@ -46,7 +46,7 @@ function Proposals(router: express.Router): void {
         /** Route logic */
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let user = req.ixmUserInfo;
-        let targetedProposals = await proposedDealManager.fetchProposedDealsOwnedByUser(user, pagination);
+        let targetedProposals = await proposedDealManager.fetchProposedDealsOwnedByUser(user, pagination, req.query);
 
         Log.trace(`Found proposals ${Log.stringify(targetedProposals)} owned by company ${user.company.id}`, req.id);
 
