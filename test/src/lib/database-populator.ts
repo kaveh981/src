@@ -11,6 +11,8 @@ import { ConfigLoader    } from './config-loader';
 import { Logger          } from './logger';
 
 const Log = new Logger('DPOP');
+const IXM_BUYER_USERTYPE = 22;
+const IXM_PUB_USERTYPE = 23;
 
 /**
  *  Simple Database Populator class used as to insert new entities into a data store during test case
@@ -189,9 +191,9 @@ class DatabasePopulator {
             }
 
             newCompanyData.dspID = dspID;
-            userFields.userType = 22;
+            userFields.userType = IXM_BUYER_USERTYPE;
         } else {
-            userFields.userType = 23;
+            userFields.userType = IXM_PUB_USERTYPE;
         }
 
         let newUserData = await this.createUser(userFields);

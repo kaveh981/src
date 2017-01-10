@@ -68,7 +68,7 @@ function Proposals(router: express.Router): void {
                     throw HTTPError('404_PARTNER_NOT_FOUND');
                 } else if (!targetUser.isActive()) {
                     throw HTTPError('403_PARTNER_NOT_ACTIVE');
-                } else if (targetUser.isBuyer() === user.isBuyer()) {
+                } else if (targetUser.isBuyer() === user.isBuyer() || !targetUser.isCompany()) {
                     throw HTTPError('403_PARTNER_INVALID_USERTYPE');
                 }
 
