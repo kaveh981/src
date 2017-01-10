@@ -385,36 +385,36 @@ export async function ATW_API_GET_DEAACT_FUNC_08 (assert: test.Test) {
 
 }
 
- /*
- * @case    - Publisher who created the proposal is now deactivated
- * @expect  - No deals returned
- * @route   - GET deals/active
- * @status  - passing
- * @tags    - get, active, deals
- */
-export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
+//  /*
+//  * @case    - IXM Publisher who created the proposal is now deactivated
+//  * @expect  - No deals returned
+//  * @route   - GET deals/active
+//  * @status  - passing
+//  * @tags    - get, active, deals
+//  */
+// export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
-    /** Setup */
-    assert.plan(2);
+//     /** Setup */
+//     assert.plan(2);
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-    let pubCompany = await databasePopulator.createCompany({ status: 'D' });
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
-    let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID);
-    let settledDeal = await databasePopulator.createSettledDeal(pubCompany.user.userID, [ section.section.sectionID ], negotiation.negotiationID);
+//     let dsp = await databasePopulator.createDSP(1);
+//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+//     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+//     let pubCompany = await databasePopulator.createCompany({ status: 'D' });
+//     let site = await databasePopulator.createSite(pubCompany.user.userID);
+//     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+//     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
+//     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID);
+//     let settledDeal = await databasePopulator.createSettledDeal(pubCompany.user.userID, [ section.section.sectionID ], negotiation.negotiationID);
 
-    /** Test */
-    let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+//     /** Test */
+//     let response = await apiRequest.get(ROUTE, {}, buyer.user);
+//     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
 
-    assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ expectedPayload ]);
+//     assert.equal(response.status, 200);
+//     assert.deepEqual(response.body.data, [ expectedPayload ]);
 
-}
+// }
 
  /*
  * @case    - Proposal got accepted and rtbDeals entry of active status is present
