@@ -9,7 +9,6 @@ import { HTTPError } from '../../../lib/http-error';
 import { Permission } from '../../../middleware/permission';
 
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
-import { SettledDealModel } from '../../../models/deals/settled-deal/settled-deal-model';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { DatabaseManager } from '../../../lib/database-manager';

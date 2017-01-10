@@ -617,7 +617,7 @@ export async function ATW_DNP_GET_20 (assert: test.Test) {
     let pubCompany = await databasePopulator.createCompany();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'paused'});
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'paused' });
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID);
 
     let response = await apiRequest.get(routePrefix + '/' + proposal.proposal.proposalID, {}, buyer.user);
@@ -644,7 +644,7 @@ export async function ATW_DNP_GET_21 (assert: test.Test) {
     let pubCompany = await databasePopulator.createCompany();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted'});
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
                                                                             ownerStatus: 'active',
                                                                             partnerStatus: 'accepted'
@@ -760,7 +760,7 @@ export async function ATW_DNP_GET_25(assert: test.Test) {
     let pubCompany = await databasePopulator.createCompany();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], { status: 'deleted'});
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, pubCompany.user.userID,
                                                                         { ownerStatus : 'deleted' });
 
@@ -789,7 +789,7 @@ export async function ATW_DNP_GET_26(assert: test.Test) {
     let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted'});
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
     let dealNegotiation1 = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID,
                                                                         { ownerStatus : 'deleted' });
 
