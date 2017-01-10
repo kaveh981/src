@@ -5,11 +5,9 @@ suffix: _backup
 tables:
     - ixmDealNegotiations
     - ixmNegotiationDealMappings
-#    - ixmBuyers
     - ixmDealProposals
     - ixmProposalSectionMappings
     - ixmProposalTargeting
-#    - ixmPublishers
     - ixmUserCompanyMapping
     - ixmCompanyWhitelist
     - users
