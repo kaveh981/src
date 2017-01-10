@@ -214,7 +214,7 @@ interface ICreateEntityData {
     buyer?: INewBuyerData;
     buyerCompany?: INewCompanyData;
     publisher?: INewPubData;
-    pubCompany?:INewCompanyData;
+    pubCompany?: INewCompanyData;
     proposal?: INewProposalData;
     site?: INewSiteData;
     section?: INewSectionData;

@@ -21,7 +21,7 @@ const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager
 const Log: Logger = new Logger('ROUT');
 
 /**
- * Function that takes care of GET /deals/negotiation routes  
+ * Function that takes care of GET /deals/negotiation routes
  */
 function NegotiationDeals(router: express.Router): void {
 
@@ -115,7 +115,7 @@ function NegotiationDeals(router: express.Router): void {
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
         let partner = await marketUserManager.fetchMarketUserFromId(partyID);
 
-        Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)} for ${user.contact.id}.`, req.id);        
+        Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)} for ${user.contact.id}.`, req.id);
 
         if (!proposal || !proposal.hasNegotiationsViewableBy(user, !!negotiatedDeal)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');

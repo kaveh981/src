@@ -1,3 +1,4 @@
+/* tslint:disable:no-unused-variable */
 // Declaration merging goes here.
 import * as Knex from 'knex';
 import { MarketUserModel } from '../models/market-user/market-user-model';
