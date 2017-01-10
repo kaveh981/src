@@ -57,7 +57,7 @@ function Proposals(router: express.Router): void {
      * GET request to get a specific proposal using the proposal ID. The function first makes sure the requested proposal is accessible,
      * then it returns it if successful.
      */
-    router.get('/:proposalID', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID(\\d+)', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 

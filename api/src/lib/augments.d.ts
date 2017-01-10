@@ -12,6 +12,12 @@ declare global {
     let IXM_CONSTANTS: any;
 }
 
+declare global {
+    interface PromiseConstructor {
+        parallel: (obj: { [s: string]: Promise<any> }) => Promise<any>;
+    }
+}
+
 declare module 'express' {
 
     // Augment the express request object
