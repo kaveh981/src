@@ -235,7 +235,7 @@ export async function ATW_API_GET_DAP_FUNC_04 (assert: test.Test) {
 
 /*
  * @case    - Proposal, negotiation and settled deal don't exist
- * @expect  - 200 no content
+ * @expect  - 404 not found
  * @route   - GET deals/active/:proposalID
  * @status  - passing
  * @tags    - 
@@ -300,7 +300,7 @@ export async function ATW_API_GET_DAP_FUNC_06 (assert: test.Test) {
 
 /*
  * @case    - Proposal is active and targets one user, negotiation exists for one user only, active settled deal exists
- * @expect  - 200 with one active deal returned for the user in the negotiation, 200 no content for any other user
+ * @expect  - 200 with one active deal returned for the user in the negotiation, 404 proposal not found for any other user
  * @route   - GET deals/active/:proposalID
  * @status  - passing
  * @tags    - 
