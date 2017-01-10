@@ -3,8 +3,8 @@
 
 import * as test from 'tape';
 
-// import { authenticationTest } from '../../../common/auth.test';
 import { paginationTest } from '../../../../common/pagination.test';
+import { authenticationTest } from '../../../../common/auth.test';
 
 import { Injector } from '../../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../../src/lib/request-manager';
@@ -50,7 +50,21 @@ async function createProposal(data: ICreateEntityData) {
 
 }
 
+// Set up db for auth
+async function authSetup() {
+
+    let data = await setupPagination();
+    await createProposal(data);
+
+    return {
+        user: data.pubCompany.user
+    };
+
+}
+
 export let ATW_API_GET_DPI_PAG = paginationTest(route, 'get', setupPagination, createProposal);
+
+export let ATW_API_GET_DPI_AUTH = authenticationTest(route, 'get', authSetup);
 
 /**
  * @case    - A publisher views proposals targeted to them, and a buyer has targeted them in a proposal.

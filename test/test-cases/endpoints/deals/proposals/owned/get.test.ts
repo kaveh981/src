@@ -5,6 +5,7 @@ import * as test from 'tape';
 
 // import { authenticationTest } from '../../../common/auth.test';
 import { paginationTest } from '../../../../common/pagination.test';
+import { authenticationTest } from '../../../../common/auth.test';
 
 import { Injector } from '../../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../../src/lib/request-manager';
@@ -42,7 +43,21 @@ async function createProposal(data: ICreateEntityData) {
 
 }
 
-export let ATW_API_GET_DPI_PAG = paginationTest(route, 'get', setupPagination, createProposal);
+// Set up db for auth
+async function authSetup() {
+
+    let data = await setupPagination();
+    await createProposal(data);
+
+    return {
+        user: data.pubCompany.user
+    };
+
+}
+
+export let ATW_API_GET_DPO_PAG = paginationTest(route, 'get', setupPagination, createProposal);
+
+export let ATW_API_GET_DPO_AUTH = authenticationTest(route, 'get', authSetup);
 
 /**
  * @case    - A publisher views proposals they own, an open one and a targeted one.
@@ -51,7 +66,7 @@ export let ATW_API_GET_DPI_PAG = paginationTest(route, 'get', setupPagination, c
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_01 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -87,7 +102,7 @@ export async function ATW_API_GET_DPI_FUNC_01 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_02 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -123,7 +138,7 @@ export async function ATW_API_GET_DPI_FUNC_02 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_03 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_03 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -158,7 +173,7 @@ export async function ATW_API_GET_DPI_FUNC_03 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_04 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_04 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -193,7 +208,7 @@ export async function ATW_API_GET_DPI_FUNC_04 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_05 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_05 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -229,7 +244,7 @@ export async function ATW_API_GET_DPI_FUNC_05 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_06 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_06 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -265,7 +280,7 @@ export async function ATW_API_GET_DPI_FUNC_06 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_07 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_07 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -302,7 +317,7 @@ export async function ATW_API_GET_DPI_FUNC_07 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_08 (assert: test.Test) {
+export async function ATW_API_GET_DPO_FUNC_08 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
