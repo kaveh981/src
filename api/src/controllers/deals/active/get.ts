@@ -6,19 +6,17 @@ import { Logger } from '../../../lib/logger';
 import { Injector } from '../../../lib/injector';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { Permission } from '../../../middleware/permission';
 
+import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
-import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
-import { UserManager } from '../../../models/user/user-manager';
-import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
+import { MarketUserManager } from '../../../models/market-user/market-user-manager';
 
+const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
 const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
-const validator = Injector.request<RamlTypeValidator>('Validator');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
-const userManager = Injector.request<UserManager>('UserManager');
-const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
+const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ROUT');
 
@@ -30,7 +28,7 @@ function ActiveDeals(router: express.Router): void {
     /**
      * GET request to get all active deals.
      */
-    router.get('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -47,18 +45,18 @@ function ActiveDeals(router: express.Router): void {
         // Get all active deals for current user
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let activeDeals = await settledDealManager.fetchActiveSettledDealsFromUser(user, pagination);
+        let activeDeals = await settledDealManager.fetchActiveSettledDealsForUser(user, pagination);
 
-        Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.id}.`, req.id);
+        Log.trace(`Found deals ${Log.stringify(activeDeals)} for user ${user.contact.id} representing ${user.company.id}.`, req.id);
 
-        res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
+        res.sendPayload(activeDeals.map((deal) => { return deal.toPayload(user); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
     /**
      * GET request to get active deals by proposalID.
      */
-    router.get('/:proposalID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -81,36 +79,24 @@ function ActiveDeals(router: express.Router): void {
 
         let user = req.ixmUserInfo;
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-
-        // Check that proposal exists and can be accessed by the user
+        let settledDeals = await settledDealManager.fetchSettledDealsFromUserProposalIds(user.company.id, proposalID, pagination);
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
 
-        if (!proposal || !proposal.targetsUser(user)) {
+        if (!proposal || !proposal.hasNegotiationsViewableBy(user, !!settledDeals[0])) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
         }
 
-        // Check that user has interacted with the proposal. If they haven't, and the proposal is deleted, then it should behave as if the proposal does not and
-        // has never existed. However, if they have at least negotiated on it, then it should be possible for them to use its ID to get associated deals.
-        let tempPagination = new PaginationModel({ page: 1, limit: 1 }, req);
-        let negotiatedDeals = await negotiatedDealManager.fetchNegotiatedDealsFromUserProposalIds(user.id, proposalID, tempPagination);
+        Log.trace(`Found deals ${Log.stringify(settledDeals)} for proposal ${proposalID} for user \
+                  ${user.contact.id} representing ${user.company.id}.`, req.id);
 
-        if (negotiatedDeals.length === 0 && proposal.isDeleted()) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        // Fetch the settled deals
-        let settledDeals = await settledDealManager.fetchSettledDealsFromUserProposalIds(user.id, proposalID, pagination);
-
-        Log.trace(`Found deals ${Log.stringify(settledDeals)} for user ${user.id} and proposal ${proposal.id}.`, req.id);
-
-        res.sendPayload(settledDeals.map((deal) => { return deal.toPayload(req.ixmUserInfo.userType); }), pagination.toPayload());
+        res.sendPayload(settledDeals.map((deal) => { return deal.toPayload(user); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
     /**
      * GET request to get active deals by proposalID/partnerID.
      */
-    router.get('/:proposalID/partner/:partnerID', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:proposalID/partner/:partnerID', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -119,58 +105,29 @@ function ActiveDeals(router: express.Router): void {
         let partnerID = Number(req.params.partnerID);
 
         if (isNaN(proposalID) || isNaN(partnerID)) {
-            throw HTTPError('404_NEGOTIATION_NOT_FOUND');
+            throw HTTPError('404_DEAL_NOT_FOUND');
         }
 
         /** Route logic */
 
         let user = req.ixmUserInfo;
 
-        // Check that proposal exists and can be accessed by the user
+        let settledDeal = await settledDealManager.fetchSettledDealFromPartyIds(proposalID, user.company.id, partnerID);
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+        let partner = await marketUserManager.fetchMarketUserFromId(partnerID);
 
-        if (!proposal || !proposal.targetsUser(user)) {
+        if (!proposal || !proposal.hasNegotiationsViewableBy(user, !!settledDeal)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        // Check that partner exists and is active
-        let partner = await userManager.fetchUserFromId(partnerID);
-
-        if (!partner) {
+        } else if (!partner || !partner.isActive() && !settledDeal) {
             throw HTTPError('404_PARTNER_NOT_FOUND');
-        } else if (!partner.isActive()) {
-            throw HTTPError('403_PARTNER_NOT_ACTIVE');
-        }
-
-        let buyerID: number;
-        let publisherID: number;
-
-        if (partner.userType === 'IXMB') {
-            buyerID = partner.id;
-            publisherID = user.id;
-        } else {
-            buyerID = user.id;
-            publisherID = partner.id;
-        }
-
-        // Check that user has interacted with the proposal. If they haven't, and the proposal is deleted, then it should behave as if the proposal does not and
-        // has never existed. However, if they have at least negotiated on it, then it should be possible for them to use its ID to get associated deals.
-        let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromIds(proposalID, buyerID, publisherID);
-
-        if (!negotiatedDeal && proposal.isDeleted()) {
-            throw HTTPError('404_PROPOSAL_NOT_FOUND');
-        }
-
-        // Fetch the settled deal
-        let settledDeal = await settledDealManager.fetchSettledDealFromIds(proposalID, buyerID, publisherID);
-
-        if (!settledDeal || settledDeal.isDeleted()) {
+        } else if (!settledDeal || settledDeal.isDeleted()) {
             throw HTTPError('404_DEAL_NOT_FOUND');
         }
 
-        Log.trace(`Found deal ${Log.stringify(settledDeal)} for user ${user.id}, proposal ${proposal.id} and partner ${partner.id}.`, req.id);
+        Log.trace(`Found deal ${Log.stringify(settledDeal)} for user ${user.contact.id} representing 
+                  ${user.company.id} with partner ${partnerID} and proposal ${proposalID}.`, req.id);
 
-        res.sendPayload(settledDeal.toPayload(user.userType));
+        res.sendPayload(settledDeal.toPayload(user));
 
     } catch (error) { next(error); } });
 

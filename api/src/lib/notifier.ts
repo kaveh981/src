@@ -71,7 +71,7 @@ class Notifier {
                 let subject;
                 let message;
 
-                if (!proposal || !proposal.ownerInfo) {
+                if (!proposal || !proposal.owner.contact) {
                     Log.error('Invalid Proposal or Proposal Info.');
                     resolve(false);
                     return;
@@ -86,7 +86,7 @@ class Notifier {
                     return;
                 }
 
-                Promise.all(this.notificationMediums.map(medium => medium.send(proposal.ownerInfo.emailAddress, subject, message)))
+                Promise.all(this.notificationMediums.map(medium => medium.send(proposal.owner.contact.emailAddress, subject, message)))
                     .then(() => {
                         Log.trace('Notifications sent by: ' + this.notificationMediums.map(medium => medium.constructor.name).join(', '));
                         resolve(true);

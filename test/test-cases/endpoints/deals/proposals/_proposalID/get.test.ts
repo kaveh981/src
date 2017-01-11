@@ -4,7 +4,6 @@ import * as test from 'tape';
 
 import { authenticationTest } from '../../../../common/auth.test';
 import { validationTest } from '../../../../common/validation.test';
-import { paginationTest } from '../../../../common/pagination.test';
 
 import { Injector } from '../../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../../src/lib/request-manager';
@@ -24,48 +23,17 @@ const currentDate: Date = new Date();
 async function databaseSetup() {
 
     let dsp = await databasePopulator.createDSP(123);
-    await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     return { user: publisher.user, userID: publisher.user.userID, proposalID: proposal.proposal.proposalID };
 
 }
 
-/**
- * Database setup for pagination tests
- * @return: data: the data required from database setup to create a proposal
- */
-async function paginationSetup() {
-
-    let dsp = await databasePopulator.createDSP(123);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-
-    return {
-        publisher: publisher,
-        section: section,
-        sender: buyer.user
-    };
-}
-
-/**
- * Create a proposal. Function should allow successive calls to create new proposals without problems.
- * @param data: The data required from database setup to create a proposal
- * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
- */
-async function createProposal (data: ICreateEntityData) {
-
-    let proposal = await databasePopulator.createProposal(data.publisher.publisher.userID, [ data.section.section.sectionID ]);
-
-    return Helper.proposalToPayload(proposal, data.publisher.user);
-
-}
-
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -73,16 +41,7 @@ async function createProposal (data: ICreateEntityData) {
  * @status  - working
  * @tags    - get, proposal, auth
  */
-export let ATW_PA_GET_SP_AUTH = authenticationTest(route, 'get', databaseSetup);
-
-/*
- * @case    - The buyer attempts to authenticate.
- * @expect  - Authentication tests to pass.
- * @route   - GET deals/proposals/:proposal_id
- * @status  - working
- * @tags    - get, proposal, auth
- */
-export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, createProposal);
+export let ATW_PA_GET_SP_AUTH = authenticationTest(route + '/1', 'get', databaseSetup);
 
 /*
  * @case    - Common validation cases for proposalID.
@@ -92,7 +51,7 @@ export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, cre
  * @status  - failing
  * @tags    - get, proposal, validation
  */
-export let ATW_PA_GET_SP_VALIDATION = validationTest(route, 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
+export let ATW_PA_GET_SP_VALIDATION = validationTest(route + '/1', 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
 
 /*
  * @case    - The user is the owner of proposal
@@ -108,16 +67,17 @@ export async function IXM_API_PROPOSAL_GET_SP_01(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -136,17 +96,18 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 }
 
 /*
@@ -163,17 +124,18 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let publisher2 = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let pubCompany2 = await databasePopulator.createCompany();
+    let publisher2 = await databasePopulator.createPublisher(pubCompany2.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher2.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 }
 
 /*
@@ -191,11 +153,12 @@ export async function IXM_API_PROPOSAL_GET_SP_04(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher({ status: 'D' });
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany({ status: 'D' });
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
@@ -218,17 +181,18 @@ export async function IXM_API_PROPOSAL_GET_SP_05(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -246,12 +210,12 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
-        { proposalID: 16777215 });
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { proposalID: 16777215 });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID + 1}`, {}, buyer.user);
@@ -274,10 +238,11 @@ export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
     /** Setup */
     assert.plan(1);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
@@ -301,11 +266,12 @@ export async function IXM_API_PROPOSAL_GET_SP_08(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
@@ -328,16 +294,17 @@ export async function IXM_API_PROPOSAL_GET_SP_09(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'paused' });
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'paused' });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -356,11 +323,12 @@ export async function IXM_API_PROPOSAL_GET_SP_10(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'paused' });
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'paused' });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
@@ -382,16 +350,17 @@ export async function IXM_API_PROPOSAL_GET_SP_11(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { endDate: currentDate });
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { endDate: currentDate });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -410,17 +379,18 @@ export async function IXM_API_PROPOSAL_GET_SP_12(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { endDate: currentDate });
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { endDate: currentDate });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -438,17 +408,18 @@ export async function IXM_API_PROPOSAL_GET_SP_13(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -467,11 +438,12 @@ export async function IXM_API_PROPOSAL_GET_SP_14(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
@@ -495,17 +467,18 @@ export async function IXM_API_PROPOSAL_GET_SP_15(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { startDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -524,18 +497,19 @@ export async function IXM_API_PROPOSAL_GET_SP_16(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { startDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -553,17 +527,18 @@ export async function IXM_API_PROPOSAL_GET_SP_17(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { startDate: new Date(currentDate.setDate(currentDate.getDate() + 5)) });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -582,18 +557,19 @@ export async function IXM_API_PROPOSAL_GET_SP_18(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ],
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
         { startDate: new Date(currentDate.setDate(currentDate.getDate() + 5)) });
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -611,18 +587,19 @@ export async function IXM_API_PROPOSAL_GET_SP_19(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ], { status: 'D' });
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section1.section.sectionID, section2.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section1.section.sectionID, section2.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [ section1.section.sectionID ];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -641,19 +618,20 @@ export async function IXM_API_PROPOSAL_GET_SP_20(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ], { status: 'D' });
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section1.section.sectionID, section2.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section1.section.sectionID, section2.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [ section1.section.sectionID ];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -671,17 +649,18 @@ export async function IXM_API_PROPOSAL_GET_SP_21(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ], { status: 'D' });
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -700,11 +679,12 @@ export async function IXM_API_PROPOSAL_GET_SP_22(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ], { status: 'D' });
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
@@ -727,19 +707,20 @@ export async function IXM_API_PROPOSAL_GET_SP_23(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site1 = await databasePopulator.createSite(publisher.publisher.userID);
-    let site2 = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
-    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [ site1.siteID ]);
-    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [ site2.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section1.section.sectionID, section2.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site1 = await databasePopulator.createSite(pubCompany.user.userID);
+    let site2 = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site1.siteID ]);
+    let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site2.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section1.section.sectionID, section2.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [ section1.section.sectionID ];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -758,20 +739,21 @@ export async function IXM_API_PROPOSAL_GET_SP_24(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site1 = await databasePopulator.createSite(publisher.publisher.userID);
-    let site2 = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
-    let section1 = await databasePopulator.createSection(publisher.publisher.userID, [ site1.siteID ]);
-    let section2 = await databasePopulator.createSection(publisher.publisher.userID, [ site2.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section1.section.sectionID, section2.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site1 = await databasePopulator.createSite(pubCompany.user.userID);
+    let site2 = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site1.siteID ]);
+    let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site2.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section1.section.sectionID, section2.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [ section1.section.sectionID ];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -789,17 +771,18 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
     /** Setup */
     assert.plan(2);
 
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
     let expectedProposal: INewProposalData = proposal;
     expectedProposal.sectionIDs = [];
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, publisher.user));
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(expectedProposal, pubCompany.user));
 
 }
 
@@ -818,11 +801,12 @@ export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID, { status: 'D' });
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
@@ -846,8 +830,9 @@ export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
+    await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
 
     /** Test */
     let response = await apiRequest.get(route + `/${5}`, {}, publisher.user);
@@ -871,13 +856,14 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer1 = await databasePopulator.createBuyer(dsp.dspID);
-    let buyer2 = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], {},
-                                                          [ buyer2.user.userID ]);
+    let buyerCompany1 = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer1 = await databasePopulator.createBuyer(buyerCompany1.user.userID, 'write');
+    let buyerCompany2 = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {},
+                                                          [ buyerCompany2.user.userID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer1.user);
@@ -902,13 +888,14 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher1 = await databasePopulator.createPublisher();
-    let publisher2 = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher2.publisher.userID);
-    let section = await databasePopulator.createSection(publisher2.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ], {},
-                                                          [ publisher2.user.userID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany1 = await databasePopulator.createCompany();
+    let publisher1 = await databasePopulator.createPublisher(pubCompany1.user.userID, 'write');
+    let pubCompany2 = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany2.user.userID);
+    let section = await databasePopulator.createSection(pubCompany2.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {},
+                                                          [ pubCompany2.user.userID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher1.user);
@@ -932,18 +919,19 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ], {},
-                                                          [ buyer.user.userID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {},
+                                                          [ buyerCompany.user.userID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, publisher.user) ]);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -962,18 +950,19 @@ export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
     assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(buyer.user.userID, [ section.section.sectionID ], {},
-                                                          [ publisher.user.userID ]);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {},
+                                                          [ pubCompany.user.userID ]);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, buyer.user) ]);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
 }
 
 /*
@@ -991,13 +980,13 @@ export async function IXM_API_PROPOSAL_GET_SP_32(assert: test.Test) {
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyer = await databasePopulator.createBuyer(dsp.dspID);
-    let publisher = await databasePopulator.createPublisher();
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ], { status: 'deleted' });
-    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID,
-        publisher.user.userID, buyer.user.userID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'deleted' });
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID);
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);

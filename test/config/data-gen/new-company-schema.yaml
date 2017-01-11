@@ -3,23 +3,18 @@
     "user": {
       "__ref__": "new-user-schema",
       "properties": {
-        "userType": 22,
         "emailAddress": {
           "chance": {
             "email": {
-              "domain": "atw-test-buyer.com"
+              "domain": "atw-test-company.com"
             }
           }
         },
-        "companyName": "iBuyAdSpace"
+        "companyName": "iDoNothingInc"
       }
-    },
-    "companyID": 1,
-    "permissions": "write"
+    }
   },
   "required": [
-    "user",
-    "companyID",
-    "permissions"
+    "user"
   ]
 }

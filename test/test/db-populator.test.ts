@@ -16,7 +16,7 @@ const Log         = new Logger('TEST');
 // const dbPopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 // const dbManager   = Injector.request<DatabaseManager>('DatabaseManager');
 const dbSetup     = Injector.request<DataSetup>('DataSetup');
-const TABLES      = [ 'users', 'ixmBuyers', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections', 'ixmPackages',
+const TABLES      = [ 'users', 'ixmCompanyWhitelist', 'ixmUserCompanyMapping', 'publishers', 'sites', 'rtbSections', 'rtbSiteSections', 'ixmPackages',
     'ixmPackageSectionMappings' ];
 const beforeAll   = test;
 const afterAll    = test;

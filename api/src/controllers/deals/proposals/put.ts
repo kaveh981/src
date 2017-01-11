@@ -3,15 +3,16 @@ import * as express from 'express';
 import { Injector } from '../../../lib/injector';
 import { RamlTypeValidator } from '../../../lib/raml-type-validator';
 import { HTTPError } from '../../../lib/http-error';
-import { ProtectedRoute } from '../../../middleware/protected-route';
+import { Permission } from '../../../middleware/permission';
 import { Helper } from '../../../lib/helper';
 
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
-import { UserManager } from '../../../models/user/user-manager';
+import { ProposedDealModel } from '../../../models/deals/proposed-deal/proposed-deal-model';
+import { MarketUserManager } from '../../../models/market-user/market-user-manager';
 import { DealSectionManager } from '../../../models/deal-section/deal-section-manager';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
-const userManager = Injector.request<UserManager>('UserManager');
+const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
 const dealSectionManager = Injector.request<DealSectionManager>('DealSectionManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
@@ -20,7 +21,7 @@ function Proposals(router: express.Router): void {
     /**
      * PUT request for creating a new proposal, which can be targeted or non-targeted.
      */
-    router.put('/', ProtectedRoute, async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.put('/', Permission('write'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
@@ -35,31 +36,44 @@ function Proposals(router: express.Router): void {
         /** Route logic */
 
         let today = Helper.formatDate(Helper.currentDate());
+        let user = req.ixmUserInfo;
 
-        let proposalFields = {
+        let proposedDeal = new ProposedDealModel({
             auctionType: req.body['auction_type'],
             budget: req.body['budget'] || null,
-            contact: req.body['contact'],
-            description: req.body['description'] || "",
-            endDate: req.body['end_date'] || '0000-00-00',
+            description: req.body['description'] || '',
+            endDate: Helper.formatDate(req.body['end_date'] || '0000-00-00'),
             impressions: req.body['impressions'] || null,
-            inventory: [],
+            sections: [],
             name: req.body['name'],
-            ownerID: req.ixmUserInfo.id,
-            ownerInfo: req.ixmUserInfo,
-            partners: req.body['partners'] || [],
+            owner: user,
+            targetedUsers: [],
             price: req.body['price'] || null,
-            startDate: req.body['start_date'] || today,
-            terms: req.body['terms'] || ""
-        };
-
-        proposalFields.endDate = Helper.formatDate(proposalFields.endDate);
-        proposalFields.startDate = Helper.formatDate(proposalFields.startDate);
+            startDate: Helper.formatDate(req.body['start_date'] || today),
+            terms: req.body['terms'] || '',
+            createDate: new Date()
+        });
 
         // Check that dates are valid
-        if (proposalFields.endDate !== '0000-00-00' &&
-                                    (proposalFields.startDate > proposalFields.endDate || proposalFields.endDate < today)) {
+        if (proposedDeal.isExpired()) {
             throw HTTPError('400_INVALID_DATES');
+        }
+
+        // Check that partners are valid
+        if (req.body['partners']) {
+            for (let i = 0; i < req.body['partners'].length; i++) {
+                let targetUser = await marketUserManager.fetchMarketUserFromId(req.body['partners'][i]);
+
+                if (!targetUser) {
+                    throw HTTPError('404_PARTNER_NOT_FOUND');
+                } else if (!targetUser.isActive()) {
+                    throw HTTPError('403_PARTNER_NOT_ACTIVE');
+                } else if (targetUser.isBuyer() === user.isBuyer() || !targetUser.isCompany()) {
+                    throw HTTPError('403_PARTNER_INVALID_USERTYPE');
+                }
+
+                proposedDeal.targetedUsers.push(targetUser.company.id);
+            }
         }
 
         let dealSectionIDs = req.body['inventory'];
@@ -70,45 +84,16 @@ function Proposals(router: express.Router): void {
 
             if (!dealSection) {
                 throw HTTPError('404_SECTION_NOT_FOUND');
-            } else if (dealSection.publisherID !== req.ixmUserInfo.id && proposalFields.partners.indexOf(dealSection.publisherID) === -1) {
+            } else if (dealSection.publisherID !== user.company.id && proposedDeal.targetedUsers.indexOf(dealSection.publisherID) === -1) {
                 throw HTTPError('403_SECTION_OWNED');
-            } else if (dealSection.status !== 'active') {
+            } else if (!dealSection.isActive()) {
                 throw HTTPError('403_SECTION_NOT_ACTIVE');
             }
 
-            // Check that at least one site associated with this section is active
-            let allSitesInactive = true;
-
-            for (let i = 0; i < dealSection.sites.length; i++) {
-                if (dealSection.sites[i].status === 'active') {
-                    allSitesInactive = false;
-                    break;
-                }
-            }
-
-            if (allSitesInactive) {
-                throw HTTPError('403_SITES_NOT_ACTIVE');
-            }
-
-            proposalFields.inventory.push(dealSection);
-        }
-
-        // Check that partners are valid
-        for (let i = 0; i < proposalFields.partners.length; i++) {
-            let targetUser = await userManager.fetchUserFromId(proposalFields.partners[i]);
-
-            if (!targetUser) {
-                throw HTTPError('404_PARTNER_NOT_FOUND');
-            } else if (targetUser.status !== 'active') {
-                throw HTTPError('403_PARTNER_NOT_ACTIVE');
-            } else if (targetUser.userType === req.ixmUserInfo.userType) {
-                throw HTTPError('403_PARTNER_INVALID_USERTYPE');
-            }
+            proposedDeal.sections.push(dealSection);
         }
 
         // Insert the proposal into the database
-        let proposedDeal = await proposedDealManager.createProposedDeal(proposalFields);
-
         await proposedDealManager.insertProposedDeal(proposedDeal);
 
         res.location('/deals/proposals/' + proposedDeal.id);

@@ -29,7 +29,8 @@ interface INewUserData {
 
 interface INewBuyerData {
     user: INewUserData;
-    dspID: number;
+    companyID: number;
+    permissions: 'read' | 'write';
 }
 
 interface IPubData {
@@ -56,6 +57,13 @@ interface IPubData {
 interface INewPubData {
     user: INewUserData;
     publisher: IPubData;
+    companyID: number;
+    permissions: 'read' | 'write';
+}
+
+interface INewCompanyData {
+    user: INewUserData;
+    dspID?: number;
 }
 
 interface INewSiteData {
@@ -100,6 +108,7 @@ interface INewMatchData {
 interface IProposal {
     proposalID?: number;
     ownerID?: number;
+    ownerContactID?: number;
     name?: string;
     description?: string;
     status?: string;
@@ -159,8 +168,8 @@ interface INewDSPData {
 interface IDealNegotiationData {
     negotiationID?: number;
     proposalID?: number;
-    publisherID?: number;
-    buyerID?: number;
+    partnerID?: number;
+    partnerContactID?: number;
     startDate?: Date;
     endDate?: Date;
     price?: number;
@@ -168,8 +177,8 @@ interface IDealNegotiationData {
     budget?: number;
     terms?: string;
     sender?: string;
-    pubStatus?: string;
-    buyerStatus?: string;
+    ownerStatus?: string;
+    partnerStatus?: string;
     createDate?: Date;
     modifyDate?: Date;
 }
@@ -203,7 +212,9 @@ interface ICreateEntityData {
     sender: INewUserData;
     dsp?: INewDSPData;
     buyer?: INewBuyerData;
+    buyerCompany?: INewCompanyData;
     publisher?: INewPubData;
+    pubCompany?: INewCompanyData;
     proposal?: INewProposalData;
     site?: INewSiteData;
     section?: INewSectionData;

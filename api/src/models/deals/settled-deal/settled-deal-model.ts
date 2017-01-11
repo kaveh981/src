@@ -2,6 +2,7 @@
 
 import { NegotiatedDealModel } from '../negotiated-deal/negotiated-deal-model';
 import { Helper } from '../../../lib/helper';
+import { MarketUserModel } from '../../market-user/market-user-model';
 import { DealSectionModel } from '../../deal-section/deal-section-model';
 
 class SettledDealModel {
@@ -60,7 +61,7 @@ class SettledDealModel {
 
         return (this.status === 'active') && (startDate <= endDate) && (endDate >= today || endDate === '0000-00-00')
                && this.sections.length > 0
-               && this.negotiatedDeal.publisherInfo.isActive();
+               && this.negotiatedDeal.getPublisher().isActive();
 
     }
 
@@ -75,14 +76,15 @@ class SettledDealModel {
      * Return the model as a ready-to-send JSON object.
      * @returns - The model as specified in the API.
      */
-    public toPayload(userType: string): any {
+    public toPayload(user: MarketUserModel) {
 
-        let partner;
+        let partner: MarketUserModel;
+        let person: 'partner' | 'owner' = user.company.id === this.negotiatedDeal.partner.company.id ? 'partner' : 'owner';
 
-        if (userType === 'IXMB') {
-            partner = this.negotiatedDeal.publisherInfo.toPayload('partner_id');
+        if (person === 'owner') {
+            partner = this.negotiatedDeal.partner;
         } else {
-            partner = this.negotiatedDeal.buyerInfo.toPayload('partner_id');
+            partner = this.negotiatedDeal.proposedDeal.owner;
         }
 
         let negotiatedDeal = this.negotiatedDeal;
@@ -90,7 +92,8 @@ class SettledDealModel {
 
         return {
             proposal: proposedDeal.toSubPayload(true),
-            partner: partner,
+            partner_id: partner.company.id,
+            partner: partner.contact.toContactPayload(),
             dsp_id: this.dspID,
             auction_type: this.auctionType,
             external_id: this.externalDealID,

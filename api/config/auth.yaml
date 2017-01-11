@@ -1,10 +1,5 @@
 # Authentication Configuration
 
-# Usertype names of usertypes allowed to access IXM
-allowedUserTypes:
-    - IXMB
-    - IXMP
-
 # The header which contains the access token
 tokenHeader: IXM-AccessToken
 

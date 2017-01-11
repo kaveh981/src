@@ -25,12 +25,6 @@ authentication-handler:
     module:
         name: mw:auth-handler
 
-# The public access switch
-public-handler:
-    priority: 50
-    module:
-        name: mw:public-access-handler
-
 # JSON body parsing
 json-parser:
     priority: 60

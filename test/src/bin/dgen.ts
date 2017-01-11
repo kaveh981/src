@@ -150,9 +150,10 @@ class DataGenCLI {
         return dbPopulator.createDSP(parseInt(dspID, 10));
     }
 
-    private handleBuyer(dspID: string): Promise<INewBuyerData> {
+    private async handleBuyer(dspID: string): Promise<INewBuyerData> {
         console.log("Need just 1 buyer? We have up to 16777215 for you");
-        return dbPopulator.createBuyer(parseInt(dspID, 10));
+        let company = await dbPopulator.createCompany({}, parseInt(dspID, 10));
+        return dbPopulator.createBuyer(company.user.userID, 'write');
     }
 
     /**
@@ -160,12 +161,14 @@ class DataGenCLI {
      * @param {string | boolean} pubArgs The publisher arguments from the command line
      * @return {Promise<INewPubData>}
      */
-    private handlePublisher(pubArgs: string) {
+    private async handlePublisher(pubArgs: string) {
         console.log("Sure would be nice to have some pubs");
         console.log("Here's what you wrote though:");
         console.log(pubArgs);
 
-        return dbPopulator.createPublisher();
+        let company = await dbPopulator.createCompany();
+
+        return dbPopulator.createPublisher(company.user.userID, 'write');
     }
 
     /**

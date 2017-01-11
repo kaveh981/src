@@ -11,6 +11,8 @@ import { ConfigLoader    } from './config-loader';
 import { Logger          } from './logger';
 
 const Log = new Logger('DPOP');
+const IXM_BUYER_USERTYPE = 22;
+const IXM_PUB_USERTYPE = 23;
 
 /**
  *  Simple Database Populator class used as to insert new entities into a data store during test case
@@ -110,10 +112,10 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmBuyers"
+     * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmUserCompanyMapping".
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */
-    public async createBuyer(dspID: number, userFields?: INewUserData) {
+    public async createBuyer(companyID: number, permissions: 'read' | 'write', userFields?: INewUserData) {
 
         let newBuyerData = this.generateDataObject<INewBuyerData>('new-buyer-schema');
 
@@ -121,30 +123,25 @@ class DatabasePopulator {
             Object.assign(newBuyerData.user, userFields);
         }
 
-        let dsps = await this.dbm.from('rtbDSPs').where('dspID', dspID);
-
-        if (dsps.length === 0) {
-            Log.error(`DSP with dspID: ${dspID} not found`);
-            return;
-        }
-
         let newUserData = await this.createUser(newBuyerData.user);
-        if (dspID) { newBuyerData.dspID = dspID; }
+        newBuyerData.companyID = companyID;
+        newBuyerData.permissions = permissions;
         newBuyerData.user = newUserData;
 
-        await this.dbm.insert({ userID: newBuyerData.user.userID, dspID: newBuyerData.dspID }).into('ixmBuyers');
+        await this.dbm.insert({ userID: newBuyerData.user.userID, companyID: newBuyerData.companyID,
+                                permissions: newBuyerData.permissions }).into('ixmUserCompanyMapping');
 
-        Log.debug(`Added new Buyer with userID: ${newBuyerData.user.userID}, dspID: ${newBuyerData.dspID}`);
+        Log.debug(`Added new Buyer with userID: ${newBuyerData.user.userID}, companyID: ${newBuyerData.companyID}, permissions: ${newBuyerData.permissions}`);
 
         return newBuyerData;
 
     }
 
     /**
-     * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers".
+     * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers", "Viper2.ixmUserCompanyMapping".
      * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
      */
-    public async createPublisher(userFields?: INewUserData, publisherFields?: INewPubData) {
+    public async createPublisher(companyID: number, permissions: 'read' | 'write', userFields?: INewUserData, publisherFields?: INewPubData) {
 
         let newPubData = this.generateDataObject<INewPubData>('new-pub-schema');
         newPubData.publisher.approvalDate = this.currentMidnightDate();
@@ -154,9 +151,12 @@ class DatabasePopulator {
         }
 
         let newUserData = await this.createUser(newPubData.user);
+        newPubData.companyID = companyID;
+        newPubData.permissions = permissions;
+        newPubData.user = newUserData;
+
         let publisherData = newPubData.publisher;
         publisherData.userID = newUserData.userID;
-        newPubData.user = newUserData;
 
         if (userFields) {
             Object.assign(newPubData.publisher, publisherFields);
@@ -164,7 +164,49 @@ class DatabasePopulator {
 
         await this.dbm.insert(publisherData).into('publishers');
 
+        await this.dbm.insert({ userID: newPubData.user.userID, companyID: newPubData.companyID,
+                                permissions: newPubData.permissions }).into('ixmUserCompanyMapping');
+
+        Log.debug(`Added new Buyer with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
+
         return newPubData;
+
+    }
+
+    /**
+     * Creates a new company entry based on "new-company-schema". Inserts to "Viper2.users", "Viper2.ixmCompanyWhitelist", and optionally to
+     * "Viper2.rtbTradingDesks".
+     * @returns {Promise<INewCompanyData>} A promise which resolves with the new company's data
+     */
+    public async createCompany(userFields: INewUserData = {}, dspID?: number) {
+
+        let newCompanyData = this.generateDataObject<INewCompanyData>('new-company-schema');
+
+        if (dspID) {
+            let dsps = await this.dbm.from('rtbDSPs').where('dspID', dspID);
+
+            if (dsps.length === 0) {
+                Log.error(`DSP with dspID: ${dspID} not found`);
+                return;
+            }
+
+            newCompanyData.dspID = dspID;
+            userFields.userType = IXM_BUYER_USERTYPE;
+        } else {
+            userFields.userType = IXM_PUB_USERTYPE;
+        }
+
+        let newUserData = await this.createUser(userFields);
+        newCompanyData.user = newUserData;
+
+        await this.dbm.insert({ userID: newCompanyData.user.userID }).into('ixmCompanyWhitelist');
+
+        if (dspID) {
+            await this.dbm.insert({ userID: newCompanyData.user.userID, dspID: newCompanyData.dspID,
+                                externalTradingDeskID: newCompanyData.user.userID * 2, buyerID: 123 }).into('rtbTradingDesks');
+        }
+
+        return newCompanyData;
 
     }
 
@@ -368,6 +410,7 @@ class DatabasePopulator {
         }
 
         newProposal.proposal.ownerID = ownerID;
+        newProposal.proposal.ownerContactID = ownerID;
         newProposal.proposal.createDate = this.currentMidnightDate();
 
         if (typeof newProposal.proposal.startDate !== 'string') {
@@ -399,11 +442,11 @@ class DatabasePopulator {
      * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmDealNegotiations",
      * "Viper2.ixmDealNegotiations".
      * @param proposalID {int} - proposalID of the proposal being negotiated
-     * @param publisherID {int} - publisherID to whom the proposal belongs to
-     * @param buyerID {int} - buyerID of buyer negotiating with publisher
+     * @param ownerID {int} - ownerID to whom the proposal belongs to
+     * @param partnerID {int} - partnerID of partner negotiating with owner
      * @returns {Promise<IDealNegotiationData>} - Promise which resolves with object of new section data
      */
-    public async createDealNegotiation (proposalID: number, publisherID: number, buyerID: number, optionalFields?: IDealNegotiationData) {
+    public async createDealNegotiation (proposalID: number, partnerID: number, optionalFields?: IDealNegotiationData) {
 
         let newDealNegotiationData = this.generateDataObject<IDealNegotiationData>('new-negotiation-schema');
 
@@ -412,8 +455,8 @@ class DatabasePopulator {
         }
 
         newDealNegotiationData.proposalID = proposalID;
-        newDealNegotiationData.publisherID = publisherID;
-        newDealNegotiationData.buyerID = buyerID;
+        newDealNegotiationData.partnerID = partnerID;
+        newDealNegotiationData.partnerContactID = partnerID;
         newDealNegotiationData.startDate.setHours(0, 0, 0, 0);
         newDealNegotiationData.endDate.setHours(0, 0, 0, 0);
 
