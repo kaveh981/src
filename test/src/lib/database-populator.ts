@@ -174,6 +174,20 @@ class DatabasePopulator {
     }
 
     /**
+     * Creates a new internal user entry. Inserts to "Viper2.users"
+     * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
+     */
+    public async createInternalUser(userFields?: INewUserData) {
+
+        if (userFields.userType) {
+            delete userFields.userType;
+        }
+
+        return await this.createUser(Object.assign(userFields, { userType: 19 }));
+
+    }
+
+    /**
      * Creates a new company entry based on "new-company-schema". Inserts to "Viper2.users", "Viper2.ixmCompanyWhitelist", and optionally to
      * "Viper2.rtbTradingDesks".
      * @returns {Promise<INewCompanyData>} A promise which resolves with the new company's data

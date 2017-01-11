@@ -87,7 +87,6 @@ export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, cre
 
 /*
  * @case    - Common validation cases for proposalID.
- * @setup   - create proposal and apply common validation method.
  * @expect  - Validations tests to pass.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - failing
@@ -97,7 +96,6 @@ export let ATW_PA_GET_SP_VALIDATION = validationTest(route, 'get', databaseSetup
 
 /*
  * @case    - The user is the owner of proposal
- * @setup   - create publisher, create site, create section, create proposal 
  * and set the owner and user both as publisher or both as buyer .
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
@@ -125,8 +123,6 @@ export async function IXM_API_PROPOSAL_GET_SP_01(assert: test.Test) {
 
 /*
  * @case    - User is not the owner and has a different type from the owner (buyer/publisher)
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal
- *  and set publisher as the owner and buyer as the user
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -154,7 +150,6 @@ export async function IXM_API_PROPOSAL_GET_SP_02(assert: test.Test) {
 
 /*
  * @case    - User is not the owner and has the same type as the owner
- * @setup   - create publisher, create site, create section, create proposal 
  * and set publisher as the owner and the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
@@ -182,8 +177,6 @@ export async function IXM_API_PROPOSAL_GET_SP_03(assert: test.Test) {
 
 /*
  * @case    - when the owner is inactive
- * @setup   - create dsp, create buyer, create a deactive publisher, create site, create section, create proposal
- *  and set publisher as the owner.
  * @expect  - 404 - owner is inactive -> proposal is inactive -> proposal is not readable -> proposal not found
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -211,7 +204,6 @@ export async function IXM_API_PROPOSAL_GET_SP_04(assert: test.Test) {
 
 /*
  * @case    - ProposalID is not provided
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and do not pass the proposalID.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -240,7 +232,6 @@ export async function IXM_API_PROPOSAL_GET_SP_05(assert: test.Test) {
 
 /*
  * @case    - ProposalID is out of range
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal with a proposalID 16777215 + 1
  * @expect  - 400 - Malformed Request
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -268,8 +259,6 @@ export async function IXM_API_PROPOSAL_GET_SP_06(assert: test.Test) {
 
 /*
  * @case    - ProposalID is deleted and user is the owner
- * @setup   - create publisher, create site, create section, create proposal and set it's status to deleted and
- *  set publisher as the owner as well as the user. 
  * @expect  - 404 - Proposal not found - does not exist to user because it is deleted
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -294,9 +283,7 @@ export async function IXM_API_PROPOSAL_GET_SP_07(assert: test.Test) {
 }
 
 /*
- * @case    - ProposalID is deleted and user is NOT the owner
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to deleted and 
- * set publisher as the owner and buyer as the user. 
+ * @case    - ProposalID is deleted and user is NOT the owner 
  * @expect  - 404.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -324,8 +311,6 @@ export async function IXM_API_PROPOSAL_GET_SP_08(assert: test.Test) {
 
 /*
  * @case    - ProposalID is paused and user is the owner
- * @setup   - create publisher, create site, create section, create proposal and set it's status to paused and 
- * set publisher as the owner as well as the user. 
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -352,8 +337,6 @@ export async function IXM_API_PROPOSAL_GET_SP_09(assert: test.Test) {
 
 /*
  * @case    - ProposalID is paused and user is NOT the owner
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to paused and
- *  set publisher as the owner and buyer as the user.  
  * @expect  - 404 - Not found. Is not active, so does not exist to user 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -380,8 +363,6 @@ export async function IXM_API_PROPOSAL_GET_SP_10(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is today and the owner is the user
- * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today and
- *  set the owner as publisher as well as user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -408,8 +389,6 @@ export async function IXM_API_PROPOSAL_GET_SP_11(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is today and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today and
- *  set the owner as publisher and the buyer as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -438,8 +417,6 @@ export async function IXM_API_PROPOSAL_GET_SP_12(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is earlier than today and the owner is the user
- * @setup   - create publisher, create site, create section, create proposal and set it's endDate to today - 5 and
- *  set the owner as publisher as well as user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -467,8 +444,6 @@ export async function IXM_API_PROPOSAL_GET_SP_13(assert: test.Test) {
 
 /*
  * @case    - ProposalID end date is earlier than today and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's endDate to today - 5 
- * and set the owner as publisher and the buyer as the user.
  * @expect  - 404 - Proposal not found. Proposal does not exist to user (is not readable)
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -497,9 +472,7 @@ export async function IXM_API_PROPOSAL_GET_SP_14(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is earlier than today and the owner is the user
- * @setup   - create publisher, create site, create section, create proposal and set it's startDate to today - 5 
- * and set the owner as publisher as well as user.
- * @expect  - 2000.
+ * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
@@ -526,8 +499,6 @@ export async function IXM_API_PROPOSAL_GET_SP_15(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is earlier than today and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to today
- *  - 5 and set the owner as publisher and the buyer as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -557,8 +528,6 @@ export async function IXM_API_PROPOSAL_GET_SP_16(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is later than today and the owner is the user
- * @setup   - create publisher, create site, create section, create proposal and set it's startDate to
- *  today + 5 and set the owner as publisher as well as user. 
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -586,8 +555,6 @@ export async function IXM_API_PROPOSAL_GET_SP_17(assert: test.Test) {
 
 /*
  * @case    - ProposalID start date is later than today and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's startDate to today + 5
- *  and set the owner as publisher and the buyer as the user.
  * @expect  - 403.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -617,8 +584,6 @@ export async function IXM_API_PROPOSAL_GET_SP_18(assert: test.Test) {
 
 /*
  * @case    - Some sections are no longer active and the owner is the user
- * @setup   - create publisher, create site, create section, create a deactive section, create proposal with
- *  active and deactive section set publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -647,8 +612,6 @@ export async function IXM_API_PROPOSAL_GET_SP_19(assert: test.Test) {
 
 /*
  * @case    - Some sections are no longer active and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create a deactive section, create proposal with
- *  active and deactive section set publisher as the owner and the buyer as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -679,8 +642,6 @@ export async function IXM_API_PROPOSAL_GET_SP_20(assert: test.Test) {
 
 /*
  * @case    - There is no active section and the owner is the user
- * @setup   - create publisher, create site, create a deactive section, create proposal with the deactive section
- *  set publisher as the owner as well as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -708,8 +669,6 @@ export async function IXM_API_PROPOSAL_GET_SP_21(assert: test.Test) {
 
 /*
  * @case    - There is no active section and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site, create a deactive section, create proposal with the deactive
- *  section set publisher as the owner and the buyer as the user.
  * @expect  - 404 - Proposal not found. Is not readable, does not exist to user
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -736,9 +695,7 @@ export async function IXM_API_PROPOSAL_GET_SP_22(assert: test.Test) {
 }
 
 /*
- * @case    - Some sites are no longer active and the owner is the user
- * @setup   - create publisher, create site,create a deactive site , create section with active and deactive 
- * sites, create proposal and set the publisher as the owner as well as the user.
+ * @case    - Some sites are no longer active and the owner is the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -768,8 +725,6 @@ export async function IXM_API_PROPOSAL_GET_SP_23(assert: test.Test) {
 
 /*
  * @case    - Some sites are no longer active and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create site,create a deactive site , create section with active and deactive
- *  sites, create proposal and set the publisher as the owner and the buyer as the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -800,9 +755,7 @@ export async function IXM_API_PROPOSAL_GET_SP_24(assert: test.Test) {
 }
 
 /*
- * @case    - There is no active site and the owner is the user
- * @setup   - create publisher, create a deactive site , create section with  deactive site, create proposal
- *  and set the publisher as the owner as well as the user.
+ * @case    - There is no active site and the owner is the user.
  * @expect  - 200.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -830,8 +783,6 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
 
 /*
  * @case    - There is no active site and the owner is NOT the user
- * @setup   - create dsp, create buyer, create publisher, create a deactive site , create section with  deactive site, create proposal
- *  and set the publisher as the owner and the buyer as the user.
  * @expect  - 404 - Proposal not found. Is not readable by user. It does not exist to current user. 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -859,8 +810,6 @@ export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
 
 /*
  * @case    - There is no proposal available
- * @setup   - create dsp, create buyer, create publisher, create site , create section
- *  and send a proposalID that does not exist.
  * @expect  - 404.
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -885,8 +834,6 @@ export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
 
 /*
  * @case    - The current buyer is not targeted by proposal but another buyer is  
- * @setup   - create dsp, create buyer, create publisher, create site , create section
- *  create proposal, create user targeting
  * @expect  - 404 - The buyer is not able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -895,7 +842,7 @@ export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(6);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany1 = await databasePopulator.createCompany({}, dsp.dspID);
@@ -906,6 +853,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {},
                                                           [ buyerCompany2.user.userID ]);
+    let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer1.user);
@@ -913,12 +861,28 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
 
+    // buyer company
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyerCompany1.user);
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
+    // Internal User impersonation
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
+        userID: buyerCompany1.user.userID,
+        accessToken: accessToken
+    });
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
 }
 
 /*
- * @case    - The current publisher is not targeted by proposal but another publisher is  
- * @setup   - create dsp, create buyer, create publisher, create site , create section
- *  and send a proposalID that does not exist.
+ * @case    - The current publisher is not targeted by proposal but another publisher is  .
  * @expect  - 404 - The publisher is not able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -927,7 +891,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(6);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -938,18 +902,36 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany2.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {},
                                                           [ pubCompany2.user.userID ]);
+    let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher1.user);
 
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
+
+    // Company
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, pubCompany1.user);
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
+    // Internal user 
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
+        userID: pubCompany1.user.userID,
+        accessToken: accessToken
+    });
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
 }
 
 /*
  * @case    - The buyer is targeted by proposal
- * @setup   - create dsp, create buyer, create publisher, create site , create section
- *  create proposal, create user targeting
  * @expect  - 200 - The buyer is able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -958,7 +940,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(6);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -968,9 +950,28 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {},
                                                           [ buyerCompany.user.userID ]);
+    let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+
+    // Company
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyerCompany.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+
+    // internal User
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
+        userID: buyerCompany.user.userID,
+        accessToken: accessToken
+    });
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
@@ -979,8 +980,6 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
 
 /*
  * @case    - The publisher is targeted by proposal
- * @setup   - create dsp, create buyer, create publisher, create site , create section
- *  create proposal, create user targeting
  * @expect  - 200 - The buyer is able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -989,7 +988,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(6);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -999,18 +998,36 @@ export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {},
                                                           [ pubCompany.user.userID ]);
+    let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
 
     assert.equals(response.status, 200);
     assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
+
+    // Company
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, pubCompany.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
+
+    // internal User
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
+        userID: pubCompany.user.userID,
+        accessToken: accessToken
+    });
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+
 }
 
 /*
  * @case    - ProposalID is deleted and user is NOT the owner and user started a negotiation on this proposal
- * @setup   - create dsp, create buyer, create publisher, create site, create section, create proposal and set it's status to deleted and 
- * set publisher as the owner and buyer as the user the create a negotiation
  * @expect  - 200. proposal with limited properties should be returned
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working

@@ -49,12 +49,25 @@ class Helper {
     }
 
     /**
+     * Construct a contact payload form user info
+     * @param contact - user object
+     * @returns contact payload
+     */
+    public static contactToPayload(contact: INewUserData): any {
+        return {
+            title: 'Warlord',
+            name: contact.firstName + ' ' + contact.lastName,
+            email: contact.emailAddress,
+            phone: contact.phone
+        };
+    }
+    /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
      * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-       public static proposalToPayload(proposal: INewProposalData, owner: INewUserData): any {
+    public static proposalToPayload(proposal: INewProposalData, owner: INewUserData): any {
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
