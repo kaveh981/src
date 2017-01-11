@@ -241,7 +241,7 @@ export async function IXM_API_DEALS_PUT_07(assert: test.Test) {
 
 /*
  * @case    - The buyer buys a proposal that hasn't started yet.
- * @expect  - 403 - FORBIDDEN
+ * @expect  - 200 OK
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, live, deals
@@ -263,7 +263,7 @@ export async function IXM_API_DEALS_PUT_08(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 200);
 
 }
 
