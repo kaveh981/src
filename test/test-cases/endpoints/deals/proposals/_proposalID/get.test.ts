@@ -4,7 +4,6 @@ import * as test from 'tape';
 
 import { authenticationTest } from '../../../../common/auth.test';
 import { validationTest } from '../../../../common/validation.test';
-import { paginationTest } from '../../../../common/pagination.test';
 
 import { Injector } from '../../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../../src/lib/request-manager';
@@ -35,25 +34,6 @@ async function databaseSetup() {
 
 }
 
-/**
- * Database setup for pagination tests
- * @return: data: the data required from database setup to create a proposal
- */
-async function paginationSetup() {
-
-    let dsp = await databasePopulator.createDSP(123);
-    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let pubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-
-    return {
-        pubCompany: pubCompany,
-        section: section,
-        sender: buyerCompany.user
-    };
-}
-
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -62,7 +42,6 @@ async function paginationSetup() {
  * @tags    - get, proposal, auth
  */
 export let ATW_PA_GET_SP_AUTH = authenticationTest(route + '/1', 'get', databaseSetup);
-
 
 /*
  * @case    - Common validation cases for proposalID.
