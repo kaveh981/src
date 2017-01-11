@@ -259,7 +259,7 @@ async function ATW_AUTH_07 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_08 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     await setup();
 
@@ -301,7 +301,7 @@ async function ATW_AUTH_08 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     await setup();
 
@@ -343,7 +343,7 @@ async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_10 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     await setup();
 
