@@ -41,7 +41,7 @@ function Users(router: express.Router): void {
 
         /** Route logic */
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let users = await userManager.fetchActiveUsers(req.query, pagination);
+        let users = await userManager.fetchActiveUsers(pagination, req.query);
 
         res.sendPayload(users.map((user) => { return user.toPayload(); }), pagination.toPayload());
 
