@@ -54,19 +54,6 @@ async function paginationSetup() {
     };
 }
 
-/**
- * Create a proposal. Function should allow successive calls to create new proposals without problems.
- * @param data: The data required from database setup to create a proposal
- * @returns The expected payload for that proposal (used by the test case for comparison with the database object).
- */
-async function createProposal (data: ICreateEntityData) {
-
-    let proposal = await databasePopulator.createProposal(data.pubCompany.user.userID, [ data.section.section.sectionID ]);
-
-    return Helper.proposalToPayload(proposal, data.pubCompany.user);
-
-}
-
 /*
  * @case    - The buyer attempts to authenticate.
  * @expect  - Authentication tests to pass.
@@ -76,14 +63,6 @@ async function createProposal (data: ICreateEntityData) {
  */
 export let ATW_PA_GET_SP_AUTH = authenticationTest(route + '/1', 'get', databaseSetup);
 
-/*
- * @case    - The buyer attempts to authenticate.
- * @expect  - Authentication tests to pass.
- * @route   - GET deals/proposals/:proposal_id
- * @status  - working
- * @tags    - get, proposal, auth
- */
-export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, createProposal);
 
 /*
  * @case    - Common validation cases for proposalID.
@@ -93,7 +72,7 @@ export let ATW_PA_GET_SP_PAG = paginationTest(route, 'get', paginationSetup, cre
  * @status  - failing
  * @tags    - get, proposal, validation
  */
-export let ATW_PA_GET_SP_VALIDATION = validationTest(route, 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
+export let ATW_PA_GET_SP_VALIDATION = validationTest(route + '/1', 'get', databaseSetup, {}, { proposalID: { type: 'integer' } });
 
 /*
  * @case    - The user is the owner of proposal
