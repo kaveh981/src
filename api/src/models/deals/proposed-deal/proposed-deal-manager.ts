@@ -4,6 +4,7 @@ import * as knex from 'knex';
 
 import { DatabaseManager } from '../../../lib/database-manager';
 import { ProposedDealModel } from './proposed-deal-model';
+import { MarketUserModel } from '../../market-user/market-user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
 import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { MarketUserManager } from '../../market-user/market-user-manager';
@@ -41,48 +42,125 @@ class ProposedDealManager {
     }
 
     /**
+     * Fetch proposed deal models with pagination and filtering.
+     * @param pagination - The pagination to use, this is modified.
+     * @param clauses - A collection of where clauses to include.
+     * @returns The list of proposed deals matching filtering and pagination.
+     */
+    public async fetchProposedDeals(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]) {
+
+        let rows = await this.databaseManager.distinct('ixmDealProposals.proposalID', 'ownerID', 'ownerContactID', 'ixmDealProposals.name',
+                                                     'ixmDealProposals.description', 'ixmDealProposals.status', 'startDate', 'endDate', 'price',
+                                                     'impressions', 'budget', 'auctionType', 'terms', 'ixmDealProposals.createDate',
+                                                     'ixmDealProposals.modifyDate')
+                                             .from('ixmDealProposals')
+                                             .leftJoin('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+                                             .leftJoin('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
+                                             .leftJoin('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
+                                             .leftJoin('sites', 'rtbSiteSections.siteID', 'sites.siteID')
+                                             .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
+                                             .join('users as contact', 'contact.userID', 'ixmDealProposals.ownerContactID')
+                                             .leftJoin('ixmProposalTargeting', 'ixmDealProposals.proposalID', 'ixmProposalTargeting.proposalID')
+                                             .where((db) => { clauses.forEach(filter => filter(db) ); })
+                                             .limit(pagination ? pagination.limit + 1 : 250)
+                                             .offset(pagination ? pagination.getOffset() : 0);
+
+        if (pagination) {
+            if (rows.length <= pagination.limit) {
+                pagination.nextPageURL = '';
+            } else {
+                rows.pop();
+            }
+        }
+
+        let proposals: ProposedDealModel[] = [];
+
+        await Promise.all(rows.map(async (row) => {
+
+            let proposal = new ProposedDealModel({
+                id: row.proposalID,
+                name: row.name,
+                description: row.description,
+                status: row.status,
+                startDate: Helper.formatDate(row.startDate),
+                endDate: Helper.formatDate(row.endDate),
+                price: row.price,
+                impressions: row.impressions,
+                budget: row.budget,
+                auctionType: row.auctionType,
+                terms: row.terms,
+                createDate: row.createDate,
+                modifyDate: row.modifyDate,
+                currency: 'USD'
+            });
+
+            let extraInfo = await Promise.parallel({
+                sections: this.dealSectionManager.fetchSectionsFromProposalId(row.proposalID),
+                owner: this.marketUserManager.fetchMarketUserFromId(row.ownerContactID),
+                targets: this.fetchTargetedIdsFromProposalId(row.proposalID)
+            });
+
+            proposal.sections = extraInfo.sections;
+            proposal.owner = extraInfo.owner;
+            proposal.targetedUsers = extraInfo.targets;
+
+            proposals.push(proposal);
+
+        }));
+
+        proposals.sort((a, b) => a.id - b.id);
+
+        return proposals;
+
+    }
+
+    /**
      * Get proposal object by ID
      * @param proposalID - the ID of the proposal
      * @returns Returns a proposed deal object and includes associated section IDs
      */
-    public async fetchProposedDealFromId(proposalID: number): Promise<ProposedDealModel> {
+    public async fetchProposedDealFromId(proposalID: number) {
+        return (await this.fetchProposedDeals(null, (db) => { db.where('ixmDealProposals.proposalID', proposalID); }))[0];
+    }
 
-        let rows = await this.databaseManager.select('proposalID as id', 'ownerID', 'ownerContactID', 'name', 'description', 'status',
-                                                     'startDate', 'endDate', 'price', 'impressions', 'budget',
-                                                     'auctionType', 'terms', 'createDate', 'modifyDate')
-                                             .from('ixmDealProposals')
-                                             .where('proposalID', proposalID);
+    /** 
+     * Fetch targeted proposals for a user
+     * @param user - The market user to find targeted deals.
+     * @param pagination - The pagination to use, this is modified.
+     * @returns The proposals targeted at the user.
+     */
+    public async fetchTargetedProposedDealsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
 
-        if (!rows[0]) {
-            return;
-        }
+        let today = Helper.formatDate(Helper.currentDate());
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
-        let proposal = new ProposedDealModel({
-            id: proposalID,
-            name: rows[0].name,
-            description: rows[0].description,
-            status: rows[0].status,
-            startDate: Helper.formatDate(rows[0].startDate),
-            endDate: Helper.formatDate(rows[0].endDate),
-            price: rows[0].price,
-            impressions: rows[0].impressions,
-            budget: rows[0].budget,
-            auctionType: rows[0].auctionType,
-            terms: rows[0].terms,
-            createDate: rows[0].createDate,
-            modifyDate: rows[0].modifyDate,
-            currency: 'USD'
-        });
+        return await this.fetchProposedDeals(pagination, dbFiltering,
+            (db) => {
+                db.where('ixmProposalTargeting.userID', user.company.id);
+            },
+            (db) => {
+                db.where('ixmDealProposals.status', 'active')
+                .andWhere('startDate', '<=', 'endDate')
+                .andWhere(function() {
+                    this.where('endDate', '>=', today)
+                        .orWhere('endDate', '0000-00-00');
+                })
+                .andWhere('owner.status', 'A')
+                .andWhere('rtbSections.status', 'A')
+                .andWhere('sites.status', 'A');
+            });
 
-        await Promise.all([ (async () => {
-            proposal.sections = await this.dealSectionManager.fetchSectionsFromProposalId(proposalID);
-        })(), (async () => {
-            proposal.owner = await this.marketUserManager.fetchMarketUserFromId(rows[0].ownerContactID);
-        })(), (async () => {
-            proposal.targetedUsers = await this.fetchTargetedIdsFromProposalId(proposalID);
-        })() ]);
+    }
 
-        return proposal;
+    public async fetchProposedDealsOwnedByUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
+
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
+
+        return await this.fetchProposedDeals(pagination, dbFiltering,
+            (db) => {
+                db.where('ixmDealProposals.ownerID', user.company.id)
+                  .whereNot('ixmDealProposals.status', 'deleted');
+            });
 
     }
 
@@ -92,56 +170,23 @@ class ProposedDealManager {
      * data left to get or not.
      * @returns Returns an array of available proposed deal objects.
      */
-    public async fetchAvailableProposedDeals(pagination: PaginationModel, filters: {[s: string]: any}): Promise<ProposedDealModel[]> {
+    public async fetchAvailableProposedDeals(pagination: PaginationModel, filters: {[s: string]: any}) {
 
         let today = Helper.formatDate(Helper.currentDate());
-
         let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
-        let rows = await this.databaseManager.distinct('ixmDealProposals.proposalID as proposalID')
-                                             .select()
-                                             .from('ixmDealProposals')
-                                             .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
-                                             .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
-                                             .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
-                                             .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                             .join('users', 'users.userID', 'ixmDealProposals.ownerID')
-                                             .leftJoin('ixmProposalTargeting', 'ixmDealProposals.proposalID', 'ixmProposalTargeting.proposalID')
-                                             .where('ixmDealProposals.status', 'active')
-                                             .andWhere('startDate', '<=', 'endDate')
-                                             .andWhere(function() {
-                                                 this.where('endDate', '>=', today)
-                                                     .orWhere('endDate', '0000-00-00');
-                                             })
-                                             .andWhere('users.status', 'A')
-                                             .andWhere('rtbSections.status', 'A')
-                                             .andWhere('sites.status', 'A')
-                                             .andWhere('ixmProposalTargeting.userID', null)
-                                             .andWhere(dbFiltering)
-                                             .limit(pagination.limit + 1)
-                                             .offset(pagination.getOffset());
-
-        // Check that there is more data to retrieve to appropriately set the next page URL
-        if (rows.length <= pagination.limit) {
-            pagination.nextPageURL = '';
-        } else {
-            rows.pop();
-        }
-
-        // Fetch the proposals
-        let proposals: ProposedDealModel[] = [];
-
-        await Promise.all(rows.map(async (row) => {
-
-            if (row.proposalID) {
-                proposals.push(await this.fetchProposedDealFromId(row.proposalID));
-            }
-
-        }));
-
-        proposals.sort((a, b) => a.id - b.id);
-
-        return proposals;
+        return await this.fetchProposedDeals(pagination, dbFiltering, (db) => {
+            db.where('ixmDealProposals.status', 'active')
+              .andWhere('startDate', '<=', 'endDate')
+              .andWhere(function() {
+                  this.where('endDate', '>=', today)
+                      .orWhere('endDate', '0000-00-00');
+              })
+              .andWhere('owner.status', 'A')
+              .andWhere('rtbSections.status', 'A')
+              .andWhere('sites.status', 'A')
+              .andWhere('ixmProposalTargeting.userID', null);
+        });
 
     }
 

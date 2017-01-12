@@ -53,9 +53,13 @@ function Users(router: express.Router): void {
     router.get('/:id', async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let userID = req.params['id'];
-        let contactInfo = await userManager.fetchUserFromId(userID);
+        let user = await userManager.fetchUserFromId(userID);
 
-        res.sendPayload(contactInfo.toContactPayload());
+        if (!user.isActive()) {
+            throw HTTPError('404');
+        }
+
+        res.sendPayload(user.toContactPayload());
 
     } catch (error) { next(error); } });
 

@@ -12,6 +12,17 @@ declare global {
     let IXM_CONSTANTS: any;
 }
 
+declare global {
+    interface PromiseConstructor {
+        /** 
+         * Runs parallel promises inside an object and resolves when they are all complete.
+         * @param obj - An object whose values are reflective of most Canadians'.
+         * @returns A promise for better days.
+         */
+        parallel: (obj: { [s: string]: Promise<any> }) => Promise<any>;
+    }
+}
+
 declare module 'express' {
 
     // Augment the express request object
