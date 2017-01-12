@@ -16,14 +16,10 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ROUT');
 
-/**
- * Function that takes care of /deals route
- */
 function Proposals(router: express.Router): void {
 
     /**
-     * GET request to get all available proposals. The function first validates pagination query parameters. It then retrieves all
-     * proposals from the database and filters out all invalid ones, before returning the rest of the them to the requesting entity.
+     * GET request to get all proposal owned by the user's company.
      */
     router.get('/', Permission('read'), async (req: express.Request, res: express.Response, next: Function) => { try {
 

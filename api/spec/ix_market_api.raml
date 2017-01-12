@@ -245,7 +245,7 @@ types:
         /incoming:
             get:
                 is: [ auth_required, pageable, deal_filterable ]
-                description: Retrieve proposals which are targeted at you.
+                description: Retrieve proposals which are targeted at your company.
                 queryParameters:
                     owner_id:
                         type: integer
