@@ -1,5 +1,6 @@
 'use strict';
 
+/** Lib */
 import './boot';
 
 import { Injector } from './lib/injector';
@@ -9,6 +10,7 @@ import { Validator } from './lib/validator';
 import { SQLScriptBuilder } from './lib/sql-script-builder';
 import { SectionPopulator } from './lib/section-populator';
 
+/** node_modules */
 import toCsv = require('csv-stringify/lib/sync');
 
 import * as program from 'commander';
