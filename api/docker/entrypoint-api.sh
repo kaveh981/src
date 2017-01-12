@@ -20,7 +20,7 @@ if [ -d $SRC_DIR ]; then
     
     # Deploy build/ && config/ && locales/ && node_modules/ && src/schemas/
     echo "Deploying to $DEST_DIR"
-    cp -rf $SRC_DIR/build/* $DEST_DIR
+    cp -rf $SRC_DIR/build/src $DEST_DIR/src
     cp -rf $SRC_DIR/config $DEST_DIR
     cp -rf $SRC_DIR/node_modules $DEST_DIR
     cp -rf $SRC_DIR/package.json $DEST_DIR

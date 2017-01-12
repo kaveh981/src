@@ -2,7 +2,7 @@
 
 import * as test from 'tape';
 
-// import { authenticationTest } from '../../../common/auth.test';
+import { authenticationTest } from '../../../common/auth.test';
 import { paginationTest } from '../../../common/pagination.test';
 
 import { Injector } from '../../../../src/lib/injector';
@@ -16,17 +16,17 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 /** Test constants */
 const route = 'deals/proposals';
 
-// async function authDatabaseSetup() {
+async function authDatabaseSetup() {
 
-//     let dsp = await databasePopulator.createDSP(123);
-//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-//     await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-//     let pubCompany = await databasePopulator.createCompany();
-//     let site = await databasePopulator.createSite(pubCompany.user.userID);
-//     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-//     await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
+    let dsp = await databasePopulator.createDSP(123);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
-// }
+}
 
 /**
  * Database setup for pagination tests
@@ -67,7 +67,7 @@ async function createProposal(data: ICreateEntityData) {
  * @status  - working
  * @tags    - get, deals, auth
  */
-// export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup);
+export let ATW_PA_GET_AUTH = authenticationTest(route, 'get', authDatabaseSetup);
 
 /*
  * @case    - Different pagination parameters are attempted.
