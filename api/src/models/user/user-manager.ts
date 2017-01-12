@@ -10,8 +10,6 @@ import { Helper } from '../../lib/helper';
 /** User model manager */
 class UserManager {
 
-<<<<<<< HEAD
-=======
     private readonly filterMapping = {
         user_id: {
             table: 'users',
@@ -30,7 +28,6 @@ class UserManager {
         }
     };
 
->>>>>>> 9f0b913f8b2f0cfbca222808b51871932ea2dc20
     /**
      * Constructor
      * @param databaseManager - An instance of the database manager.
