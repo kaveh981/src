@@ -20,7 +20,7 @@ const route = 'deals/proposals/incoming';
 // Pagination Setup
 async function setupPagination() {
 
-    let dsp = await databasePopulator.createDSP(1);
+    let dsp = await databasePopulator.createDSP(2);
     let pubCompany = await databasePopulator.createCompany();
     let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
 
@@ -35,7 +35,7 @@ async function createProposal(data: ICreateEntityData) {
 
     let pubCompany = data.pubCompany;
 
-    let buyerCompany = await databasePopulator.createCompany({}, 1);
+    let buyerCompany = await databasePopulator.createCompany({}, 2);
     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
 
     let site = await databasePopulator.createSite(pubCompany.user.userID);
