@@ -64,3 +64,15 @@ Injector.put(negotiatedDealManager, 'NegotiatedDealManager');
 
 const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager, dealSectionManager);
 Injector.put(settledDealManager, 'SettledDealManager');
+
+Promise.parallel = async (obj) => {
+
+    let completeObject = {};
+
+    await Promise.all(Object.keys(obj).map(async (key) => {
+        completeObject[key] = await obj[key];
+    }));
+
+    return completeObject;
+
+};

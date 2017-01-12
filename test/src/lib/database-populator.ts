@@ -11,8 +11,8 @@ import { ConfigLoader    } from './config-loader';
 import { Logger          } from './logger';
 
 const Log = new Logger('DPOP');
-const IXM_BUYER_USERTYPE = 22;
-const IXM_PUB_USERTYPE = 23;
+const BUYER_COMPANY_USERTYPE = 2;
+const PUB_COMPANY_USERTYPE = 18;
 
 /**
  *  Simple Database Populator class used as to insert new entities into a data store during test case
@@ -167,7 +167,7 @@ class DatabasePopulator {
         await this.dbm.insert({ userID: newPubData.user.userID, companyID: newPubData.companyID,
                                 permissions: newPubData.permissions }).into('ixmUserCompanyMapping');
 
-        Log.debug(`Added new Buyer with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
+        Log.debug(`Added new Publisher with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
 
         return newPubData;
 
@@ -205,9 +205,10 @@ class DatabasePopulator {
             }
 
             newCompanyData.dspID = dspID;
-            userFields.userType = IXM_BUYER_USERTYPE;
+
+            userFields.userType = BUYER_COMPANY_USERTYPE;
         } else {
-            userFields.userType = IXM_PUB_USERTYPE;
+            userFields.userType = PUB_COMPANY_USERTYPE;
         }
 
         let newUserData = await this.createUser(userFields);

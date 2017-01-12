@@ -43,7 +43,7 @@ class UserManager {
      */
     public async fetchUserFromId(userID: number): Promise<UserModel> {
 
-        let user = await this.fetchUsers(null, (db) => { db.where('userID', userID).where('status', 'A'); });
+        let user = await this.fetchUsers(null, (db) => { db.where('userID', userID); });
 
         return user[0];
 
