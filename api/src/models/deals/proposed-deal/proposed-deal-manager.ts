@@ -164,7 +164,6 @@ class ProposedDealManager {
 
     }
 
-
     /**
      * Get list of available proposed deals
      * @param pagination - The pagination parameters. This function modifies this parameter by setting its nextPageURL field based on whether there is more
