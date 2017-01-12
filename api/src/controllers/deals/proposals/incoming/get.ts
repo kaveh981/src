@@ -16,7 +16,7 @@ const validator = Injector.request<RamlTypeValidator>('Validator');
 
 const Log: Logger = new Logger('ROUT');
 
-function Proposals(router: express.Router): void {
+function IncomingProposals(router: express.Router): void {
 
     /**
      * Get all proposals targeted at the user's company.
@@ -52,4 +52,4 @@ function Proposals(router: express.Router): void {
 
 };
 
-module.exports = Proposals;
+module.exports = IncomingProposals;
