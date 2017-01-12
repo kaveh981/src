@@ -167,7 +167,7 @@ class DatabasePopulator {
         await this.dbm.insert({ userID: newPubData.user.userID, companyID: newPubData.companyID,
                                 permissions: newPubData.permissions }).into('ixmUserCompanyMapping');
 
-        Log.debug(`Added new Buyer with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
+        Log.debug(`Added new Publisher with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
 
         return newPubData;
 
