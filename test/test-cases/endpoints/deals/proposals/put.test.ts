@@ -285,40 +285,51 @@ export async function ATW_API_PUT_DEAPRO_05 (assert: test.Test) {
     assert.equal(response.status, 404);
 
 }
+//  .----------------.  .----------------.  .----------------.  .----------------. 
+// | .--------------. || .--------------. || .--------------. || .--------------. |
+// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
+// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
+// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
+// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
+// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
+// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
+// | |              | || |              | || |              | || |              | |
+// | '--------------' || '--------------' || '--------------' || '--------------' |
+//  '----------------'  '----------------'  '----------------'  '----------------' 
+// ATW 721
+// /*
+//  * @case    - A target user is not active
+//  * @expect  - 403 FORBIDDEN
+//  * @route   - PUT deals/proposals
+//  * @status  - working
+//  * @tags    - put, proposals, deals
+//  */
+// export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
 
-/*
- * @case    - A target user is not active
- * @expect  - 403 FORBIDDEN
- * @route   - PUT deals/proposals
- * @status  - working
- * @tags    - put, proposals, deals
- */
-export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
+//     /** Setup */
+//     assert.plan(1);
 
-    /** Setup */
-    assert.plan(1);
+//     let dsp = await databasePopulator.createDSP(DSP_ID);
+//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+//     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+//     let pubCompany = await databasePopulator.createCompany();
+//     let site = await databasePopulator.createSite(pubCompany.user.userID);
+//     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
 
-    let dsp = await databasePopulator.createDSP(DSP_ID);
-    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-    let pubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+//     let proposal = {
+//         auction_type: 'second',
+//         inventory: [ section.section.sectionID ],
+//         name: 'fabulous proposal',
+//         price: 5,
+//         partners: [ pubCompany.user.userID ]
+//     };
 
-    let proposal = {
-        auction_type: 'second',
-        inventory: [ section.section.sectionID ],
-        name: 'fabulous proposal',
-        price: 5,
-        partners: [ pubCompany.user.userID ]
-    };
+//     /** Test */
+//     let response = await apiRequest.put(route, proposal, buyer.user);
 
-    /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+//     assert.equal(response.status, 403);
 
-    assert.equal(response.status, 403);
-
-}
+// }
 
 /*
  * @case    - A publisher tries to target a publisher
