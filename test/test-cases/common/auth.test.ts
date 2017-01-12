@@ -293,7 +293,7 @@ async function ATW_AUTH_08 (route: string, verb: string, setup: Function, assert
 }
 
 /**
- * @case    - The status of company is inactive  
+ * @case    - Internal user doesn't provide userID  
  * @expect  - The response has status code 401.
  * @status  - working
  * @tags    - auth, company
@@ -313,6 +313,7 @@ async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert
 
     /** Test */
     let authResponse = await apiRequest.getAuthToken(buyer.user.emailAddress, buyer.user.password);
+
     let accessToken = authResponse.body.data.accessToken;
 
     let response = await apiRequest[verb](route, {}, {
@@ -325,50 +326,7 @@ async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert
     authResponse = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
     accessToken = authResponse.body.data.accessToken;
 
-    response = await apiRequest[verb](route, {}, {
-        userID: publisher.user.userID,
-        accessToken: accessToken
-    });
-
-    assert.equal(response.status, 401);
-
-}
-
-/**
- * @case    - The status of representitive is inactive  
- * @expect  - The response has status code 401.
- * @status  - working
- * @tags    - auth, buyer, publisher
- */
-async function ATW_AUTH_10 (route: string, verb: string, setup: Function, assert: test.Test) {
-
-    /** Setup */
-    assert.plan(2);
-
-    await setup();
-
-    let dsp = await databasePopulator.createDSP(1);
-    let buyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
-    let pubCompany = await databasePopulator.createCompany({ status: 'N' });
-
-    /** Test */
-    let authResponse = await apiRequest.getAuthToken(buyerCompany.user.emailAddress, buyerCompany.user.password);
-    let accessToken = authResponse.body.data.accessToken;
-
-    let response = await apiRequest[verb](route, {}, {
-        userID: buyerCompany.user.userID,
-        accessToken: accessToken
-    });
-
-    assert.equal(response.status, 401);
-
-    authResponse = await apiRequest.getAuthToken(pubCompany.user.emailAddress, pubCompany.user.password);
-    accessToken = authResponse.body.data.accessToken;
-
-    response = await apiRequest[verb](route, {}, {
-        userID: pubCompany.user.userID,
-        accessToken: accessToken
-    });
+    response = await apiRequest[verb](route, {}, { accessToken: accessToken });
 
     assert.equal(response.status, 401);
 
@@ -544,7 +502,7 @@ function authenticationTest(route: string, verb: string, setup: Function) {
         (assert: test.Test) => { return ATW_AUTH_07(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_08(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
+        // (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_11(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_12(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_13(route, verb, setup, assert); },
