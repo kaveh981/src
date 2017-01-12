@@ -37,19 +37,7 @@ interface IMatch {
     url: string;
 }
 
-interface ISectionResult {
-    userID?: number;
-    name?: string;
-    percent?: number;
-    entireSite?: number;
-    matches?: IMatch[];
-    fullMatchesURL?: string[];
-    partialMatchesURL?: string[];
-    siteIDs?: number[];
-    frequencyRestrictions?: number[];
-    audienceRestrictions?: number[];
-    countryRestrictions?: string[];
-    adUnitRestrictions?: number[];
+interface ISectionResult extends ISection {
     responseCode: string;
     responseErrors?: any;
     newSectionID?: number;

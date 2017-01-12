@@ -57,6 +57,19 @@ traits:
                 description: The page number.
                 minimum: 1
                 default: 1
+    user_filterable:
+        queryParameters:
+            user_id:
+                type: number
+                required: false
+                description: The unique identifier of the user(s).
+                minimum: 1
+                maximum: 16777215
+            email:
+                type: string
+                required: false
+                displayName: Email Address
+                description: The email address of the user.
     deal_filterable:
         queryParameters:
             owner_id:
@@ -789,6 +802,31 @@ types:
                 404: # 404 = "Not found" provided site ID does not exist in the database
                 500: # 500
 /users:
+    get:
+        is: [ auth_required, pageable, user_filterable ]
+        description: Retrieve all users from Index Market. The returned objects describe the contact information for each user.
+        queryParameters:
+            user_id:
+                type: number
+                required: false
+                description: The unique identifier of the user(s).
+                minimum: 1
+                maximum: 16777215
+            email:
+                type: string
+                required: false
+                displayName: Email Address
+                description: The email address of a user from Index Market. Used to obtain only users with that email.
+            
+        responses:
+                200: # 200 = "OK"
+                    body:
+                        application/json:
+                            type: Response
+                400: # 400 = "Bad Request" use for malformed requests
+                401: # 401 = "Unauthorized" authentication has failed or was not provided
+                403: # 403 = "Forbidden" authentication successful but insufficient permissions
+                500: # 500 = "Internal Server Error" something done broke
     /{user_id}:
         uriParameters:
             user_id:
