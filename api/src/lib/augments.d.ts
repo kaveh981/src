@@ -14,6 +14,9 @@ declare global {
 
 declare global {
     interface PromiseConstructor {
+        /** 
+         * Runs parallel promises inside an object and resolves when they are all complete.
+         */
         parallel: (obj: { [s: string]: Promise<any> }) => Promise<any>;
     }
 }
