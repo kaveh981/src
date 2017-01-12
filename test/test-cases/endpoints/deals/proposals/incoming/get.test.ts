@@ -62,9 +62,9 @@ async function authSetup() {
 
 }
 
-export let ATW_API_GET_DPI_PAG = paginationTest(route, 'get', setupPagination, createProposal);
+export let ATW_API_GET_DEAPROINC_PAG = paginationTest(route, 'get', setupPagination, createProposal);
 
-export let ATW_API_GET_DPI_AUTH = authenticationTest(route, 'get', authSetup);
+export let ATW_API_GET_DEAPROINC_AUTH = authenticationTest(route, 'get', authSetup);
 
 /**
  * @case    - A publisher views proposals targeted to them, and a buyer has targeted them in a proposal.
@@ -73,7 +73,7 @@ export let ATW_API_GET_DPI_AUTH = authenticationTest(route, 'get', authSetup);
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_01 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -106,7 +106,7 @@ export async function ATW_API_GET_DPI_FUNC_01 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_02 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_02 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -139,7 +139,7 @@ export async function ATW_API_GET_DPI_FUNC_02 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_03 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_03 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -175,7 +175,7 @@ export async function ATW_API_GET_DPI_FUNC_03 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_04 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_04 (assert: test.Test) {
 
     /** 
      * Setup 
@@ -215,7 +215,7 @@ export async function ATW_API_GET_DPI_FUNC_04 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_05 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_05 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -254,7 +254,7 @@ export async function ATW_API_GET_DPI_FUNC_05 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_06 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_06 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -293,7 +293,7 @@ export async function ATW_API_GET_DPI_FUNC_06 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_07 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_07 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -330,7 +330,7 @@ export async function ATW_API_GET_DPI_FUNC_07 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_08 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_08 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -367,7 +367,7 @@ export async function ATW_API_GET_DPI_FUNC_08 (assert: test.Test) {
  * @status  - working
  * @tags    - get, deals
  */
-export async function ATW_API_GET_DPI_FUNC_09 (assert: test.Test) {
+export async function ATW_API_GET_DEAPROINC_FUNC_09 (assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
