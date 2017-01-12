@@ -254,8 +254,8 @@ export async function ATW_API_GET_DEAPROINC_FUNC_05 (assert: test.Test) {
 }
 
 /**
- * @case    - A buyer company views proposals targeted to them, and a publisher has targeted them in a proposal.
- * @expect  - The buyer company should receive the defined proposal.
+ * @case    - A buyer company views proposals targeted to them, and a publisher has targeted another buyer in a proposal.
+ * @expect  - The buyer company should not receive the defined proposal.
  * @route   - GET deals/proposals
  * @status  - working
  * @tags    - get, deals
