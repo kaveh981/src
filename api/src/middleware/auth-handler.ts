@@ -24,6 +24,7 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
 
     try {
         if (config.getEnv('NODE_ENV') === 'development' && config.getEnv('AUTH_IGNORE_TOKEN', true) === 'yes') {
+            Log.warn('API is ignoring authentication tokens.');
             userToken = JSON.parse(accessToken);
         } else {
             userToken = jwt.verify(accessToken, jwtPassphrase);
