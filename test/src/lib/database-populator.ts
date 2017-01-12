@@ -414,7 +414,7 @@ class DatabasePopulator {
      * @param targetedUsers {int[]} - Optional: userIDs of targeted ixmUsers
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[]) {
+    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[], contactUserID?: number) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
         let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || [] };
@@ -424,7 +424,7 @@ class DatabasePopulator {
         }
 
         newProposal.proposal.ownerID = ownerID;
-        newProposal.proposal.ownerContactID = ownerID;
+        newProposal.proposal.ownerContactID = contactUserID || ownerID;
         newProposal.proposal.createDate = this.currentMidnightDate();
 
         if (typeof newProposal.proposal.startDate !== 'string') {
