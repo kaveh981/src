@@ -27,7 +27,7 @@ function Permission(permissions: 'public' | 'read' | 'write' | 'internal' = 'pub
             throw HTTPError('401_UNAUTHORIZED');
         }
 
-        if (permissions === 'internal' && !req.isInternalUser) {
+        if (permissions === 'internal' && !req.impersonator) {
             throw HTTPError('404');
         }
 

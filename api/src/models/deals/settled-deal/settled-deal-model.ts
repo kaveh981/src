@@ -93,7 +93,7 @@ class SettledDealModel {
         return {
             proposal: proposedDeal.toSubPayload(true),
             partner_id: partner.company.id,
-            partner: partner.contact.toContactPayload(),
+            partner: partner.toPayload(),
             dsp_id: this.dspID,
             auction_type: this.auctionType,
             external_id: this.externalDealID,

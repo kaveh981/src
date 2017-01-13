@@ -8,8 +8,10 @@ import { Injector } from '../lib/injector';
 import { Logger } from '../lib/logger';
 import { MarketUserManager } from '../models/market-user/market-user-manager';
 import { HTTPError } from '../lib/http-error';
+import { UserManager } from '../models/user/user-manager';
 
 const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
+const userManager = Injector.request<UserManager>('UserManager');
 const config = Injector.request<ConfigLoader>('ConfigLoader');
 
 const authConfig = config.get('auth');
@@ -33,11 +35,14 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
         throw HTTPError('401');
     }
 
+    let requestUser = await userManager.fetchUserFromId(userToken.userID);
+
     // Internal users can impersonate anyone.
-    if (userToken.userType === IXM_CONSTANTS.INTERNAL_USER_TYPE) {
-        req.impersonatorID = userToken.userID;
-        req.isInternalUser = true;
-    } else if (userID !== userToken.userID) {
+    if (requestUser.internal && userID) {
+        req.impersonator = requestUser;
+    }
+
+    if (requestUser.internal && !userID || userID !== userToken.userID && !requestUser.internal) {
         throw HTTPError('401_CANNOT_IMPERSONATE');
     }
 
