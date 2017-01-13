@@ -1965,7 +1965,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
     let anotherPublisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ], { status: 'active' });
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                             { status: 'active' }, [], publisher.user.userID);
     let buyerRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: pubCompany.user.userID,
@@ -1983,7 +1984,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
-    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
 }
 
 /**
@@ -2031,7 +2032,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
-    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyerCompany.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
 }
 
 /**
@@ -2055,7 +2056,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
     let internalUser = await databasePopulator.createInternalUser();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(publisher.user.userID, [ section.section.sectionID ], { status: 'active' });
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                             { status: 'active' }, [], publisher.user.userID);
     let buyerRequestBody = {
         proposal_id: proposalObj.proposal.proposalID,
         partner_id: pubCompany.user.userID,
@@ -2080,7 +2082,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
-    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
 }
 
 /**
@@ -2136,5 +2138,5 @@ export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
-    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherBuyer.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
 }
