@@ -28,6 +28,7 @@ en-US:
     401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
     401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
     401_CANNOT_IMPERSONATE: You do not have permission to impersonate the provided userID.
+    401_PROVIDE_IMPERSONATEID: You must provided a user ID to impersonate.
 
     # 403 Status Code Messages
     403: Forbidden.
