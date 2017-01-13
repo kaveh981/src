@@ -20,7 +20,7 @@ class UserModel {
     public emailAddress: string;
     /** The contact person's phone number */
     public phone: string;
-
+    /** If the user is an internal user */
     public internal: boolean = false;
 
     /**
