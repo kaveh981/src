@@ -342,7 +342,7 @@ async function ATW_AUTH_11 (route: string, verb: string, setup: Function, assert
 
     let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
     let accessToken = authResponse.body.data.accessToken;
-    console.log(accessToken);
+
     /** Test */
 
     // impersonate buyer company
@@ -488,7 +488,7 @@ function authenticationTest(route: string, verb: string, setup: Function) {
         (assert: test.Test) => { return ATW_AUTH_06(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_07(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_08(route, verb, setup, assert); },
-        //(assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
         // (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_11(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_12(route, verb, setup, assert); },
