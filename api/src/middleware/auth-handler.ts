@@ -42,11 +42,11 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
         req.impersonator = requestUser;
     }
 
-    if (requestUser.internal && !userID || userID !== userToken.userID && !requestUser.internal) {
+    if (requestUser.internal && !userID || userID && userID !== userToken.userID && !requestUser.internal) {
         throw HTTPError('401_CANNOT_IMPERSONATE');
     }
 
-    let userInfo = await marketUserManager.fetchMarketUserFromId(userID);
+    let userInfo = await marketUserManager.fetchMarketUserFromId(userID || userToken.userID);
 
     // User not found or not an IXM buyer
     if (!userInfo) {
