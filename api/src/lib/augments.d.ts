@@ -2,6 +2,7 @@
 // Declaration merging goes here.
 import * as Knex from 'knex';
 import { MarketUserModel } from '../models/market-user/market-user-model';
+import { UserModel } from '../models/user/user-model';
 
 declare module './database-manager' {
     // Promise that the dbm will extend knex
@@ -35,10 +36,7 @@ declare module 'express' {
         id: string;
 
         /** Person impersonating the user. */
-        impersonatorID?: number;
-
-        /** If the user is actually an internal user. */
-        isInternalUser?: boolean;
+        impersonator: UserModel;
 
     }
 

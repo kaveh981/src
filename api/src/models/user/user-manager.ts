@@ -74,7 +74,7 @@ class UserManager {
     public async fetchUsers(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<UserModel[]> {
 
         let rows = await this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
-                                                     'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone')
+                                                     'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone', 'userTypes.internal')
                                              .from('users')
                                              .innerJoin('userTypes', 'userType', '=', 'userTypeID')
                                              .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
@@ -103,7 +103,8 @@ class UserManager {
                 firstName: rows[i].firstName,
                 lastName: rows[i].lastName,
                 emailAddress: rows[i].emailAddress,
-                phone: rows[i].phone
+                phone: rows[i].phone,
+                internal: !!rows[i].internal
             });
         }
 

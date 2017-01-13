@@ -21,6 +21,8 @@ class UserModel {
     /** The contact person's phone number */
     public phone: string;
 
+    public internal: boolean = false;
+
     /**
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
