@@ -151,7 +151,7 @@ class ProposedDealModel {
             return {
                 proposal_id: this.id,
                 owner_id: this.owner.company.id,
-                contact: this.owner.contact.toContactPayload(),
+                contact: this.owner.toPayload(),
                 partners: this.targetedUsers,
                 name: this.name,
                 status: this.status,

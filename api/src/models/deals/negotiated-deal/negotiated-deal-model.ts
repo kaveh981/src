@@ -114,10 +114,10 @@ class NegotiatedDealModel {
         let person: 'partner' | 'owner' = user.company.id === this.partner.company.id ? 'partner' : 'owner';
 
         if (person === 'owner') {
-            otherParty = this.partner.contact.toContactPayload();
+            otherParty = this.partner.toPayload();
             otherPartyID = this.partner.company.id;
         } else {
-            otherParty = this.proposedDeal.owner.contact.toContactPayload();
+            otherParty = this.proposedDeal.owner.toPayload();
             otherPartyID = this.proposedDeal.owner.company.id;
         }
 
