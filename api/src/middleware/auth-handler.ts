@@ -46,7 +46,7 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
         throw HTTPError('401_CANNOT_IMPERSONATE');
     }
 
-    let userInfo = await marketUserManager.fetchMarketUserFromId(userID);
+    let userInfo = await marketUserManager.fetchMarketUserFromId(userID || userToken.userID);
 
     // User not found or not an IXM buyer
     if (!userInfo) {
