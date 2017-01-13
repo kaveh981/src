@@ -301,7 +301,7 @@ async function ATW_AUTH_08 (route: string, verb: string, setup: Function, assert
 async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(1);
 
     await setup();
 
