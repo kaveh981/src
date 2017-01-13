@@ -1,7 +1,4 @@
-# List of constants used for IXM
-
-# Usertype number of an internal user.
-INTERNAL_USER_TYPE: 19
+# List of constants used for IXM API
 
 # Usertype of a buyer
 BUYER_TYPES: [ ADV, IXMB ]
