@@ -302,81 +302,57 @@ export async function ATW_API_DNPP_GET_07(assert: test.Test) {
     assert.equal(buyerResponse.status, 404);
 }
 
-//  .----------------.  .----------------.  .----------------.  .----------------. 
-// | .--------------. || .--------------. || .--------------. || .--------------. |
-// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
-// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
-// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
-// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
-// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
-// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
-// | |              | || |              | || |              | || |              | |
-// | '--------------' || '--------------' || '--------------' || '--------------' |
-//  '----------------'  '----------------'  '----------------'  '----------------' 
-// ATW 721
-// /*
-//  * @case    - Partner status is not 'A' - Buyer
-//  * @expect  - 404
-//  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
-//  * @status  - working
-//  * @tags    - get, negotiaitons, deals
-//  */
-// export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
+/*
+ * @case    - Partner status is not 'A' - Buyer
+ * @expect  - 404
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
-//    /** Setup */
-//     assert.plan(1);
+   /** Setup */
+    assert.plan(1);
 
-//     let dsp = await databasePopulator.createDSP(DSP_ID);
-//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-//     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-//     let pubCompany = await databasePopulator.createCompany({ status: 'N' });
-//     let proposalID = await generateProposalID(pubCompany.user.userID);
-//     await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany({ status: 'N' });
+    let proposalID = await generateProposalID(pubCompany.user.userID);
+    await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
 
-//     let buyerPath = buildPath(proposalID, pubCompany.user.userID);
+    let buyerPath = buildPath(proposalID, pubCompany.user.userID);
 
-//     /** Test */
-//     let buyerResponse = await apiRequest.get(buyerPath, {}, buyer.user);
-//     assert.equal(buyerResponse.status, 404);
-// }
+    /** Test */
+    let buyerResponse = await apiRequest.get(buyerPath, {}, buyer.user);
+    assert.equal(buyerResponse.status, 404);
+}
 
-//  .----------------.  .----------------.  .----------------.  .----------------. 
-// | .--------------. || .--------------. || .--------------. || .--------------. |
-// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
-// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
-// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
-// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
-// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
-// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
-// | |              | || |              | || |              | || |              | |
-// | '--------------' || '--------------' || '--------------' || '--------------' |
-//  '----------------'  '----------------'  '----------------'  '----------------' 
-// ATW 721
-// /*
-//  * @case    - Partner status is not 'A' - Publisher
-//  * @expect  - 404
-//  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
-//  * @status  - working
-//  * @tags    - get, negotiaitons, deals
-//  */
-// export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
+/*
+ * @case    - Partner status is not 'A' - Publisher
+ * @expect  - 404
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
 
-//    /** Setup */
-//     assert.plan(1);
+   /** Setup */
+    assert.plan(1);
 
-//     let dsp = await databasePopulator.createDSP(DSP_ID);
-//     let buyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
-//     let pubCompany = await databasePopulator.createCompany();
-//     let publisher = await databasePopulator.createBuyer(pubCompany.user.userID, 'write');
-//     let proposalID = await generateProposalID(pubCompany.user.userID);
-//     await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createBuyer(pubCompany.user.userID, 'write');
+    let proposalID = await generateProposalID(pubCompany.user.userID);
+    await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
 
-//     let publisherPath = buildPath(proposalID, buyerCompany.user.userID);
+    let publisherPath = buildPath(proposalID, buyerCompany.user.userID);
 
-//     /** Test */
-//     let buyerResponse = await apiRequest.get(publisherPath, {}, publisher.user);
-//     assert.equal(buyerResponse.status, 404);
-// }
+    /** Test */
+    let buyerResponse = await apiRequest.get(publisherPath, {}, publisher.user);
+    assert.equal(buyerResponse.status, 404);
+}
 
 /*
  * @case    - Partner is the same user type (Buyers case)

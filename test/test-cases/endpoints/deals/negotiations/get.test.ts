@@ -764,7 +764,7 @@ export async function ATW_DN_GET_23 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
                      "1 DN Returned");
 }
 
@@ -839,6 +839,6 @@ export async function ATW_DN_GET_25 (assert: test.Test) {
     });
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
                      "1 DN Returned");
 }

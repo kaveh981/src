@@ -1954,8 +1954,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_45(assert: test.Test) {
  */
 export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 
-   /** Setup */
-    assert.plan(2);
+    /** Setup */
+    assert.plan(3);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -1973,7 +1973,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
     };
     await apiRequest.put(route, buyerRequestBody, buyer.user);
 
-   /** Test */
+    /** Test */
     let pubRequestBody = {
             proposal_id: proposalObj.proposal.proposalID,
             partner_id: buyerCompany.user.userID,
@@ -1983,7 +1983,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
-    assert.equal(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
 }
 
 /**
@@ -1996,7 +1996,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 
    /** Setup */
-    assert.plan(2);
+    assert.plan(3);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2031,7 +2031,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
-    assert.equal(response.body.data[0].contact, Helper.contactToPayload(anotherBuyer.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyerCompany.user));
 }
 
 /**
@@ -2044,7 +2044,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 
     /** Setup */
-    assert.plan(2);
+    assert.plan(3);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2080,7 +2080,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
-    assert.equal(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherPublisher.user));
 }
 
 /**
@@ -2093,7 +2093,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
 
    /** Setup */
-    assert.plan(2);
+    assert.plan(3);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2136,5 +2136,5 @@ export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
-    assert.equal(response.body.data[0].contact, Helper.contactToPayload(anotherBuyer.user));
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(anotherBuyer.user));
 }

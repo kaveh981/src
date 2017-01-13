@@ -980,7 +980,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
     });
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
 
 }
 

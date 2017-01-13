@@ -235,7 +235,7 @@ export async function ATW_API_GET_DAP_FUNC_04 (assert: test.Test) {
 
 /*
  * @case    - Proposal, negotiation and settled deal don't exist
- * @expect  - 200 no content
+ * @expect  - 404 NOT FOUND
  * @route   - GET deals/active/:proposalID
  * @status  - passing
  * @tags    - 

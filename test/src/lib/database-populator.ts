@@ -179,11 +179,11 @@ class DatabasePopulator {
      */
     public async createInternalUser(userFields?: INewUserData) {
 
-        if (userFields.userType) {
+        if (userFields) {
             delete userFields.userType;
         }
 
-        return await this.createUser(Object.assign(userFields, { userType: 19 }));
+        return await this.createUser(Object.assign({ userType: 19 }, userFields));
 
     }
 

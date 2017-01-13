@@ -305,31 +305,18 @@ async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert
 
     await setup();
 
-    let dsp = await databasePopulator.createDSP(1);
-    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write', { status: 'N' });
-    let pubCompany = await databasePopulator.createCompany();
-    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write', { status: 'N' });
+    let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
-    let authResponse = await apiRequest.getAuthToken(buyer.user.emailAddress, buyer.user.password);
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
 
     let accessToken = authResponse.body.data.accessToken;
 
     let response = await apiRequest[verb](route, {}, {
-        userID: buyer.user.userID,
         accessToken: accessToken
     });
 
     assert.equal(response.status, 401);
-
-    authResponse = await apiRequest.getAuthToken(publisher.user.emailAddress, publisher.user.password);
-    accessToken = authResponse.body.data.accessToken;
-
-    response = await apiRequest[verb](route, {}, { accessToken: accessToken });
-
-    assert.equal(response.status, 401);
-
 }
 
 /**
@@ -355,7 +342,7 @@ async function ATW_AUTH_11 (route: string, verb: string, setup: Function, assert
 
     let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
     let accessToken = authResponse.body.data.accessToken;
-
+    console.log(accessToken);
     /** Test */
 
     // impersonate buyer company
@@ -501,7 +488,7 @@ function authenticationTest(route: string, verb: string, setup: Function) {
         (assert: test.Test) => { return ATW_AUTH_06(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_07(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_08(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
+        //(assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
         // (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_11(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_12(route, verb, setup, assert); },
