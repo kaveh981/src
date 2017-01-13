@@ -40,9 +40,9 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
     // Internal users can impersonate anyone.
     if (requestUser.internal && userID) {
         req.impersonator = requestUser;
-    }
-
-    if (requestUser.internal && !userID || userID && userID !== userToken.userID && !requestUser.internal) {
+    } else if (requestUser.internal && !userID) {
+        throw HTTPError('401_PROVIDE_IMPERSONATEID');
+    } else if (!requestUser.internal && userID && userID !== userToken.userID) {
         throw HTTPError('401_CANNOT_IMPERSONATE');
     }
 
