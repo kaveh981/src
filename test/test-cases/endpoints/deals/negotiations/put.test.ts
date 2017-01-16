@@ -30,28 +30,31 @@ async function commonDatabaseSetup() {
     await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 }
 
-async function getOwnerStatus(proposalID: number, ownerID: number, partnerID: number): Promise<string> {
-
-    let row = await databaseManager.select('ownerStatus')
+/**
+ * Fetch a negotiation filed from database
+ */
+async function getNegotiatedFieldInDB(proposal: IProposal, partnerID: number, field: string): Promise<any> {
+    let row = await databaseManager.select(`ixmDealNegotiations.${field}`)
                 .from('ixmDealNegotiations')
                 .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
+                .where('ixmDealNegotiations.proposalID', proposal.proposalID)
                 .andWhere('partnerID', partnerID)
-                .andWhere('ownerID', ownerID);
-    return row[0].ownerStatus;
-
+                .andWhere('ownerID', proposal.ownerID);
+    return row[0][field];
 }
 
-async function getPartnerStatus(proposalID: number, ownerID: number, partnerID: number): Promise<string> {
+/**
+ * Fetch owner status from database
+ */
+async function getOwnerStatus(proposal: IProposal, partnerID: number): Promise<string> {
+    return await getNegotiatedFieldInDB(proposal, partnerID, 'ownerStatus');
+}
 
-    let row = await databaseManager.select('partnerStatus')
-                .from('ixmDealNegotiations')
-                .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
-                .andWhere('partnerID', partnerID)
-                .andWhere('ownerID', ownerID);
-    return row[0].partnerStatus;
-
+/**
+ * Fetch partner status from database
+ */
+async function getPartnerStatus(proposal: IProposal, partnerID: number): Promise<string> {
+    return await getNegotiatedFieldInDB(proposal, partnerID, 'partnerStatus');
 }
 
 /** Generic Authentication Tests */
@@ -1183,8 +1186,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_25(assert: test.Test) {
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
-    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
-    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
+    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal, buyerCompany.user.userID);
+    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal, buyerCompany.user.userID);
 
     assert.equal(response.status, 403);
     assert.equal(actualOwnerStatus, 'rejected');
@@ -1241,8 +1244,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_26(assert: test.Test) {
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
 
-    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
-    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
+    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal, buyerCompany.user.userID);
+    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal, buyerCompany.user.userID);
 
     assert.equal(response.status, 403);
     assert.equal(actualOwnerStatus, 'accepted');
@@ -1955,7 +1958,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_45(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 
     /** Setup */
-    assert.plan(3);
+    assert.plan(4);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -1981,14 +1984,16 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
             terms: 'no you are a duck'
     };
     let response = await apiRequest.put(route, pubRequestBody, anotherPublisher.user);
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
+    assert.equal(termsInDB, 'no you are a duck');
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
 }
 
 /**
- * @case    - Pub user negotiate on a negotiation between partner and another buyer user in its company
+ * @case    - Buyer user negotiate on a negotiation between partner and another buyer user in its company
  * @expect  - 200 OK, negotiated filed changes
  * @route   - PUT deals/active
  * @status  - working
@@ -1997,7 +2002,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 
    /** Setup */
-    assert.plan(3);
+    assert.plan(4);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2029,9 +2034,11 @@ export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
         terms: 'honk honk honk'
     };
     let response = await apiRequest.put(route, buyerRequestBody2, anotherBuyer.user);
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(termsInDB, 'honk honk honk');
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
 }
 
@@ -2045,7 +2052,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 
     /** Setup */
-    assert.plan(3);
+    assert.plan(4);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2079,14 +2086,17 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
         userID: anotherPublisher.user.userID,
         accessToken: accessToken
     });
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'no you are a duck');
+    assert.equal(termsInDB, 'no you are a duck');
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
 }
 
 /**
- * @case    - Internal user impersonate a pub negotiate on a negotiation
+ * @case    - Internal user impersonate impersonates a buyer to negotiate on a negotiation started by 
+ *            another buyer in its company
  * @expect  - 200 OK, negotiated filed changes
  * @route   - PUT deals/active
  * @status  - working
@@ -2095,7 +2105,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
 
    /** Setup */
-    assert.plan(3);
+    assert.plan(4);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
@@ -2135,8 +2145,10 @@ export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
         userID: anotherBuyer.user.userID,
         accessToken: accessToken
     });
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
 
     assert.equal(response.status, 200);
     assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(termsInDB, 'honk honk honk');
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
 }

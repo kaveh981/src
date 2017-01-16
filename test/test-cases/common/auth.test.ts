@@ -146,7 +146,7 @@ async function ATW_AUTH_04 (route: string, verb: string, setup: Function, assert
 
 /**
  * @case    - The user provides no user id.
- * @expect  - The response has status code 401.
+ * @expect  - The response has status code which isn't 500 or 401.
  * @status  - working
  * @tags    - get,auth,buyer
  */
@@ -170,7 +170,8 @@ async function ATW_AUTH_05 (route: string, verb: string, setup: Function, assert
         accessToken: accessToken
     });
 
-    assert.equal(pubResponse.status, 401);
+    assert.not(pubResponse.status, 401);
+    assert.not(pubResponse.status, 500);
 
 }
 
@@ -325,7 +326,7 @@ async function ATW_AUTH_09 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - auth, internal user
  */
-async function ATW_AUTH_11 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_10 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(8);
@@ -389,7 +390,7 @@ async function ATW_AUTH_11 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - auth, internal user
  */
-async function ATW_AUTH_12 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_11 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -420,7 +421,7 @@ async function ATW_AUTH_12 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - auth, internal user
  */
-async function ATW_AUTH_13 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_12 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -450,7 +451,7 @@ async function ATW_AUTH_13 (route: string, verb: string, setup: Function, assert
  * @status  - working
  * @tags    - auth, internal user
  */
-async function ATW_AUTH_14 (route: string, verb: string, setup: Function, assert: test.Test) {
+async function ATW_AUTH_13 (route: string, verb: string, setup: Function, assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -489,11 +490,10 @@ function authenticationTest(route: string, verb: string, setup: Function) {
         (assert: test.Test) => { return ATW_AUTH_07(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_08(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_09(route, verb, setup, assert); },
-        // (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
+        (assert: test.Test) => { return ATW_AUTH_10(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_11(route, verb, setup, assert); },
         (assert: test.Test) => { return ATW_AUTH_12(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_13(route, verb, setup, assert); },
-        (assert: test.Test) => { return ATW_AUTH_14(route, verb, setup, assert); }
+        (assert: test.Test) => { return ATW_AUTH_13(route, verb, setup, assert); }
     ];
 }
 

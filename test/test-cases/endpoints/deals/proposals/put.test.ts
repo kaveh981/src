@@ -8,9 +8,12 @@ import { validationTest } from '../../../common/validation.test';
 import { Injector } from '../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../src/lib/request-manager';
 import { DatabasePopulator } from '../../../../src/lib/database-populator';
+import { DatabaseManager } from '../../../../src/lib/database-manager';
+
 import { Helper } from '../../../../src/lib/helper';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
+const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
 /** Test constants */
@@ -106,6 +109,18 @@ export let ATW_API_PUT_DEAPRO_VALI = validationTest(route, 'put', commonDatabase
 
 });
 
+async function getProposalInDB(proposalID: number): Promise<any> {
+    let row = await databaseManager.select('ixmDealProposals.proposalID as proposal_id', 'ownerID as owner_id', 'name',
+                                           'description', 'status', 'startDate as start_date', 'endDate as end_date', 'price',
+                                           'impressions', 'budget', 'auctionType as auction_type', 'terms', 'createDate as created_at',
+                                           'modifyDate as modified_at', 'ownerContactID', 'sectionID as inventory', 'userID as partners')
+                .from('ixmDealProposals')
+                .leftJoin('ixmProposalTargeting', 'ixmProposalTargeting.proposalID', 'ixmDealProposals.proposalID')
+                .leftJoin('ixmProposalSectionMappings', 'ixmProposalSectionMappings.proposalID', 'ixmDealProposals.proposalID')
+                .where('ixmDealProposals.proposalID', proposalID);
+    return row[0];
+}
+
 /*
  * @case    - Publisher create proposal without targets
  * @expect  - 200 OK, Proposal created
@@ -116,7 +131,7 @@ export let ATW_API_PUT_DEAPRO_VALI = validationTest(route, 'put', commonDatabase
 export async function ATW_API_PUT_DEAPRO_01 (assert: test.Test) {
 
     /** Setup */
-    assert.plan(7);
+    assert.plan(8);
 
     await databasePopulator.createDSP(DSP_ID);
     let pubCompany = await databasePopulator.createCompany();
@@ -134,6 +149,9 @@ export async function ATW_API_PUT_DEAPRO_01 (assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, proposal, publisher.user);
 
+    let newProposalID = response.body.data[0].proposal_id;
+    let newProposalInDB = await getProposalInDB(newProposalID);
+
     assert.equal(response.status, 201);
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
     assert.equal(response.body.data[0].name, proposal.name);
@@ -141,6 +159,7 @@ export async function ATW_API_PUT_DEAPRO_01 (assert: test.Test) {
     assert.equal(response.body.data[0].inventory[0].id, proposal.inventory[0]);
     assert.equal(response.body.data[0].owner_id, pubCompany.user.userID);
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(publisher.user));
+    assert.deepEqual(Object.assign(newProposalInDB, proposal), newProposalInDB);
 
 }
 
@@ -299,10 +318,11 @@ export async function ATW_API_PUT_DEAPRO_05 (assert: test.Test) {
 export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(3);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
-    let buyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
+    let newBuyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
+    let deletedBuyerCompany = await databasePopulator.createCompany({ status: 'D' }, dsp.dspID);
     let pubCompany = await databasePopulator.createCompany();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
@@ -312,14 +332,19 @@ export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
         inventory: [ section.section.sectionID ],
         name: 'fabulous proposal',
         price: 5,
-        partners: [ buyerCompany.user.userID ]
+        partners: [ newBuyerCompany.user.userID ]
     };
+    let newBuyerResponse = await apiRequest.put(route, proposal, pubCompany.user);
+
+    proposal.partners = [ deletedBuyerCompany.user.userID ];
+    let deletedBuyerResponse = await apiRequest.put(route, proposal, pubCompany.user);
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, pubCompany.user);
+    let proposalsInDB = await databaseManager.select().from('ixmDealProposals');
 
-    assert.equal(response.status, 403);
-
+    assert.equal(newBuyerResponse.status, 403);
+    assert.equal(deletedBuyerResponse.status, 403);
+    assert.deepEqual(proposalsInDB, []);
 }
 
 /*
