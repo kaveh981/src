@@ -67,6 +67,8 @@ class DealSectionManager {
         await Promise.all([ (async () => {
             newDealSection.adUnitRestrictions = await this.fetchAdUnitsBySectionId(sectionID);
         })(), (async () => {
+            newDealSection.audienceRestrictions = await this.fetchAudienceRestrictionsBySectionId(sectionID);
+        })(), (async () => {
             newDealSection.countryRestrictions = await this.fetchCountryRestrictionBySectionId(sectionID);
         })(), (async () => {
             newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(sectionID);
@@ -115,7 +117,7 @@ class DealSectionManager {
     /**
      * Fetch the adunits belonging to a section.
      * @param sectionID - The section to find ad-units for.
-     * @return An array of names of the ad units.
+     * @returns An array of names of the ad units.
      */
     private async fetchAdUnitsBySectionId(sectionID: number) {
 
@@ -129,6 +131,20 @@ class DealSectionManager {
 
         return rows.map((row) => { return row.name; });
 
+    }
+
+    /**
+     * Fetch the audience restrictions for a section
+     * @param sectionID - The section to find audience restrictions for
+     * @returns An array of segment IDs corresponding to the audience restrictions.
+     */
+    private async fetchAudienceRestrictionsBySectionId(sectionID: number) {
+
+        let rows = await this.databaseManager.select('segmentID')
+                                             .from('sectionDAPMappings')
+                                             .where('sectionID', sectionID);
+
+        return rows.map((row) => { return row.segmentID; });
     }
 
     /**

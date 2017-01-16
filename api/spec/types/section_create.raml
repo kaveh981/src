@@ -7,6 +7,7 @@ description: |
         The section may consist of one or more of:
             - Site URLs
             - Ad Unit restrictions
+            - Audience restrictions
             - Country restrictions
             - Domain Depth restrictions (TODO - is that the name for this? "Frequency Restriction"?)
 properties:
@@ -15,6 +16,11 @@ properties:
         required: false
         displayName: Ad Unit Restrictions
         description: A list of ad units this deal is restricted to. (TODO - insert list or link?). Will be omitted if no restrictions apply.
+    audience_restrictions:
+        type: number[]
+        required: false
+        displayName: Audience Restrictions
+        description: A list of of segment IDs corresponding to audience restrictions. Will be omitted if no restrictions apply.
     country_restrictions:
         type: string[]
         required: false
@@ -92,6 +98,10 @@ example: |
         "ad_unit_restrictions": [
             "728x90",
             "970x90"
+        ],
+        "audience_restrictions": [
+            123,
+            456
         ],
         "country_restrictions": [
             "RUS",

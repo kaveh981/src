@@ -6,6 +6,8 @@ class DealSectionModel {
 
     /** Ad unit restrictions */
     public adUnitRestrictions: string[];
+    /** Audience restrictions */
+    public audienceRestrictions: number[];
     /** Country restrictions */
     public countryRestrictions: string[];
     /** Coverage */
@@ -45,6 +47,7 @@ class DealSectionModel {
 
         return {
             ad_unit_restrictions: this.adUnitRestrictions,
+            audience_restrictions: this.audienceRestrictions,
             country_restrictions: this.countryRestrictions,
             coverage: this.coverage,
             entire_site: this.entireSite,

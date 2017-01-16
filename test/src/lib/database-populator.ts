@@ -13,6 +13,9 @@ import { Logger          } from './logger';
 const Log = new Logger('DPOP');
 const BUYER_COMPANY_USERTYPE = 2;
 const PUB_COMPANY_USERTYPE = 18;
+// rtbDomainDepths has the min number of possible restrictions out of all section restrictions, which is 8. So to keep the probability of each
+// restriction value being selected equal (for any restriction type) in createSection(), we limit the max number of restrictions to be selected as 8.
+const MAX_SECTION_RESTRICTIONS = 8;
 
 /**
  *  Simple Database Populator class used as to insert new entities into a data store during test case
@@ -287,6 +290,7 @@ class DatabasePopulator {
         // store the restriction mappings and remove them from the base object
         let mapEntities = {
             adUnits: null,
+            audienceTargetingSegments: null,
             countries: null,
             rtbDomainDepths: null
         };
@@ -329,6 +333,7 @@ class DatabasePopulator {
 
         let restrictions = {
             "adUnits": "adUnitID",
+            "audienceTargetingSegments": "segmentID",
             "countries": "countryID",
             "rtbDomainDepths": "depthBucket"
         };
@@ -338,12 +343,11 @@ class DatabasePopulator {
             let restrictionID = restrictions[key];
 
             if (!mapEntities[restrictionSource] || mapEntities[restrictionSource].length === 0) {
-                let restrictionIDs: number[] = await this.dbm.pluck(restrictionID).from(restrictionSource);
-                let numRestrictions: number = Math.round(Math.random() * restrictionIDs.length);
-
-                while (restrictionIDs.length > numRestrictions) {
-                    restrictionIDs.splice(Math.floor(Math.random() * restrictionIDs.length), 1);
-                }
+                let restrictionsLimit = Math.round(Math.random() * MAX_SECTION_RESTRICTIONS);
+                let restrictionIDs: number[] = await this.dbm.pluck(restrictionID)
+                                                             .from(restrictionSource)
+                                                             .orderByRaw('rand()')
+                                                             .limit(restrictionsLimit);
 
                 newSectionData.section[restrictionSource] = restrictionIDs;
             }
@@ -564,6 +568,8 @@ class DatabasePopulator {
         let restrictionTable = '';
         if (restrictionSource === 'adUnits') {
             restrictionTable = 'sectionAdUnitMappings';
+        } else if (restrictionSource === 'audienceTargetingSegments') {
+            restrictionTable = 'sectionDAPMappings';
         } else if (restrictionSource === 'countries') {
             restrictionTable = 'sectionCountryMappings';
         } else if (restrictionSource === 'rtbDomainDepths') {
