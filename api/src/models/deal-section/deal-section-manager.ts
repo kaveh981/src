@@ -1,5 +1,7 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../lib/database-manager';
 import { DealSectionModel } from './deal-section-model';
 import { SiteManager } from '../site/site-manager';
@@ -23,6 +25,10 @@ class DealSectionManager {
     constructor(databaseManager: DatabaseManager, siteManager: SiteManager) {
         this.databaseManager = databaseManager;
         this.siteManager = siteManager;
+    }
+
+    public async fetchDealSections(...clauses: ((db: knex.QueryBuilder) => any)[]) {
+        // TODO
     }
 
     /**
@@ -87,27 +93,98 @@ class DealSectionManager {
      */
     public async fetchSectionsFromProposalId(proposalID: number) {
 
-        let dealSections: DealSectionModel[] = [];
-        let rows = await this.databaseManager.select('ixmProposalSectionMappings.sectionID as id')
-                                             .from('ixmProposalSectionMappings')
-                                             .join('rtbSections', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+        let rows = await this.databaseManager.select('rtbSections.sectionID as id', 'rtbSections.name', 'rtbSections.status',
+                                                     'rtbSections.userID as publisherID', 'percent as coverage', 'entireSite',
+                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT CONCAT_WS(\',\', url, matchType)) as urlMatches'),
+                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT adUnits.name) as adUnitNames'),
+                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionDAPMappings.segmentID) as segments'),
+                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionCountryMappings.countryCode) as countries'),
+                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT rtbDomainDepths.name) as domains'))
+                                             .from('rtbSections')
+                                             .join('ixmProposalSectionMappings', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
                                              .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                                              .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('sectionAdUnitMappings', 'sectionAdUnitMappings.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('adUnits', 'adUnits.adUnitID', 'sectionAdUnitMappings.adUnitID')
+                                             .leftJoin('sectionDAPMappings', 'sectionDAPMappings.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('sectionCountryMappings', 'sectionCountryMappings.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('sectionDepthMappings', 'sectionDepthMappings.sectionID', 'rtbSections.sectionID')
+                                             .leftJoin('rtbDomainDepths', 'sectionDepthMappings.depthBucket', 'rtbDomainDepths.depthBucket')
                                              .where({
                                                  'ixmProposalSectionMappings.proposalID': proposalID,
                                                  'rtbSections.status': 'A',
                                                  'sites.status': 'A'
                                               })
-                                              .groupBy('rtbSections.sectionID');
+                                             .andWhere(function() {
+                                                  this.whereNull('rtbSectionMatches.sectionID')
+                                                      .andWhere('rtbSections.entireSite', 1)
+                                                      .orWhere('rtbSections.entireSite', 0)
+                                                      .whereNotNull('rtbSectionMatches.sectionID');
+                                             })
+                                             .andWhere(function() {
+                                                 this.where('adUnits.status', 'A')
+                                                     .orWhereNull('adUnits.status');
+                                             })
+                                             .groupBy('id');
+
+        if (!rows[0]) {
+            return;
+        }
+
+        let dealSections: DealSectionModel[] = [];
 
         await Promise.all(rows.map(async (row) => {
-            let section = await this.fetchDealSectionById(row.id);
 
-            if (!section) {
-                return;
+            let urlMatches = [];
+
+            if (row.urlMatches) {
+                row.urlMatches = row.urlMatches.split(',');
+
+                for (let i = 0; i < row.urlMatches.length; i += 2) {
+                    if (row.urlMatches[i]) {
+                        urlMatches.push({
+                            url: row.urlMatches[i],
+                            matchType: Helper.matchTypeToWord(Number(row.urlMatches[i + 1]))
+                        });
+                    }
+                }
             }
 
-            dealSections.push(section);
+            if (row.adUnitNames) {
+                row.adUnitNames = row.adUnitNames.split(',');
+            }
+
+            if (row.segments) {
+                row.segments = row.segments.split(',');
+            }
+
+            if (row.countries) {
+                row.countries = row.countries.split(',');
+            }
+
+            if (row.domains) {
+                row.domains = row.domains.split(',');
+            }
+
+            let newDealSection = new DealSectionModel({
+                coverage: row.coverage,
+                entireSite: !!row.entireSite,
+                id: row.id,
+                urlMatches: urlMatches,
+                name: row.name,
+                publisherID: row.publisherID,
+                status: Helper.statusLetterToWord(row.status),
+                adUnitRestrictions: row.adUnitNames,
+                audienceRestrictions: row.segments,
+                countryRestrictions: row.countries,
+                frequencyRestrictions: row.domains
+            });
+
+            newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(row.id);
+
+            dealSections.push(newDealSection);
+
         }));
 
         return dealSections;
