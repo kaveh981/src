@@ -179,11 +179,15 @@ class DatabasePopulator {
      */
     public async createInternalUser(userFields?: INewUserData) {
 
+        let internalUserData = this.generateDataObject<INewUserData>('new-internal-user-schema');
+
         if (userFields) {
-            delete userFields.userType;
+            Object.assign(internalUserData, userFields);
         }
 
-        return await this.createUser(Object.assign({ userType: 19 }, userFields));
+        let newUserData = await this.createUser(internalUserData);
+
+        return newUserData;
 
     }
 

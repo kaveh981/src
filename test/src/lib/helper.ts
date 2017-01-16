@@ -67,7 +67,7 @@ class Helper {
      * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-    public static proposalToPayload(proposal: INewProposalData, owner: INewUserData): any {
+    public static proposalToPayload(proposal: INewProposalData, contact?: INewUserData): any {
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
@@ -79,13 +79,8 @@ class Helper {
             return {
                 auction_type: proposal.proposal.auctionType,
                 budget: proposal.proposal.budget,
-                owner_id: owner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: owner.firstName + ' ' + owner.lastName,
-                    email: owner.emailAddress,
-                    phone: owner.phone
-                },
+                owner_id: proposal.proposal.ownerID,
+                contact: this.contactToPayload(contact),
                 created_at: proposal.proposal.createDate.toISOString(),
                 currency: 'USD',
                 description: proposal.proposal.description,
