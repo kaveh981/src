@@ -50,6 +50,12 @@ class UserModel {
      */
     public toContactPayload(): any {
 
+        if (!this.isActive()) {
+            return {
+                status: "INACTIVE_USER"
+            };
+        }
+
         return {
             title: this.title,
             name: this.firstName + ' ' + this.lastName,
