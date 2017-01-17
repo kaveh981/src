@@ -1,5 +1,5 @@
 {
-  "type": "object",
+  "__ref__": "new-user-schema",
   "properties": {
     "userType": {
       "enum": [ 1, 10, 13, 14, 16, 17, 19 ]
@@ -10,41 +10,6 @@
           "domain": "atw-internal-user.com"
         }
       }
-    },
-    "status": "A",
-    "password": "ratpoint.jpeg",
-    "firstName": {
-      "faker": "name.lastName"
-    },
-    "lastName": {
-      "faker": "name.firstName"
-    },
-    "companyName": {
-      "faker": "company.companyName"
-    },
-    "address1": {
-      "faker": "address.streetAddress"
-    },
-    "address2": "-",
-    "city": {
-      "faker": "address.city"
-    },
-    "state": {
-      "faker": "address.state"
-    },
-    "zipCode": {
-      "faker": "address.zipCode"
-    },
-    "country": {
-      "faker": "address.countryCode"
-    },
-    "phone": {
-      "faker": "phone.phoneNumber"
-    },
-    "fax": "-",
-    "version": 1,
-    "lastLogin": "0000-00-00"
-  },
-  "required": ["emailAddress", "password", "firstName", "lastName", "companyName", "address1", "city", "state",
-    "zipCode", "country", "phone", "userType", "status", "userType", "version", "address2", "fax", "lastLogin"]
+    }
+  }
 }
