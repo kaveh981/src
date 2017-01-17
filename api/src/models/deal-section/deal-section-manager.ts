@@ -28,6 +28,12 @@ class DealSectionManager {
         this.siteManager = siteManager;
     }
 
+    /**
+     * Fetch deal section models with pagination and filtering.
+     * @param pagination - The pagination to use, this is modified.
+     * @param clauses - A collection of where clauses to include.
+     * @returns The list of deal sections matching filtering and pagination.
+     */
     public async fetchDealSections(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<DealSectionModel[]> {
 
         let query = this.databaseManager.select('rtbSections.sectionID as id', 'rtbSections.name', 'rtbSections.status',
