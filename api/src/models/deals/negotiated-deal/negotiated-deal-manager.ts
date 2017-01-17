@@ -152,16 +152,16 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealsFromUserProposalIds(proposalID: number, partyID: number, pagination: PaginationModel) {
 
         let query = this.databaseManager.select('ownerID', 'partnerID')
-                                             .from('ixmDealNegotiations')
-                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                             .where({
-                                                 'ixmDealProposals.proposalID': proposalID,
-                                                 partnerID: partyID
-                                             })
-                                             .orWhere({
-                                                 'ixmDealProposals.proposalID': proposalID,
-                                                 ownerID: partyID
-                                             });
+                                        .from('ixmDealNegotiations')
+                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                        .where({
+                                            'ixmDealProposals.proposalID': proposalID,
+                                            partnerID: partyID
+                                        })
+                                        .orWhere({
+                                            'ixmDealProposals.proposalID': proposalID,
+                                            ownerID: partyID
+                                        });
 
         if (pagination) {
             query.limit(pagination.limit + 1).offset(pagination.getOffset());

@@ -96,13 +96,13 @@ class SettledDealManager {
      */
     public async fetchSettledDealsFromUser(user: MarketUserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
 
-        let query = await this.databaseManager.select('ixmDealNegotiations.proposalID', 'partnerID')
-                                              .from('ixmDealNegotiations')
-                                              .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                              .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
-                                                   'ixmNegotiationDealMappings.negotiationID')
-                                              .where('partnerID', user.company.id)
-                                              .orWhere('ownerID', user.company.id);
+        let query = this.databaseManager.select('ixmDealNegotiations.proposalID', 'partnerID')
+                                        .from('ixmDealNegotiations')
+                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                        .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                            'ixmNegotiationDealMappings.negotiationID')
+                                        .where('partnerID', user.company.id)
+                                        .orWhere('ownerID', user.company.id);
 
         if (pagination) {
             query.limit(pagination.limit + 1).offset(pagination.getOffset());
