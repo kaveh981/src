@@ -174,6 +174,24 @@ class DatabasePopulator {
     }
 
     /**
+     * Creates a new internal user entry. Inserts to "Viper2.users"
+     * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
+     */
+    public async createInternalUser(userFields?: INewUserData) {
+
+        let internalUserData = this.generateDataObject<INewUserData>('new-internal-user-schema');
+
+        if (userFields) {
+            Object.assign(internalUserData, userFields);
+        }
+
+        let newUserData = await this.createUser(internalUserData);
+
+        return newUserData;
+
+    }
+
+    /**
      * Creates a new company entry based on "new-company-schema". Inserts to "Viper2.users", "Viper2.ixmCompanyWhitelist", and optionally to
      * "Viper2.rtbTradingDesks".
      * @returns {Promise<INewCompanyData>} A promise which resolves with the new company's data
@@ -401,7 +419,7 @@ class DatabasePopulator {
      * @param targetedUsers {int[]} - Optional: userIDs of targeted ixmUsers
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[]) {
+    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[], contactUserID?: number) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
         let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || [] };
@@ -411,7 +429,7 @@ class DatabasePopulator {
         }
 
         newProposal.proposal.ownerID = ownerID;
-        newProposal.proposal.ownerContactID = ownerID;
+        newProposal.proposal.ownerContactID = contactUserID || ownerID;
         newProposal.proposal.createDate = this.currentMidnightDate();
 
         if (typeof newProposal.proposal.startDate !== 'string') {

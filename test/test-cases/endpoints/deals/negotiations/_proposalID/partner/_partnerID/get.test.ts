@@ -301,81 +301,111 @@ export async function ATW_API_DNPP_GET_07(assert: test.Test) {
     let buyerResponse = await apiRequest.get(buyerPath, {}, buyer.user);
     assert.equal(buyerResponse.status, 404);
 }
-//  .----------------.  .----------------.  .----------------.  .----------------. 
-// | .--------------. || .--------------. || .--------------. || .--------------. |
-// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
-// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
-// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
-// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
-// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
-// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
-// | |              | || |              | || |              | || |              | |
-// | '--------------' || '--------------' || '--------------' || '--------------' |
-//  '----------------'  '----------------'  '----------------'  '----------------' 
-// ATW 721
-// /*
-//  * @case    - Partner status is not 'A' - Buyer
-//  * @expect  - 404
-//  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
-//  * @status  - working
-//  * @tags    - get, negotiaitons, deals
-//  */
-// export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
-//    /** Setup */
-//     assert.plan(1);
+/*
+ * @case    - Partner status is not 'A' - Buyer sends request
+ * @expect  - 200. Negotiation is returned
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
-//     let dsp = await databasePopulator.createDSP(DSP_ID);
-//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-//     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-//     let pubCompany = await databasePopulator.createCompany({ status: 'N' });
-//     let proposalID = await generateProposalID(pubCompany.user.userID);
-//     await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
+   /** Setup */
+    assert.plan(4);
 
-//     let buyerPath = buildPath(proposalID, pubCompany.user.userID);
+    // Create buyer user and its company
+    let dsp = await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
 
-//     /** Test */
-//     let buyerResponse = await apiRequest.get(buyerPath, {}, buyer.user);
-//     assert.equal(buyerResponse.status, 404);
-// }
+    // Create new publisher company (status: 'N') and a negotiation
+    let newPubCompany = await databasePopulator.createCompany({ status: 'N' });
+    let newPubSite = await databasePopulator.createSite(newPubCompany.user.userID);
+    let newPubSection = await databasePopulator.createSection(newPubCompany.user.userID, [ newPubSite.siteID ]);
+    let newPubProposal = await databasePopulator.createProposal(newPubCompany.user.userID, [ newPubSection.section.sectionID ]);
+    let newPubNegotiation = await databasePopulator.createDealNegotiation(newPubProposal.proposal.proposalID, buyerCompany.user.userID);
 
-//  .----------------.  .----------------.  .----------------.  .----------------. 
-// | .--------------. || .--------------. || .--------------. || .--------------. |
-// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
-// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
-// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
-// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
-// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
-// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
-// | |              | || |              | || |              | || |              | |
-// | '--------------' || '--------------' || '--------------' || '--------------' |
-//  '----------------'  '----------------'  '----------------'  '----------------' 
-// ATW 721
-// /*
-//  * @case    - Partner status is not 'A' - Publisher
-//  * @expect  - 404
-//  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
-//  * @status  - working
-//  * @tags    - get, negotiaitons, deals
-//  */
-// export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
+    // Create deactivated publisher company (status: 'D') and a negotiation
+    let deactivatedPubCompany = await databasePopulator.createCompany({ status: 'D' });
+    let deactivatedPubSite = await databasePopulator.createSite(deactivatedPubCompany.user.userID);
+    let deactivatedPubSection = await databasePopulator.createSection(deactivatedPubCompany.user.userID, [ deactivatedPubSite.siteID ]);
+    let deactivatedPubProposal = await databasePopulator.createProposal(deactivatedPubCompany.user.userID, [ deactivatedPubSection.section.sectionID ]);
+    let deactivatedPubNegotiation = await databasePopulator.createDealNegotiation(deactivatedPubProposal.proposal.proposalID, buyerCompany.user.userID);
 
-//    /** Setup */
-//     assert.plan(1);
+    // Create url for negotiation with new pub company
+    let buyerPathNewPub = buildPath(newPubProposal.proposal.proposalID, newPubCompany.user.userID);
+    // Create url for negotiation with deactivated pub company
+    let buyerPathDeactivatedPub = buildPath(deactivatedPubProposal.proposal.proposalID, deactivatedPubCompany.user.userID);
 
-//     let dsp = await databasePopulator.createDSP(DSP_ID);
-//     let buyerCompany = await databasePopulator.createCompany({ status: 'N' }, dsp.dspID);
-//     let pubCompany = await databasePopulator.createCompany();
-//     let publisher = await databasePopulator.createBuyer(pubCompany.user.userID, 'write');
-//     let proposalID = await generateProposalID(pubCompany.user.userID);
-//     await databasePopulator.createDealNegotiation(proposalID, buyerCompany.user.userID);
+    /** Test */
+    // Test for negotiation with New Publisher
+    let buyerExpectedResponseNewPub = [ Helper.dealNegotiationToPayload(newPubNegotiation, newPubProposal,
+        newPubCompany.user, newPubCompany.user) ];
+    let buyerResponseNewPub = await apiRequest.get(buyerPathNewPub, {}, buyer.user);
+    assert.equal(buyerResponseNewPub.status, 200, "Status should be 200");
+    assert.deepEquals(buyerResponseNewPub.body.data, buyerExpectedResponseNewPub, "Should receive negotiation payload");
 
-//     let publisherPath = buildPath(proposalID, buyerCompany.user.userID);
+    // Test for negotiation with deactivated Publisher
+    let buyerExpectedResponseDeactivatedPub = [ Helper.dealNegotiationToPayload(deactivatedPubNegotiation, deactivatedPubProposal,
+                                                                                deactivatedPubCompany.user, deactivatedPubCompany.user) ];
+    let buyerResponseDeactivatedPub = await apiRequest.get(buyerPathDeactivatedPub, {}, buyer.user);
+    assert.equal(buyerResponseDeactivatedPub.status, 200, "Status should be 200");
+    assert.deepEquals(buyerResponseDeactivatedPub.body.data, buyerExpectedResponseDeactivatedPub, "Should receive negotiation payload");
 
-//     /** Test */
-//     let buyerResponse = await apiRequest.get(publisherPath, {}, publisher.user);
-//     assert.equal(buyerResponse.status, 404);
-// }
+}
+
+/*
+ * @case    - Partner status is not 'A' - Publisher sends request
+ * @expect  - Negotiation is returned with contact "INACTIVE_USER" for partner
+ * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
+ * @status  - working
+ * @tags    - get, negotiaitons, deals
+ */
+export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(4);
+
+    // Create a DSP
+    await databasePopulator.createDSP(DSP_ID);
+
+    // Create publisher user and its company with an open proposal
+    let publisherCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createBuyer(publisherCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(publisherCompany.user.userID);
+    let section = await databasePopulator.createSection(publisherCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(publisherCompany.user.userID, [ section.section.sectionID ]);
+
+    // Create new buyer company (status: 'N') and a negotiation
+    let newBuyerCompany = await databasePopulator.createCompany({ status: 'N' }, DSP_ID);
+    let newBuyerNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, newBuyerCompany.user.userID);
+
+    // Create deactivated buyer company (status: 'D') and a negotiation
+    let deactivatedBuyerCompany = await databasePopulator.createCompany({ status: 'D' }, DSP_ID);
+    let deactivatedBuyerNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, deactivatedBuyerCompany.user.userID);
+
+    // Create url for negotiation with new pub company
+    let pubPathNewBuyer = buildPath(proposal.proposal.proposalID, newBuyerCompany.user.userID);
+    // Create url for negotiation with deactivated pub company
+    let pubPathDeactivatedBuyer = buildPath(proposal.proposal.proposalID, deactivatedBuyerCompany.user.userID);
+
+    /** Test */
+    // Test for negotiation with New Buyer
+    let pubExpectedResponseNewBuyer = [ Helper.dealNegotiationToPayload(newBuyerNegotiation, proposal,
+        publisherCompany.user, newBuyerCompany.user) ];
+    let pubResponseNewBuyer = await apiRequest.get(pubPathNewBuyer, {}, publisher.user);
+    assert.equal(pubResponseNewBuyer.status, 200, "Status shuold be 200");
+    assert.deepEquals(pubResponseNewBuyer.body.data, pubExpectedResponseNewBuyer, "Should receive negotiation payload");
+
+    // Test for negotiation with deactivated Buyer
+    let pubExpectedResponseDeactivatedBuyer = [ Helper.dealNegotiationToPayload(deactivatedBuyerNegotiation, proposal,
+        publisherCompany.user, deactivatedBuyerCompany.user) ];
+    let pubResponseDeactivatedBuyer = await apiRequest.get(pubPathDeactivatedBuyer, {}, publisher.user);
+    assert.equal(pubResponseDeactivatedBuyer.status, 200, "Status should be 200");
+    assert.deepEquals(pubResponseDeactivatedBuyer.body.data, pubExpectedResponseDeactivatedBuyer, "Should receive negotiation payload");
+
+}
 
 /*
  * @case    - Partner is the same user type (Buyers case)

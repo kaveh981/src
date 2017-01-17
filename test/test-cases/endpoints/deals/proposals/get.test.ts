@@ -498,3 +498,149 @@ export async function ATW_API_GET_DEAPRO_FUNC_14 (assert: test.Test) {
     assert.deepEqual(response.body['data'], []);
 
 }
+
+/* 
+ * @case    - Buyer sends a request to see proposals owned by specific ownerID which does not have any proposals
+ * @expect  - No proposals to be returned
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, filters, proposals,ownerID
+*/
+export async function ATW_API_GET_DEAPRO_FUNC_15 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+
+    // this pub's proposals should be filtered out
+    let anotherPubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(anotherPubCompany.user.userID);
+    let section = await databasePopulator.createSection(anotherPubCompany.user.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(anotherPubCompany.user.userID, [ section.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
+
+/* 
+ * @case    - Buyer company sends a request to see proposals owned by specific ownerID with some proposals targeting a different user
+ * @expect  - Only proposals owned by provided owner_id with no targeting or targeted to requesting buyer should be returned
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals,ownerID, targeting
+ */
+export async function ATW_API_GET_DEAPRO_FUNC_16 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let dspTargeted = await databasePopulator.createDSP(2);
+    let buyerCompanyTargeted = await databasePopulator.createCompany({}, dspTargeted.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [ buyerCompanyTargeted.user.userID ]);
+
+    // This publisher's proposals should be filtered out.
+    let filteredPubCompany = await databasePopulator.createCompany();
+    let filteredSite =  await databasePopulator.createSite(filteredPubCompany.user.userID);
+    let filteredSection = await databasePopulator.createSection(filteredPubCompany.user.userID, [ filteredSite.siteID ]);
+    await databasePopulator.createProposal(filteredPubCompany.user.userID, [ filteredSection.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, buyerCompany.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+
+}
+
+/* 
+ * @case    - Internal user impersonate a buyer company sends a request to see proposals owned by specific ownerID 
+ *            with some proposals targeting a different user
+ * @expect  - Proposals not targetting a different user from ownerID should be returned 
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals,ownerID, targeting
+ */
+export async function ATW_API_GET_DEAPRO_FUNC_17 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let dspTargeted = await databasePopulator.createDSP(2);
+    let buyerCompanyTargeted = await databasePopulator.createCompany({}, dspTargeted.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
+    await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [ buyerCompanyTargeted.user.userID ]);
+
+    let internalUser = await databasePopulator.createInternalUser();
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    // This publisher's proposals should be filtered out.
+    let filteredPubCompany = await databasePopulator.createCompany();
+    let filteredSite =  await databasePopulator.createSite(filteredPubCompany.user.userID);
+    let filteredSection = await databasePopulator.createSection(filteredPubCompany.user.userID, [ filteredSite.siteID ]);
+    await databasePopulator.createProposal(filteredPubCompany.user.userID, [ filteredSection.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, {
+        userID: buyerCompany.user.userID,
+        accessToken: accessToken
+    });
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+
+}
+
+/* 
+ * @case    - Get proposal created by a representative user that no longer active
+ * @expect  - Proposal returned  with the company default contact information
+ * @route   - GET deals/proposals
+ * @status  - passing
+ * @tags    - get, filters, proposals,ownerID, targeting
+ */
+export async function ATW_API_GET_DEAPRO_FUNC_18 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write', { status: 'N' });
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [], publisher.user.userID);
+
+    // this deleted pub's proposals should be filtered out
+    let inactivePubCompany = await databasePopulator.createCompany({ status: 'D' });
+    let inactivePubSite = await databasePopulator.createSite(inactivePubCompany.user.userID);
+    let inactivePubSection = await databasePopulator.createSection(inactivePubCompany.user.userID, [ inactivePubSite.siteID ]);
+    await databasePopulator.createProposal(inactivePubCompany.user.userID, [ inactivePubSection.section.sectionID ], {}, [], inactivePubCompany.user.userID);
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
