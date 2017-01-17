@@ -154,8 +154,9 @@ class SettledDealManager {
                                              .join('rtbSections', 'rtbSections.sectionID', 'rtbDealSections.sectionID')
                                              .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
                                              .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                             .join('users', 'users.userID', 'ixmDealNegotiations.partnerID')
                                              .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                             .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
+                                             .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
                                              .where(function() {
                                                  this.where('partnerID', user.company.id)
                                                      .orWhere('ownerID', user.company.id);
@@ -168,7 +169,8 @@ class SettledDealManager {
                                                  this.where('rtbDeals.endDate', '>=', today)
                                                      .orWhere('rtbDeals.endDate', '0000-00-00');
                                              })
-                                             .andWhere('users.status', 'A')
+                                             .andWhere('owner.status', 'A')
+                                             .andWhere('partner.status', 'A')
                                              .limit(pagination.limit + 1)
                                              .offset(offset);
 
