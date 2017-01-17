@@ -516,6 +516,12 @@ export async function ATW_API_GET_DEAPRO_FUNC_15 (assert: test.Test) {
     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
 
+    // this pub's proposals should be filtered out
+    let anotherPubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(anotherPubCompany.user.userID);
+    let section = await databasePopulator.createSection(anotherPubCompany.user.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(anotherPubCompany.user.userID, [ section.section.sectionID ]);
+
     /** Test */
     let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, buyer.user);
 
@@ -526,7 +532,7 @@ export async function ATW_API_GET_DEAPRO_FUNC_15 (assert: test.Test) {
 
 /* 
  * @case    - Buyer company sends a request to see proposals owned by specific ownerID with some proposals targeting a different user
- * @expect  - Proposals not targetting a different user from ownerID should be returned 
+ * @expect  - Only proposals owned by provided owner_id with no targeting or targeted to requesting buyer should be returned
  * @route   - GET deals/proposals
  * @status  - passing
  * @tags    - get, filters, proposals,ownerID, targeting
@@ -624,6 +630,12 @@ export async function ATW_API_GET_DEAPRO_FUNC_18 (assert: test.Test) {
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [], publisher.user.userID);
+
+    // this deleted pub's proposals should be filtered out
+    let inactivePubCompany = await databasePopulator.createCompany({ status: 'D' });
+    let inactivePubSite = await databasePopulator.createSite(inactivePubCompany.user.userID);
+    let inactivePubSection = await databasePopulator.createSection(inactivePubCompany.user.userID, [ inactivePubSite.siteID ]);
+    await databasePopulator.createProposal(inactivePubCompany.user.userID, [ inactivePubSection.section.sectionID ], {}, [], inactivePubCompany.user.userID);
 
     /** Test */
     let response = await apiRequest.get(route, {}, buyer.user);
