@@ -43,7 +43,7 @@ class MarketUserModel {
      */
     public toPayload() {
 
-        if (this.contact.isActive()) {
+        if (this.contact.isActive() && this.company.isActive()) {
             return this.contact.toContactPayload();
         } else {
             return this.company.toContactPayload();
