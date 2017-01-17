@@ -107,7 +107,7 @@ class MarketUserManager {
             }
         }
 
-        let marketUsers = await Promise.all(rows.map(async (row) => {
+        let marketUsers = await Promise.all<MarketUserModel>(rows.map(async (row) => {
 
             let userInfo = await Promise.parallel({
                 company: this.userManager.fetchUserFromId(row.companyID),
@@ -122,7 +122,7 @@ class MarketUserManager {
 
         }));
 
-        return marketUsers as any;
+        return marketUsers;
 
     }
 
