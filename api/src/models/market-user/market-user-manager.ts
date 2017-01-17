@@ -76,7 +76,7 @@ class MarketUserManager {
      */
     public async fetchMarketUsers(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<MarketUserModel[]> {
 
-        let rows = await this.databaseManager.select('contactID', 'companyID', 'permissions')
+        let query = this.databaseManager.select('contactID', 'companyID', 'permissions')
                                              .from((db) => {
                                                  db.select('userID as contactID', 'companyID', 'permissions')
                                                    .from('ixmUserCompanyMapping')
@@ -91,9 +91,13 @@ class MarketUserManager {
                                              .join('users as company', 'company.userID', 'companyID')
                                              .where((db) => {
                                                  clauses.forEach(filter => filter(db));
-                                             })
-                                             .limit(pagination ? pagination.limit + 1 : 251)
-                                             .offset(pagination ? pagination.getOffset() : 0);
+                                             });
+
+        if (pagination) {
+            query.limit(pagination.limit).offset(pagination.getOffset());
+        }
+
+        let rows = await query;
 
         if (pagination) {
             if (rows.length <= pagination.limit) {
