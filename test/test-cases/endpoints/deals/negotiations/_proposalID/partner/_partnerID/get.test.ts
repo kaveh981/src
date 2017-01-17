@@ -357,7 +357,7 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
 /*
  * @case    - Partner status is not 'A' - Publisher sends request
- * @expect  - 404
+ * @expect  - Negotiation is returned with contact "INACTIVE_USER" for partner
  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
  * @tags    - get, negotiaitons, deals
