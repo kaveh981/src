@@ -653,7 +653,7 @@ export async function ATW_DN_GET_19(assert: test.Test) {
  * @case    - Creating negotiation with buyerStatus: archived and pubStatus: active
  * @expect  - return nothing
  * @route   - GET deals/negotiations
- * @status  - passing
+ * @status  - broken
  * @tags    - 
  */
 export async function ATW_DN_GET_20(assert: test.Test) {
@@ -710,8 +710,8 @@ export async function ATW_DN_GET_21(assert: test.Test) {
 }
 
 /*
- * @case    - Partner company get negotiation
- * @expect  - 1 DN returned regardless of sender
+ * @case    - Partner company lists negotiations it's involved in after sending a counter-offer.
+ * @expect  - Only deal negotiations he's involved in should be returned.
  * @route   - GET deals/negotiations
  * @status  - passing    
  * @tags    - 
@@ -739,8 +739,8 @@ export async function ATW_DN_GET_22 (assert: test.Test) {
 }
 
 /*
- * @case    - Owner company gets negotiation
- * @expect  - 1 DN returned regardless of sender
+ * @case    - Owner company gets negotiations its involved in after sending a counter-offer.
+ * @expect  - Only deal negotiations its involved in should be returned.
  * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
@@ -769,8 +769,8 @@ export async function ATW_DN_GET_23 (assert: test.Test) {
 }
 
 /*
- * @case    - Internal user impersonate partner company to get negotiation
- * @expect  - 1 DN returned regardless of sender
+ * @case    - Internal user impersonate partner company to get negotiations after a counter-offer by partner.
+ * @expect  - Only deal negotiations the impersonated company is involved in should be returned.
  * @route   - GET deals/negotiations
  * @status  - passing    
  * @tags    - 
@@ -782,6 +782,7 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
     /** Setup */
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let anotherBuyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
     let pubCompany = await databasePopulator.createCompany();
     let internalUser = await databasePopulator.createInternalUser();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
@@ -792,6 +793,12 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
                                                                              ownerStatus: 'active',
                                                                              sender: 'partner'
                                                                          });
+    //another deal negotiation that shouldn't be returned
+    await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, anotherBuyerCompany.user.userID, {
+                                                        partnerStatus: 'active',
+                                                        ownerStatus: 'accepted',
+                                                        sender: 'owner'
+                                                    });
     /** Test */
     let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
     let accessToken = authResponse.body.data.accessToken;
@@ -802,12 +809,12 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
 
     assert.equal(response.status, 200, "Response 200");
     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
-                     "1 DN Returned");
+                     "Correct DN Returned");
 }
 
 /*
- * @case    - Internal user impersonate owner company to get negotiation
- * @expect  - 1 DN returned regardless of sender
+ * @case    - Internal user impersonate owner company to get negotiation after a counter-offer by owner.
+ * @expect  - Only deal negotiations the impersonated company is involved in are returned.
  * @route   - GET deals/negotiations
  * @status  - passing
  * @tags    - 
@@ -819,26 +826,34 @@ export async function ATW_DN_GET_25 (assert: test.Test) {
     /** Setup */
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let anotherBuyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
     let pubCompany = await databasePopulator.createCompany();
     let internalUser = await databasePopulator.createInternalUser();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
-    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ]);
+    let anotherProposal = await databasePopulator.createProposal(anotherBuyerCompany.user.userID, [ section.section.sectionID ]);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, pubCompany.user.userID, {
                                                                              partnerStatus: 'active',
                                                                              ownerStatus: 'accepted',
                                                                              sender: 'owner'
                                                                          });
+    // another deal negotiation that shouldn't be returned
+    await databasePopulator.createDealNegotiation(anotherProposal.proposal.proposalID, pubCompany.user.userID, {
+                                                        partnerStatus: 'active',
+                                                        ownerStatus: 'accepted',
+                                                        sender: 'owner'
+                                                    });
     /** Test */
     let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
     let accessToken = authResponse.body.data.accessToken;
 
     let response = await apiRequest.get(route, {}, {
-        userID: pubCompany.user.userID,
+        userID: buyerCompany.user.userID,
         accessToken: accessToken
     });
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
-                     "1 DN Returned");
+    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
+                     "Correct DN Returned");
 }
