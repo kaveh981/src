@@ -675,7 +675,7 @@ export async function ATW_DN_GET_20(assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [],
+    assert.deepEquals(response.body['data'], [],
         "DN1 and DN2 returned");
 }
 

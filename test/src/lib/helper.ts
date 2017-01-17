@@ -54,12 +54,16 @@ class Helper {
      * @returns contact payload
      */
     public static contactToPayload(contact: INewUserData): any {
-        return {
-            title: 'Warlord',
-            name: contact.firstName + ' ' + contact.lastName,
-            email: contact.emailAddress,
-            phone: contact.phone
-        };
+        return contact.status === 'A'
+            ? {
+                title: 'Warlord',
+                name: contact.firstName + ' ' + contact.lastName,
+                email: contact.emailAddress,
+                phone: contact.phone
+            }
+            : {
+                status: "INACTIVE_USER"
+            };
     }
     /**
      * Construct a proposal payload from a proposal.
@@ -111,12 +115,7 @@ class Helper {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                },
+                contact: Helper.contactToPayload(partner),
                 status: 'closed_by_owner',
                 created_at: dealNegotiation.createDate.toISOString(),
                 modified_at: dealNegotiation.modifyDate.toISOString()
@@ -125,12 +124,7 @@ class Helper {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                },
+                contact: Helper.contactToPayload(partner),
                 status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userID !== proposalOwner.userID),
                 price: dealNegotiation.price,
                 impressions: dealNegotiation.impressions,
@@ -164,16 +158,7 @@ class Helper {
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner_id: partner.userID,
-            partner: partner.status !== 'A'
-                ? {
-                status: "INACTIVE_USER"
-                }
-                : {
-                title: 'Warlord',
-                name: partner.firstName + ' ' + partner.lastName,
-                email: partner.emailAddress,
-                phone: partner.phone
-            },
+            partner: Helper.contactToPayload(partner),
             inventory: proposal.sectionIDs.map((id) => {
                 return {
                     id: id,
@@ -208,12 +193,7 @@ class Helper {
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner_id: owner.userID,
-            partner: {
-                title: 'Warlord',
-                name: owner.firstName + ' ' + owner.lastName,
-                email: owner.emailAddress,
-                phone: owner.phone
-            },
+            partner: Helper.contactToPayload(owner),
             auction_type: proposal.proposal.auctionType,
             inventory: proposal.sectionIDs.map((id) => {
                 return {
