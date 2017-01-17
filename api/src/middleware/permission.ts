@@ -15,6 +15,10 @@ function Permission(permissions: 'public' | 'read' | 'write' | 'internal' = 'pub
 
     return (req: express.Request, res: express.Response, next: Function) => {
 
+        if (permissions === 'internal' && req.impersonator) {
+            return next();
+        }
+
         if (!authConfig['public'] && (!req.ixmUserInfo || !req.ixmUserInfo.company)) {
             throw HTTPError('401_PRIVATE');
         }
