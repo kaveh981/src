@@ -1,11 +1,33 @@
 'use strict';
 
+import * as knex from 'knex';
+
 import { DatabaseManager } from '../../lib/database-manager';
 import { UserManager } from '../user/user-manager';
 import { MarketUserModel } from './market-user-model';
+import { PaginationModel } from '../pagination/pagination-model';
 
 /** Manages the market user model */
 class MarketUserManager {
+
+    /** Filter mapping m8 */
+    private readonly filterMapping = {
+        id: {
+            table: 'contact',
+            operator: '=',
+            column: 'userID'
+        },
+        status: {
+            table: 'contact',
+            operator: '=',
+            column: 'status'
+        },
+        email: {
+            table: 'contact',
+            operator: '=',
+            column: 'emailAddress'
+        }
+    };
 
     /** Internal database manager */
     private databaseManager: DatabaseManager;
@@ -24,29 +46,79 @@ class MarketUserManager {
      * @param userID - The user id of the contact or company id.
      * @returns A market user.
      */
-    public async fetchMarketUserFromId(userID: number) {
+    public async fetchMarketUserFromId(userID: number): Promise<MarketUserModel> {
+        return (await this.fetchMarketUsers(null, (db) => { db.where('contactID', userID); }))[0];
+    }
 
-        let rows = await this.databaseManager.select('userID', 'companyID', 'permissions').from('ixmUserCompanyMapping').where('userID', userID);
+    /**
+     * Get a list of all active market users
+     * @param pagination - The pagination to use.
+     * @param filtering - The filtering to include from filterMapping.
+     * @returns A list of active users.
+     */
+    public async fetchActiveMarketUsers(pagination: PaginationModel, filtering: any) {
 
-        if (!rows[0]) {
-            rows = await this.databaseManager.select('userID', 'userID as companyID').from('ixmCompanyWhitelist').where('userID', userID);
+        let dbFiltering = this.databaseManager.createFilter(filtering, this.filterMapping);
+
+        return await this.fetchMarketUsers(pagination, dbFiltering,
+            (db) => {
+                db.where('contact.status', 'A')
+                  .where('company.status', 'A');
+            });
+
+    }
+
+    /**
+     * Get a list of market users matching the clauses.
+     * @param pagination - The pagination to use, this is modified.
+     * @param clauses - A list of wheres to use.
+     * @returns A list of market users matching the clauses.
+     */
+    public async fetchMarketUsers(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<MarketUserModel[]> {
+
+        let rows = await this.databaseManager.select('contactID', 'companyID', 'permissions')
+                                             .from((db) => {
+                                                 db.select('userID as contactID', 'companyID', 'permissions')
+                                                   .from('ixmUserCompanyMapping')
+                                                   .union((union) => {
+                                                       union.select('userID as contactID', 'userID as companyID',
+                                                                    this.databaseManager.raw(`'write' as permissions`))
+                                                            .from('ixmCompanyWhitelist');
+                                                   })
+                                                   .as('ixmMarketUsers');
+                                             })
+                                             .join('users as contact', 'contact.userID', 'contactID')
+                                             .join('users as company', 'company.userID', 'companyID')
+                                             .where((db) => {
+                                                 clauses.forEach(filter => filter(db));
+                                             })
+                                             .limit(pagination ? pagination.limit + 1 : 251)
+                                             .offset(pagination ? pagination.getOffset() : 0);
+
+        if (pagination) {
+            if (rows.length <= pagination.limit) {
+                pagination.nextPageURL = '';
+            } else {
+                rows.pop();
+            }
         }
 
-        if (!rows[0]) {
-            return;
-        }
+        let marketUsers = await Promise.all(rows.map(async (row) => {
 
-        let marketUser = new MarketUserModel({
-            readOnly: rows[0].permissions === 'read'
-        });
+            let userInfo = await Promise.parallel({
+                company: this.userManager.fetchUserFromId(row.companyID),
+                contact: this.userManager.fetchUserFromId(row.contactID)
+            });
 
-        await Promise.all([ (async () => {
-            marketUser.company = await this.userManager.fetchUserFromId(rows[0].companyID);
-        })(), (async () => {
-            marketUser.contact = await this.userManager.fetchUserFromId(rows[0].userID);
-        })() ]);
+            return new MarketUserModel({
+                company: userInfo.company,
+                contact: userInfo.contact,
+                readOnly: row.permissions === 'read'
+            });
 
-        return marketUser;
+        }));
+
+        return marketUsers as any;
 
     }
 
