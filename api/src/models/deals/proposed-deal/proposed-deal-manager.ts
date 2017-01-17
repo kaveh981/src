@@ -49,21 +49,25 @@ class ProposedDealManager {
      */
     public async fetchProposedDeals(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]) {
 
-        let rows = await this.databaseManager.distinct('ixmDealProposals.proposalID', 'ownerID', 'ownerContactID', 'ixmDealProposals.name',
-                                                     'ixmDealProposals.description', 'ixmDealProposals.status', 'startDate', 'endDate', 'price',
-                                                     'impressions', 'budget', 'auctionType', 'terms', 'ixmDealProposals.createDate',
-                                                     'ixmDealProposals.modifyDate')
-                                             .from('ixmDealProposals')
-                                             .leftJoin('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
-                                             .leftJoin('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
-                                             .leftJoin('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
-                                             .leftJoin('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                             .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
-                                             .join('users as contact', 'contact.userID', 'ixmDealProposals.ownerContactID')
-                                             .leftJoin('ixmProposalTargeting', 'ixmDealProposals.proposalID', 'ixmProposalTargeting.proposalID')
-                                             .where((db) => { clauses.forEach(filter => filter(db) ); })
-                                             .limit(pagination ? pagination.limit + 1 : 250)
-                                             .offset(pagination ? pagination.getOffset() : 0);
+        let query = this.databaseManager.distinct('ixmDealProposals.proposalID', 'ownerID', 'ownerContactID', 'ixmDealProposals.name',
+                                                'ixmDealProposals.description', 'ixmDealProposals.status', 'startDate', 'endDate', 'price',
+                                                'impressions', 'budget', 'auctionType', 'terms', 'ixmDealProposals.createDate',
+                                                'ixmDealProposals.modifyDate')
+                                        .from('ixmDealProposals')
+                                        .leftJoin('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+                                        .leftJoin('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
+                                        .leftJoin('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
+                                        .leftJoin('sites', 'rtbSiteSections.siteID', 'sites.siteID')
+                                        .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
+                                        .join('users as contact', 'contact.userID', 'ixmDealProposals.ownerContactID')
+                                        .leftJoin('ixmProposalTargeting', 'ixmDealProposals.proposalID', 'ixmProposalTargeting.proposalID')
+                                        .where((db) => { clauses.forEach(filter => filter(db) ); });
+
+        if (pagination) {
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
+        }
+
+        let rows = await query;
 
         if (pagination) {
             if (rows.length <= pagination.limit) {

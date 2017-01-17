@@ -4,6 +4,7 @@ import * as knex from 'knex';
 
 import { DatabaseManager } from '../../lib/database-manager';
 import { DealSectionModel } from './deal-section-model';
+import { PaginationModel } from '../pagination/pagination-model';
 import { SiteManager } from '../site/site-manager';
 import { Helper } from '../../lib/helper';
 
@@ -27,31 +28,44 @@ class DealSectionManager {
         this.siteManager = siteManager;
     }
 
-    public async fetchDealSections(...clauses: ((db: knex.QueryBuilder) => any)[]) {
-        let rows = await this.databaseManager.select('rtbSections.sectionID as id', 'rtbSections.name', 'rtbSections.status',
-                                                     'rtbSections.userID as publisherID', 'percent as coverage', 'entireSite',
-                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT CONCAT_WS(\',\', url, matchType)) as urlMatches'),
-                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT adUnits.name) as adUnitNames'),
-                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionDAPMappings.segmentID) as segments'),
-                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionCountryMappings.countryCode) as countries'),
-                                                     this.databaseManager.raw('GROUP_CONCAT(DISTINCT rtbDomainDepths.name) as domains'))
-                                             .from('rtbSections')
-                                             .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
-                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
-                                             .leftJoin('ixmProposalSectionMappings', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('sectionAdUnitMappings', 'sectionAdUnitMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('adUnits', 'adUnits.adUnitID', 'sectionAdUnitMappings.adUnitID')
-                                             .leftJoin('sectionDAPMappings', 'sectionDAPMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('sectionCountryMappings', 'sectionCountryMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('sectionDepthMappings', 'sectionDepthMappings.sectionID', 'rtbSections.sectionID')
-                                             .leftJoin('rtbDomainDepths', 'sectionDepthMappings.depthBucket', 'rtbDomainDepths.depthBucket')
-                                             .where((db) => { clauses.forEach(filter => filter(db) ); })
-                                             .groupBy('id');
+    public async fetchDealSections(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<DealSectionModel[]> {
 
-        let dealSections: DealSectionModel[] = [];
+        let query = this.databaseManager.select('rtbSections.sectionID as id', 'rtbSections.name', 'rtbSections.status',
+                                                'rtbSections.userID as publisherID', 'percent as coverage', 'entireSite',
+                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT CONCAT_WS(\',\', url, matchType)) as urlMatches'),
+                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT adUnits.name) as adUnitNames'),
+                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionDAPMappings.segmentID) as segments'),
+                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionCountryMappings.countryCode) as countries'),
+                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT rtbDomainDepths.name) as domains'))
+                                        .from('rtbSections')
+                                        .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
+                                        .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                        .leftJoin('ixmProposalSectionMappings', 'ixmProposalSectionMappings.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('rtbSectionMatches', 'rtbSectionMatches.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('sectionAdUnitMappings', 'sectionAdUnitMappings.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('adUnits', 'adUnits.adUnitID', 'sectionAdUnitMappings.adUnitID')
+                                        .leftJoin('sectionDAPMappings', 'sectionDAPMappings.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('sectionCountryMappings', 'sectionCountryMappings.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('sectionDepthMappings', 'sectionDepthMappings.sectionID', 'rtbSections.sectionID')
+                                        .leftJoin('rtbDomainDepths', 'sectionDepthMappings.depthBucket', 'rtbDomainDepths.depthBucket')
+                                        .where((db) => { clauses.forEach(filter => filter(db) ); })
+                                        .groupBy('id');
 
-        await Promise.all(rows.map(async (row) => {
+        if (pagination) {
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
+        }
+
+        let rows = await query;
+
+        if (pagination) {
+            if (rows.length <= pagination.limit) {
+                pagination.nextPageURL = '';
+            } else {
+                rows.pop();
+            }
+        }
+
+        let dealSections = await Promise.all(rows.map(async (row) => {
 
             if (!row) {
                 return;
@@ -72,22 +86,6 @@ class DealSectionManager {
                 }
             }
 
-            if (row.adUnitNames) {
-                row.adUnitNames = row.adUnitNames.split(',');
-            }
-
-            if (row.segments) {
-                row.segments = row.segments.split(',');
-            }
-
-            if (row.countries) {
-                row.countries = row.countries.split(',');
-            }
-
-            if (row.domains) {
-                row.domains = row.domains.split(',');
-            }
-
             let newDealSection = new DealSectionModel({
                 coverage: row.coverage,
                 entireSite: !!row.entireSite,
@@ -96,19 +94,19 @@ class DealSectionManager {
                 name: row.name,
                 publisherID: row.publisherID,
                 status: Helper.statusLetterToWord(row.status),
-                adUnitRestrictions: row.adUnitNames,
-                audienceRestrictions: row.segments,
-                countryRestrictions: row.countries,
-                frequencyRestrictions: row.domains
+                adUnitRestrictions: row.adUnitNames && row.adUnitNames.split(','),
+                audienceRestrictions: row.segments && row.segments.split(','),
+                countryRestrictions: row.countries && row.countries.split(','),
+                frequencyRestrictions: row.domains && row.domains.split(',')
             });
 
             newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(row.id);
 
-            dealSections.push(newDealSection);
+            return newDealSection;
 
         }));
 
-        return dealSections;
+        return dealSections as any;
     }
 
     /**
@@ -118,7 +116,7 @@ class DealSectionManager {
      */
     public async fetchDealSectionById(sectionID: number) {
 
-        return (await this.fetchDealSections(
+        return (await this.fetchDealSections(null,
             (db) => {
                 db.where({
                     'rtbSections.sectionID': sectionID
@@ -141,7 +139,7 @@ class DealSectionManager {
      */
     public async fetchSectionsFromProposalId(proposalID: number) {
 
-        return await this.fetchDealSections(
+        return await this.fetchDealSections(null,
             (db) => {
                 db.where({
                     'ixmProposalSectionMappings.proposalID': proposalID,

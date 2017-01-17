@@ -86,41 +86,44 @@ class NegotiatedDealManager {
      */
     public async fetchActiveNegotiatedDealsForUser(user: MarketUserModel, pagination: PaginationModel) {
 
-        let offset = pagination.getOffset();
+        let query = this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'ownerID', 'partnerID')
+                                        .select()
+                                        .from('ixmDealNegotiations')
+                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                        .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+                                        .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
+                                        .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
+                                        .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
+                                        .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
+                                        .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
+                                        .where(function() {
+                                            this.where('ownerID', user.company.id)
+                                                .orWhere('partnerID', user.company.id);
+                                        })
+                                        .andWhere(function() {
+                                            this.where('partnerStatus', 'accepted')
+                                                .andWhere('ownerStatus', 'active')
+                                                .orWhere('ownerStatus', 'accepted')
+                                                .andWhere('partnerStatus', 'active');
+                                        })
+                                        .andWhere('ixmDealProposals.status', 'active')
+                                        .andWhere('owner.status', 'A')
+                                        .andWhere('partner.status', 'A')
+                                        .andWhere('rtbSections.status', 'A')
+                                        .andWhere('sites.status', 'A');
 
-        let rows = await this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'ownerID', 'partnerID')
-                                             .select()
-                                             .from('ixmDealNegotiations')
-                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                             .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
-                                             .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
-                                             .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
-                                             .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                             .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
-                                             .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
-                                             .where(function() {
-                                                 this.where('ownerID', user.company.id)
-                                                     .orWhere('partnerID', user.company.id);
-                                             })
-                                             .andWhere(function() {
-                                                 this.where('partnerStatus', 'accepted')
-                                                     .andWhere('ownerStatus', 'active')
-                                                     .orWhere('ownerStatus', 'accepted')
-                                                     .andWhere('partnerStatus', 'active');
-                                             })
-                                             .andWhere('ixmDealProposals.status', 'active')
-                                             .andWhere('owner.status', 'A')
-                                             .andWhere('partner.status', 'A')
-                                             .andWhere('rtbSections.status', 'A')
-                                             .andWhere('sites.status', 'A')
-                                             .limit(pagination.limit + 1)
-                                             .offset(offset);
+        if (pagination) {
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
+        }
 
-        // Check that there is more data to retrieve to appropriately set the next page URL
-        if (rows.length <= pagination.limit) {
-            pagination.nextPageURL = '';
-        } else {
-            rows.pop();
+        let rows = await query;
+
+        if (pagination) {
+            if (rows.length <= pagination.limit) {
+                pagination.nextPageURL = '';
+            } else {
+                rows.pop();
+            }
         }
 
         // Fetch the negotiations
@@ -148,8 +151,7 @@ class NegotiatedDealManager {
      */
     public async fetchNegotiatedDealsFromUserProposalIds(proposalID: number, partyID: number, pagination: PaginationModel) {
 
-        let offset = pagination.getOffset();
-        let rows = await this.databaseManager.select('ownerID', 'partnerID')
+        let query = this.databaseManager.select('ownerID', 'partnerID')
                                              .from('ixmDealNegotiations')
                                              .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
                                              .where({
@@ -159,15 +161,20 @@ class NegotiatedDealManager {
                                              .orWhere({
                                                  'ixmDealProposals.proposalID': proposalID,
                                                  ownerID: partyID
-                                             })
-                                             .limit(pagination.limit + 1)
-                                             .offset(offset);
+                                             });
 
-        // Check that there is more data to retrieve to appropriately set the next page URL
-        if (rows.length <= pagination.limit) {
-            pagination.nextPageURL = '';
-        } else {
-            rows.pop();
+        if (pagination) {
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
+        }
+
+        let rows = await query;
+
+        if (pagination) {
+            if (rows.length <= pagination.limit) {
+                pagination.nextPageURL = '';
+            } else {
+                rows.pop();
+            }
         }
 
         // Fetch the negotiations
