@@ -55,7 +55,7 @@ function Users(router: express.Router): void {
         let userID = req.params['id'];
         let user = await marketUserManager.fetchMarketUserFromId(userID);
 
-        if (!user.isActive()) {
+        if (!user || !user.isActive()) {
             throw HTTPError('404');
         }
 
