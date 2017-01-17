@@ -650,10 +650,10 @@ export async function ATW_DN_GET_19(assert: test.Test) {
 }
 
 /*
- * @case    - Creating negotiation with buyerStatus: archived and pubStatus: active
+ * @case    - Creating negotiation with buyerStatus: active and pubStatus: deleted
  * @expect  - return nothing
  * @route   - GET deals/negotiations
- * @status  - broken
+ * @status  - passing
  * @tags    - 
  */
 export async function ATW_DN_GET_20(assert: test.Test) {
@@ -668,15 +668,15 @@ export async function ATW_DN_GET_20(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
-                                                                             partnerStatus: 'archived',
-                                                                             ownerStatus: 'active'
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'deleted'
                                                                          });
 
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200, "Response ok");
     assert.deepEquals(response.body['data'], [],
-        "DN1 and DN2 returned");
+        "No deal negotiations are returned");
 }
 
 /*
