@@ -803,24 +803,24 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
     assert.plan(6);
 
     let dsp = await databasePopulator.createDSP(1);
-    let buyerCompany1 = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer1 = await databasePopulator.createBuyer(buyerCompany1.user.userID, 'write');
-    let buyerCompany2 = await databasePopulator.createCompany({}, dsp.dspID);
+    let targetedBuyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let nonTargetedBuyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let nonTargetedBuyer = await databasePopulator.createBuyer(nonTargetedBuyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {},
-                                                          [ buyerCompany2.user.userID ]);
+                                                          [ targetedBuyerCompany.user.userID ]);
     let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
-    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer1.user);
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, nonTargetedBuyer.user);
 
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
 
     // buyer company
-    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyerCompany1.user);
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, nonTargetedBuyerCompany.user);
 
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
@@ -830,7 +830,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
     let accessToken = authResponse.body.data.accessToken;
 
     response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
-        userID: buyerCompany1.user.userID,
+        userID: nonTargetedBuyerCompany.user.userID,
         accessToken: accessToken
     });
 
@@ -840,7 +840,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
 }
 
 /*
- * @case    - The current publisher is not targeted by proposal but another publisher is  .
+ * @case    - The current publisher is not targeted by proposal but another publisher is.
  * @expect  - 404 - The publisher is not able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -853,23 +853,23 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let pubCompany1 = await databasePopulator.createCompany();
-    let publisher1 = await databasePopulator.createPublisher(pubCompany1.user.userID, 'write');
-    let pubCompany2 = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany2.user.userID);
-    let section = await databasePopulator.createSection(pubCompany2.user.userID, [ site.siteID ]);
+    let nonTargetedPubCompany = await databasePopulator.createCompany();
+    let nonTargetedPublisher = await databasePopulator.createPublisher(nonTargetedPubCompany.user.userID, 'write');
+    let targetedPubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(targetedPubCompany.user.userID);
+    let section = await databasePopulator.createSection(targetedPubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {},
-                                                          [ pubCompany2.user.userID ]);
+                                                          [ targetedPubCompany.user.userID ]);
     let internalUser = await databasePopulator.createInternalUser();
 
     /** Test */
-    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher1.user);
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, nonTargetedPublisher.user);
 
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
 
     // Company
-    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, pubCompany1.user);
+    response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, nonTargetedPubCompany.user);
 
     assert.equals(response.status, 404);
     assert.deepEqual(response.body.data, []);
@@ -879,7 +879,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
     let accessToken = authResponse.body.data.accessToken;
 
     response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, {
-        userID: pubCompany1.user.userID,
+        userID: nonTargetedPubCompany.user.userID,
         accessToken: accessToken
     });
 
@@ -889,7 +889,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
 }
 
 /*
- * @case    - The buyer is targeted by proposal
+ * @case    - The buyer is targeted by proposal being requested
  * @expect  - 200 - The buyer is able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
@@ -937,7 +937,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
 }
 
 /*
- * @case    - The publisher is targeted by proposal
+ * @case    - The publisher is targeted by proposal being requested
  * @expect  - 200 - The buyer is able to see the proposal 
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
