@@ -351,7 +351,7 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
                                                                                 deactivatedPubCompany.user, deactivatedPubCompany.user) ];
     let buyerResponseDeactivatedPub = await apiRequest.get(buyerPathDeactivatedPub, {}, buyer.user);
     assert.equal(buyerResponseDeactivatedPub.status, 200, "Status should be 200");
-    assert.deepEquals(buyerResponseDeactivatedPub.body.data, buyerExpectedResponseDeactivatedPub, "Should receive negotiation payload")
+    assert.deepEquals(buyerResponseDeactivatedPub.body.data, buyerExpectedResponseDeactivatedPub, "Should receive negotiation payload");
 
 }
 

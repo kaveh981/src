@@ -793,7 +793,7 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
                                                                              ownerStatus: 'active',
                                                                              sender: 'partner'
                                                                          });
-    //another deal negotiation that shouldn't be returned
+    // another deal negotiation that shouldn't be returned
     await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, anotherBuyerCompany.user.userID, {
                                                         partnerStatus: 'active',
                                                         ownerStatus: 'accepted',
