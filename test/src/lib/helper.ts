@@ -164,7 +164,11 @@ class Helper {
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner_id: partner.userID,
-            partner: {
+            partner: partner.status !== 'A'
+                ? {
+                status: "INACTIVE_USER"
+                }
+                : {
                 title: 'Warlord',
                 name: partner.firstName + ' ' + partner.lastName,
                 email: partner.emailAddress,
