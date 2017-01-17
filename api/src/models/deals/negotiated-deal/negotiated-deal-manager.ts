@@ -96,7 +96,8 @@ class NegotiatedDealManager {
                                              .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
                                              .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
                                              .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                             .join('users', 'users.userID', 'ixmDealProposals.ownerID')
+                                             .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
+                                             .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
                                              .where(function() {
                                                  this.where('ownerID', user.company.id)
                                                      .orWhere('partnerID', user.company.id);
@@ -108,7 +109,8 @@ class NegotiatedDealManager {
                                                      .andWhere('partnerStatus', 'active');
                                              })
                                              .andWhere('ixmDealProposals.status', 'active')
-                                             .andWhere('users.status', 'A')
+                                             .andWhere('owner.status', 'A')
+                                             .andWhere('partner.status', 'A')
                                              .andWhere('rtbSections.status', 'A')
                                              .andWhere('sites.status', 'A')
                                              .limit(pagination.limit + 1)
