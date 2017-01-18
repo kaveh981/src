@@ -89,6 +89,7 @@ interface ISection {
     percent?: number;
     entireSite?: number;
     adUnits?: number[];
+    audienceTargetingSegments?: number[];
     countries?: string[];
     rtbDomainDepths?: number[];
     matches?: INewMatchData[];

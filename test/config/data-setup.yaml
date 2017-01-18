@@ -21,6 +21,7 @@ tables:
     - rtbTradingDesks
     - sectionAdUnitMappings
     - sectionCountryMappings
+    - sectionDAPMappings
     - sectionDepthMappings
     - rtbSectionMatches
     - apiKeys

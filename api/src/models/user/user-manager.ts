@@ -73,16 +73,20 @@ class UserManager {
      */
     public async fetchUsers(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<UserModel[]> {
 
-        let rows = await this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
-                                                     'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone', 'userTypes.internal')
-                                             .from('users')
-                                             .innerJoin('userTypes', 'userType', '=', 'userTypeID')
-                                             .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
-                                             .where((db) => {
-                                                 clauses.forEach(filter => filter(db));
-                                             })
-                                             .limit(pagination ? pagination.limit + 1 : 250)
-                                             .offset(pagination ? pagination.getOffset() : 0);
+        let query = this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
+                                                'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone', 'userTypes.internal')
+                                        .from('users')
+                                        .innerJoin('userTypes', 'userType', '=', 'userTypeID')
+                                        .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
+                                        .where((db) => {
+                                            clauses.forEach(filter => filter(db));
+                                        });
+
+        if (pagination) {
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
+        }
+
+        let rows = await query;
 
         if (pagination) {
             if (rows.length <= pagination.limit) {
