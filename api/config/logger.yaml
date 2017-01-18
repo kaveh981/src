@@ -1,23 +1,20 @@
 # Logger Configuration
 
-# Label for the logger
-label: IXM API
-
 # Default level of messages to write to stdout.
-consoleLevel: 0
+consoleLevel: 2
 
 # Default level of messages to write to files.
-filewriteLevel: 0
+filewriteLevel: 2
 
 # Sources of logs to override.
 sourceOverrides:
-    HTTP:                   # Regex matching the name of the logger to override.
-        consoleLevel: 1     # Console level to override.
-        filewriteLevel: 1   # File write level to override.
+    # HTTP:                   # Regex matching the name of the logger to override.
+    #     consoleLevel: 3     # Console level to override.
+    #     filewriteLevel: 2   # File write level to override.
 
-    DBMA:
-        consoleLevel: 1
-        filewriteLevel: 1
+    # DBMA:
+    #     consoleLevel: 1
+    #     filewriteLevel: 1
 
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
@@ -26,20 +23,20 @@ outputFiles:
 # Metadata about each level
 levelMetadata:
     0:
-        name: TRACE
+        name: trace
         color: cyan
     1:
-        name: DEBUG
+        name: debug
         color: green
     2:
-        name: INFO
+        name: info
         color: white
     3:
-        name: WARN
+        name: warn
         color: yellow
     4:
-        name: ERROR
+        name: error
         color: red
     5:
-        name: FATAL
+        name: fatal
         color: bgRed

@@ -38,6 +38,9 @@ declare module 'express' {
         /** Person impersonating the user. */
         impersonator: UserModel;
 
+        /** The user id provided in the token */
+        tokenUserID: number;
+
     }
 
     // Augment the express response object.
@@ -45,6 +48,9 @@ declare module 'express' {
 
         /** Response Id matching request */
         id: string;
+
+        /** The error message being sent back */
+        errorMessage?: string;
 
         /**
          * Send JSON payload with 200 status code.
