@@ -55,6 +55,12 @@ class DealSectionManager {
                                         .leftJoin('sectionDepthMappings', 'sectionDepthMappings.sectionID', 'rtbSections.sectionID')
                                         .leftJoin('rtbDomainDepths', 'sectionDepthMappings.depthBucket', 'rtbDomainDepths.depthBucket')
                                         .where((db) => { clauses.forEach(filter => filter(db) ); })
+                                        .andWhere(function() {
+                                            this.whereNull('rtbSectionMatches.sectionID')
+                                                .andWhere('rtbSections.entireSite', 1)
+                                                .orWhere('rtbSections.entireSite', 0)
+                                                .whereNotNull('rtbSectionMatches.sectionID');
+                                        })
                                         .groupBy('id');
 
         if (pagination) {
@@ -71,7 +77,7 @@ class DealSectionManager {
             }
         }
 
-        let dealSections = await Promise.all(rows.map(async (row) => {
+        let dealSections = await Promise.all<DealSectionModel>(rows.map(async (row) => {
 
             if (!row) {
                 return;
@@ -112,7 +118,7 @@ class DealSectionManager {
 
         }));
 
-        return dealSections as any;
+        return dealSections;
     }
 
     /**
@@ -126,12 +132,6 @@ class DealSectionManager {
             (db) => {
                 db.where({
                     'rtbSections.sectionID': sectionID
-                })
-                .andWhere(function() {
-                    this.whereNull('rtbSectionMatches.sectionID')
-                        .andWhere('rtbSections.entireSite', 1)
-                        .orWhere('rtbSections.entireSite', 0)
-                        .whereNotNull('rtbSectionMatches.sectionID');
                 });
             }
         ))[0];
@@ -151,12 +151,6 @@ class DealSectionManager {
                     'ixmProposalSectionMappings.proposalID': proposalID,
                     'rtbSections.status': 'A',
                     'sites.status': 'A'
-                })
-                .andWhere(function() {
-                    this.whereNull('rtbSectionMatches.sectionID')
-                        .andWhere('rtbSections.entireSite', 1)
-                        .orWhere('rtbSections.entireSite', 0)
-                        .whereNotNull('rtbSectionMatches.sectionID');
                 })
                 .andWhere(function() {
                     this.where('adUnits.status', 'A')
