@@ -88,7 +88,7 @@ interface ISection {
     name?: string;
     percent?: number;
     entireSite?: number;
-    adUnits?: number[];
+    adUnits?: string[];
     audienceTargetingSegments?: number[];
     countries?: string[];
     rtbDomainDepths?: number[];

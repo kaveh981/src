@@ -3,9 +3,13 @@
 import * as crypto from 'crypto';
 
 import { DatabaseManager } from './database-manager';
+import { APIRequestManager } from './request-manager';
+import { DatabasePopulator } from './database-populator';
 import { Injector } from './injector';
 
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
+const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
+const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 
 class Helper {
 
@@ -71,7 +75,8 @@ class Helper {
      * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-    public static proposalToPayload(proposal: INewProposalData, contact?: INewUserData): any {
+    public static async proposalToPayload(proposal: INewProposalData, contact?: INewUserData) {
+        let requestUser = (await databasePopulator.createCompany()).user;
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
@@ -91,12 +96,10 @@ class Helper {
                 end_date: this.formatDate(proposal.proposal.endDate),
                 proposal_id: proposal.proposal.proposalID,
                 impressions: proposal.proposal.impressions,
-                inventory: proposal.sectionIDs.map((id) => {
-                    return {
-                        id: id,
-                        resource: `sections/${id}`
-                    };
-                }),
+                inventory: await Promise.all(proposal.sectionIDs.map(async (id) => {
+                    let section = (await apiRequest.get(`sections/${id}`, {}, requestUser)).body['data'][0];
+                    return section;
+                })),
                 partners: proposal.targetedUsers,
                 modified_at: proposal.proposal.modifyDate.toISOString(),
                 name: proposal.proposal.name,
@@ -108,12 +111,12 @@ class Helper {
         }
     }
 
-    public static dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
-        proposalOwner: INewUserData, partner: INewUserData): any {
+    public static async dealNegotiationToPayload(dealNegotiation: IDealNegotiationData, proposal: INewProposalData,
+        proposalOwner: INewUserData, partner: INewUserData) {
 
         if (proposal.proposal.status === 'deleted') {
             return {
-                proposal: Helper.proposalToPayload(proposal, proposalOwner),
+                proposal: await Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
                 contact: Helper.contactToPayload(partner),
                 status: 'closed_by_owner',
@@ -122,7 +125,7 @@ class Helper {
             };
         } else {
             return {
-                proposal: Helper.proposalToPayload(proposal, proposalOwner),
+                proposal: await Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
                 contact: Helper.contactToPayload(partner),
                 status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userID !== proposalOwner.userID),
@@ -147,8 +150,9 @@ class Helper {
      * @param partner {INewUserData} - The partner tied to the proposal/deal
      * @returns - The payload we expect to be returned by the API
      */
-    public static dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
+    public static async dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
                                         proposal: INewProposalData, partner: INewUserData) {
+        let requestUser = (await databasePopulator.createCompany()).user;
         return {
             proposal: {
                 proposal_id: proposal.proposal.proposalID,
@@ -159,12 +163,10 @@ class Helper {
             },
             partner_id: partner.userID,
             partner: Helper.contactToPayload(partner),
-            inventory: proposal.sectionIDs.map((id) => {
-                return {
-                    id: id,
-                    resource: `sections/${id}`
-                };
-            }),
+            inventory: await Promise.all(proposal.sectionIDs.map(async (id) => {
+                let section = (await apiRequest.get(`sections/${id}`, {}, requestUser)).body['data'][0];
+                return section;
+            })),
             auction_type: settledDeal.settledDeal.auctionType,
             dsp_id: settledDeal.settledDeal.dspID,
             terms: dealNegotiation.terms,
@@ -181,9 +183,10 @@ class Helper {
         };
     }
 
-    public static dealsActivePutToPayload(proposal: INewProposalData,
+    public static async dealsActivePutToPayload(proposal: INewProposalData,
         owner: INewUserData, buyerCompany: INewCompanyData, modifiedDate: Date, createDate: Date) {
 
+        let requestUser = (await databasePopulator.createCompany()).user;
         return {
             proposal: {
                 proposal_id: proposal.proposal.proposalID,
@@ -195,12 +198,10 @@ class Helper {
             partner_id: owner.userID,
             partner: Helper.contactToPayload(owner),
             auction_type: proposal.proposal.auctionType,
-            inventory: proposal.sectionIDs.map((id) => {
-                return {
-                    id: id,
-                    resource: `sections/${id}`
-                };
-            }),
+            inventory: await Promise.all(proposal.sectionIDs.map(async (id) => {
+                let section = (await apiRequest.get(`sections/${id}`, {}, requestUser)).body['data'][0];
+                return section;
+            })),
             dsp_id: buyerCompany.dspID,
             terms: proposal.proposal.terms,
             impressions: proposal.proposal.impressions,

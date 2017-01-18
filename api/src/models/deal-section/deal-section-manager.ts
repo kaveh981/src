@@ -38,11 +38,15 @@ class DealSectionManager {
 
         let query = this.databaseManager.select('rtbSections.sectionID as id', 'rtbSections.name', 'rtbSections.status',
                                                 'rtbSections.userID as publisherID', 'percent as coverage', 'entireSite',
-                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT CONCAT_WS(\',\', url, matchType)) as urlMatches'),
-                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT adUnits.name) as adUnitNames'),
-                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionDAPMappings.segmentID) as segments'),
-                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT sectionCountryMappings.countryCode) as countries'),
-                                                this.databaseManager.raw('GROUP_CONCAT(DISTINCT rtbDomainDepths.name) as domains'))
+                                                this.databaseManager.raw(`GROUP_CONCAT(DISTINCT CONCAT_WS(\',\', url, matchType)
+                                                                            ORDER BY url, matchType) as urlMatches`),
+                                                this.databaseManager.raw(`GROUP_CONCAT(DISTINCT adUnits.name ORDER BY adUnits.name) as adUnitNames`),
+                                                this.databaseManager.raw(`GROUP_CONCAT(DISTINCT sectionDAPMappings.segmentID 
+                                                                            ORDER BY sectionDAPMappings.segmentID) as segments`),
+                                                this.databaseManager.raw(`GROUP_CONCAT(DISTINCT sectionCountryMappings.countryCode 
+                                                                            ORDER BY sectionCountryMappings.countryCode) as countries`),
+                                                this.databaseManager.raw(`GROUP_CONCAT(DISTINCT rtbDomainDepths.name 
+                                                                            ORDER BY rtbDomainDepths.name) as domains`))
                                         .from('rtbSections')
                                         .join('rtbSiteSections', 'rtbSiteSections.sectionID', 'rtbSections.sectionID')
                                         .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')

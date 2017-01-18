@@ -41,7 +41,7 @@ async function authenticationSetup (publisher: INewPubData) {
     let activeDeal = await databasePopulator.createSettledDeal(pubCompany.user.userID, [ section.section.sectionID ],
                                                                negotiation.negotiationID);
 
-    return Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, pubCompany.user);
+    return (await Helper.dealsActiveGetToPayload(activeDeal, negotiation, proposal, pubCompany.user));
 
 }
 
@@ -83,7 +83,7 @@ async function createSettledDeal (data: ICreateEntityData) {
             rate: negotiation.price
         });
 
-    return Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    return (await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user));
 
 }
 
@@ -199,7 +199,7 @@ export async function ATW_API_GET_DEAACT_FUNC_03 (assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
@@ -278,7 +278,7 @@ export async function ATW_API_GET_DEAACT_FUNC_05 (assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
@@ -345,7 +345,7 @@ export async function ATW_API_GET_DEAACT_FUNC_07 (assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
@@ -423,7 +423,7 @@ export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(activeSettledDeal, activeNegotiation, activeProposal, activePubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(activeSettledDeal, activeNegotiation, activeProposal, activePubCompany.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
@@ -456,7 +456,7 @@ export async function ATW_API_GET_DEAACT_FUNC_10 (assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
@@ -552,7 +552,7 @@ export async function ATW_API_GET_DEAACT_FUNC_13(assert: test.Test) {
     let response = await apiRequest.get(ROUTE, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    let expectedPayload = await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
     assert.deepEqual(response.body.data, [ expectedPayload ]);
 
 }

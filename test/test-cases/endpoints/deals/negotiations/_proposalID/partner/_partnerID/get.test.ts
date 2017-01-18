@@ -340,14 +340,14 @@ export async function ATW_API_DNPP_GET_08_01(assert: test.Test) {
 
     /** Test */
     // Test for negotiation with New Publisher
-    let buyerExpectedResponseNewPub = [ Helper.dealNegotiationToPayload(newPubNegotiation, newPubProposal,
+    let buyerExpectedResponseNewPub = [ await Helper.dealNegotiationToPayload(newPubNegotiation, newPubProposal,
         newPubCompany.user, newPubCompany.user) ];
     let buyerResponseNewPub = await apiRequest.get(buyerPathNewPub, {}, buyer.user);
     assert.equal(buyerResponseNewPub.status, 200, "Status should be 200");
     assert.deepEquals(buyerResponseNewPub.body.data, buyerExpectedResponseNewPub, "Should receive negotiation payload");
 
     // Test for negotiation with deactivated Publisher
-    let buyerExpectedResponseDeactivatedPub = [ Helper.dealNegotiationToPayload(deactivatedPubNegotiation, deactivatedPubProposal,
+    let buyerExpectedResponseDeactivatedPub = [ await Helper.dealNegotiationToPayload(deactivatedPubNegotiation, deactivatedPubProposal,
                                                                                 deactivatedPubCompany.user, deactivatedPubCompany.user) ];
     let buyerResponseDeactivatedPub = await apiRequest.get(buyerPathDeactivatedPub, {}, buyer.user);
     assert.equal(buyerResponseDeactivatedPub.status, 200, "Status should be 200");
@@ -392,14 +392,14 @@ export async function ATW_API_DNPP_GET_08_02(assert: test.Test) {
 
     /** Test */
     // Test for negotiation with New Buyer
-    let pubExpectedResponseNewBuyer = [ Helper.dealNegotiationToPayload(newBuyerNegotiation, proposal,
+    let pubExpectedResponseNewBuyer = [ await Helper.dealNegotiationToPayload(newBuyerNegotiation, proposal,
         publisherCompany.user, newBuyerCompany.user) ];
     let pubResponseNewBuyer = await apiRequest.get(pubPathNewBuyer, {}, publisher.user);
     assert.equal(pubResponseNewBuyer.status, 200, "Status shuold be 200");
     assert.deepEquals(pubResponseNewBuyer.body.data, pubExpectedResponseNewBuyer, "Should receive negotiation payload");
 
     // Test for negotiation with deactivated Buyer
-    let pubExpectedResponseDeactivatedBuyer = [ Helper.dealNegotiationToPayload(deactivatedBuyerNegotiation, proposal,
+    let pubExpectedResponseDeactivatedBuyer = [ await Helper.dealNegotiationToPayload(deactivatedBuyerNegotiation, proposal,
         publisherCompany.user, deactivatedBuyerCompany.user) ];
     let pubResponseDeactivatedBuyer = await apiRequest.get(pubPathDeactivatedBuyer, {}, publisher.user);
     assert.equal(pubResponseDeactivatedBuyer.status, 200, "Status should be 200");
@@ -550,7 +550,7 @@ export async function ATW_API_DNPP_GET_12(assert: test.Test) {
     /** Test */
     let pubResponse = await apiRequest.get(publisherPath, {}, publisher.user);
     assert.equal(pubResponse.status, 200);
-    assert.deepEqual(pubResponse.body['data'], [ Helper.dealNegotiationToPayload(negotiation, proposalObj, pubCompany.user, buyerCompany.user) ],
+    assert.deepEqual(pubResponse.body['data'], [ await Helper.dealNegotiationToPayload(negotiation, proposalObj, pubCompany.user, buyerCompany.user) ],
         "DN1 returned");
 }
 
@@ -580,7 +580,7 @@ export async function ATW_API_DNPP_GET_13(assert: test.Test) {
     /** Test */
     let pubResponse = await apiRequest.get(buyerPath, {}, buyer.user);
     assert.equal(pubResponse.status, 200);
-    assert.deepEqual(pubResponse.body['data'], [ Helper.dealNegotiationToPayload(negotiation, proposalObj, buyerCompany.user, pubCompany.user) ],
+    assert.deepEqual(pubResponse.body['data'], [ await Helper.dealNegotiationToPayload(negotiation, proposalObj, buyerCompany.user, pubCompany.user) ],
         "DN1 returned");
 }
 

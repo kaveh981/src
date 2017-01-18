@@ -46,7 +46,7 @@ async function createProposal(data: ICreateEntityData) {
     // Open proposal to make sure we aren't getting more than we want ie. only targeted proposals
     let openProposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
-    return Helper.proposalToPayload(proposal, buyerCompany.user);
+    return (await Helper.proposalToPayload(proposal, buyerCompany.user));
 
 }
 
@@ -98,7 +98,7 @@ export async function ATW_API_GET_DEAPROINC_FUNC_01 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(proposal, buyerCompany.user) ]);
 
 }
 
@@ -134,7 +134,7 @@ export async function ATW_API_GET_DEAPROINC_FUNC_02 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -170,7 +170,7 @@ export async function ATW_API_GET_DEAPROINC_FUNC_03 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyerCompany.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -210,7 +210,7 @@ export async function ATW_API_GET_DEAPROINC_FUNC_04 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(proposal, buyerCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(proposal, buyerCompany.user) ]);
 
 }
 

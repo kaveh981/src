@@ -56,7 +56,7 @@ async function createProposal(data: ICreateEntityData) {
 
     let proposal = await databasePopulator.createProposal(data.pubCompany.user.userID, [ data.section.section.sectionID ]);
 
-    return Helper.proposalToPayload(proposal, data.pubCompany.user);
+    return await Helper.proposalToPayload(proposal, data.pubCompany.user);
 
 }
 
@@ -102,7 +102,7 @@ export async function IXM_API_DEALS_GET_01 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -186,7 +186,7 @@ export async function IXM_API_DEALS_GET_04 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -214,7 +214,7 @@ export async function IXM_API_DEALS_GET_05 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -308,7 +308,7 @@ export async function ATW_API_GET_DEAPRO_FUNC_08 (assert: test.Test) {
     let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -346,7 +346,8 @@ export async function ATW_API_GET_DEAPRO_FUNC_09 (assert: test.Test) {
     let response = await apiRequest.get(route + `?page=1&limit=2&owner_id=${pubCompany2.user.userID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal1, pubCompany2.user), Helper.proposalToPayload(proposal2, pubCompany2.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal1, pubCompany2.user),
+                                            await Helper.proposalToPayload(proposal2, pubCompany2.user) ]);
     // Check that response is not expecting any more data
     assert.deepEqual(response.body.pagination.next_page_url, '');
 
@@ -386,7 +387,7 @@ export async function ATW_API_GET_DEAPRO_FUNC_10 (assert: test.Test) {
     let response = await apiRequest.get(route + `?page=1&limit=1&owner_id=${pubCompany2.user.userID}`, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal1, pubCompany2.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal1, pubCompany2.user) ]);
     // Check that response is expecting more data
     assert.deepEqual(response.body.pagination.next_page_url, 'deals/proposals?page=2&limit=1');
 
@@ -562,7 +563,7 @@ export async function ATW_API_GET_DEAPRO_FUNC_16 (assert: test.Test) {
     let response = await apiRequest.get(route + `?owner_id=${pubCompany.user.userID}`, {}, buyerCompany.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -606,7 +607,7 @@ export async function ATW_API_GET_DEAPRO_FUNC_17 (assert: test.Test) {
     });
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'], [ Helper.proposalToPayload(proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body['data'], [ await Helper.proposalToPayload(proposal, pubCompany.user) ]);
 
 }
 
@@ -641,6 +642,6 @@ export async function ATW_API_GET_DEAPRO_FUNC_18 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEqual(response.body['data'][0], Helper.proposalToPayload(proposal, pubCompany.user));
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
