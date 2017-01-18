@@ -49,12 +49,29 @@ class Helper {
     }
 
     /**
+     * Construct a contact payload form user info
+     * @param contact - user object
+     * @returns contact payload
+     */
+    public static contactToPayload(contact: INewUserData): any {
+        return contact.status === 'A'
+            ? {
+                title: 'Warlord',
+                name: contact.firstName + ' ' + contact.lastName,
+                email: contact.emailAddress,
+                phone: contact.phone
+            }
+            : {
+                status: "INACTIVE_USER"
+            };
+    }
+    /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
      * @param owner - The user who own's the proposal buyer/publisher.
      * @returns The expected payload for that proposal.
      */
-       public static proposalToPayload(proposal: INewProposalData, owner: INewUserData): any {
+    public static proposalToPayload(proposal: INewProposalData, contact?: INewUserData): any {
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
@@ -66,13 +83,8 @@ class Helper {
             return {
                 auction_type: proposal.proposal.auctionType,
                 budget: proposal.proposal.budget,
-                owner_id: owner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: owner.firstName + ' ' + owner.lastName,
-                    email: owner.emailAddress,
-                    phone: owner.phone
-                },
+                owner_id: proposal.proposal.ownerID,
+                contact: this.contactToPayload(contact),
                 created_at: proposal.proposal.createDate.toISOString(),
                 currency: 'USD',
                 description: proposal.proposal.description,
@@ -103,12 +115,7 @@ class Helper {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                },
+                contact: Helper.contactToPayload(partner),
                 status: 'closed_by_owner',
                 created_at: dealNegotiation.createDate.toISOString(),
                 modified_at: dealNegotiation.modifyDate.toISOString()
@@ -117,12 +124,7 @@ class Helper {
             return {
                 proposal: Helper.proposalToPayload(proposal, proposalOwner),
                 partner_id: partner.userID,
-                contact: {
-                    title: 'Warlord',
-                    name: partner.firstName + ' ' + partner.lastName,
-                    email: partner.emailAddress,
-                    phone: partner.phone
-                },
+                contact: Helper.contactToPayload(partner),
                 status: Helper.setNegotiationPayloadStatus(dealNegotiation, partner.userID !== proposalOwner.userID),
                 price: dealNegotiation.price,
                 impressions: dealNegotiation.impressions,
@@ -156,12 +158,7 @@ class Helper {
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner_id: partner.userID,
-            partner: {
-                title: 'Warlord',
-                name: partner.firstName + ' ' + partner.lastName,
-                email: partner.emailAddress,
-                phone: partner.phone
-            },
+            partner: Helper.contactToPayload(partner),
             inventory: proposal.sectionIDs.map((id) => {
                 return {
                     id: id,
@@ -196,12 +193,7 @@ class Helper {
                 resource: `deals/proposals/${proposal.proposal.proposalID}`
             },
             partner_id: owner.userID,
-            partner: {
-                title: 'Warlord',
-                name: owner.firstName + ' ' + owner.lastName,
-                email: owner.emailAddress,
-                phone: owner.phone
-            },
+            partner: Helper.contactToPayload(owner),
             auction_type: proposal.proposal.auctionType,
             inventory: proposal.sectionIDs.map((id) => {
                 return {

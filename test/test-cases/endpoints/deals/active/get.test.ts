@@ -384,48 +384,51 @@ export async function ATW_API_GET_DEAACT_FUNC_08 (assert: test.Test) {
     assert.deepEqual(response.body.data, []);
 
 }
-//  .----------------.  .----------------.  .----------------.  .----------------. 
-// | .--------------. || .--------------. || .--------------. || .--------------. |
-// | |  _________   | || |     ____     | || |  ________    | || |     ____     | |
-// | | |  _   _  |  | || |   .'    `.   | || | |_   ___ `.  | || |   .'    `.   | |
-// | | |_/ | | \_|  | || |  /  .--.  \  | || |   | |   `. \ | || |  /  .--.  \  | |
-// | |     | |      | || |  | |    | |  | || |   | |    | | | || |  | |    | |  | |
-// | |    _| |_     | || |  \  `--'  /  | || |  _| |___.' / | || |  \  `--'  /  | |
-// | |   |_____|    | || |   `.____.'   | || | |________.'  | || |   `.____.'   | |
-// | |              | || |              | || |              | || |              | |
-// | '--------------' || '--------------' || '--------------' || '--------------' |
-//  '----------------'  '----------------'  '----------------'  '----------------' 
-// ATW 721
-//  /*
-//  * @case    - IXM Publisher who created the proposal is now deactivated
-//  * @expect  - No deals returned
-//  * @route   - GET deals/active
-//  * @status  - passing
-//  * @tags    - get, active, deals
-//  */
-// export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
-//     /** Setup */
-//     assert.plan(2);
+ /*
+ * @case    - Buyer gets active deals, a partner publisher has been "deactivated"
+ * @expect  - Only active deals not made with the "deactivated" publisher are returned
+ * @route   - GET deals/active
+ * @status  - failing
+ * @tags    - get, active, deals
+ */
+export async function ATW_API_GET_DEAACT_FUNC_09 (assert: test.Test) {
 
-//     let dsp = await databasePopulator.createDSP(1);
-//     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-//     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-//     let pubCompany = await databasePopulator.createCompany({ status: 'D' });
-//     let site = await databasePopulator.createSite(pubCompany.user.userID);
-//     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-//     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
-//     let negotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID);
-//     let settledDeal = await databasePopulator.createSettledDeal(pubCompany.user.userID, [ section.section.sectionID ], negotiation.negotiationID);
+    /** Setup */
+    assert.plan(2);
 
-//     /** Test */
-//     let response = await apiRequest.get(ROUTE, {}, buyer.user);
-//     let expectedPayload = Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user);
+    // create buyer company and user
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
 
-//     assert.equal(response.status, 200);
-//     assert.deepEqual(response.body.data, [ expectedPayload ]);
+    // create inactive publisher company and its inventory
+    let inactivePubCompany = await databasePopulator.createCompany({ status: 'D' });
+    let inactiveSite = await databasePopulator.createSite(inactivePubCompany.user.userID);
+    let inactiveSection = await databasePopulator.createSection(inactivePubCompany.user.userID, [ inactiveSite.siteID ]);
+    let inactiveProposal = await databasePopulator.createProposal(inactivePubCompany.user.userID, [ inactiveSection.section.sectionID ]);
+    let inactiveNegotiation = await databasePopulator.createDealNegotiation(inactiveProposal.proposal.proposalID, buyerCompany.user.userID);
+    await databasePopulator.createSettledDeal(inactivePubCompany.user.userID, [ inactiveSection.section.sectionID ],
+                                                                                inactiveNegotiation.negotiationID,
+                                                                                { dspID: dsp.dspID });
 
-// }
+    // create active publisher company and its inventory
+    let activePubCompany = await databasePopulator.createCompany({ status: 'A' });
+    let activeSite = await databasePopulator.createSite(activePubCompany.user.userID);
+    let activeSection = await databasePopulator.createSection(activePubCompany.user.userID, [ activeSite.siteID ]);
+    let activeProposal = await databasePopulator.createProposal(activePubCompany.user.userID, [ activeSection.section.sectionID ]);
+    let activeNegotiation = await databasePopulator.createDealNegotiation(activeProposal.proposal.proposalID, buyerCompany.user.userID);
+    let activeSettledDeal = await databasePopulator.createSettledDeal(activePubCompany.user.userID, [ activeSection.section.sectionID ],
+                                                                                                        activeNegotiation.negotiationID, { dspID: dsp.dspID });
+
+    /** Test */
+    let response = await apiRequest.get(ROUTE, {}, buyer.user);
+    let expectedPayload = Helper.dealsActiveGetToPayload(activeSettledDeal, activeNegotiation, activeProposal, activePubCompany.user);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data, [ expectedPayload ]);
+
+}
 
  /*
  * @case    - Proposal got accepted and rtbDeals entry of active status is present

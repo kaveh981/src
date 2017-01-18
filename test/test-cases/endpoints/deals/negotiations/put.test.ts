@@ -8,6 +8,7 @@ import { Injector } from '../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../src/lib/request-manager';
 import { DatabasePopulator } from '../../../../src/lib/database-populator';
 import { DatabaseManager } from '../../../../src/lib/database-manager';
+import { Helper } from '../../../../src/lib/helper';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
@@ -29,28 +30,31 @@ async function commonDatabaseSetup() {
     await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
 }
 
-async function getOwnerStatus(proposalID: number, ownerID: number, partnerID: number): Promise<string> {
-
-    let row = await databaseManager.select('ownerStatus')
+/**
+ * Fetch a negotiation filed from database
+ */
+async function getNegotiatedFieldInDB(proposal: IProposal, partnerID: number, field: string): Promise<any> {
+    let row = await databaseManager.select(`ixmDealNegotiations.${field}`)
                 .from('ixmDealNegotiations')
                 .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
+                .where('ixmDealNegotiations.proposalID', proposal.proposalID)
                 .andWhere('partnerID', partnerID)
-                .andWhere('ownerID', ownerID);
-    return row[0].ownerStatus;
-
+                .andWhere('ownerID', proposal.ownerID);
+    return row[0][field];
 }
 
-async function getPartnerStatus(proposalID: number, ownerID: number, partnerID: number): Promise<string> {
+/**
+ * Fetch owner status from database
+ */
+async function getOwnerStatus(proposal: IProposal, partnerID: number): Promise<string> {
+    return await getNegotiatedFieldInDB(proposal, partnerID, 'ownerStatus');
+}
 
-    let row = await databaseManager.select('partnerStatus')
-                .from('ixmDealNegotiations')
-                .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                .where('ixmDealNegotiations.proposalID', proposalID)
-                .andWhere('partnerID', partnerID)
-                .andWhere('ownerID', ownerID);
-    return row[0].partnerStatus;
-
+/**
+ * Fetch partner status from database
+ */
+async function getPartnerStatus(proposal: IProposal, partnerID: number): Promise<string> {
+    return await getNegotiatedFieldInDB(proposal, partnerID, 'partnerStatus');
 }
 
 /** Generic Authentication Tests */
@@ -59,12 +63,12 @@ export let ATW_CO_PUT_AUTH = authenticationTest(route, 'put', commonDatabaseSetu
 /**
  * @case    - The user does not provide any negotiation fields or a response.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_GENERAL_01
+ * @label   - ATW_API_PUT_DEANEG_FUNC_01
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_01 (assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -87,12 +91,12 @@ export async function ATW_API_NEGOTIATION_GENERAL_01 (assert: test.Test) {
 /**
  * @case    - The user supplies a negotiation field along with the response field.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_GENERAL_02
+ * @label   - ATW_API_PUT_DEANEG_FUNC_02
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_GENERAL_02 (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_02 (assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -117,12 +121,12 @@ export async function ATW_API_NEGOTIATION_GENERAL_02 (assert: test.Test) {
 /**
  * @case    - The user does not supply a proposalID.
  * @expect  - The API responds with 400.
- * @label   - ATW_API_NEGOTIATION_PROPOSALID_01
+ * @label   - ATW_API_PUT_DEANEG_FUNC_01
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSALID_01 (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_03 (assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -155,7 +159,7 @@ export async function ATW_API_NEGOTIATION_PROPOSALID_01 (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_COMMON_PROPOSALID (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_04 (assert: test.Test) {
 
    /** Setup */
     assert.plan(8);
@@ -207,12 +211,12 @@ export async function ATW_API_COMMON_PROPOSALID (assert: test.Test) {
 /**
  * @case    - The user supplies invalid and valid partnerIDs.
  * @expect  - The API responds with 400s for invalid and not with 400s for valid partnerIDs.
- * @label   - ATW_API_NEGOTIATION_PARTNERID
+ * @label   - ATW_API_PUT_DEANEG_FUNC
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PARTNERID (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_05 (assert: test.Test) {
 
    /** Setup */
     assert.plan(8);
@@ -264,12 +268,12 @@ export async function ATW_API_NEGOTIATION_PARTNERID (assert: test.Test) {
 /**
  * @case    - The user supplies invalid and valid prices.
  * @expect  - The API responds with 400s for invalid and not with 400/500 for valid prices.
- * @label   - ATW_API_NEGOTIATION_PRICE
+ * @label   - ATW_API_PUT_DEANEG_FUNC
  * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PRICE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_06 (assert: test.Test) {
 
    /** Setup */
     assert.plan(10);
@@ -337,7 +341,7 @@ export async function ATW_API_NEGOTIATION_PRICE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_IMPRESSIONS (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_07 (assert: test.Test) {
 
    /** Setup */
     assert.plan(10);
@@ -404,7 +408,7 @@ export async function ATW_API_NEGOTIATION_IMPRESSIONS (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_08 (assert: test.Test) {
 
    /** Setup */
     assert.plan(10);
@@ -471,7 +475,7 @@ export async function ATW_API_NEGOTIATION_BUDGET (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_TERMS (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_09 (assert: test.Test) {
 
    /** Setup */
     assert.plan(9);
@@ -535,7 +539,7 @@ export async function ATW_API_NEGOTIATION_TERMS (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STARTDATE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_10 (assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -565,7 +569,7 @@ export async function ATW_API_NEGOTIATION_STARTDATE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_COMMON_STARTDATE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_11 (assert: test.Test) {
 
    /** Setup */
     assert.plan(9);
@@ -626,7 +630,7 @@ export async function ATW_API_COMMON_STARTDATE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_ENDDATE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_12 (assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -656,7 +660,7 @@ export async function ATW_API_NEGOTIATION_ENDDATE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_COMMON_ENDDATE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_13 (assert: test.Test) {
 
    /** Setup */
     assert.plan(9);
@@ -717,7 +721,7 @@ export async function ATW_API_COMMON_ENDDATE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_14 (assert: test.Test) {
 
    /** Setup */
     assert.plan(7);
@@ -764,7 +768,7 @@ export async function ATW_API_NEGOTIATION_RESPONSE (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_01_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_15(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -793,7 +797,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_01_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_01_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_16(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -825,7 +829,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_01_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_02_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_17(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -864,7 +868,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_02_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_18(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -910,7 +914,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_02_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_03_ (assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_19 (assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -943,7 +947,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_03_ (assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PUBLISHER_04(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_20(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -984,7 +988,7 @@ export async function ATW_API_NEGOTIATION_PUBLISHER_04(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_21(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -1011,13 +1015,13 @@ export async function ATW_API_NEGOTIATION_BUYER_01(assert: test.Test) {
 }
 
 /**
- * @case    - Buyer send a getotiation to an existing negotiation
+ * @case    - Buyer send a negotiation to an existing negotiation
  * @expect  - 200 OK, negotiated filed changes
  * @route   - PUT deals/active
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_22(assert: test.Test) {
 
    /** Setup */
     assert.plan(2);
@@ -1063,7 +1067,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_23(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1102,7 +1106,7 @@ export async function ATW_API_NEGOTIATION_BUYER_02_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_24(assert: test.Test) {
 
    /** Setup */
     assert.plan(3);
@@ -1146,7 +1150,7 @@ export async function ATW_API_NEGOTIATION_BUYER_04(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_25(assert: test.Test) {
 
    /** Setup */
     assert.plan(3);
@@ -1182,8 +1186,8 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
     };
     let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
 
-    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
-    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
+    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal, buyerCompany.user.userID);
+    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal, buyerCompany.user.userID);
 
     assert.equal(response.status, 403);
     assert.equal(actualOwnerStatus, 'rejected');
@@ -1197,7 +1201,7 @@ export async function ATW_API_NEGOTIATION_STATE_01_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_26(assert: test.Test) {
 
    /** Setup */
     assert.plan(3);
@@ -1240,8 +1244,8 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
     };
     let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
 
-    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
-    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal.proposalID, pubCompany.user.userID, buyerCompany.user.userID);
+    let actualOwnerStatus = await getOwnerStatus(proposalObj.proposal, buyerCompany.user.userID);
+    let actualPartnerStatus = await getPartnerStatus(proposalObj.proposal, buyerCompany.user.userID);
 
     assert.equal(response.status, 403);
     assert.equal(actualOwnerStatus, 'accepted');
@@ -1255,7 +1259,7 @@ export async function ATW_API_NEGOTIATION_STATE_02_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_27(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1301,7 +1305,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_28(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1346,7 +1350,7 @@ export async function ATW_API_NEGOTIATION_STATE_03_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_29(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1377,7 +1381,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_30(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1408,7 +1412,7 @@ export async function ATW_API_NEGOTIATION_STATE_04_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_31(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1437,7 +1441,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_32(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1466,7 +1470,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_33(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1493,7 +1497,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_02_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_34(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1524,7 +1528,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_03(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_35(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1555,7 +1559,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_01(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_36(assert: test.Test) {
 
    /** Setup */
     assert.plan(1);
@@ -1586,7 +1590,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_37(assert: test.Test) {
 
    /** Setup */
     assert.plan(3);
@@ -1628,7 +1632,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_03(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
-export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_38(assert: test.Test) {
 
    /** Setup */
     assert.plan(4);
@@ -1679,7 +1683,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
- export async function ATW_API_NEGOTIATION_PROPOSAL_04_05(assert: test.Test) {
+ export async function ATW_API_PUT_DEANEG_FUNC_39(assert: test.Test) {
 
     /** Setup */
      assert.plan(1);
@@ -1712,7 +1716,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotiations, deals, reject
  */
- export async function ATW_API_NEGOTIATION_PROPOSAL_04_06(assert: test.Test) {
+ export async function ATW_API_PUT_DEANEG_FUNC_40(assert: test.Test) {
 
     /** Setup */
      assert.plan(1);
@@ -1745,7 +1749,7 @@ export async function ATW_API_NEGOTIATION_PROPOSAL_04_04(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotations, proposal, targeting
  */
-export async function ATW_API_NEGOTIATION_TARGETED_05_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_05_01(assert: test.Test) {
 
     assert.plan(2);
 
@@ -1782,7 +1786,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_01(assert: test.Test) {
  * @tags    - put, negotations, proposal, targeting
  */
 
-export async function ATW_API_NEGOTIATION_TARGETED_05_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_41(assert: test.Test) {
 
     assert.plan(2);
 
@@ -1817,7 +1821,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_02(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotations, proposal, targeting
  */
-export async function ATW_API_NEGOTIATION_TARGETED_05_03(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_42(assert: test.Test) {
 
     assert.plan(1);
 
@@ -1851,7 +1855,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_03(assert: test.Test) {
  * @status  - working
  * @tags    - put, negotations, proposal, targeting
  */
-export async function ATW_API_NEGOTIATION_TARGETED_05_04(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_43(assert: test.Test) {
 
     assert.plan(1);
 
@@ -1885,7 +1889,7 @@ export async function ATW_API_NEGOTIATION_TARGETED_05_04(assert: test.Test) {
  * @status  - 
  * @tags    - put, negotations, accepting
  */
-export async function ATW_API_ACCEPT_NEGOTIATION_01(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_44(assert: test.Test) {
 
     assert.plan(1);
 
@@ -1919,7 +1923,7 @@ export async function ATW_API_ACCEPT_NEGOTIATION_01(assert: test.Test) {
  * @status  - 
  * @tags    - put, negotations, accepting
  */
-export async function ATW_API_ACCEPT_NEGOTIATION_02(assert: test.Test) {
+export async function ATW_API_PUT_DEANEG_FUNC_45(assert: test.Test) {
 
     assert.plan(1);
 
@@ -1942,4 +1946,209 @@ export async function ATW_API_ACCEPT_NEGOTIATION_02(assert: test.Test) {
 
     assert.equal(response.status, 200);
 
+}
+
+/**
+ * @case    - Pub user negotiate on a negotiation between partner and another pub user in its company
+ * @expect  - 200 OK, negotiated field changes
+ * @route   - PUT deals/negotiations
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(4);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let anotherPublisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                             { status: 'active' }, [], publisher.user.userID);
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    /** Test */
+    let pubRequestBody = {
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyerCompany.user.userID,
+            terms: 'no you are a duck'
+    };
+    let response = await apiRequest.put(route, pubRequestBody, anotherPublisher.user);
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data[0].terms, 'no you are a duck');
+    assert.equal(termsInDB, 'no you are a duck');
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
+}
+
+/**
+ * @case    - Buyer user negotiate on a negotiation between partner and another buyer user in its company
+ * @expect  - 200 OK, negotiated filed changes
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_47(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(4);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let anotherBuyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody1 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+   /** Test */
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'honk honk honk'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody2, anotherBuyer.user);
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(termsInDB, 'honk honk honk');
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
+}
+
+/**
+ * @case    - Pub user negotiate on a negotiation between partner and another pub user in its company
+ * @expect  - 200 OK, negotiated field changes
+ * @route   - PUT deals/negotiations
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(4);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let anotherPublisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let internalUser = await databasePopulator.createInternalUser();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                             { status: 'active' }, [], publisher.user.userID);
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    /** Test */
+    let pubRequestBody = {
+            proposal_id: proposalObj.proposal.proposalID,
+            partner_id: buyerCompany.user.userID,
+            terms: 'no you are a duck'
+    };
+
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    let response = await apiRequest.put(route, pubRequestBody, {
+        userID: anotherPublisher.user.userID,
+        accessToken: accessToken
+    });
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data[0].terms, 'no you are a duck');
+    assert.equal(termsInDB, 'no you are a duck');
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(buyer.user));
+}
+
+/**
+ * @case    - Internal user impersonate impersonates a buyer to negotiate on a negotiation started by 
+ *            another buyer in its company
+ * @expect  - 200 OK, negotiated filed changes
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(4);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let anotherBuyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let internalUser = await databasePopulator.createInternalUser();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody1 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody1, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+   /** Test */
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'honk honk honk'
+    };
+
+    let authResponse = await apiRequest.getAuthToken(internalUser.emailAddress, internalUser.password);
+    let accessToken = authResponse.body.data.accessToken;
+
+    let response = await apiRequest.put(route, buyerRequestBody2, {
+        userID: anotherBuyer.user.userID,
+        accessToken: accessToken
+    });
+    let termsInDB = await getNegotiatedFieldInDB(proposalObj.proposal, buyerCompany.user.userID, 'terms');
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data[0].terms, 'honk honk honk');
+    assert.equal(termsInDB, 'honk honk honk');
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
 }

@@ -335,7 +335,7 @@ export async function ATW_API_GET_DAPP_FUNC_08 (assert: test.Test) {
 
 /*
  * @case    - Proposal is active and targets everyone, negotiation exists for user, active settled deal exists, partner exist and is not active
- * @expect  - 403 forbidden
+ * @expect  - Settled Deal is returned with partner info "status": "INACTIVE_USER"
  * @route   - GET deals/active/:proposalID/partner/:partnerID
  * @status  - passing
  * @tags    - 

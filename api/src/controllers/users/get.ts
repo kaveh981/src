@@ -3,14 +3,14 @@
 import * as express from 'express';
 
 import { Injector } from '../../lib/injector';
-import { UserManager } from '../../models/user/user-manager';
+import { MarketUserManager } from '../../models/market-user/market-user-manager';
 import { RamlTypeValidator } from '../../lib/raml-type-validator';
 import { HTTPError } from '../../lib/http-error';
 import { Permission } from '../../middleware/permission';
 
 import { PaginationModel } from '../../models/pagination/pagination-model';
 
-const userManager = Injector.request<UserManager>('UserManager');
+const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 
 /**
@@ -41,9 +41,9 @@ function Users(router: express.Router): void {
 
         /** Route logic */
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
-        let users = await userManager.fetchActiveUsers(pagination, req.query);
+        let users = await marketUserManager.fetchActiveMarketUsers(pagination, req.query);
 
-        res.sendPayload(users.map((user) => { return user.toPayload(); }), pagination.toPayload());
+        res.sendPayload(users.map((user) => { return user.contact.toPayload(); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -53,13 +53,13 @@ function Users(router: express.Router): void {
     router.get('/:id', async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let userID = req.params['id'];
-        let user = await userManager.fetchUserFromId(userID);
+        let user = await marketUserManager.fetchMarketUserFromId(userID);
 
-        if (!user.isActive()) {
+        if (!user || !user.isActive()) {
             throw HTTPError('404');
         }
 
-        res.sendPayload(user.toContactPayload());
+        res.sendPayload(user.contact.toPayload());
 
     } catch (error) { next(error); } });
 
