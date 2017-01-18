@@ -143,7 +143,7 @@ class DealSectionManager {
      * @param proposalID - The id of the proposed deal.
      * @returns An array of section ids;
      */
-    public async fetchSectionsFromProposalId(proposalID: number) {
+    public async fetchActiveSectionsFromProposalId(proposalID: number) {
 
         return await this.fetchDealSections(null,
             (db) => {
