@@ -43,7 +43,7 @@ function Users(router: express.Router): void {
         let pagination = new PaginationModel({ page: req.query.page, limit: req.query.limit }, req);
         let users = await marketUserManager.fetchActiveMarketUsers(pagination, req.query);
 
-        res.sendPayload(users.map((user) => { return user.contact.toPayload(); }), pagination.toPayload());
+        res.sendPayload(users.map((user) => { return user.toInternalPayload(); }), pagination.toPayload());
 
     } catch (error) { next(error); } });
 
@@ -59,7 +59,7 @@ function Users(router: express.Router): void {
             throw HTTPError('404');
         }
 
-        res.sendPayload(user.contact.toPayload());
+        res.sendPayload(user.toInternalPayload());
 
     } catch (error) { next(error); } });
 

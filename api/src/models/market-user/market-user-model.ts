@@ -38,6 +38,13 @@ class MarketUserModel {
         return this.company.id === this.contact.id;
     }
 
+    /** 
+     * Returns extra information about the user.
+     */
+    public toInternalPayload() {
+        return Object.assign({ company_id: this.company.id }, this.contact.toPayload('user_id'));
+    }
+
     /**
      * Returns contact information payload based on the status of the contact user.
      */
