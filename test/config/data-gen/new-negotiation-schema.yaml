@@ -24,7 +24,7 @@
             }
         },
         "ownerStatus": "active",
-        "partnerStatus": "active",
+        "partnerStatus": "accepted",
         "partnerContactID": 1,
         "createDate": {
             "faker": "date.past"
