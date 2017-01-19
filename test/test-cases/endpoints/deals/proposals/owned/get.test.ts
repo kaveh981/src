@@ -39,7 +39,7 @@ async function createProposal(data: ICreateEntityData) {
 
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 
-    return Helper.proposalToPayload(proposal, pubCompany.user);
+    return (await Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
@@ -90,8 +90,8 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_01 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, pubCompany.user),
-                                               Helper.proposalToPayload(targetedProposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, pubCompany.user),
+                                               await Helper.proposalToPayload(targetedProposal, pubCompany.user) ]);
 
 }
 
@@ -126,8 +126,8 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_02 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, buyerCompany.user),
-                                               Helper.proposalToPayload(targetedProposal, buyerCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, buyerCompany.user),
+                                               await Helper.proposalToPayload(targetedProposal, buyerCompany.user) ]);
 
 }
 
@@ -162,7 +162,7 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_03 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, pubCompany.user) ]);
 
 }
 
@@ -197,7 +197,7 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_04 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, buyerCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, buyerCompany.user) ]);
 
 }
 
@@ -232,8 +232,8 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_05 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, pubCompany.user),
-                                               Helper.proposalToPayload(targetedProposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, pubCompany.user),
+                                               await Helper.proposalToPayload(targetedProposal, pubCompany.user) ]);
 
 }
 
@@ -268,8 +268,8 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_06 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyerCompany.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, buyerCompany.user),
-                                               Helper.proposalToPayload(targetedProposal, buyerCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, buyerCompany.user),
+                                               await Helper.proposalToPayload(targetedProposal, buyerCompany.user) ]);
 
 }
 
@@ -305,7 +305,7 @@ export async function ATW_API_GET_DEAPROOUT_FUNC_07 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user);
 
     assert.equals(response.status, 200);
-    assert.deepEquals(response.body['data'], [ Helper.proposalToPayload(openProposal, pubCompany.user),
-                                               Helper.proposalToPayload(expiredProposal, pubCompany.user) ]);
+    assert.deepEquals(response.body['data'], [ await Helper.proposalToPayload(openProposal, pubCompany.user),
+                                               await Helper.proposalToPayload(expiredProposal, pubCompany.user) ]);
 
 }

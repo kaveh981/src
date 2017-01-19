@@ -166,7 +166,7 @@ class ProposedDealModel {
                 terms: this.terms,
                 created_at: this.createDate.toISOString(),
                 modified_at: this.modifyDate.toISOString(),
-                inventory: this.sections.map((section) => { return section.toSubPayload(); })
+                inventory: this.sections.map((section) => { return section.toPayload(); })
             };
         }
 

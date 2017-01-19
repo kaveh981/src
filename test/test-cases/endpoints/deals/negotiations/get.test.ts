@@ -59,7 +59,7 @@ async function createDealNegotiation (data: ICreateEntityData) {
    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, data.buyerCompany.user.userID,
                                                                         { ownerStatus: 'accepted' , partnerStatus : 'active' });
 
-    return Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.pubCompany.user, data.pubCompany.user);
+    return (await Helper.dealNegotiationToPayload(dealNegotiation, proposal, data.pubCompany.user, data.pubCompany.user));
 
 }
 
@@ -183,7 +183,7 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200, "Response 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
                      "1 DN Returned");
 }
 
@@ -213,7 +213,7 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
                      "1 DN Returned");
 }
 
@@ -364,8 +364,8 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, pubCompany.user, buyerCompany1.user),
-                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal, pubCompany.user, buyerCompany2.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation1, proposal, pubCompany.user, buyerCompany1.user),
+                                             await Helper.dealNegotiationToPayload(dealNegotiation2, proposal, pubCompany.user, buyerCompany2.user) ],
                      "DN1 and DN2 returned");
 }
 
@@ -402,7 +402,7 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
      let response = await apiRequest.get(route, {}, buyer1.user);
 
      assert.equals(response.status, 200, "Response 200");
-     assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal, pubCompany.user, pubCompany.user) ],
+     assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation1, proposal, pubCompany.user, pubCompany.user) ],
                       "1 DN for buyer1 returned returned");
 
 }
@@ -439,8 +439,8 @@ export async function ATW_DN_GET_12 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, pubCompany.user, pubCompany.user),
-                                             Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation1, proposal1, pubCompany.user, pubCompany.user),
+                                             await Helper.dealNegotiationToPayload(dealNegotiation2, proposal2, pubCompany.user, pubCompany.user) ],
                      "DN1 and DN2 returned");
 
 }
@@ -585,7 +585,8 @@ export async function ATW_DN_GET_17(assert: test.Test) {
     let response = await apiRequest.get(route, {}, publisher.user);
 
     assert.equals(response.status, 200, "Response ok");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ], "DN returned");
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
+                                                "DN returned");
 
 }
 
@@ -734,7 +735,7 @@ export async function ATW_DN_GET_22 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyerCompany.user);
 
     assert.equal(response.status, 200, "Response 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
                      "1 DN Returned");
 }
 
@@ -764,7 +765,7 @@ export async function ATW_DN_GET_23 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
                      "1 DN Returned");
 }
 
@@ -808,7 +809,7 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
     });
 
     assert.equal(response.status, 200, "Response 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
                      "Correct DN Returned");
 }
 
@@ -854,6 +855,6 @@ export async function ATW_DN_GET_25 (assert: test.Test) {
     });
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.deepEqual(response.body['data'], [ Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
                      "Correct DN Returned");
 }

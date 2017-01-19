@@ -81,7 +81,7 @@ async function createSettledDeal (data: ICreateEntityData) {
     let settledDeal = await databasePopulator.createSettledDeal(
                         data.pubCompany.user.userID, [ data.section.section.sectionID ], negotiation.negotiationID);
 
-    return Helper.dealsActiveGetToPayload(settledDeal, negotiation, data.proposal, buyerCompany.user);
+    return (await Helper.dealsActiveGetToPayload(settledDeal, negotiation, data.proposal, buyerCompany.user));
 
 }
 
@@ -142,7 +142,7 @@ export async function ATW_API_GET_DAP_FUNC_01 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
 }
 
@@ -289,7 +289,7 @@ export async function ATW_API_GET_DAP_FUNC_06 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
     let response2 = await apiRequest.get(ROUTE + '/' + proposal.proposal.proposalID, {}, buyer2.user);
 
@@ -326,7 +326,7 @@ export async function ATW_API_GET_DAP_FUNC_07 (assert: test.Test) {
     let response = await apiRequest.get(ROUTE + '/' + proposal.proposal.proposalID, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
     let response2 = await apiRequest.get(ROUTE + '/' + proposal.proposal.proposalID, {}, buyer2.user);
 

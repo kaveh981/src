@@ -103,7 +103,7 @@ export async function ATW_API_GET_DAPP_FUNC_01 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
 }
 
@@ -256,7 +256,7 @@ export async function ATW_API_GET_DAPP_FUNC_06 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
     let response2 = await apiRequest.get(route, {}, buyer2.user);
 
@@ -294,7 +294,7 @@ export async function ATW_API_GET_DAPP_FUNC_07 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
     let response2 = await apiRequest.get(route, {}, buyer2.user);
 
@@ -361,6 +361,6 @@ export async function ATW_API_GET_DAPP_FUNC_09 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(response.body.data, [ Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
+    assert.deepEqual(response.body.data, [ await Helper.dealsActiveGetToPayload(settledDeal, negotiation, proposal, pubCompany.user) ]);
 
 }
