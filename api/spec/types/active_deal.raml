@@ -41,10 +41,10 @@ properties:
         displayName: Impressions
         description: The projected amount of impressions for the package
     inventory:
-        type: integer[] # TODO will be full objects
+        type: Section[]
         required: true
-        displayName: Inventory Section Id(s)
-        description: An array of Inventory Section IDs, indicating which sections will be active in this deal.
+        displayName: Inventory Sections
+        description: An array of Inventory Section, indicating which sections will be active in this deal.
     modified_at:
         type: datetime
         required: true
