@@ -76,7 +76,7 @@ class Helper {
      * @returns The expected payload for that proposal.
      */
     public static async proposalToPayload(proposal: INewProposalData, contact?: INewUserData) {
-        let requestUser = (await databasePopulator.createCompany()).user;
+        let requestUser = await databasePopulator.createInternalUser();
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
@@ -152,7 +152,7 @@ class Helper {
      */
     public static async dealsActiveGetToPayload (settledDeal: ISettledDealData, dealNegotiation: IDealNegotiationData,
                                         proposal: INewProposalData, partner: INewUserData) {
-        let requestUser = (await databasePopulator.createCompany()).user;
+        let requestUser = await databasePopulator.createInternalUser();
         return {
             proposal: {
                 proposal_id: proposal.proposal.proposalID,
@@ -186,7 +186,7 @@ class Helper {
     public static async dealsActivePutToPayload(proposal: INewProposalData,
         owner: INewUserData, buyerCompany: INewCompanyData, modifiedDate: Date, createDate: Date) {
 
-        let requestUser = (await databasePopulator.createCompany()).user;
+        let requestUser = await databasePopulator.createInternalUser();
         return {
             proposal: {
                 proposal_id: proposal.proposal.proposalID,
