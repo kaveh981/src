@@ -57,21 +57,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public fatal(error: Error | Partial<IMessage>, id?: string): IMessage {
-
-        let logMessage: IMessage;
-
-        if (error instanceof Error) {
-            logMessage = this.createMessage(5, {
-                message: error.message,
-                error_stack: error.stack,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(5, error);
-        }
-
-        return this.log(logMessage);
-
+        return this.log(this.craftLogMessage(error, 5, id));
     }
 
     /**
@@ -80,21 +66,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public error(error: Error | Partial<IMessage>, id?: string): IMessage {
-
-        let logMessage: IMessage;
-
-        if (error instanceof Error) {
-            logMessage = this.createMessage(4, {
-                message: error.message,
-                error_stack: error.stack,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(4, error);
-        }
-
-        return this.log(logMessage);
-
+        return this.log(this.craftLogMessage(error, 4, id));
     }
 
     /**
@@ -141,13 +113,19 @@ class Logger {
      * @param id - The request id.
      * @return A craft log message.
      */
-    private craftLogMessage(msg: string | Partial<IMessage>, severity: number, id?: string) {
+    private craftLogMessage(msg: string | Partial<IMessage> | Error, severity: number, id?: string) {
 
         let logMessage: IMessage;
 
         if (typeof msg === 'string') {
             logMessage = this.createMessage(severity, {
                 log: msg,
+                req_id: id
+            });
+        } else if (msg instanceof Error) {
+            logMessage = this.createMessage(severity, {
+                message: msg.message,
+                error_stack: msg.stack,
                 req_id: id
             });
         } else {
