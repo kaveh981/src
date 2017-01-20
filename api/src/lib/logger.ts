@@ -103,20 +103,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public warn(msg: string | Partial<IMessage>, id?: string): IMessage {
-
-        let logMessage: IMessage;
-
-        if (typeof msg === 'string') {
-            logMessage = this.createMessage(3, {
-                log: msg,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(3, msg);
-        }
-
-        return this.log(logMessage);
-
+        return this.log(this.craftLogMessage(msg, 3, id));
     }
 
     /**
@@ -125,20 +112,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public info(msg: string | Partial<IMessage>, id?: string): IMessage {
-
-        let logMessage: IMessage;
-
-        if (typeof msg === 'string') {
-            logMessage = this.createMessage(2, {
-                log: msg,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(2, msg);
-        }
-
-        return this.log(logMessage);
-
+        return this.log(this.craftLogMessage(msg, 2, id));
     }
 
     /**
@@ -147,20 +121,7 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public debug(msg: string | Partial<IMessage>, id?: string): IMessage {
-
-        let logMessage: IMessage;
-
-        if (typeof msg === 'string') {
-            logMessage = this.createMessage(1, {
-                log: msg,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(1, msg);
-        }
-
-        return this.log(logMessage);
-
+        return this.log(this.craftLogMessage(msg, 1, id));
     }
 
     /**
@@ -170,19 +131,30 @@ class Logger {
      * @returns The JSON formatted message which was written to a file.
      */
     public trace(msg: string | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(msg, 0, id));
+    }
+
+    /**
+     * Craft a log message for non-errors.
+     * @param msg - The message to handle.
+     * @param severity - The severity of the message.
+     * @param id - The request id.
+     * @return A craft log message.
+     */
+    private craftLogMessage(msg: string | Partial<IMessage>, severity: number, id?: string) {
 
         let logMessage: IMessage;
 
         if (typeof msg === 'string') {
-            logMessage = this.createMessage(0, {
+            logMessage = this.createMessage(severity, {
                 log: msg,
                 req_id: id
             });
         } else {
-            logMessage = this.createMessage(0, msg);
+            logMessage = this.createMessage(severity, msg);
         }
 
-        return this.log(logMessage);
+        return logMessage;
 
     }
 

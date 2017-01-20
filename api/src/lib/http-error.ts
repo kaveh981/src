@@ -1,3 +1,4 @@
+/* tslint:disable */
 'use strict';
 
 /** HTTP Error Class */
