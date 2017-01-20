@@ -46,6 +46,8 @@ function augmentResponse(res: express.Response): void {
 
         Log.trace(`(${res.id}) Responding with message \n${Log.stringify(message)}`);
 
+        res.errorMessage = message.message;
+
         let msg = JSON.stringify(message);
 
         res.set({

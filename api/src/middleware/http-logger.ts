@@ -12,16 +12,25 @@ const Log: Logger = new Logger('HTTP');
  */
 function HttpLogger(req: express.Request, res: express.Response, next: Function): void {
 
-    let id = Helper.generateId(5);
+    let id = Helper.generateId(8);
     req.id = id;
     res.id = id;
 
     // Log at the end to get the correct status code.
     res.on('finish', () => {
-        let msg = `${req.ip} - ${req.method} ${req.url} - ${res.statusCode} - ` +
-                  `${req.get('User-Agent')} - ${Log.stringify(req.body)}`;
 
-        Log.trace(msg, req.id);
+        Log.info({
+            req_ip: req.ip,
+            req_id: req.id,
+            req_method: req.method,
+            req_url: req.originalUrl,
+            res_status: res.statusCode,
+            res_error_message: res.errorMessage,
+            ixm_id: req.tokenUserID && req.tokenUserID.toString(),
+            ixm_market_id: req.ixmUserInfo && req.ixmUserInfo.contact.id,
+            message: `HTTP Request at ${req.originalUrl} with ${req.method}.`
+        });
+
     });
 
     next();

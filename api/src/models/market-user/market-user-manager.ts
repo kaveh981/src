@@ -94,7 +94,7 @@ class MarketUserManager {
                                              });
 
         if (pagination) {
-            query.limit(pagination.limit).offset(pagination.getOffset());
+            query.limit(pagination.limit + 1).offset(pagination.getOffset());
         }
 
         let rows = await query;

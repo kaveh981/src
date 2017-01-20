@@ -6,31 +6,30 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as chalk from 'chalk';
 
-import { Injector } from './injector';
-import { ConfigLoader } from './config-loader';
-
-/** Configuration from ./config/logger.json */
-let loggerConfig: any;
-
-/** The list of write streams, these must be accessible to all loggers. */
-let writeStreams: fs.WriteStream[];
-
 /**
  * Standardized message interface to log to file.
  */
 interface IMessage {
-    /** The ISO date that the message was created at. */
-    DATE: string;
-    /** The log level of the message. */
-    LEVEL: number;
-    /** The string of the log level name. */
-    LOG_LEVEL: string;
-    /** A label to log all of the messages with. */
-    LABEL: string;
-    /** The name of the component that logged the message. */
-    ORIGIN: string;
-    /** The message that was logged. */
-    MESSAGE: string;
+    timestamp: string; // ISO8601 standard date for when this message was logged, in UTC.
+    level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'; // A human readable representation of the message severity.
+    level_num: number; // An integer representing the message severity.
+    origin: string; // The module in the program that is logging the message. This should be 4 upper-case letters.
+
+    log?: string; // A complete message to log.
+    message?: string; // A short string identifying the event being logged.
+
+    req_ip?: string; // The ip of the request.
+    req_method?: string;
+    req_url?: string;
+    req_id?: string; // The id of the request.
+
+    res_status?: number; // The numerical status code returned in the response.
+    res_error_message?: string; // The error message returned in the response.
+
+    ixm_id?: string; // The user ID of the user in the token.
+    ixm_market_id?: any; // A JSON object containing information about the market user using the system.
+
+    error_stack?: string; // The trace of the error
 };
 
 /**
@@ -38,14 +37,17 @@ interface IMessage {
  */
 class Logger {
 
+    private static writeStreams: fs.WriteStream[] = [];
+    private static loggerConfig: any;
+
     /** Logger name to use as origin */
     private name: string;
 
     /**
      * Create a new logger object to log with.
-     * @param [name='CNSL'] - The name of the logger, should be 4 upper case letters. 
+     * @param name - The name of the logger, should be 4 upper case letters. 
      */
-    constructor (name: string = 'CNSL') {
+    constructor (name: string = 'NONE') {
         this.name = name;
     }
 
@@ -54,34 +56,17 @@ class Logger {
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public fatal(err: string | Error, id?: string): IMessage {
-
-        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 5);
-
-        if (typeof err !== 'string') {
-            this.log(err.stack, 0);
-        }
-
-        return errorMessage;
-
+    public fatal(error: Error | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(error, 5, id));
     }
 
     /**
-     * Log an error, along with the trace if an error object is passed. These errors do not kill the program, but prevent
-     * an operation from completing.
+     * Log an error, along with the trace if an error object is passed.
      * @param err - A string with the error message, or an error object.
      * @returns The JSON formatted message which was written to a file.
      */
-    public error(err: string | Error, id?: string): IMessage {
-
-        let errorMessage = this.log((id ? `(${id}) ` : '') + err.toString(), 4);
-
-        if (typeof err !== 'string') {
-            this.log(err.stack, 0);
-        }
-
-        return errorMessage;
-
+    public error(error: Error | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(error, 4, id));
     }
 
     /**
@@ -89,8 +74,8 @@ class Logger {
      * @param text - A string with the warning message.
      * @returns The JSON formatted message which was written to a file.
      */
-    public warn(text: string, id?: string): IMessage {
-        return this.log((id ? `(${id}) ` : '') + text, 3);
+    public warn(msg: string | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(msg, 3, id));
     }
 
     /**
@@ -98,8 +83,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public info(text: string, id?: string): IMessage {
-        return this.log((id ? `(${id}) ` : '') + text, 2);
+    public info(msg: string | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(msg, 2, id));
     }
 
     /**
@@ -107,8 +92,8 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public debug(text: string, id?: string): IMessage {
-        return this.log((id ? `(${id}) ` : '') + text, 1);
+    public debug(msg: string | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(msg, 1, id));
     }
 
     /**
@@ -117,49 +102,63 @@ class Logger {
      * @param text - A string with information to log.
      * @returns The JSON formatted message which was written to a file.
      */
-    public trace(text: string, id?: string): IMessage {
-        return this.log((id ? `(${id}) ` : '') + text, 0);
+    public trace(msg: string | Partial<IMessage>, id?: string): IMessage {
+        return this.log(this.craftLogMessage(msg, 0, id));
     }
 
-    /** 
-     * Craft an IMessage object with the given text and log level, and pass it to {@link Logger#outputLog}.
-     * @param text - Text to used to craft the message.
-     * @param [level=2] - Log level to craft message with.
-     * @returns The JSON formatted message which was written to a file.
+    /**
+     * Craft a log message for non-errors.
+     * @param msg - The message to handle.
+     * @param severity - The severity of the message.
+     * @param id - The request id.
+     * @return A craft log message.
      */
-    public log(text: string, level: number = 2): IMessage {
+    private craftLogMessage(msg: string | Partial<IMessage> | Error, severity: number, id?: string) {
 
-        // We only need to configure the logger once we log, this prevents annoying dependencies.
-        if (!loggerConfig) {
-            this.configureLoggers();
+        let logMessage: IMessage;
+
+        if (typeof msg === 'string') {
+            logMessage = this.createMessage(severity, {
+                log: msg,
+                req_id: id
+            });
+        } else if (msg instanceof Error) {
+            logMessage = this.createMessage(severity, {
+                message: msg.message,
+                error_stack: msg.stack,
+                req_id: id
+            });
+        } else {
+            logMessage = this.createMessage(severity, msg);
         }
 
-        let message: IMessage = this.createMessage(this.name, level, text);
-        this.outputLog(message);
-
-        return message;
+        return logMessage;
 
     }
 
     /**
-     * Writes the message to the console if it is greater than the configured consoleLevel, also write to file.
-     * @param message - The JSON message to display, and write to configured files.
+     * Display and write the message to a file.
+     * @param message - The message to write.
+     * @returns The same message.
      */
-    private outputLog(message: IMessage): void {
+    private log(message: IMessage): IMessage {
 
-        let displayMessage = message.LEVEL >= this.getConsoleLevel(message.ORIGIN);
-        let writeMessage = message.LEVEL >= this.getFilewriteLevel(message.ORIGIN);
+        let displayMessage = message.level_num >= this.getConsoleLevel(message.origin);
+        let writeMessage = message.level_num >= this.getFilewriteLevel(message.origin);
 
         if (displayMessage) {
-            let msg = `(${this.name}) ${message.DATE.split('T').shift()} [${(message.LOG_LEVEL + ' ').substr(0, 5)}]: ${message.MESSAGE}`;
-            let color = loggerConfig['levelMetadata'][message.LEVEL].color;
+            let color = Logger.loggerConfig['levelMetadata'][message.level_num].color;
+            let msg = `(${this.name}) ${message.timestamp.split('T').shift()} [${(message.level + ' ').substr(0, 5).toUpperCase()}]: `
+                    + `${message.error_stack || message.log || message.message}`;
 
             console.log(chalk[color](msg));
         }
 
         if (writeMessage) {
-            writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+            Logger.writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
         }
+
+        return message;
 
     }
 
@@ -170,18 +169,18 @@ class Logger {
      * @param message - The actual message.
      * @returns The JSON formatted message.
      */
-    private createMessage(origin: string, logLevel: number, message: string): IMessage {
+    private createMessage(logLevel: number, data: Partial<IMessage>): IMessage {
 
-        let date: Date = new Date();
-
-        return {
-            DATE: date.toISOString(),
-            LEVEL: logLevel,
-            LOG_LEVEL: loggerConfig['levelMetadata'][logLevel].name,
-            LABEL: loggerConfig['label'],
-            ORIGIN: origin,
-            MESSAGE: message
+        let logMessage: IMessage = {
+            timestamp: (new Date()).toISOString(),
+            level_num: logLevel,
+            level: Logger.loggerConfig['levelMetadata'][logLevel].name,
+            origin: this.name
         };
+
+        logMessage = Object.assign(logMessage, data);
+
+        return logMessage;
 
     }
 
@@ -192,11 +191,11 @@ class Logger {
      */
     public getFilewriteLevel(origin: string) {
 
-        let filewriteLevel = loggerConfig['filewriteLevel'];
+        let filewriteLevel = Logger.loggerConfig['filewriteLevel'];
 
-        for (let key in loggerConfig['sourceOverrides']) {
+        for (let key in Logger.loggerConfig['sourceOverrides']) {
             if (origin.match(key)) {
-                let filewriteOverride = loggerConfig['sourceOverrides'][key]['filewriteLevel'];
+                let filewriteOverride = Logger.loggerConfig['sourceOverrides'][key]['filewriteLevel'];
 
                 if (typeof filewriteOverride === 'number') {
                     filewriteLevel = filewriteOverride;
@@ -217,11 +216,11 @@ class Logger {
      */
     public getConsoleLevel(origin: string) {
 
-        let consoleLevel = loggerConfig['consoleLevel'];
+        let consoleLevel = Logger.loggerConfig['consoleLevel'];
 
-        for (let key in loggerConfig['sourceOverrides']) {
+        for (let key in Logger.loggerConfig['sourceOverrides']) {
             if (origin.match(key)) {
-                let consoleOverride = loggerConfig['sourceOverrides'][key]['consoleLevel'];
+                let consoleOverride = Logger.loggerConfig['sourceOverrides'][key]['consoleLevel'];
 
                 if (typeof consoleOverride === 'number') {
                     consoleLevel = consoleOverride;
@@ -246,12 +245,13 @@ class Logger {
 
     /**
      * Set up configuration for all the loggers.
+     * @param config - The logger configuration.
      */
-    private configureLoggers(): void {
+    public static configureLoggers(config: any): void {
 
-        loggerConfig = Injector.request<ConfigLoader>('ConfigLoader').get('logger');
+        Logger.loggerConfig = config;
 
-        writeStreams = loggerConfig['outputFiles'].map((file: string) => {
+        Logger.writeStreams = config.outputFiles.map((file: string) => {
             let logFile = path.resolve(__dirname, file);
             let logFolder = path.dirname(logFile);
 

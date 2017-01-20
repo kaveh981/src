@@ -36,16 +36,18 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
     }
 
     if (typeof userToken.userID !== 'number' || typeof userToken.userID !== 'number') {
-        Log.error('Generated token was invalid, either SH Auth has created an invalid token, or token generation has been compromised.');
+        Log.error(new Error('Generated token was invalid, either SH Auth has created an invalid token, or token generation has been compromised.'));
         throw HTTPError('401');
     }
 
     let requestUser = await userManager.fetchUserFromId(userToken.userID);
 
     if (!requestUser) {
-        Log.error('Token generation has been compromised.');
+        Log.error(new Error('Token generation has been compromised.'));
         throw HTTPError('401');
     }
+
+    req.tokenUserID = userToken.userID;
 
     // Internal users can impersonate anyone.
     if (requestUser.internal && userID) {

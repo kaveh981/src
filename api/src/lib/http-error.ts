@@ -1,4 +1,11 @@
+/* tslint:disable */
 'use strict';
+
+/** HTTP Error Class */
+class yeah extends Error {
+    public name: string;
+    public details: any[];
+}
 
 /**
  * Craft an error to throw in a route.
@@ -6,16 +13,15 @@
  * @param details - The details of the error.
  * @returns A crafted error object for consumption by error-handler.
  */
-function HTTPError(message: string, details?: any) {
+function HTTPError(message: string, details?: any[]) {
 
-    let error = new Error();
+    let error = new yeah();
 
-    error['name'] = message;
-    error['crafted'] = true;
-    error['details'] = details;
+    error.name = message;
+    error.details = details;
 
     return error;
 
 }
 
-export { HTTPError };
+export { HTTPError, yeah };
