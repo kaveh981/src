@@ -11,12 +11,12 @@ import { Permission } from '../../../middleware/permission';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { NegotiatedDealManager } from '../../../models/deals/negotiated-deal/negotiated-deal-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
-import { MarketUserManager } from '../../../models/market-user/market-user-manager';
+import { UserManager } from '../../../models/user/user-manager';
 
 const negotiatedDealManager = Injector.request<NegotiatedDealManager>('NegotiatedDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
-const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
+const userManager = Injector.request<UserManager>('UserManager');
 
 const Log: Logger = new Logger('ROUT');
 
@@ -113,7 +113,7 @@ function NegotiationDeals(router: express.Router): void {
         let user = req.ixmUserInfo;
         let negotiatedDeal = await negotiatedDealManager.fetchNegotiatedDealFromPartyIds(proposalID, partyID, user.company.id);
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-        let partner = await marketUserManager.fetchMarketUserFromId(partyID);
+        let partner = await userManager.fetchUserFromId(partyID);
 
         Log.trace(`Found negotiation ${JSON.stringify(negotiatedDeal)} for ${user.contact.id}.`, req.id);
 

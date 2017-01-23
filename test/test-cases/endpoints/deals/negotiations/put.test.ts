@@ -851,9 +851,9 @@ export async function ATW_API_PUT_DEANEG_FUNC_17(assert: test.Test) {
 
    /** Test */
     let pubRequestBody = {
-            proposal_id: proposalObj.proposal.proposalID,
-            partner_id: buyerCompany.user.userID,
-            terms: 'no you are a duck'
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'no you are a duck'
     };
     let response = await apiRequest.put(route, pubRequestBody, publisher.user);
 

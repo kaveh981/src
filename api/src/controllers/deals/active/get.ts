@@ -11,9 +11,9 @@ import { Permission } from '../../../middleware/permission';
 import { ProposedDealManager } from '../../../models/deals/proposed-deal/proposed-deal-manager';
 import { SettledDealManager } from '../../../models/deals/settled-deal/settled-deal-manager';
 import { PaginationModel } from '../../../models/pagination/pagination-model';
-import { MarketUserManager } from '../../../models/market-user/market-user-manager';
+import { UserManager } from '../../../models/user/user-manager';
 
-const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
+const userManager = Injector.request<UserManager>('UserManager');
 const settledDealManager = Injector.request<SettledDealManager>('SettledDealManager');
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
@@ -114,7 +114,7 @@ function ActiveDeals(router: express.Router): void {
 
         let settledDeal = await settledDealManager.fetchSettledDealFromPartyIds(proposalID, user.company.id, partnerID);
         let proposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
-        let partner = await marketUserManager.fetchMarketUserFromId(partnerID);
+        let partner = await userManager.fetchUserFromId(partnerID);
 
         if (!proposal || !proposal.hasNegotiationsViewableBy(user, !!settledDeal)) {
             throw HTTPError('404_PROPOSAL_NOT_FOUND');

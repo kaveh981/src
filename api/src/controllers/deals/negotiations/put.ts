@@ -98,7 +98,13 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_NO_CHANGE');
             }
 
-            await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
+            await databaseManager.transaction(async (transaction) => {
+
+                await negotiatedDealManager.insertNegotiatedDeal(currentNegotiation);
+
+                res.sendPayload(currentNegotiation.toPayload(sender));
+
+            });
 
             Log.trace(`Inserted the new negotiation with ID: ${currentNegotiation.id}`, req.id);
 
@@ -121,6 +127,8 @@ function NegotiationDeals(router: express.Router): void {
                 throw HTTPError('403_ALREADY_REJECTED');
             } else if (currentNegotiation.sender === senderType && responseType !== 'reject') {
                 throw HTTPError('403_OUT_OF_TURN');
+            } else if (!currentNegotiation.isActive()) {
+                throw HTTPError('403_NEGOTIATION_NOT_ACTIVE');
             }
 
             // If user rejects the negotiation, there is nothing more to do:
@@ -129,11 +137,22 @@ function NegotiationDeals(router: express.Router): void {
                 Log.trace('User is rejecting the negotiation', req.id);
 
                 currentNegotiation.update(senderType, 'rejected', receiverStatus);
-                await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
+
+                await databaseManager.transaction(async (transaction) => {
+
+                    await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
+
+                    res.sendPayload(currentNegotiation.toPayload(sender));
+
+                });
 
             } else if (responseType === 'accept') {
 
                 Log.trace('User is accepting the negotiation', req.id);
+
+                if (!currentNegotiation.isValid()) {
+                    throw HTTPError('403_CANT_ACCEPT');
+                }
 
                 Log.debug(`Beginning transaction, updating negotiation ${currentNegotiation.id} and inserting settled deal...`, req.id);
 
@@ -154,25 +173,30 @@ function NegotiationDeals(router: express.Router): void {
 
                 });
 
-                return;
-
             } else {
 
                 Log.trace(`User has sent a counter-offer.`, req.id);
 
                 let fieldChanged = currentNegotiation.update(senderType, 'accepted', 'active', negotiationFields);
 
-                if (!fieldChanged) {
+                if (!currentNegotiation.isValid()) {
+                    throw HTTPError('403_INVALID_TERMS');
+                } else if (!fieldChanged) {
                     throw HTTPError('403_NO_CHANGE');
                 }
 
                 Log.trace(`Fields have changed, updating negotiation.`, req.id);
-                await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation);
+
+                await databaseManager.transaction(async (transaction) => {
+
+                    await negotiatedDealManager.updateNegotiatedDeal(currentNegotiation, transaction);
+
+                    res.sendPayload(currentNegotiation.toPayload(sender));
+
+                });
 
             }
         }
-
-        res.sendPayload(currentNegotiation.toPayload(sender));
 
     } catch (error) { next(error); } });
 

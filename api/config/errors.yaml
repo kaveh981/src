@@ -51,6 +51,9 @@ en-US:
     403_NEGOTIATION_EXISTS: A negotiation already exists on this proposal.
     403_NEGOTIATION_REJECTED_SELF: You have already rejected a negotiation on this proposal.
     403_NEGOTIATION_REJECTED_OWNER: The proposal owner has already rejected a negotiation for this proposal.
+    403_NEGOTIATION_NOT_ACTIVE: This negotiation is no longer active.
+    403_CANT_ACCEPT: You cannot accept this negotiation, it is invalid.
+    403_INVALID_TERMS: The negotiation terms you have provided are not valid.
 
     # 404 Status Code Messages
     404: Not found.

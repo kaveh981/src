@@ -3,7 +3,8 @@
         "target": "ES6",
         "module": "commonjs",
         "outDir": "build",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "noUnusedLocals": true
     },
     "exclude": [
         "node_modules",

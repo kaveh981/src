@@ -147,11 +147,15 @@ class Logger {
         let writeMessage = message.level_num >= this.getFilewriteLevel(message.origin);
 
         if (displayMessage) {
-            let color = Logger.loggerConfig['levelMetadata'][message.level_num].color;
-            let msg = `(${this.name}) ${message.timestamp.split('T').shift()} [${(message.level + ' ').substr(0, 5).toUpperCase()}]: `
-                    + `${message.error_stack || message.log || message.message}`;
+            if (Logger.loggerConfig['humanReadable']) {
+                let color = Logger.loggerConfig['levelMetadata'][message.level_num].color;
+                let msg = `(${this.name}) ${message.timestamp.split('T').shift()} [${(message.level + ' ').substr(0, 5).toUpperCase()}]: `
+                        + `${message.error_stack || message.log || message.message}`;
 
-            console.log(chalk[color](msg));
+                console.log(chalk[color](msg));
+            } else {
+                console.log(JSON.stringify(message));
+            }
         }
 
         if (writeMessage) {

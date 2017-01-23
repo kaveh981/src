@@ -14,7 +14,6 @@
         "no-eval": true,
         "no-shadowed-variable": true,
         "no-unused-expression": true,
-        "no-unused-variable": true,
         "no-use-before-declare": true,
         "jsdoc-format": true,
         "no-angle-bracket-type-assertion": true,
