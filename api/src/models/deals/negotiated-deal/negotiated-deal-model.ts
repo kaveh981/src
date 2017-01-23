@@ -1,6 +1,7 @@
 'use strict';
 
 import { MarketUserModel } from '../../market-user/market-user-model';
+import { Helper } from '../../../lib/helper';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
 
 class NegotiatedDealModel {
@@ -57,14 +58,18 @@ class NegotiatedDealModel {
      * @returns True if there was a change to the negotiation terms.
      */
     public update(sender: 'owner' | 'partner', senderStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected',
-        receiverStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: any = {}) {
+        receiverStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: Partial<NegotiatedDealModel> = {}) {
 
         let existDifference = false;
 
         this.sender = sender;
 
         for (let key in negotiationFields) {
-            if (negotiationFields[key] && negotiationFields[key] !== this[key]) {
+            if (typeof negotiationFields[key] === 'undefined') {
+                continue;
+            }
+
+            if (this[key] && negotiationFields[key] !== this[key] || !this[key] && this.proposedDeal[key] !== negotiationFields[key]) {
                 this[key] = negotiationFields[key];
                 existDifference = true;
             }
@@ -83,24 +88,37 @@ class NegotiatedDealModel {
     }
 
     /**
-     * Function to inspect if the negotiation is active
-     * @returns true if the negotiation and associated proposal are all active
+     * Function to inspect if the negotiation is active.
+     * @returns True if the negotiation is still going back and forth.
      */
     public isActive() {
+        return (this.ownerStatus === 'accepted' && this.partnerStatus === 'active') || (this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
+    }
 
-        let negotiationActive = (this.ownerStatus === 'accepted' && this.partnerStatus === 'active')
-                                || (this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
+    /**
+     * Returns true if the negotiation can be bought as is.
+     */
+    public isValid() {
 
-        return negotiationActive && this.proposedDeal.isActive();
+        let endDate = this.endDate || this.proposedDeal.endDate;
+        let startDate = this.startDate || this.proposedDeal.startDate;
+        let today = Helper.formatDate((new Date()).toDateString());
+
+        return (startDate <= endDate && endDate >= today || endDate === '0000-00-00') && !this.proposedDeal.isDeleted();
 
     }
 
+    /**
+     * Returns the publisher for the negotiation.
+     */
     public getPublisher(): MarketUserModel {
+
         if (this.partner.isBuyer()) {
             return this.proposedDeal.owner;
         } else {
             return this.partner;
         }
+
     }
 
     /**

@@ -28,7 +28,7 @@ class MarketUserModel {
      * Is this user a buyer? 
      */
     public isBuyer() {
-        return this.company.isBuyer();
+        return this.company.isBuyerCompany();
     }
 
     /**

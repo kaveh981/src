@@ -1,4 +1,4 @@
 # List of constants used for IXM API
 
 # Usertype of a buyer
-BUYER_TYPES: [ ADV, IXMB ]
+BUYER_TYPES: [ ADV ]

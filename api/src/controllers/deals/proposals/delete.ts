@@ -54,6 +54,7 @@ function Proposals(router: express.Router): void {
         proposal.update({ status: 'deleted' });
 
         await databaseManager.transaction(async (transaction) => {
+
             await proposedDealManager.updateProposedDeal(proposal, transaction);
 
             Log.trace(`Proposal ${proposalID} has been set to deleted.`, req.id);
@@ -61,9 +62,10 @@ function Proposals(router: express.Router): void {
             await negotiatedDealManager.deleteOwnerNegotiationsFromProposalId(proposal.id, transaction);
 
             Log.trace(`Deleted all negotiations associated to ${proposalID}.`, req.id);
-        });
 
-        res.sendMessage('200_PROPOSAL_DELETED', { proposal_id: proposal.id });
+            res.sendMessage('200_PROPOSAL_DELETED', { proposal_id: proposal.id });
+
+        });
 
     } catch (error) { next(error); } });
 

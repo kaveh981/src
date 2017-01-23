@@ -39,9 +39,9 @@ class UserModel {
     }
 
     /**
-     * The user is a buyer if they aren't a publisher.
+     * Returns true if the user is a buyer company.
      */
-    public isBuyer() {
+    public isBuyerCompany() {
         return IXM_CONSTANTS.BUYER_TYPES.indexOf(this.userType) !== -1;
     }
 

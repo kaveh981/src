@@ -33,7 +33,7 @@ class Notifier {
      * Initialize a new notifier, and load templates from notification.yaml
      * @param - schemaDirectory: string - the directory where all the schemas are located 
      */
-    public initialize (schemaDirectory: string = '../schemas') {
+    public initialize() {
 
         Log.info('Initializing Notifier...');
 

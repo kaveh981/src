@@ -1,5 +1,8 @@
 # Logger Configuration
 
+# Output human readable logs to stdout.
+humanReadable: true
+
 # Default level of messages to write to stdout.
 consoleLevel: 2
 
