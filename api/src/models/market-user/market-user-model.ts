@@ -42,7 +42,7 @@ class MarketUserModel {
      * Returns extra information about the user.
      */
     public toInternalPayload() {
-        return Object.assign({ company_id: this.company.id }, this.contact.toPayload('user_id'));
+        return Object.assign({ company_id: this.company.id, company_type: this.company.userType }, this.contact.toPayload('user_id'));
     }
 
     /**
