@@ -5,14 +5,14 @@ import * as test from 'tape';
 import { Injector } from '../../../../src/lib/injector';
 import { APIRequestManager } from '../../../../src/lib/request-manager';
 import { DatabasePopulator } from '../../../../src/lib/database-populator';
-import { Helper } from '../../../../src/lib/helper';
+// import { Helper } from '../../../../src/lib/helper';
 
 const databasePopulator = Injector.request<DatabasePopulator>('DatabasePopulator');
 const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 
 /** Test constants */
 const route = 'sections/';
-const currentDate: Date = new Date();
+// const currentDate: Date = new Date();
 
 /*
  * @case    - External publisher tries to view a section they own. Internal user tries to view the same section.
