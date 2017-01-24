@@ -22,24 +22,3 @@ sourceOverrides:
 # Files to output JSON logs to. Relative to index.ts.
 outputFiles:
     - path:logs/ixm-api-all.log
-
-# Metadata about each level
-levelMetadata:
-    0:
-        name: trace
-        color: cyan
-    1:
-        name: debug
-        color: green
-    2:
-        name: info
-        color: white
-    3:
-        name: warn
-        color: yellow
-    4:
-        name: error
-        color: red
-    5:
-        name: fatal
-        color: bgRed
