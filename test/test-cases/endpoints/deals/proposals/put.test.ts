@@ -110,14 +110,14 @@ export let ATW_API_PUT_DEAPRO_VALI = validationTest(route, 'put', commonDatabase
 });
 
 async function getProposalInDB(proposalID: number): Promise<any> {
-    let row = await databaseManager.select('ixmDealProposals.proposalID as proposal_id', 'ownerID as owner_id', 'name',
+    let row = await databaseManager.select('ixmProposals.proposalID as proposal_id', 'ownerID as owner_id', 'name',
                                            'description', 'status', 'startDate as start_date', 'endDate as end_date', 'price',
                                            'impressions', 'budget', 'auctionType as auction_type', 'terms', 'createDate as created_at',
                                            'modifyDate as modified_at', 'ownerContactID', 'sectionID as inventory', 'userID as partners')
-                .from('ixmDealProposals')
-                .leftJoin('ixmProposalTargeting', 'ixmProposalTargeting.proposalID', 'ixmDealProposals.proposalID')
-                .leftJoin('ixmProposalSectionMappings', 'ixmProposalSectionMappings.proposalID', 'ixmDealProposals.proposalID')
-                .where('ixmDealProposals.proposalID', proposalID);
+                .from('ixmProposals')
+                .leftJoin('ixmProposalTargeting', 'ixmProposalTargeting.proposalID', 'ixmProposals.proposalID')
+                .leftJoin('ixmProposalSectionMappings', 'ixmProposalSectionMappings.proposalID', 'ixmProposals.proposalID')
+                .where('ixmProposals.proposalID', proposalID);
     return row[0];
 }
 
@@ -340,7 +340,7 @@ export async function ATW_API_PUT_DEAPRO_06 (assert: test.Test) {
     let deletedBuyerResponse = await apiRequest.put(route, proposal, pubCompany.user);
 
     /** Test */
-    let proposalsInDB = await databaseManager.select().from('ixmDealProposals');
+    let proposalsInDB = await databaseManager.select().from('ixmProposals');
 
     assert.equal(newBuyerResponse.status, 403);
     assert.equal(deletedBuyerResponse.status, 403);

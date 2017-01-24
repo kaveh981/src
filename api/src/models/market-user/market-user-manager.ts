@@ -79,7 +79,7 @@ class MarketUserManager {
         let query = this.databaseManager.select('contactID', 'companyID', 'permissions')
                                              .from((db) => {
                                                  db.select('userID as contactID', 'companyID', 'permissions')
-                                                   .from('ixmUserCompanyMapping')
+                                                   .from('ixmUserCompanyMappings')
                                                    .union((union) => {
                                                        union.select('userID as contactID', 'userID as companyID',
                                                                     this.databaseManager.raw(`'write' as permissions`))

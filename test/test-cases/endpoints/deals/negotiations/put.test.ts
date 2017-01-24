@@ -34,10 +34,10 @@ async function commonDatabaseSetup() {
  * Fetch a negotiation filed from database
  */
 async function getNegotiatedFieldInDB(proposal: IProposal, partnerID: number, field: string): Promise<any> {
-    let row = await databaseManager.select(`ixmDealNegotiations.${field}`)
-                .from('ixmDealNegotiations')
-                .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                .where('ixmDealNegotiations.proposalID', proposal.proposalID)
+    let row = await databaseManager.select(`ixmNegotiations.${field}`)
+                .from('ixmNegotiations')
+                .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
+                .where('ixmNegotiations.proposalID', proposal.proposalID)
                 .andWhere('partnerID', partnerID)
                 .andWhere('ownerID', proposal.ownerID);
     return row[0][field];
