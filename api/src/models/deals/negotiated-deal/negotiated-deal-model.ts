@@ -92,7 +92,8 @@ class NegotiatedDealModel {
      * @returns True if the negotiation is still going back and forth.
      */
     public isActive() {
-        return (this.ownerStatus === 'accepted' && this.partnerStatus === 'active') || (this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
+        return !this.proposedDeal.isDeleted()
+            && (this.ownerStatus === 'accepted' && this.partnerStatus === 'active' || this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
     }
 
     /**
