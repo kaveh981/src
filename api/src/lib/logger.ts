@@ -6,6 +6,27 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as chalk from 'chalk';
 
+/** Metadata about log levels */
+const LOG_LEVELS: { name: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal', color: string; }[] = [{
+    name: 'trace',
+    color: 'cyan'
+}, {
+    name: 'debug',
+    color: 'green'
+}, {
+    name: 'info',
+    color: 'white'
+}, {
+    name: 'warn',
+    color: 'yellow'
+}, {
+    name: 'error',
+    color: 'red'
+}, {
+    name: 'fatal',
+    color: 'bgRed'
+}];
+
 /**
  * Standardized message interface to log to file.
  */
@@ -38,7 +59,7 @@ interface IMessage {
 class Logger {
 
     private static writeStreams: fs.WriteStream[] = [];
-    private static loggerConfig: any;
+    private static loggerConfig: any = { humanReadable: true, filewriteLevel: 0, consoleLevel: 0 };
 
     /** Logger name to use as origin */
     private name: string;
@@ -49,6 +70,27 @@ class Logger {
      */
     constructor (name: string = 'NONE') {
         this.name = name;
+    }
+
+    /**
+     * Set up configuration for all the loggers.
+     * @param config - The logger configuration.
+     */
+    public static configureLoggers(config: any): void {
+
+        Logger.loggerConfig = config;
+
+        Logger.writeStreams = config.outputFiles.map((file: string) => {
+            let logFile = path.resolve(__dirname, file);
+            let logFolder = path.dirname(logFile);
+
+            if (!fs.existsSync(logFolder)) {
+                fs.mkdirSync(logFolder);
+            }
+
+            return fs.createWriteStream(logFile, { flags: 'a' });
+        });
+
     }
 
     /**
@@ -104,88 +146,6 @@ class Logger {
      */
     public trace(msg: string | Partial<IMessage>, id?: string): IMessage {
         return this.log(this.craftLogMessage(msg, 0, id));
-    }
-
-    /**
-     * Craft a log message for non-errors.
-     * @param msg - The message to handle.
-     * @param severity - The severity of the message.
-     * @param id - The request id.
-     * @return A craft log message.
-     */
-    private craftLogMessage(msg: string | Partial<IMessage> | Error, severity: number, id?: string) {
-
-        let logMessage: IMessage;
-
-        if (typeof msg === 'string') {
-            logMessage = this.createMessage(severity, {
-                log: msg,
-                req_id: id
-            });
-        } else if (msg instanceof Error) {
-            logMessage = this.createMessage(severity, {
-                message: msg.message,
-                error_stack: msg.stack,
-                req_id: id
-            });
-        } else {
-            logMessage = this.createMessage(severity, msg);
-        }
-
-        return logMessage;
-
-    }
-
-    /**
-     * Display and write the message to a file.
-     * @param message - The message to write.
-     * @returns The same message.
-     */
-    private log(message: IMessage): IMessage {
-
-        let displayMessage = message.level_num >= this.getConsoleLevel(message.origin);
-        let writeMessage = message.level_num >= this.getFilewriteLevel(message.origin);
-
-        if (displayMessage) {
-            if (Logger.loggerConfig['humanReadable']) {
-                let color = Logger.loggerConfig['levelMetadata'][message.level_num].color;
-                let msg = `(${this.name}) ${message.timestamp.split('T').shift()} [${(message.level + ' ').substr(0, 5).toUpperCase()}]: `
-                        + `${message.error_stack || message.log || message.message}`;
-
-                console.log(chalk[color](msg));
-            } else {
-                console.log(JSON.stringify(message));
-            }
-        }
-
-        if (writeMessage) {
-            Logger.writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
-        }
-
-        return message;
-
-    }
-
-    /**
-     * Create a message in the correct format for logging.
-     * @param origin - The name of the origin of the message.
-     * @param logLevel - The level at which to craft the message.
-     * @param message - The actual message.
-     * @returns The JSON formatted message.
-     */
-    private createMessage(logLevel: number, data: Partial<IMessage>): IMessage {
-
-        let logMessage: IMessage = {
-            timestamp: (new Date()).toISOString(),
-            level_num: logLevel,
-            level: Logger.loggerConfig['levelMetadata'][logLevel].name,
-            origin: this.name
-        };
-
-        logMessage = Object.assign(logMessage, data);
-
-        return logMessage;
-
     }
 
     /**
@@ -248,23 +208,84 @@ class Logger {
     }
 
     /**
-     * Set up configuration for all the loggers.
-     * @param config - The logger configuration.
+     * Craft a log message for non-errors.
+     * @param msg - The message to handle.
+     * @param severity - The severity of the message.
+     * @param id - The request id.
+     * @return A craft log message.
      */
-    public static configureLoggers(config: any): void {
+    private craftLogMessage(msg: string | Partial<IMessage> | Error, severity: number, id?: string) {
 
-        Logger.loggerConfig = config;
+        let logMessage: IMessage;
 
-        Logger.writeStreams = config.outputFiles.map((file: string) => {
-            let logFile = path.resolve(__dirname, file);
-            let logFolder = path.dirname(logFile);
+        if (typeof msg === 'string') {
+            logMessage = this.createMessage(severity, {
+                log: msg,
+                req_id: id
+            });
+        } else if (msg instanceof Error) {
+            logMessage = this.createMessage(severity, {
+                message: msg.message,
+                error_stack: msg.stack,
+                req_id: id
+            });
+        } else {
+            logMessage = this.createMessage(severity, msg);
+        }
 
-            if (!fs.existsSync(logFolder)) {
-                fs.mkdirSync(logFolder);
+        return logMessage;
+
+    }
+
+    /**
+     * Display and write the message to a file.
+     * @param message - The message to write.
+     * @returns The same message.
+     */
+    private log(message: IMessage): IMessage {
+
+        let displayMessage = message.level_num >= this.getConsoleLevel(message.origin);
+        let writeMessage = message.level_num >= this.getFilewriteLevel(message.origin);
+
+        if (displayMessage) {
+            if (Logger.loggerConfig['humanReadable']) {
+                let color = LOG_LEVELS[message.level_num].color;
+                let msg = `(${this.name}) ${message.timestamp.split('T').shift()} [${(message.level + ' ').substr(0, 5).toUpperCase()}]: `
+                        + `${message.error_stack || message.log || message.message}`;
+
+                console.log(chalk[color](msg));
+            } else {
+                console.log(JSON.stringify(message));
             }
+        }
 
-            return fs.createWriteStream(logFile, { flags: 'a' });
-        });
+        if (writeMessage) {
+            Logger.writeStreams.forEach((stream: fs.WriteStream) => { stream.write(JSON.stringify(message) + '\n'); });
+        }
+
+        return message;
+
+    }
+
+    /**
+     * Create a message in the correct format for logging.
+     * @param origin - The name of the origin of the message.
+     * @param logLevel - The level at which to craft the message.
+     * @param message - The actual message.
+     * @returns The JSON formatted message.
+     */
+    private createMessage(logLevel: number, data: Partial<IMessage>): IMessage {
+
+        let logMessage: IMessage = {
+            timestamp: (new Date()).toISOString(),
+            level_num: logLevel,
+            level: LOG_LEVELS[logLevel].name,
+            origin: this.name
+        };
+
+        logMessage = Object.assign(logMessage, data);
+
+        return logMessage;
 
     }
 

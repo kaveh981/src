@@ -24,8 +24,6 @@ const notifier = Injector.request<Notifier>('Notifier');
 async function start() {
 
     try {
-
-        console.log('Hello.');
         await configLoader.initialize({ 'mw': './src/middleware' });
 
         Logger.configureLoggers(configLoader.get('logger'));
