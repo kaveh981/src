@@ -303,6 +303,128 @@ class Helper {
                 return '468x60 (Mobile Web)';
             case 64:
                 return '980x552 (Banner)';
+            case 65:
+                return '768x432 (banner)';
+            case 66:
+                return '1920x520 (banner)';
+            case 67:
+                return '960x270 (banner)';
+            case 68:
+                return '1600x450 (rectangle)';
+            case 69:
+                return '2080x585 (rectangle)';
+            case 70:
+                return '480x270 (rectangle)';
+            case 71:
+                return '800x450 (rectangle)';
+            case 72:
+                return '1040x585 (rectangle)';
+            case 73:
+                return '1920x480 (rectangle)';
+            case 74:
+                return '640x360 (rectangle)';
+            case 75:
+                return '1280x720 (rectangle)';
+            case 76:
+                return '480x600 (tower)';
+            case 77:
+                return '1920x1080 (rectangle)';
+            case 78:
+                return '300x60 (banner)';
+            case 79:
+                return '970x400 (rectangle)';
+            case 80:
+                return '170x31 (banner)';
+            case 81:
+                return '620x440 (rectangle)';
+            case 82:
+                return '545x347 (rectangle)';
+            case 83:
+                return '545x306 (rectangle)';
+            case 84:
+                return '970x418 (rectangle)';
+            case 85:
+                return '300x142 (rectangle)';
+            case 86:
+                return '240x120 (banner)';
+            case 87:
+                return '184x64 (banner)';
+            case 88:
+                return '230x96 (banner)';
+            case 89:
+                return '460x150 (banner)';
+            case 90:
+                return '490x120 (banner)';
+            case 91:
+                return '632x373 (rectangle)';
+            case 92:
+                return '948x461 (rectangle)';
+            case 93:
+                return '460x540 (tower)';
+            case 94:
+                return '152x146 (square)';
+            case 95:
+                return '304x292 (rectangle)';
+            case 96:
+                return '310x98 (banner)';
+            case 97:
+                return '620x196 (banner)';
+            case 98:
+                return '600x500 (rectangle)';
+            case 99:
+                return '640x100 (banner)';
+            case 100:
+                return '640x960 (rectangle)';
+            case 101:
+                return '265x255 (square)';
+            case 102:
+                return '530x510 (square)';
+            case 103:
+                return '755x139 (banner)';
+            case 104:
+                return '1510x278 (banner)';
+            case 105:
+                return '1536x2048 (tower)';
+            case 106:
+                return '1680x95 (banner)';
+            case 107:
+                return '1440x830 (rectangle)';
+            case 108:
+                return '200x60 (banner)';
+            case 109:
+                return '1414x860 (rectangle)';
+            case 110:
+                return '2048x490 (rectangle)';
+            case 111:
+                return '2048x1152 (rectangle)';
+            case 112:
+                return '440x330 (rectangle)';
+            case 113:
+                return '1280x960 (rectangle)';
+            case 114:
+                return '800x660 (rectangle)';
+            case 115:
+                return '610x730 (tower)';
+            case 116:
+                return '650x650 (square)';
+            case 117:
+                return '260x260 (square)';
+            case 118:
+                return '172x104 (banner)';
+            case 119:
+                return '300x400 (tower)';
+            case 120:
+                return '963x400 (rectangle)';
+            case 121:
+                return '900x90 (banner)';
+            case 122:
+                return '900x350 (banner)';
+            case 123:
+                return '1200x100 (banner)';
+            case 124:
+                return '930x372 (rectangle)';
+            case 125:
+                return '700x150 (banner)';
             default:
                 return '';
         }
