@@ -443,8 +443,8 @@ class Helper {
                                                  'sites.status': 'A'
                                              });
 
-        let sites = (await Promise.all(rows.map(async row => {
-            return await Helper.getSiteFromId(row.siteID);
+        let sites = (await Promise.all(rows.map(row => {
+            return Helper.getSiteFromId(row.siteID);
         }).filter(site => !!site)));
 
         return sites;

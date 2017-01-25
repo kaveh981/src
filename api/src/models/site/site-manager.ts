@@ -66,8 +66,8 @@ class SiteManager {
                                                  'sites.status': 'A'
                                              });
 
-        let sites = (await Promise.all<SiteModel>(rows.map(async row => {
-            return await this.fetchSiteFromId(row.siteID);
+        let sites = (await Promise.all<SiteModel>(rows.map(row => {
+            return this.fetchSiteFromId(row.siteID);
         }).filter(site => !!site)));
 
         return sites;
