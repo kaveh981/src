@@ -391,7 +391,6 @@ export async function ATW_API_GET_DEAPROINC_FUNC_09 (assert: test.Test) {
 
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ],
                                                           { startDate: '1992-07-29', endDate: '2000-12-01' }, [ pubCompany.user.userID ]);
-    proposal.proposal.status = 'expired';
 
     // Open proposal to make sure we aren't getting more than we want ie. only targeted proposals
     let openProposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ]);
@@ -429,7 +428,6 @@ export async function ATW_API_GET_DEAPROINC_FUNC_10 (assert: test.Test) {
 
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
                                                           { startDate: '1992-07-29', endDate: '2000-12-01' }, [ buyerCompany.user.userID ]);
-    proposal.proposal.status = 'expired';
 
     // Open proposal to make sure we aren't getting more than we want ie. only targeted proposals
     let openProposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
