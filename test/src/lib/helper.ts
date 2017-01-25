@@ -219,23 +219,24 @@ class Helper {
     }
 
     public static async sectionToPayload(section: INewSectionData) {
+        let sectionInfo = section.section;
         return {
-            ad_unit_restrictions: section.section.adUnits[0] && section.section.adUnits.map(id => {
+            ad_unit_restrictions: sectionInfo.adUnits && sectionInfo.adUnits.map(id => {
                 return Helper.adUnitToName(id);
-            }).sort() || null,
-            audience_restrictions: section.section.audienceTargetingSegments[0] && section.section.audienceTargetingSegments.sort((a, b) => {
+            }).sort(),
+            audience_restrictions: sectionInfo.audienceTargetingSegments && sectionInfo.audienceTargetingSegments.sort((a, b) => {
                 return a - b;
             }).map(segment => {
                 return segment + '';
-            }) || null,
-            country_restrictions: section.section.countries[0] && section.section.countries.sort() || null,
-            coverage: section.section.percent,
-            entire_site: !!section.section.entireSite,
-            frequency_restrictions: section.section.rtbDomainDepths[0] && section.section.rtbDomainDepths.map(depthBucket => {
+            }),
+            country_restrictions: sectionInfo.countries && sectionInfo.countries.sort(),
+            coverage: sectionInfo.percent,
+            entire_site: !!sectionInfo.entireSite,
+            frequency_restrictions: sectionInfo.rtbDomainDepths && sectionInfo.rtbDomainDepths.map(depthBucket => {
                 return Helper.depthBucketToName(depthBucket);
-            }).sort() || null,
-            id: section.section.sectionID,
-            url_matches: section.section.matches && section.section.matches.map(match => {
+            }).sort(),
+            id: sectionInfo.sectionID,
+            url_matches: sectionInfo.matches && sectionInfo.matches.map(match => {
                 return {
                     url: match.url,
                     matchType: Helper.matchTypeToWord(match.matchType)
@@ -247,10 +248,10 @@ class Helper {
                     return (a.url < b.url) ? -1 : 1;
                 }
             }) || [],
-            name: section.section.name,
-            publisher_id: section.section.userID,
-            sites: await Helper.fetchActiveSitesFromSectionId(section.section.sectionID),
-            status: Helper.statusLetterToWord(section.section.status)
+            name: sectionInfo.name,
+            publisher_id: sectionInfo.userID,
+            sites: await Helper.fetchActiveSitesFromSectionId(sectionInfo.sectionID),
+            status: Helper.statusLetterToWord(sectionInfo.status)
         };
     }
 
@@ -442,17 +443,9 @@ class Helper {
                                                  'sites.status': 'A'
                                              });
 
-        let sites = [];
-
-        await Promise.all(rows.map(async (row) => {
-            let site = await Helper.getSiteFromId(row.siteID);
-
-            if (!site) {
-                return;
-            }
-
-            sites.push(site);
-        }));
+        let sites = (await Promise.all(rows.map(async row => {
+            return await Helper.getSiteFromId(row.siteID);
+        }).filter(site => !!site)));
 
         return sites;
 

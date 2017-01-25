@@ -22,7 +22,7 @@ const route = 'sections/';
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_01(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_01(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -51,7 +51,7 @@ export async function ATW_SECTION_GET_01(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_02(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_02(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -75,7 +75,7 @@ export async function ATW_SECTION_GET_02(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_03(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_03(assert: test.Test) {
 
     /** Setup */
     assert.plan(4);
@@ -106,7 +106,7 @@ export async function ATW_SECTION_GET_03(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_04(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_04(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -131,7 +131,7 @@ export async function ATW_SECTION_GET_04(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_05(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_05(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -156,7 +156,7 @@ export async function ATW_SECTION_GET_05(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_06(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_06(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -182,7 +182,7 @@ export async function ATW_SECTION_GET_06(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_07(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_07(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -207,7 +207,7 @@ export async function ATW_SECTION_GET_07(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_08(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_08(assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -217,6 +217,7 @@ export async function ATW_SECTION_GET_08(assert: test.Test) {
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { entireSite: 0 });
     await databaseManager.delete().from('rtbSectionMatches').where('sectionID', section.section.sectionID);
+    section.section.matches = [];
 
     /** Test */
     let response = await apiRequest.get(route + section.section.sectionID, {}, internalUser);
@@ -232,7 +233,7 @@ export async function ATW_SECTION_GET_08(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_09(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_09(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -259,7 +260,7 @@ export async function ATW_SECTION_GET_09(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_10(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_10(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -286,7 +287,7 @@ export async function ATW_SECTION_GET_10(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_11(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_11(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);
@@ -313,7 +314,7 @@ export async function ATW_SECTION_GET_11(assert: test.Test) {
  * @status  - working
  * @tags    - 
  */
-export async function ATW_SECTION_GET_12(assert: test.Test) {
+export async function ATW_API_GET_SECID_FUNC_12(assert: test.Test) {
 
     /** Setup */
     assert.plan(2);

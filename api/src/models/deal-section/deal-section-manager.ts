@@ -110,10 +110,10 @@ class DealSectionManager {
                 name: row.name,
                 publisherID: row.publisherID,
                 status: Helper.statusLetterToWord(row.status),
-                adUnitRestrictions: row.adUnitNames && row.adUnitNames.split(','),
-                audienceRestrictions: row.segments && row.segments.split(','),
-                countryRestrictions: row.countries && row.countries.split(','),
-                frequencyRestrictions: row.domains && row.domains.split(',')
+                adUnitRestrictions: row.adUnitNames && row.adUnitNames.split(',') || [],
+                audienceRestrictions: row.segments && row.segments.split(',') || [],
+                countryRestrictions: row.countries && row.countries.split(',') || [],
+                frequencyRestrictions: row.domains && row.domains.split(',') || []
             });
 
             newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(row.id);
