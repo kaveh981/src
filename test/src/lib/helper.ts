@@ -218,6 +218,130 @@ class Helper {
 
     }
 
+    public static async sectionToPayload(section: INewSectionData) {
+        let sectionInfo = section.section;
+        return {
+            ad_unit_restrictions: sectionInfo.adUnits && sectionInfo.adUnits.map(id => {
+                return Helper.adUnitToName(id);
+            }).sort(),
+            audience_restrictions: sectionInfo.audienceTargetingSegments && sectionInfo.audienceTargetingSegments.sort((a, b) => {
+                return a - b;
+            }).map(segment => {
+                return segment + '';
+            }),
+            country_restrictions: sectionInfo.countries && sectionInfo.countries.sort(),
+            coverage: sectionInfo.percent,
+            entire_site: !!sectionInfo.entireSite,
+            frequency_restrictions: sectionInfo.rtbDomainDepths && sectionInfo.rtbDomainDepths.map(depthBucket => {
+                return Helper.depthBucketToName(depthBucket);
+            }).sort(),
+            id: sectionInfo.sectionID,
+            url_matches: sectionInfo.matches && sectionInfo.matches.map(match => {
+                return {
+                    url: match.url,
+                    matchType: Helper.matchTypeToWord(match.matchType)
+                };
+            }).sort((a, b) => {
+                if (a.url === b.url) {
+                    return (a.matchType < b.matchType) ? -1 : (a.matchType > b.matchType) ? 1 : 0;
+                } else {
+                    return (a.url < b.url) ? -1 : 1;
+                }
+            }) || [],
+            name: sectionInfo.name,
+            publisher_id: sectionInfo.userID,
+            sites: await Helper.fetchActiveSitesFromSectionId(sectionInfo.sectionID),
+            status: Helper.statusLetterToWord(sectionInfo.status)
+        };
+    }
+
+    public static adUnitToName(adUnitID: number): string {
+        switch (adUnitID) {
+            case 1:
+                return 'Pop-Under';
+            case 2:
+                return '728x90 (Banner)';
+            case 3:
+                return '120x600 (Tower)';
+            case 4:
+                return '300x250 (Rectangle)';
+            case 5:
+                return '160x600 (Tower)';
+            case 6:
+                return '336x280 (Rectangle)';
+            case 7:
+                return '234x60 (Half Banner)';
+            case 8:
+                return '300x600 (Tower)';
+            case 9:
+                return '300x50 (Mobile Web)';
+            case 10:
+                return '320x50 (Mobile Web)';
+            case 11:
+                return 'Any size (VAST)';
+            case 12:
+                return '970x250 (Billboard)';
+            case 13:
+                return '300x1050 (Portrait)';
+            case 14:
+                return '970x90 (Pushdown)';
+            case 15:
+                return '180x150 (Rectangle)';
+            case 16:
+                return '900x550 (Full-Screen)';
+            case 17:
+                return '800x1100 (Full-Screen Mobile)';
+            case 25:
+                return '240x400 (Tower)';
+            case 30:
+                return '320x100 (Mobile Web)';
+            case 34:
+                return '320x480 (Mobile Web)';
+            case 42:
+                return '480x320 (Mobile Web)';
+            case 63:
+                return '468x60 (Mobile Web)';
+            case 64:
+                return '980x552 (Banner)';
+            default:
+                return '';
+        }
+    }
+
+    public static depthBucketToName(depthBucket: number) {
+        switch (depthBucket) {
+            case 0:
+                return '1 - 2';
+            case 1:
+                return '3 - 6';
+            case 2:
+                return '7 - 14';
+            case 3:
+                return '15 - 30';
+            case 4:
+                return '31 - 62';
+            case 5:
+                return '63 - 126';
+            case 6:
+                return '127 - 254';
+            case 7:
+                return '255(max)';
+            default:
+                return '';
+        }
+    }
+
+    public static matchTypeToWord(matchType: number) {
+        switch (matchType) {
+            case 1:
+                return 'full';
+            case 2:
+                return 'partial';
+            default:
+                return '';
+        }
+    }
+
     public static encrypt(text) {
         let cipher = crypto.createCipher('aes-256-ctr', 'only geese eat rats');
         let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
@@ -274,6 +398,58 @@ class Helper {
              .where('ixmNegotiations.proposalID', proposalID);
          return negotiations;
      }
+
+     // Site fetching helper functions. Temporary solution till proper site models are implemented.
+
+     public static async getSiteFromId(siteID: number) {
+
+        let rows = await databaseManager.select('userID as publisherID', 'sites.siteID as id', 'sites.status', 'mainDomain as url',
+                                                     'monthlyUniques', 'sites.name as name', 'categories.name as categories',
+                                                     'description')
+                                             .from('sites')
+                                             .leftJoin('siteCategories', 'siteCategories.siteID', 'sites.siteID')
+                                             .leftJoin('categories', 'categories.categoryID', 'siteCategories.categoryID')
+                                             .where('sites.siteID', siteID);
+
+        if (!rows[0]) {
+            return;
+        }
+
+        return {
+            id: rows[0].id,
+            publisher_id: rows[0].publisherID,
+            name: rows[0].name,
+            url: rows[0].url,
+            categories: rows.filter((row) => { return !!row.categories; }).map((row) => { return row.categories; }),
+            uniques: rows[0].monthlyUniques,
+            description: rows[0].description,
+            inventory: [{
+                ad_unit: '1337x420',
+                video: true,
+                devices: [ 'kerosene-powered cheese grater', 'goober' ]
+            }],
+            impressions: 666
+        };
+
+    }
+
+    public static async fetchActiveSitesFromSectionId(sectionID: number) {
+
+        let rows = await databaseManager.select('sites.siteID')
+                                             .from('rtbSiteSections')
+                                             .join('sites', 'sites.siteID', 'rtbSiteSections.siteID')
+                                             .where({
+                                                 'sectionID': sectionID,
+                                                 'sites.status': 'A'
+                                             });
+
+        let sites = (await Promise.all(rows.map(row => {
+            return Helper.getSiteFromId(row.siteID);
+        }).filter(site => !!site)));
+
+        return sites;
+
+    }
 
 }
 
