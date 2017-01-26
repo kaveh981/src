@@ -57,7 +57,7 @@ class ProposedDealModel {
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isActive(): boolean {
-        return (this.sections.length > 0) && (this.status === 'active') && this.owner.isActive();
+        return (this.sections.length === 0  || this.oneSectionValid()) && this.status === 'active' && this.owner.isActive();
     }
 
     public isExpired(): boolean {
@@ -77,7 +77,7 @@ class ProposedDealModel {
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: MarketUserModel) {
-        return this.isActive() && !this.isExpired() && user.isBuyer() !== this.owner.isBuyer() && this.targetsUser(user);
+        return this.sections.length > 0 && this.isActive() && !this.isExpired() && user.isBuyer() !== this.owner.isBuyer() && this.targetsUser(user);
     }
 
     /**
@@ -88,7 +88,7 @@ class ProposedDealModel {
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: MarketUserModel) {
-        return this.isActive() && !this.isExpired() && this.targetsUser(user) || this.owner.company.id === user.company.id && !this.isDeleted();
+        return !this.isDeleted() && this.targetsUser(user);
     }
 
     /**
@@ -200,6 +200,38 @@ class ProposedDealModel {
                 resource: infoURL
             };
         }
+
+    }
+
+    public hasInvalidSections() {
+
+        if (this.sections.length === 0) {
+            return false;
+        }
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (this.sections[i].isActive()) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Check if this proposed deal has at least one section and that it is valid
+     * @return: true if at least one section is valid, false otherwise. 
+     */
+    public oneSectionValid () {
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (this.sections[i].isActive() && this.sections[i].oneSiteValid()) {
+                return true;
+            }
+        }
+
+        return false;
 
     }
 

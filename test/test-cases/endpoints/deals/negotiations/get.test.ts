@@ -86,7 +86,7 @@ export let ATW_DN_GET_PAG = paginationTest(route, 'get', paginationSetup, create
  * @expect  - No proposals are returned
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_01 (assert: test.Test) {
 
@@ -109,7 +109,7 @@ export async function ATW_DN_GET_01 (assert: test.Test) {
  * @route   - GET deals/negotiations
  * @expect  - No proposals are returned
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_02 (assert: test.Test) {
 
@@ -131,7 +131,7 @@ export async function ATW_DN_GET_02 (assert: test.Test) {
 
 /*
  * @case    - Proposal belonging to different publisher containing negotiations exists, but current user is NOT linked to them
- * @expect  - No DN returned; no proposals belong to the publisher making the request 
+ * @expect  - No DN returned; no proposals belong to the publisher making the request
  * @route   - GET deals/negotiations
  * @status  - incomplete (pub perspective not a thing yet)
  * @tags    - pub
@@ -161,8 +161,8 @@ export async function ATW_DN_GET_03 (assert: test.Test) {
  * @case    - Publisher was not the last to negotiate on their proposal
  * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotiations
- * @status  - passing    
- * @tags    - 
+ * @status  - passing
+ * @tags    -
  */
 export async function ATW_DN_GET_04 (assert: test.Test) {
 
@@ -192,7 +192,7 @@ export async function ATW_DN_GET_04 (assert: test.Test) {
  * @expect  - 1 DN returned regardless of sender
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_05 (assert: test.Test) {
 
@@ -222,7 +222,7 @@ export async function ATW_DN_GET_05 (assert: test.Test) {
  * @expect  - nothing should be returned
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_06 (assert: test.Test) {
 
@@ -250,7 +250,7 @@ export async function ATW_DN_GET_06 (assert: test.Test) {
  * @expect  - Nothing should be returned
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_07 (assert: test.Test) {
 
@@ -308,7 +308,7 @@ export async function ATW_DN_GET_08 (assert: test.Test) {
  * @expect  - 1 DN returned (still active)
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_09 (assert: test.Test) {
 
@@ -371,10 +371,10 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
 
 /*
  * @case    - Multiple proposals belong to publisher - buyer's perspective
- * @expect  - 1 DN returned since only one of them belongs to the buyer making the request 
+ * @expect  - 1 DN returned since only one of them belongs to the buyer making the request
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
     export async function ATW_DN_GET_11 (assert: test.Test) {
 
@@ -409,10 +409,10 @@ export async function ATW_DN_GET_10 (assert: test.Test) {
 
 /*
  * @case    - Buyer linked to multiple proposals by different publishers
- * @expect  - 2 DNs returned belonging to 2 different publishers 
+ * @expect  - 2 DNs returned belonging to 2 different publishers
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_12 (assert: test.Test) {
 
@@ -450,7 +450,7 @@ export async function ATW_DN_GET_12 (assert: test.Test) {
  * @expect  - 200/ []
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_13(assert: test.Test) {
 
@@ -473,11 +473,11 @@ export async function ATW_DN_GET_13(assert: test.Test) {
 }
 
 /*
- * @case    - Proposal is closed and the user is NOT the owner 
+ * @case    - Proposal is closed and the user is NOT the owner
  * @expect  - 200/ []
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_14(assert: test.Test) {
 
@@ -500,11 +500,11 @@ export async function ATW_DN_GET_14(assert: test.Test) {
 }
 
 /*
- * @case    - 2 buyers: 1 had concluded a deal, the other one was still in negotiations 
+ * @case    - 2 buyers: 1 had concluded a deal, the other one was still in negotiations
  * @expect  - 2 DN's returned that belong to 2 separate buyers, proposal status should be deleted
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_15(assert: test.Test) {
 
@@ -534,7 +534,7 @@ export async function ATW_DN_GET_15(assert: test.Test) {
  * @expect  - return nothing
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_16(assert: test.Test) {
 
@@ -564,7 +564,7 @@ export async function ATW_DN_GET_16(assert: test.Test) {
  * @expect  - 200/ return a negotiation
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_17(assert: test.Test) {
 
@@ -595,7 +595,7 @@ export async function ATW_DN_GET_17(assert: test.Test) {
  * @expect  - return nothing
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_18(assert: test.Test) {
 
@@ -625,7 +625,7 @@ export async function ATW_DN_GET_18(assert: test.Test) {
  * @expect  - return nothing
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_19(assert: test.Test) {
 
@@ -655,7 +655,7 @@ export async function ATW_DN_GET_19(assert: test.Test) {
  * @expect  - return nothing
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_20(assert: test.Test) {
 
@@ -685,7 +685,7 @@ export async function ATW_DN_GET_20(assert: test.Test) {
  * @expect  - return nothing
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_21(assert: test.Test) {
 
@@ -714,8 +714,8 @@ export async function ATW_DN_GET_21(assert: test.Test) {
  * @case    - Partner company lists negotiations it's involved in after sending a counter-offer.
  * @expect  - Only deal negotiations he's involved in should be returned.
  * @route   - GET deals/negotiations
- * @status  - passing    
- * @tags    - 
+ * @status  - passing
+ * @tags    -
  */
 export async function ATW_DN_GET_22 (assert: test.Test) {
 
@@ -744,7 +744,7 @@ export async function ATW_DN_GET_22 (assert: test.Test) {
  * @expect  - Only deal negotiations its involved in should be returned.
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_23 (assert: test.Test) {
 
@@ -773,8 +773,8 @@ export async function ATW_DN_GET_23 (assert: test.Test) {
  * @case    - Internal user impersonate partner company to get negotiations after a counter-offer by partner.
  * @expect  - Only deal negotiations the impersonated company is involved in should be returned.
  * @route   - GET deals/negotiations
- * @status  - passing    
- * @tags    - 
+ * @status  - passing
+ * @tags    -
  */
 export async function ATW_DN_GET_24 (assert: test.Test) {
 
@@ -818,7 +818,7 @@ export async function ATW_DN_GET_24 (assert: test.Test) {
  * @expect  - Only deal negotiations the impersonated company is involved in are returned.
  * @route   - GET deals/negotiations
  * @status  - passing
- * @tags    - 
+ * @tags    -
  */
 export async function ATW_DN_GET_25 (assert: test.Test) {
 
@@ -857,4 +857,156 @@ export async function ATW_DN_GET_25 (assert: test.Test) {
     assert.equal(response.status, 200, "Reponse 200");
     assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
                      "Correct DN Returned");
+}
+
+/*
+ * @case    - Negotiation based on proposal owned by publisher without sections
+ * @expect  - 1 DN returned regardless of sender
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    -
+ */
+export async function ATW_DN_GET_26 (assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'accepted',
+                                                                             sender: 'owner'
+                                                                         });
+    let response = await apiRequest.get(route, {}, pubCompany.user);
+
+    assert.equal(response.status, 200, "Reponse 200");
+    assert.same(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+                     "1 DN Returned");
+}
+
+/*
+ * @case    - Negotiation based on proposal owned by publisher with sections in negotaition
+ * @expect  - 1 DN returned
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    -
+ */
+export async function ATW_DN_GET_27 (assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'accepted',
+                                                                             sender: 'owner',
+                                                                             sectionIDs: [ section.section.sectionID ]
+                                                                         });
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equal(response.status, 200, "Reponse 200");
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+                     "1 DN Returned");
+}
+
+/*
+ * @case    - Negotiation based on proposal owned by publisher with sections in both negotaition and proposal
+ * @expect  - 1 DN returned
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    -
+ */
+export async function ATW_DN_GET_28 (assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let proposalSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let negotiationSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ proposalSection.section.sectionID ]);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, buyerCompany.user.userID, {
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'accepted',
+                                                                             sender: 'owner',
+                                                                             sectionIDs: [ negotiationSection.section.sectionID ]
+                                                                         });
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equal(response.status, 200, "Reponse 200");
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+                     "1 DN Returned");
+
+}
+
+/*
+ * @case    - Negotiation based on proposal owned by buyer without sections
+ * @expect  - 1 DN returned
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    -
+ */
+export async function ATW_DN_GET_29 (assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID);
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, pubCompany.user.userID, {
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'accepted',
+                                                                             sender: 'owner'
+                                                                         });
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equal(response.status, 200, "Reponse 200");
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
+                     "1 DN Returned");
+}
+
+/*
+ * @case    - Negotiation based on proposal owned by buyer with sections in negotaition
+ * @expect  - 1 DN returned
+ * @route   - GET deals/negotiations
+ * @status  - passing
+ * @tags    -
+ */
+export async function ATW_DN_GET_30 (assert: test.Test) {
+
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID);
+    console.log(JSON.stringify(proposal));
+    let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, pubCompany.user.userID, {
+                                                                             partnerStatus: 'active',
+                                                                             ownerStatus: 'accepted',
+                                                                             sender: 'partner',
+                                                                             sectionIDs: [ section.section.sectionID ]
+                                                                         });
+    console.log(JSON.stringify(dealNegotiation))
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equal(response.status, 200, "Reponse 200");
+    assert.deepEqual(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, buyerCompany.user, pubCompany.user) ],
+                     "1 DN Returned");
 }

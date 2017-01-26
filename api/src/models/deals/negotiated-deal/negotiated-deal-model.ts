@@ -1,8 +1,9 @@
 'use strict';
 
 import { MarketUserModel } from '../../market-user/market-user-model';
-import { Helper } from '../../../lib/helper';
 import { ProposedDealModel } from '../proposed-deal/proposed-deal-model';
+import { DealSectionModel } from '../../deal-section/deal-section-model';
+import { Helper } from '../../../lib/helper';
 
 class NegotiatedDealModel {
 
@@ -20,11 +21,12 @@ class NegotiatedDealModel {
     public createDate: Date;
     /** Modified date of the negotation */
     public modifyDate: Date;
-
     /** The original proposed deal */
     public proposedDeal: ProposedDealModel;
+    /** The sections relating to the current negotiation */
+    public sections: DealSectionModel[] = [];
 
-    /** 
+    /**
      * These are the new terms of the proposed deal
      */
 
@@ -41,11 +43,14 @@ class NegotiatedDealModel {
     /** Free text that both parties can edit to convene of specific deal conditions */
     public terms: string | null;
 
+    /** Private variables incoming */
+    private oldSections: number[] = null;
+
     /**
      * Constructor
      * @param initParams - Initial parameters to populate the deal negotiation model.
      */
-    constructor(initParams: Partial<NegotiatedDealModel> = {}) {
+    constructor(initParams: Partial<NegotiatedDealModel> & { oldSections?: number[]} = {}) {
         Object.assign(this, initParams);
     }
 
@@ -61,6 +66,8 @@ class NegotiatedDealModel {
         receiverStatus: 'active' | 'archived' | 'deleted' | 'accepted' | 'rejected', negotiationFields: Partial<NegotiatedDealModel> = {}) {
 
         let existDifference = false;
+        let currentSections: DealSectionModel[] = [];
+        let newSections: DealSectionModel[] = [];
 
         this.sender = sender;
 
@@ -69,8 +76,25 @@ class NegotiatedDealModel {
                 continue;
             }
 
+            if (key === 'sections') {
+                currentSections = this[key];
+                newSections = negotiationFields[key];
+                continue;
+            }
+
             if (this[key] && negotiationFields[key] !== this[key] || !this[key] && this.proposedDeal[key] !== negotiationFields[key]) {
                 this[key] = negotiationFields[key];
+                existDifference = true;
+            }
+        }
+
+        if (currentSections.length > 0 || newSections.length > 0) {
+            let currentSectionIds = currentSections.map((section) => { return section.id; });
+            let newSectionIds = newSections.map((section) => { return section.id; });
+
+            if (!Helper.arrayEqual(currentSectionIds, newSectionIds)) {
+                this.oldSections = currentSectionIds;
+                this.sections = negotiationFields.sections;
                 existDifference = true;
             }
         }
@@ -88,24 +112,23 @@ class NegotiatedDealModel {
     }
 
     /**
-     * Function to inspect if the negotiation is active.
-     * @returns True if the negotiation is still going back and forth.
+     * Returns true if the negotiation is still going back and forth.
      */
-    public isActive() {
-        return !this.proposedDeal.isDeleted()
-            && (this.ownerStatus === 'accepted' && this.partnerStatus === 'active' || this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
+
+    public isWaiting() {
+        return (this.ownerStatus === 'accepted' && this.partnerStatus === 'active') || (this.partnerStatus === 'accepted' && this.ownerStatus === 'active');
     }
 
     /**
-     * Returns true if the negotiation can be bought as is.
+     * Returns true if the negotiation is expired.
      */
-    public isValid() {
+    public isExpired() {
 
         let endDate = this.endDate || this.proposedDeal.endDate;
         let startDate = this.startDate || this.proposedDeal.startDate;
         let today = Helper.formatDate((new Date()).toDateString());
 
-        return (startDate <= endDate && endDate >= today || endDate === '0000-00-00') && !this.proposedDeal.isDeleted();
+        return !(startDate <= endDate && endDate >= today || endDate === '0000-00-00');
 
     }
 
@@ -119,6 +142,92 @@ class NegotiatedDealModel {
         } else {
             return this.partner;
         }
+
+    }
+
+    /**
+     * Checks whether this negotiated deal is readable by a specific user. The user must just be one of the negotiating parties.
+     * @param user - the user in question
+     * @returns true if the negotiation is readable by the user
+     */
+    public isReadableByUser(user: MarketUserModel) {
+        return user.company.id === this.partner.company.id || user.company.id === this.proposedDeal.owner.company.id;
+    }
+
+    /**
+     * Processes the difference between the current negotiation-section mapping and the desired negotiation-section mapping
+     * @param: newSectionIds - the input to the API. Need to be diffed with what is already in the database
+     */
+    public getSectionDiff(newSectionIds: number[]) {
+
+        let diff: ArrayDiffResult = Helper.checkDiff(this.oldSections, newSectionIds);
+
+        this.oldSections = null;
+
+        return diff;
+
+    }
+
+    /**
+     * To check if sections were updated through input and therefore need to be updated in the database
+     * @returns: boolean - true if need update, false otherwise
+     */
+    public sectionsUpdated () {
+        return this.oldSections !== null;
+    }
+
+    /**
+     * Check if at least one of the sections of this negotiated deal is valid.
+     * @return: true if at least one section is valid, false otherwise.
+     */
+    public hasOneValidSection() {
+
+        if (this.sections.length === 0) {
+            return this.proposedDeal.oneSectionValid();
+        }
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (this.sections[i].isActive()) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Determines the status to return to the user based on buyer and publisher status
+     */
+    private setPayloadStatusFor(person: 'partner' | 'owner') {
+
+        if (this.proposedDeal.status === 'deleted') {
+            return 'closed_by_owner';
+        }
+
+        if (person === 'partner') {
+            if (this.partnerStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (this.partnerStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (this.ownerStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (this.ownerStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        } else {
+            if (this.ownerStatus === 'active') {
+                return 'waiting_on_you';
+            } else if (this.ownerStatus === 'rejected') {
+                return 'rejected_by_you';
+            } else if (this.partnerStatus === 'active') {
+                return 'waiting_on_partner';
+            } else if (this.partnerStatus === 'rejected') {
+                return 'rejected_by_partner';
+            }
+        }
+
+        return 'accepted';
 
     }
 
@@ -162,55 +271,12 @@ class NegotiatedDealModel {
                 start_date: this.startDate,
                 end_date: this.endDate,
                 created_at: this.createDate.toISOString(),
-                modified_at: this.modifyDate.toISOString()
+                modified_at: this.modifyDate.toISOString(),
+                inventory: this.sections.map((section) => { return section.toPayload(); })
             };
         }
 
     };
-
-    /**
-     * Checks whether this negotiated deal is readable by a specific user. The user must just be one of the negotiating parties.
-     * @param user - the user in question
-     * @returns true if the negotiation is readable by the user
-     */
-    public isReadableByUser(user: MarketUserModel) {
-        return user.company.id === this.partner.company.id || user.company.id === this.proposedDeal.owner.company.id;
-    }
-
-    /**
-     * Determines the status to return to the user based on buyer and publisher status
-     */
-    private setPayloadStatusFor(person: 'partner' | 'owner') {
-
-        if (this.proposedDeal.status === 'deleted') {
-            return 'closed_by_owner';
-        }
-
-        if (person === 'partner') {
-            if (this.partnerStatus === 'active') {
-                return 'waiting_on_you';
-            } else if (this.partnerStatus === 'rejected') {
-                return 'rejected_by_you';
-            } else if (this.ownerStatus === 'active') {
-                return 'waiting_on_partner';
-            } else if (this.ownerStatus === 'rejected') {
-                return 'rejected_by_partner';
-            }
-        } else {
-            if (this.ownerStatus === 'active') {
-                return 'waiting_on_you';
-            } else if (this.ownerStatus === 'rejected') {
-                return 'rejected_by_you';
-            } else if (this.partnerStatus === 'active') {
-                return 'waiting_on_partner';
-            } else if (this.partnerStatus === 'rejected') {
-                return 'rejected_by_partner';
-            }
-        }
-
-        return 'accepted';
-
-    }
 
 }
 

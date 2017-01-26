@@ -741,3 +741,51 @@ export async function IXM_API_DEALS_PUT_24(assert: test.Test) {
     assert.equal(response.status, 403);
 
 }
+
+/*
+ * @case    - Buyer tries to buy proposal without sections
+ * @expect  - 403 - FORBIDDEN  
+ * @route   - PUT deals/active
+ * @status  - working 
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_25(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let pubCompany = await databasePopulator.createCompany();
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyerCompany.user);
+
+    assert.equal(response.status, 403);
+
+}
+
+/*
+ * @case    - Pub tries to buy proposal without sections
+ * @expect  - 403 - FORBIDDEN  
+ * @route   - PUT deals/active
+ * @status  - working 
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_26(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let pubCompany = await databasePopulator.createCompany();
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, pubCompany.user);
+
+    assert.equal(response.status, 403);
+
+}

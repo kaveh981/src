@@ -45,6 +45,13 @@ class SiteModel {
         };
 
     }
+    /**
+     * Check if this site is active
+     * @return: true if it is active, false otherwise 
+     */
+    public isActive() {
+        return this.status === 'active';
+    }
 
 }
 

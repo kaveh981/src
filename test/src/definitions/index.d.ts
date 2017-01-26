@@ -182,6 +182,7 @@ interface IDealNegotiationData {
     partnerStatus?: string;
     createDate?: Date;
     modifyDate?: Date;
+    sectionIDs?: number[];
 }
 
 interface ISettledDeal {

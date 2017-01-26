@@ -424,7 +424,7 @@ export async function IXM_API_PROPOSAL_GET_SP_14(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
-    assert.equals(response.status, 404);
+    assert.equals(response.status, 200);
 
 }
 
@@ -648,7 +648,7 @@ export async function IXM_API_PROPOSAL_GET_SP_22(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
-    assert.equals(response.status, 404);
+    assert.equals(response.status, 200);
 
 }
 
@@ -797,7 +797,7 @@ export async function IXM_API_PROPOSAL_GET_SP_27(assert: test.Test) {
  * @status  - working
  * @tags    - get, proposal, targeting
  */
-export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
+export async function IXM_API_PROPOSAL_GET_SP_28(assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -846,7 +846,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_28(assert: test.Test) {
  * @status  - working
  * @tags    - get, proposal, targeting
  */
-export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
+export async function IXM_API_PROPOSAL_GET_SP_29(assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -895,7 +895,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_29(assert: test.Test) {
  * @status  - working
  * @tags    - get, proposal, targeting
  */
-export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
+export async function IXM_API_PROPOSAL_GET_SP_30(assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -943,7 +943,7 @@ export async function IXM_API_PROPOSAL_GET_SPT_30(assert: test.Test) {
  * @status  - working
  * @tags    - get, proposal, targeting
  */
-export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
+export async function IXM_API_PROPOSAL_GET_SP_31(assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -985,16 +985,421 @@ export async function IXM_API_PROPOSAL_GET_SPT_31(assert: test.Test) {
 }
 
 /*
+ * @case    - The publisher is targeted by proposal that has no sections
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_32(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+
+/*
+ * @case    - The buyer is targeted by proposal that has no sections
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_33(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+
+/*
+ * @case    - The publisher is targeted by proposal that has no valid sections
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_34(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let inactiveSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ inactiveSection.section.sectionID ], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+
+/*
+ * @case    - The publisher is targeted by proposal that has no active sites
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_35(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+
+/*
+ * @case    - The buyer is targeted by proposal that has no active sites
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_36(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+
+/*
+ * @case    - The publisher is targeted by proposal that has some inactive sites
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_37(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let inactiveSite = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let activeSite = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ activeSite.siteID, inactiveSite.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+
+/*
+ * @case    - The buyer is targeted by proposal that has some inactive sites
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_38(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let inactiveSite = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
+    let activeSite = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ activeSite.siteID, inactiveSite.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+
+/*
+ * @case    - The buyer is targeted by proposal that has no valid sections
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_39(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let inactiveSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ inactiveSection.section.sectionID ], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+/*
+ * @case    - The publisher is targeted by proposal that has some invalid sections
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_40(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let inactiveSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID, inactiveSection.section.sectionID ],
+                                                          {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+
+/*
+ * @case    - The buyer is targeted by proposal that has some invalid sections
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_41(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let inactiveSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID, inactiveSection.section.sectionID ],
+                                                          {}, [ buyerCompany.user.userID ]);
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+
+/*
+ * @case    - The publisher is targeted by proposal that is expired
+ * @expect  - 200 - The publisher is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+export async function IXM_API_PROPOSAL_GET_SP_42(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ],
+                                                          { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) }, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, buyerCompany.user));
+
+}
+/*
+ * @case    - The buyer is targeted by proposal that is expired
+ * @expect  - 200 - The buyer is able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+
+export async function IXM_API_PROPOSAL_GET_SP_43(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                          { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) }, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
+
+}
+
+/*
+ * @case    - The publisher is targeted by proposal that is deleted
+ * @expect  - 404 - The publisher is not able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+export async function IXM_API_PROPOSAL_GET_SP_44(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ],
+                                                          { status: 'deleted' }, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
+}
+/*
+ * @case    - The buyer is targeted by proposal that is deleted
+ * @expect  - 404 - The buyer is not able to see the proposal 
+ * @route   - GET deals/proposals/:proposal_id
+ * @status  - 
+ * @tags    - get, proposal, targeting
+ */
+export async function IXM_API_PROPOSAL_GET_SP_45(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
+                                                          { status: 'deleted' }, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
+
+    assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
+
+}
+
+/*
  * @case    - ProposalID is deleted and user is NOT the owner and user started a negotiation on this proposal
  * @expect  - 200. proposal with limited properties should be returned
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
  */
-export async function IXM_API_PROPOSAL_GET_SP_32(assert: test.Test) {
+export async function IXM_API_PROPOSAL_GET_SP_46(assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -1009,5 +1414,6 @@ export async function IXM_API_PROPOSAL_GET_SP_32(assert: test.Test) {
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
     assert.equals(response.status, 404);
+    assert.deepEqual(response.body.data, []);
 
 }

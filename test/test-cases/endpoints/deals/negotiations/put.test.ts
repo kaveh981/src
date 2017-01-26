@@ -24,10 +24,9 @@ async function commonDatabaseSetup() {
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
     await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
-    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
-    let site = await databasePopulator.createSite(publisher.publisher.userID);
-    let section = await databasePopulator.createSection(publisher.publisher.userID, [ site.siteID ]);
-    await databasePopulator.createProposal(publisher.publisher.userID, [ section.section.sectionID ]);
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
 }
 
 /**
@@ -55,6 +54,18 @@ async function getOwnerStatus(proposal: IProposal, partnerID: number): Promise<s
  */
 async function getPartnerStatus(proposal: IProposal, partnerID: number): Promise<string> {
     return await getNegotiatedFieldInDB(proposal, partnerID, 'partnerStatus');
+}
+
+/**
+ * Get section mappings from database
+ */
+async function getSectionMappings(proposalID: number, partnerID: number) {
+    let row = await databaseManager.select('sectionID')
+                                   .from('ixmNegotiationSectionMappings')
+                                   .join('ixmDealNegotiations', 'ixmNegotiationSectionMappings.negotiationID', '=', 'ixmDealNegotiations.negotiationID')
+                                   .where('proposalID', proposalID)
+                                   .andWhere('partnerID', partnerID);
+    return row.map((section) => { return section.sectionID; });
 }
 
 /** Generic Authentication Tests */
@@ -2151,4 +2162,914 @@ export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
     assert.equal(response.body.data[0].terms, 'honk honk honk');
     assert.equal(termsInDB, 'honk honk honk');
     assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
+}
+
+/**
+ * @case    - Inactive section in counter-offer request
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_50(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let inactiveSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID, inactiveSection.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Not their section in counter-offer request
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_51(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let poorPubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(poorPubCompany.user.userID);
+    let section = await databasePopulator.createSection(poorPubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - 0 sections on negotiation, counter-offer with multiple sections
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_52(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID, anotherSection.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Multiple sections on negotiation, counter-offer with 0 sections
+ * @expect  - 400
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_53(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID,
+                                                             [ section.section.sectionID, anotherSection.section.sectionID],
+                                                             { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: []
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 400);
+}
+
+/**
+ * @case    - Multiple sections on negotiation, counter-offer with different sections
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_54(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ anotherSection.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Multiple sections on proposal, counter-offer with same sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_55(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Buyer negotiate on sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_56(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    /** Test */
+    assert.equal(response.status, 400);
+
+}
+
+/**
+ * @case    - Multiple sections on negotiation, counter-offer with same sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_57(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ anotherSection.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i really am'
+    };
+    await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by itself) without sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_58(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by partner) without sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_59(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by pub) with sections in proposal
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_60(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(2);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    /** Test */
+    let sections = await Helper.sectionArrayToPayload([ section.section.sectionID ]);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by pub) with sections in proposal
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_61(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(2);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'cool'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    /** Test */
+    let sections = await Helper.sectionArrayToPayload([ section.section.sectionID ]);
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by pub) with sections in negotiation
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_62(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyerCompany.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, pubCompany.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody2, buyerCompany.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by pub) with sections in negotiation
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_63(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    let pubRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by pub) with sections in both proposal and negotiation
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_64(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ anotherSection.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by pub) with sections in both proposal and negotiation
+ * @expect  - 200
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_65(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ anotherSection.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, buyerRequestBody2, buyer.user);
+
+    let pubRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, buyerCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by buyer) without sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_66(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let proposalObj = await databasePopulator.createProposal(buyerCompany.user.userID, [], {}, [ pubCompany.user.userID ]);
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by itself) without sections
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_67(assert: test.Test) {
+
+   /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let proposalObj = await databasePopulator.createProposal(buyerCompany.user.userID, [], { status: 'active' });
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        terms: 'i am a goose'
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    /** Test */
+    assert.equal(response.status, 403);
+
+}
+
+/**
+ * @case    - Buyer accept a negotiation (proposal created by buyer) with sections in negotiation
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_68(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(buyerCompany.user.userID, [], { status: 'active' });
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, pubCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
+}
+
+/**
+ * @case    - Pub accept a negotiation (proposal created by buyer) with sections in negotiation
+ * @expect  - 403
+ * @route   - PUT deals/active
+ * @status  - working
+ * @tags    - put, negotiations, deals
+ */
+export async function ATW_API_PUT_DEANEG_FUNC_69(assert: test.Test) {
+
+    /** Setup */
+    assert.plan(3);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let proposalObj = await databasePopulator.createProposal(buyerCompany.user.userID, [], { status: 'active' });
+
+    let pubRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        inventory: [ section.section.sectionID ]
+    };
+    await apiRequest.put(route, pubRequestBody, publisher.user);
+
+    let buyerRequestBody = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: pubCompany.user.userID,
+        terms: 'no you are a duck'
+    };
+    await apiRequest.put(route, buyerRequestBody, buyer.user);
+
+    let pubRequestBody2 = {
+        proposal_id: proposalObj.proposal.proposalID,
+        partner_id: buyerCompany.user.userID,
+        response: 'accept'
+    };
+    let response = await apiRequest.put(route, pubRequestBody2, publisher.user);
+
+    /** Test */
+    let sectionInDB = await getSectionMappings(proposalObj.proposal.proposalID, pubCompany.user.userID);
+    let sections = await Helper.sectionArrayToPayload(pubRequestBody.inventory);
+
+    assert.equal(response.status, 200);
+    assert.same(sectionInDB, pubRequestBody.inventory);
+    assert.deepEqual(response.body.data[0].inventory, sections);
+
 }

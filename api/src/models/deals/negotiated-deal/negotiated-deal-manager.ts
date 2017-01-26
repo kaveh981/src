@@ -9,19 +9,11 @@ import { ProposedDealManager } from '../proposed-deal/proposed-deal-manager';
 import { MarketUserManager } from '../../market-user/market-user-manager';
 import { MarketUserModel } from '../../market-user/market-user-model';
 import { PaginationModel } from '../../pagination/pagination-model';
+import { DealSectionManager } from '../../deal-section/deal-section-manager';
 import { Helper } from '../../../lib/helper';
 
 /** Deal Negotiation model manager */
 class NegotiatedDealManager {
-
-    /** Internal databaseManager  */
-    private databaseManager: DatabaseManager;
-
-    /** Internal proposed deal manager */
-    private proposedDealManager: ProposedDealManager;
-
-    /** Internal market user manager */
-    private marketUserManager: MarketUserManager;
 
     /**
      * Constructor
@@ -29,11 +21,12 @@ class NegotiatedDealManager {
      * @param proposedDealManager - An instance of the ProposedDealManager.
      * @param marketUserManager - An instance of the Market User Manager.
      */
-    constructor(databaseManager: DatabaseManager, proposedDealManager: ProposedDealManager, marketUserManager: MarketUserManager) {
-        this.databaseManager = databaseManager;
-        this.proposedDealManager = proposedDealManager;
-        this.marketUserManager = marketUserManager;
-    }
+    constructor(
+        private databaseManager: DatabaseManager,
+        private proposedDealManager: ProposedDealManager,
+        private marketUserManager: MarketUserManager,
+        private dealSectionManager: DealSectionManager
+    ) {}
 
     /**
      * Get a negotation from the primary id keys: proposalID, partnerID.
@@ -72,6 +65,8 @@ class NegotiatedDealManager {
             negotiatedDeal.proposedDeal = await this.proposedDealManager.fetchProposedDealFromId(proposalID);
         })(), (async () => {
             negotiatedDeal.partner = await this.marketUserManager.fetchMarketUserFromId(rows[0].partnerContactID);
+        })(), (async () => {
+            negotiatedDeal.sections = await this.dealSectionManager.fetchSectionsFromNegotiationId(negotiatedDeal.id);
         })() ]);
 
         return negotiatedDeal;
@@ -277,6 +272,13 @@ class NegotiatedDealManager {
         negotiatedDeal.id = negotiationInserted.negotiationID;
         negotiatedDeal.modifyDate = negotiationInserted.modifyDate;
 
+        // Insert negotiation section mappings into ixmNegotiationSectionMappings
+        let sectionIDs = negotiatedDeal.sections.map((section) => { return section.id; });
+
+        await Promise.all(sectionIDs.map((sectionID) => {
+                                            return this.dealSectionManager.insertNegotiationSection(negotiatedDeal.id, sectionID, transaction);
+                                         }));
+
     }
 
     /**
@@ -332,7 +334,9 @@ class NegotiatedDealManager {
             price: negotiationFields.price || null,
             impressions: negotiationFields.impressions || null,
             budget: negotiationFields.budget || null,
-            terms: negotiationFields.terms || null
+            terms: negotiationFields.terms || null,
+            sections: proposedDeal.sections || [],
+            oldSections: proposedDeal.sections.map((section) => { return section.id; })
         });
 
         return negotiatedDeal;
@@ -343,6 +347,7 @@ class NegotiatedDealManager {
      * Update a negotiation with new parameters sent in the request and return new modifyDate
      * @param negotiatedDeal - The negotiated deal to update.
      * @param transaction - An optional transaction to use. 
+     * @param currentSectionIds - the current mapping of sections to this negotiation
      */
     public async updateNegotiatedDeal(negotiatedDeal: NegotiatedDealModel, transaction?: knex.Transaction) {
 
@@ -384,11 +389,25 @@ class NegotiatedDealManager {
         negotiatedDeal.id = negotiationUpdated.negotiationID;
         negotiatedDeal.modifyDate = negotiationUpdated.modifyDate;
 
+        if (negotiatedDeal.sectionsUpdated()) {
+            let newSectionIds: number[] = negotiatedDeal.sections.map((section) => { return section.id; });
+            let sectionDiff: ArrayDiffResult = negotiatedDeal.getSectionDiff(newSectionIds);
+
+            // Update ixmNegotiationSectionMappings without causing duplicate insert attempts using sectionDiff
+            await this.dealSectionManager.removeSectionsFromNegotiation(negotiatedDeal.id, sectionDiff.removed, transaction);
+
+            for (let i = 0; i < sectionDiff.added.length; i++) {
+                let sectionID = sectionDiff.added[i];
+                await this.dealSectionManager.insertNegotiationSection(negotiatedDeal.id, sectionID, transaction);
+            }
+        }
+
     }
 
     /**
      * Set the ownerStatus to deleted on all negotiation with this proposalID.
      * @param proposalID - The ID of the proposal.
+     * @param transaction - knex.Transaction 
      */
     public async deleteOwnerNegotiationsFromProposalId(proposalID: number, transaction?: knex.Transaction) {
 

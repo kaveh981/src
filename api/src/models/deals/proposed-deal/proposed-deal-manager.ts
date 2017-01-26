@@ -99,7 +99,7 @@ class ProposedDealManager {
             });
 
             let extraInfo = await Promise.parallel({
-                sections: this.dealSectionManager.fetchActiveSectionsFromProposalId(row.proposalID),
+                sections: this.dealSectionManager.fetchSectionsFromProposalId(row.proposalID),
                 owner: this.marketUserManager.fetchMarketUserFromId(row.ownerContactID),
                 targets: this.fetchTargetedIdsFromProposalId(row.proposalID)
             });

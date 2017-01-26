@@ -37,7 +37,7 @@ class DealSectionModel {
      * Returns true if the section is active.
      */
     public isActive() {
-        return this.sites.length > 0 && this.status === 'active';
+        return this.sites.length > 0 && this.status === 'active' && this.oneSiteValid();
     }
 
     /**
@@ -74,6 +74,38 @@ class DealSectionModel {
             id: this.id,
             resource: infoURL
         };
+
+    }
+
+    /**
+     * Check if all the sites of this section are active 
+     * @return: true if all sites are active, false otherwise
+     */
+    public allSitesValid() {
+
+        for (let i = 0; i < this.sites.length; i++) {
+            if (!this.sites[i].isActive()) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Check if this section has at least one site and that it is valid
+     * @returns: true if one site is valid, false if none are 
+     */
+    public oneSiteValid() {
+
+        for (let i = 0; i < this.sites.length; i++) {
+            if (this.sites[i].isActive()) {
+                return true;
+            }
+        }
+
+        return false;
 
     }
 
