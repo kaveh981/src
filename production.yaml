@@ -45,6 +45,4 @@ services:
         networks:
             - atwater
         ports:
-            - "443:443"
-        volumes:
-            - "/services/ixm/atw-nginx/ssl:/etc/nginx/ssl:ro"
+            - "1337:80"
