@@ -36,6 +36,10 @@ class Server {
 
         Log.info(`Server has started successfully, listening on port ${port}.`);
 
+        if (this.config.getEnv('NODE_ENV') === 'development') {
+            Log.warn('Running the server in development mode.');
+        }
+
     }
 
     /** 
@@ -46,7 +50,7 @@ class Server {
     private startServer(middlewareConfig: any, expressConfig: any) {
 
         let app: any = express();
-        let port = this.config.getEnv('SERVER_PORT');
+        let port = expressConfig['port'];
 
         Log.info(`Starting the server on port ${port}...`);
 
@@ -54,16 +58,6 @@ class Server {
         for (let key in expressConfig) {
             Log.trace(`Setting express ${key} to ${expressConfig[key]}`);
             app.set(key, expressConfig[key]);
-        }
-
-        // Disable middleware with wrong environments
-        for (let key in middlewareConfig) {
-            let config = middlewareConfig[key];
-
-            if (config.env && config.env !== this.config.getEnv('NODE_ENV')) {
-                Log.debug(`Disabling middleware ${key}...`);
-                config.enabled = false;
-            }
         }
 
         // Debugging for loading middleware

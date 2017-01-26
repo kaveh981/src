@@ -21,11 +21,11 @@ const Log = new Logger('AUTH');
 /** Identify if the user is legitimate, and is an IXM user */
 async function identifyUser(userID: number, accessToken: string, req: express.Request) {
 
-    let jwtPassphrase = config.getEnv('AUTH_JWT_PASSWORD');
+    let jwtPassphrase = authConfig['jwtSecret'];
     let userToken: { userID: number, userType: number };
 
     try {
-        if (config.getEnv('NODE_ENV') === 'development' && config.getEnv('AUTH_IGNORE_TOKEN', true) === 'yes') {
+        if (config.getEnv('NODE_ENV') === 'development' && authConfig['ignoreTokens']) {
             Log.warn('API is ignoring authentication tokens.');
             userToken = JSON.parse(accessToken);
         } else {

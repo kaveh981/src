@@ -23,6 +23,11 @@ const notifier = Injector.request<Notifier>('Notifier');
 
 async function start() {
 
+    // If no environment is specified, default to development.
+    if (!process.env.NODE_ENV) {
+        process.env.NODE_ENV = 'development';
+    }
+
     try {
         await configLoader.initialize({ 'mw': './src/middleware' });
 

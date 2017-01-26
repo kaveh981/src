@@ -8,3 +8,9 @@ userHeader: IXM-UserID
 
 # A switch for allowing public use of API
 public: true
+
+# The JWT secret.
+jwtSecret: qwerty
+
+# Ignore auth tokens. Setting this to true allows you to pass { "userID": userID, "userType": userType } in the token header.
+ignoreTokens: false

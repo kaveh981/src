@@ -6,13 +6,6 @@ logger:
     module:
         name: mw:http-logger
 
-# Enable CORS
-cors-dev:
-    env: development
-    priority: 20
-    module:
-        name: cors
-
 # Augment the express response object
 response-augmenter:
     priority: 30
