@@ -1499,7 +1499,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_34(assert: test.Test) {
     assert.equal(response.status, 404);
 }
 
-
 /**
  * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
  * @expect  - 200 and 403
@@ -2216,7 +2215,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_53(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID,
-                                                             [ section.section.sectionID, anotherSection.section.sectionID],
+                                                             [ section.section.sectionID, anotherSection.section.sectionID ],
                                                              { status: 'active' });
 
     let buyerRequestBody = {

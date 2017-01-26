@@ -996,14 +996,12 @@ export async function ATW_DN_GET_30 (assert: test.Test) {
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID);
-    console.log(JSON.stringify(proposal));
     let dealNegotiation = await databasePopulator.createDealNegotiation(proposal.proposal.proposalID, pubCompany.user.userID, {
                                                                              partnerStatus: 'active',
                                                                              ownerStatus: 'accepted',
                                                                              sender: 'partner',
                                                                              sectionIDs: [ section.section.sectionID ]
                                                                          });
-    console.log(JSON.stringify(dealNegotiation))
     let response = await apiRequest.get(route, {}, buyer.user);
 
     assert.equal(response.status, 200, "Reponse 200");

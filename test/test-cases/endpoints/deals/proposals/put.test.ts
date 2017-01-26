@@ -329,14 +329,13 @@ export async function ATW_API_PUT_DEAPRO_03_04 (assert: test.Test) {
     let proposal = {
         auction_type: 'second',
         name: 'fabulous proposal',
-        price: 5,
+        price: 5
     };
 
     /** Test */
     let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 400);
-
 
 }
 
@@ -396,13 +395,12 @@ export async function ATW_API_PUT_DEAPRO_04_02 (assert: test.Test) {
     let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
 
-
     let proposal = {
         auction_type: 'second',
         name: 'fabulous proposal',
         price: 5,
-        partners: [ pubCompany.user.userID],
-        inventory: [section1.section.sectionID, section2.section.sectionID]
+        partners: [ pubCompany.user.userID ],
+        inventory: [ section1.section.sectionID, section2.section.sectionID ]
     };
 
     /** Test */
@@ -434,12 +432,12 @@ export async function ATW_API_PUT_DEAPRO_04_03 (assert: test.Test) {
         auction_type: 'second',
         name: 'fabulous proposal',
         price: 5,
-        partners: [ pubCompany.user.userID, anotherPubCompany.user.userID ],
+        partners: [ pubCompany.user.userID, anotherPubCompany.user.userID ]
     };
 
     /** Test */
     let response = await apiRequest.put(route, proposal, buyer.user);
-    
+
     assert.equal(response.status, 201);
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
     assert.equal(response.body.data[0].name, proposal.name);

@@ -99,7 +99,7 @@ class NegotiatedDealManager {
                                         })
                                         .andWhere('ixmDealProposals.status', 'active')
                                         .andWhere('owner.status', 'A')
-                                        .andWhere('partner.status', 'A')
+                                        .andWhere('partner.status', 'A');
 
         if (pagination) {
             query.limit(pagination.limit + 1).offset(pagination.getOffset());
