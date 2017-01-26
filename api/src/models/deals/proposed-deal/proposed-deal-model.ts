@@ -14,8 +14,8 @@ class ProposedDealModel {
     public name: string;
     /** Description of the proposal */
     public description: string;
-    /** Status of the packge, which could only be active, paused or deleted */
-    public status: 'active' | 'paused' | 'deleted';
+    /** Status of the packge, which could only be active, paused, deleted, or expired */
+    public status: 'active' | 'paused' | 'deleted' | 'expired';
     /** Flag to define is the proposal viewable to public */
     public isPublic: number;
     /** Start date of the proposal */
@@ -148,6 +148,10 @@ class ProposedDealModel {
                 modified_at: this.modifyDate.toISOString()
             };
         } else {
+            if (this.isExpired()) {
+                this.status = 'expired';
+            }
+
             return {
                 proposal_id: this.id,
                 owner_id: this.owner.company.id,

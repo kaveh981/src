@@ -135,7 +135,6 @@ class ProposedDealManager {
      */
     public async fetchTargetedProposedDealsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
 
-        let today = Helper.formatDate(Helper.currentDate());
         let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
         return await this.fetchProposedDeals(pagination, dbFiltering,
@@ -145,13 +144,7 @@ class ProposedDealManager {
             (db) => {
                 db.where('ixmProposals.status', 'active')
                 .andWhere('startDate', '<=', 'endDate')
-                .andWhere(function() {
-                    this.where('endDate', '>=', today)
-                        .orWhere('endDate', '0000-00-00');
-                })
-                .andWhere('owner.status', 'A')
-                .andWhere('rtbSections.status', 'A')
-                .andWhere('sites.status', 'A');
+                .andWhere('owner.status', 'A');
             });
 
     }
