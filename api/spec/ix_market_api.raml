@@ -165,6 +165,12 @@ traits:
                 displayName: Section Name
                 description: A string that must be present in the returned sections' name
                 maxLength: 255
+            status:
+                type: string
+                required: false
+                displayName: Status
+                description: The desired status of the returned sections
+                enum: ["active", "deleted"]
 
 
 ################################
