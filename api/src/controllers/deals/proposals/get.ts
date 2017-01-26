@@ -29,7 +29,7 @@ function Proposals(router: express.Router): void {
 
         /** Validation */
 
-        // Validate request queryy
+        // Validate request query
         let validationErrors = validator.validateType(req.query, 'traits/queryParameters/pageable',
                                { fillDefaults: true, forceOnError: [ 'TYPE_NUMB_TOO_LARGE' ], sanitizeIntegers: true });
 

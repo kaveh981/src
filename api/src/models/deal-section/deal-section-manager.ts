@@ -5,11 +5,25 @@ import * as knex from 'knex';
 import { DatabaseManager } from '../../lib/database-manager';
 import { DealSectionModel } from './deal-section-model';
 import { PaginationModel } from '../pagination/pagination-model';
+import { MarketUserModel } from '../market-user/market-user-model';
 import { SiteManager } from '../site/site-manager';
 import { Helper } from '../../lib/helper';
 
 /** Deal Negotiation model manager */
 class DealSectionManager {
+
+    private readonly filterMapping = {
+        name: {
+            table: 'rtbSections',
+            operator: 'LIKE',
+            column: 'name'
+        },
+        status: {
+            table: 'rtbSections',
+            operator: '=',
+            column: 'status'
+        }
+    };
 
     /** Internal databaseManager  */
     private databaseManager: DatabaseManager;
@@ -160,7 +174,7 @@ class DealSectionManager {
     /**
      * Get the active section ids for the proposal
      * @param proposalID - The id of the proposed deal.
-     * @returns An array of section ids;
+     * @returns An array of section objects for that proposal
      */
     public async fetchSectionsFromProposalId(proposalID: number) {
 
@@ -193,6 +207,28 @@ class DealSectionManager {
         dealSectionIds = rows.map((row) => { return row.sectionID; });
 
         return await this.fetchDealSectionsByIds(dealSectionIds);
+    }
+
+    /** 
+     * Get all sections for a specific user
+     * @param user - the user to find sections for
+     * @param pagination - pagination details for this request
+     * @param filters - filtering details for this request
+     * @returns An array of section objects for this user
+     */
+    public async fetchDealSectionsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
+
+        this.resolveFilters(filters);
+
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
+
+        return await this.fetchDealSections(pagination, dbFiltering,
+            (db) => {
+                db.where({
+                    'rtbSections.userID': user.company.id
+                });
+            }
+        );
 
     }
 
@@ -234,6 +270,24 @@ class DealSectionManager {
         await transaction.delete().from('ixmNegotiationSectionMappings')
                                   .whereIn('sectionID', sectionIDs)
                                   .andWhere('negotiationID', negotiationID);
+
+    }
+
+    /**
+     * Properly formats filters and their values for successful application in the database
+     * @param filters - the filter to be formatted
+     */
+    private resolveFilters(filters: any) {
+
+        // Surround the name filter with % to properly format for MySQL LIKE operation
+        if (filters.name) {
+            filters.name = '%' + filters.name + '%';
+        }
+
+        // Transform the provided word status to a letter to compare the proper values in the database
+        if (filters.status) {
+            filters.status = Helper.statusWordToLetter(filters.status);
+        }
 
     }
 

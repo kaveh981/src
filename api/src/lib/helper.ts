@@ -105,6 +105,28 @@ class Helper {
     }
 
     /**
+     * Convert a word status to a single letter.
+     * @param status - The word to convert.
+     * @returns The letter.
+     */
+    public static statusWordToLetter(status: string): 'A' | 'D' | 'P' | 'I' {
+
+        switch (status) {
+            case 'active':
+                return 'A';
+            case 'deleted':
+                return 'D';
+            case 'paused':
+                return 'P';
+            case 'inactive':
+                return 'I';
+            default:
+                throw new Error(`Unknown status: ${status}`);
+        }
+
+    }
+
+    /**
      * Convert the matching type integer to a full word
      * @param matchType - An integer representing matching type.
      * @returns The word corresponding to this match type.

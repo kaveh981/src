@@ -103,6 +103,9 @@ class Helper {
                 status: proposal.proposal.status
             };
         } else {
+            if (Helper.isProposalExpired(proposal)) {
+                proposal.proposal.status = 'expired';
+            }
             return {
                 auction_type: proposal.proposal.auctionType,
                 budget: proposal.proposal.budget,
@@ -393,6 +396,16 @@ class Helper {
         }
 
         return 'accepted';
+
+    }
+
+    public static isProposalExpired(proposal: INewProposalData) {
+
+        let today = Helper.formatDate((new Date()).toDateString());
+        let startDate = Helper.formatDate(proposal.proposal.startDate);
+        let endDate = Helper.formatDate(proposal.proposal.endDate);
+
+        return !((startDate <= endDate && endDate >= today) || endDate === '0000-00-00');
 
     }
 
