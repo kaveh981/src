@@ -5,11 +5,20 @@ import * as knex from 'knex';
 import { DatabaseManager } from '../../lib/database-manager';
 import { DealSectionModel } from './deal-section-model';
 import { PaginationModel } from '../pagination/pagination-model';
+import { MarketUserModel } from '../market-user/market-user-model';
 import { SiteManager } from '../site/site-manager';
 import { Helper } from '../../lib/helper';
 
 /** Deal Negotiation model manager */
 class DealSectionManager {
+
+    private readonly filterMapping = {
+        name: {
+            table: 'rtbSections',
+            operator: 'LIKE',
+            column: 'name'
+        }
+    };
 
     /** Internal databaseManager  */
     private databaseManager: DatabaseManager;
@@ -145,7 +154,7 @@ class DealSectionManager {
     /**
      * Get the active section ids for the proposal
      * @param proposalID - The id of the proposed deal.
-     * @returns An array of section ids;
+     * @returns An array of section objects for that proposal
      */
     public async fetchActiveSectionsFromProposalId(proposalID: number) {
 
@@ -159,6 +168,29 @@ class DealSectionManager {
                 .andWhere(function() {
                     this.where('adUnits.status', 'A')
                         .orWhereNull('adUnits.status');
+                });
+            }
+        );
+
+    }
+
+    /**
+     * Get all sections for a specific user
+     * @param 
+     * @returns 
+     */
+    public async fetchDealSectionsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
+
+        if (filters.name) {
+            filters.name = '%' + filters.name + '%';
+        }
+
+        let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
+
+        return await this.fetchDealSections(pagination, dbFiltering,
+            (db) => {
+                db.where({
+                    'rtbSections.userID': user.company.id
                 });
             }
         );
