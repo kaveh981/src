@@ -24,7 +24,7 @@ class Notifier {
     /** On/Off switch */
     private enabled: boolean;
 
-    constructor (config: ConfigLoader, notificationMediums: NotificationMedium[] = []) {
+    constructor(config: ConfigLoader, notificationMediums: NotificationMedium[] = []) {
         this.config = config;
         this.notificationMediums = notificationMediums;
     }
@@ -64,7 +64,7 @@ class Notifier {
      * @param - settledDeal: SettledDealModel - the resulting settled deal from transaction 
      * @return - Promise<boolean> to identify success or failure depending on its components 
      */
-    public sendNotification (templateKey: string, userInfo: UserModel, proposal: ProposedDealModel, settledDeal: SettledDealModel): Promise<boolean> {
+    public sendNotification(templateKey: string, userInfo: UserModel, proposal: ProposedDealModel, settledDeal: SettledDealModel): Promise<boolean> {
         return new Promise((resolve, reject) => {
 
             if (this.enabled) {
@@ -107,19 +107,65 @@ class Notifier {
      * @param - settledDeal: SettledDealModel - the resulting settled deal from transaction
      * @returns - The model as specified in the API.
      */
-    private createPayload (userInfo: UserModel, proposal: ProposedDealModel, settledDeal: SettledDealModel) {
+    private createPayload(userInfo: UserModel, proposal: ProposedDealModel, settledDeal: SettledDealModel) {
+
+        let startDate = this.formateDate(settledDeal.startDate);
+        startDate = startDate !== '' ? startDate : 'Immediate';
+        let endDate = this.formateDate(settledDeal.endDate);
+        endDate = endDate !== '' ? endDate : 'Ongoing';
+        let auctionType = this.formatAuctionType(settledDeal.auctionType);
+
         return {
             proposalID: proposal.id,
             proposalName: proposal.name,
             proposalBuyer: userInfo.firstName + ' ' + userInfo.lastName,
-            dealID: settledDeal.id,
-            auctionType: settledDeal.auctionType,
-            rate: settledDeal.price,
-            startDate: settledDeal.startDate,
-            endDate: settledDeal.endDate,
+            dealID: settledDeal.externalDealID,
+            auctionType: auctionType,
+            price: settledDeal.price,
+            startDate: startDate,
+            endDate: endDate,
             priority: settledDeal.priority
         };
+
     }
+
+    /**
+     * Convert auction type to a meaningful phrase.
+     * @param - auctionType: A string indicating the auction type: 'first', 'second' or 'fixed'.
+     * @returns - A string corresponding to the auction type.
+     */
+    private formatAuctionType(auctionType: string): string {
+
+        switch (auctionType) {
+            case 'first':
+                return 'First Price';
+            case 'second':
+                return 'Second Price';
+            case 'fixed':
+                return 'Fixed Price';
+
+        }
+
+    }
+
+    /**
+     * Formats date like '26 January 2017'.
+     * @param - date: string representation of Date as 'yyyy-mm-dd'.
+     * @returns - Formatted string of the date or '' if @param is '0000-00-00'.
+     */
+    private formateDate(date: string): string {
+
+        if (date !== '0000-00-00') {
+            let months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            let dateParts = date.split('-');
+
+            return dateParts[2] + ' ' + months[+dateParts[1]] + ' ' + dateParts[0];
+        }
+
+        return '';
+
+    }
+
 }
 
 export { Notifier };
