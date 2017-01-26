@@ -54,6 +54,8 @@ en-US:
     403_NEGOTIATION_OUT_OF_TURN: The partner did not reply to your previous offer.
     403_NEGOTIATION_NOT_STARTED: You cannot accept or reject a negotiation which hasn't yet started.
     403_NEGOTIATION_PARTNER_NOT_ACTIVE: The partner you have provided is no longer active.
+    403_CANNOT_NEGOTIATE_OWN_PROPOSAL: You cannot start a negotiation on a proposal owned by you.
+    403_CANNOT_NEGOTIATE_WITH_SAME_USERTYPE: You cannot start a negotaition with the same user type as you. 
 
     403_PARTNER_NOT_ACTIVE: Partner is not active
     403_PARTNER_INVALID_USERTYPE: Provided partner ID has a invalid user type.

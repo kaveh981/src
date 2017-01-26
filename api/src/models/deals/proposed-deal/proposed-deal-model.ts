@@ -82,8 +82,7 @@ class ProposedDealModel {
 
     /**
      * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market
-     * and targeted towards the current user if it's a targeted proposal, or
-     * the proposal must be owned by the user and not deleted.
+     * and targeted towards the current user if it's a targeted proposal
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */

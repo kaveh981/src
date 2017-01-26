@@ -85,10 +85,6 @@ class NegotiatedDealManager {
                                         .select()
                                         .from('ixmDealNegotiations')
                                         .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                        .join('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
-                                        .join('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
-                                        .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
-                                        .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
                                         .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
                                         .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
                                         .where(function() {
@@ -104,8 +100,6 @@ class NegotiatedDealManager {
                                         .andWhere('ixmDealProposals.status', 'active')
                                         .andWhere('owner.status', 'A')
                                         .andWhere('partner.status', 'A')
-                                        .andWhere('rtbSections.status', 'A')
-                                        .andWhere('sites.status', 'A');
 
         if (pagination) {
             query.limit(pagination.limit + 1).offset(pagination.getOffset());

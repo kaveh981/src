@@ -79,7 +79,7 @@ class Helper {
         let requestUser = await databasePopulator.createInternalUser();
         let sections = [];
 
-        for (let i = sectionIDs.length - 1; i >= 0; i--) {
+        for (let i = 0; i < sectionIDs.length; i++) {
             let section = (await apiRequest.get(`sections/${sectionIDs[i]}`, {}, requestUser)).body['data'][0];
 
             sections.push(section);

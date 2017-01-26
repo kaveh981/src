@@ -919,39 +919,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_18(assert: test.Test) {
 }
 
 /**
- * @case    - A publisher sends an offer for other pub's proposal.
- * @expect  - 403 Forbidden, pub cannot negotiate with other pubs
- * @route   - PUT deals/negotiations
- * @status  - working
- * @tags    - put, negotiations, deals
- */
-export async function ATW_API_PUT_DEANEG_FUNC_19 (assert: test.Test) {
-
-   /** Setup */
-    assert.plan(1);
-
-    await databasePopulator.createDSP(DSP_ID);
-    await databasePopulator.createCompany({}, DSP_ID);
-    let pubCompany = await databasePopulator.createCompany();
-    let annoyingPubCompany = await databasePopulator.createCompany();
-    let annoyingPublisher = await databasePopulator.createPublisher(annoyingPubCompany.user.userID, 'write');
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], { status: 'active' });
-
-   /** Test */
-    let pubRequestBody = {
-            proposal_id: proposalObj.proposal.proposalID,
-            partner_id: pubCompany.user.userID,
-            terms: 'hello other pub'
-    };
-    let response = await apiRequest.put(route, pubRequestBody, annoyingPublisher.user);
-
-    assert.equal(response.status, 403);
-
-}
-
-/**
  * @case    - Publisher sends offer to a negotiation with a wrong buyerID
  * @expect  - 403 Forbidden, publisher cannot start negotiation on its own proposal
  * @route   - PUT deals/negotiations
@@ -1532,67 +1499,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_34(assert: test.Test) {
     assert.equal(response.status, 404);
 }
 
-/**
- * @case    - The buyer sends a counter-offer for an invalid proposal (no active sections). 	
- * @expect  - 404 Proposal not found - proposal 'dooes not exist' to user
- * @route   - PUT deals/negotiations
- * @status  - working
- * @tags    - put, negotiations, deals
- */
-export async function ATW_API_PUT_DEANEG_FUNC_35(assert: test.Test) {
-
-   /** Setup */
-    assert.plan(1);
-
-    await databasePopulator.createDSP(DSP_ID);
-    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-    let pubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
-    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
-
-   /** Test */
-    let buyerRequestBody = {
-        proposal_id: proposalObj.proposal.proposalID,
-        partner_id: pubCompany.user.userID,
-        terms: 'i am a goose'
-    };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
-
-    assert.equal(response.status, 404);
-}
-
-/**
- * @case    - The buyer sends a counter-offer for an invalid proposal (no active sites). 	
- * @expect  - 404 Proposal not found - proposal 'dooes not exist' to user
- * @route   - PUT deals/negotiations
- * @status  - working
- * @tags    - put, negotiations, deals
- */
-export async function ATW_API_PUT_DEANEG_FUNC_36(assert: test.Test) {
-
-   /** Setup */
-    assert.plan(1);
-
-    await databasePopulator.createDSP(DSP_ID);
-    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-    let pubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-    let proposalObj = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
-
-   /** Test */
-    let buyerRequestBody = {
-        proposal_id: proposalObj.proposal.proposalID,
-        partner_id: pubCompany.user.userID,
-        terms: 'i am a goose'
-    };
-    let response = await apiRequest.put(route, buyerRequestBody, buyer.user);
-
-    assert.equal(response.status, 404);
-}
 
 /**
  * @case    - The buyer can reject a negotiation out of turn, but cannot reject again.
