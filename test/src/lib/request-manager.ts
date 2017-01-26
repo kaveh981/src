@@ -33,13 +33,13 @@ class APIRequestManager {
      * @param params - The query string parameters.
      * @param userID - The userID of the IXM Buyer you are impersonating.
      */
-    public get(path: string, params: any, user: { userID?: number, userType?: number, accessToken?: string }) {
+    public get(path: string, params: any, user: { userID?: number, userType?: number, accessToken?: string }, impersonatedUserID?: number) {
 
         let headers: any;
 
         if (user) {
             headers = {
-                [this.configLoader.get('api-config')['user-header']]: user.userID,
+                [this.configLoader.get('api-config')['user-header']]: impersonatedUserID || user.userID,
                 [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
             };
         }
