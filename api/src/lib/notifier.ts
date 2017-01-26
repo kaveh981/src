@@ -109,10 +109,8 @@ class Notifier {
      */
     private createPayload(userInfo: UserModel, proposal: ProposedDealModel, settledDeal: SettledDealModel) {
 
-        let startDate = this.formateDate(settledDeal.startDate);
-        startDate = startDate !== '' ? startDate : 'Immediate';
-        let endDate = this.formateDate(settledDeal.endDate);
-        endDate = endDate !== '' ? endDate : 'Ongoing';
+        let startDate = settledDeal.startDate === '0000-00-00' ? 'Immediate' : this.formateDate(settledDeal.startDate);
+        let endDate = settledDeal.endDate === '0000-00-00' ? 'Ongoing' : this.formateDate(settledDeal.endDate);
         let auctionType = this.formatAuctionType(settledDeal.auctionType);
 
         return {
@@ -155,14 +153,10 @@ class Notifier {
      */
     private formateDate(date: string): string {
 
-        if (date !== '0000-00-00') {
-            let months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            let dateParts = date.split('-');
+        let months = [ '', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+        let dateParts = date.split('-');
 
-            return dateParts[2] + ' ' + months[+dateParts[1]] + ' ' + dateParts[0];
-        }
-
-        return '';
+        return dateParts[2] + ' ' + months[+dateParts[1]] + ' ' + dateParts[0];
 
     }
 

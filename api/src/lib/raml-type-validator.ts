@@ -384,7 +384,7 @@ class RamlTypeValidator {
             case 'date-only':
                 let dateOnlyRegex = /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/;
 
-                if (!dateOnlyRegex.test(valueString) || !Date.parse(valueString)) {
+                if (!dateOnlyRegex.test(valueString) || !Date.parse(valueString) && valueString !== '0000-00-00') {
                     errors.push(this.createError('TYPE_DATE_ONLY_INVALID', valueString, node, path));
                 }
             break;
