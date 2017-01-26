@@ -645,3 +645,31 @@ export async function ATW_API_GET_DEAPRO_FUNC_18 (assert: test.Test) {
     assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
+
+/*
+ * @case    - The buyer sends a GET request to view a proposal with deleted sections.
+ * @expect  - The buyer should not receive the defined proposal.
+ * @route   - GET deals/proposals
+ * @status  - working
+ * @tags    - get, deals
+ */
+export async function ATW_API_GET_DEAPRO_FUNC_19 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(2);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
+    await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);
+
+    /** Test */
+    let response = await apiRequest.get(route, {}, buyer.user);
+
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'], []);
+
+}
