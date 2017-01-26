@@ -17,6 +17,11 @@ class DealSectionManager {
             table: 'rtbSections',
             operator: 'LIKE',
             column: 'name'
+        },
+        status: {
+            table: 'rtbSections',
+            operator: '=',
+            column: 'status'
         }
     };
 
@@ -176,14 +181,14 @@ class DealSectionManager {
 
     /**
      * Get all sections for a specific user
-     * @param 
-     * @returns 
+     * @param user - the user to find sections for
+     * @param pagination - pagination details for this request
+     * @param filters - filtering details for this request
+     * @returns An array of section objects for this user
      */
     public async fetchDealSectionsForUser(user: MarketUserModel, pagination: PaginationModel, filters: any) {
 
-        if (filters.name) {
-            filters.name = '%' + filters.name + '%';
-        }
+        this.resolveFilters(filters);
 
         let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
@@ -194,6 +199,24 @@ class DealSectionManager {
                 });
             }
         );
+
+    }
+
+    /**
+     * Properly formats filters and their values for successful application in the database
+     * @param filters - the filter to be formatted
+     */
+    private resolveFilters(filters: any) {
+
+        // Surround the name filter with % to properly format for MySQL LIKE operation
+        if (filters.name) {
+            filters.name = '%' + filters.name + '%';
+        }
+
+        // Transform the provided word status to a letter to compare the proper values in the database
+        if (filters.status) {
+            filters.status = Helper.statusWordToLetter(filters.status);
+        }
 
     }
 
