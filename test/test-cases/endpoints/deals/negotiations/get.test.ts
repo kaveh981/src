@@ -887,7 +887,7 @@ export async function ATW_DN_GET_26 (assert: test.Test) {
 }
 
 /*
- * @case    - Negotiation based on proposal owned by publisher with sections in negotaition
+ * @case    - Negotiation based on proposal owned by publisher with sections in negotiation
  * @expect  - 1 DN returned
  * @route   - GET deals/negotiations
  * @status  - passing
@@ -918,7 +918,7 @@ export async function ATW_DN_GET_27 (assert: test.Test) {
 }
 
 /*
- * @case    - Negotiation based on proposal owned by publisher with sections in both negotaition and proposal
+ * @case    - Negotiation based on proposal owned by publisher with sections in both negotiation and proposal
  * @expect  - 1 DN returned
  * @route   - GET deals/negotiations
  * @status  - passing
@@ -979,7 +979,7 @@ export async function ATW_DN_GET_29 (assert: test.Test) {
 }
 
 /*
- * @case    - Negotiation based on proposal owned by buyer with sections in negotaition
+ * @case    - Negotiation based on proposal owned by buyer with sections in negotiation
  * @expect  - 1 DN returned
  * @route   - GET deals/negotiations
  * @status  - passing
