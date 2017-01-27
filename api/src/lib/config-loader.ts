@@ -54,7 +54,7 @@ class ConfigLoader {
         for (let i = 0; i < configFiles.length; i++) {
             let file = configFiles[i];
             let filename = path.basename(file);
-            let configName = filename.split('.').shift();
+            let configName = filename.split('.').slice(0, -2).join('.');
 
             if (filename.match(/\.example\./)) {
                 continue;
