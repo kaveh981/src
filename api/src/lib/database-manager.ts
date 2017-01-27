@@ -32,20 +32,22 @@ export class DatabaseManager {
     public initialize(): Promise<{}> {
         return new Promise((resolve, reject) => {
 
-            Log.info(`Initializing database connection to ${this.config.getEnv('DB_DATABASE')}@${this.config.getEnv('DB_HOST')}...`);
+            let databaseConfig = this.config.get('database');
 
-            let databaseConfig: Knex.Config = {
-                client: 'mysql',
+            Log.info(`Initializing database connection to ${databaseConfig['database']}@${databaseConfig['host']}...`);
+
+            let knexConfig: Knex.Config = {
+                client: databaseConfig['client'],
                 connection: {
-                    host: this.config.getEnv('DB_HOST'),
-                    user: this.config.getEnv('DB_USER'),
-                    password: this.config.getEnv('DB_PASSWORD'),
-                    database: this.config.getEnv('DB_DATABASE')
+                    host: databaseConfig['host'],
+                    user: databaseConfig['user'],
+                    password: databaseConfig['password'],
+                    database: databaseConfig['database']
                 },
-                pool: this.config.get('database')['pool']
+                pool: databaseConfig['pool']
             };
 
-            let queryBuilder: Knex = Knex(databaseConfig);
+            let queryBuilder: Knex = Knex(knexConfig);
 
             // Test DB Connection
             queryBuilder.raw('SELECT 1')

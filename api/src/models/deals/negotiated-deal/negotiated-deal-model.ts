@@ -7,7 +7,7 @@ import { Helper } from '../../../lib/helper';
 
 class NegotiatedDealModel {
 
-    /** ID of the negotation in ixmDealNegotiation */
+    /** ID of the negotation in ixmNegotiation */
     public id: number;
     /** The partner in this negotiation */
     public partner: MarketUserModel;

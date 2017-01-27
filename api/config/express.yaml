@@ -1,5 +1,8 @@
 # Express Settings
 
+# Server port
+port: 8000
+
 # Enables the "X-Powered-By: Express" HTTP header.
 x-powered-by: false
 

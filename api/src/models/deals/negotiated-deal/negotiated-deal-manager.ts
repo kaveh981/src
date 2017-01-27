@@ -38,7 +38,7 @@ class NegotiatedDealManager {
 
         let rows = await this.databaseManager.select('negotiationID as id', 'partnerID', 'partnerContactID', 'startDate', 'endDate', 'terms', 'price',
                                                      'partnerStatus', 'ownerStatus', 'sender', 'createDate', 'modifyDate', 'budget', 'impressions')
-                                             .from('ixmDealNegotiations')
+                                             .from('ixmNegotiations')
                                              .where('proposalID', proposalID)
                                              .andWhere('partnerID', partnerID);
 
@@ -81,7 +81,7 @@ class NegotiatedDealManager {
      */
     public async fetchActiveNegotiatedDealsForUser(user: MarketUserModel, pagination: PaginationModel) {
 
-        let query = this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'ownerID', 'partnerID')
+        let query = this.databaseManager.distinct('ixmNegotiations.proposalID', 'ownerID', 'partnerID')
                                         .select()
                                         .from('ixmDealNegotiations')
                                         .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
@@ -97,7 +97,7 @@ class NegotiatedDealManager {
                                                 .orWhere('ownerStatus', 'accepted')
                                                 .andWhere('partnerStatus', 'active');
                                         })
-                                        .andWhere('ixmDealProposals.status', 'active')
+                                        .andWhere('ixmProposals.status', 'active')
                                         .andWhere('owner.status', 'A')
                                         .andWhere('partner.status', 'A');
 
@@ -141,14 +141,14 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealsFromUserProposalIds(proposalID: number, partyID: number, pagination: PaginationModel) {
 
         let query = this.databaseManager.select('ownerID', 'partnerID')
-                                        .from('ixmDealNegotiations')
-                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                        .from('ixmNegotiations')
+                                        .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
                                         .where({
-                                            'ixmDealProposals.proposalID': proposalID,
+                                            'ixmProposals.proposalID': proposalID,
                                             partnerID: partyID
                                         })
                                         .orWhere({
-                                            'ixmDealProposals.proposalID': proposalID,
+                                            'ixmProposals.proposalID': proposalID,
                                             ownerID: partyID
                                         });
 
@@ -193,15 +193,15 @@ class NegotiatedDealManager {
     public async fetchNegotiatedDealFromPartyIds(proposalID: number, partyID: number, otherPartyID: number) {
 
         let rows = await this.databaseManager.select('ownerID', 'partnerID')
-                                             .from('ixmDealNegotiations')
-                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                             .from('ixmNegotiations')
+                                             .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
                                              .where({
-                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 'ixmProposals.proposalID': proposalID,
                                                  partnerID: partyID,
                                                  ownerID: otherPartyID
                                              })
                                              .orWhere({
-                                                 'ixmDealProposals.proposalID': proposalID,
+                                                 'ixmProposals.proposalID': proposalID,
                                                  ownerID: partyID,
                                                  partnerID: otherPartyID
                                              });
@@ -255,11 +255,11 @@ class NegotiatedDealManager {
             partnerStatus: negotiatedDeal.partnerStatus,
             createDate: negotiatedDeal.createDate,
             modifyDate: negotiatedDeal.modifyDate
-        }).into('ixmDealNegotiations');
+        }).into('ixmNegotiations');
 
         // Get the id and set it in the negotiated deal object.
         let negotiationInserted = (await transaction.select('negotiationID', 'modifyDate')
-                                                    .from('ixmDealNegotiations')
+                                                    .from('ixmNegotiations')
                                                     .where('proposalID', negotiatedDeal.proposedDeal.id)
                                                     .andWhere('partnerID', negotiatedDeal.partner.company.id))[0];
 
@@ -357,7 +357,7 @@ class NegotiatedDealManager {
             return;
         }
 
-        await transaction.from('ixmDealNegotiations').update({
+        await transaction.from('ixmNegotiations').update({
             proposalID: negotiatedDeal.proposedDeal.id,
             partnerID: negotiatedDeal.partner.company.id,
             partnerContactID: negotiatedDeal.partner.contact.id,
@@ -376,7 +376,7 @@ class NegotiatedDealManager {
 
         // Get the id and set it in the negotiated deal object.
         let negotiationUpdated = (await transaction.select('negotiationID', 'modifyDate')
-                                                   .from('ixmDealNegotiations')
+                                                   .from('ixmNegotiations')
                                                    .where('proposalID', negotiatedDeal.proposedDeal.id)
                                                    .andWhere('partnerID', negotiatedDeal.partner.company.id))[0];
 
@@ -413,7 +413,7 @@ class NegotiatedDealManager {
             return;
         }
 
-        await transaction.from('ixmDealNegotiations')
+        await transaction.from('ixmNegotiations')
                          .update({
                              ownerStatus: 'deleted'
                          })

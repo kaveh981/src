@@ -49,10 +49,10 @@ class SettledDealManager {
                                                      'priority', 'rtbDeals.auctionType', 'sectionID as sections')
                                              .from('rtbDeals')
                                              .join('ixmNegotiationDealMappings', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
-                                             .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
+                                             .join('ixmNegotiations', 'ixmNegotiations.negotiationID',
                                                    'ixmNegotiationDealMappings.negotiationID')
                                              .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
-                                             .where('ixmDealNegotiations.proposalID', proposalID)
+                                             .where('ixmNegotiations.proposalID', proposalID)
                                              .where('partnerID', partnerID);
 
         if (!rows[0]) {
@@ -92,10 +92,10 @@ class SettledDealManager {
      */
     public async fetchSettledDealsFromUser(user: MarketUserModel, pagination: PaginationModel): Promise<SettledDealModel[]> {
 
-        let query = this.databaseManager.select('ixmDealNegotiations.proposalID', 'partnerID')
-                                        .from('ixmDealNegotiations')
-                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                        .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+        let query = this.databaseManager.select('ixmNegotiations.proposalID', 'partnerID')
+                                        .from('ixmNegotiations')
+                                        .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
+                                        .join('ixmNegotiationDealMappings', 'ixmNegotiations.negotiationID',
                                             'ixmNegotiationDealMappings.negotiationID')
                                         .where('partnerID', user.company.id)
                                         .orWhere('ownerID', user.company.id);
@@ -142,19 +142,19 @@ class SettledDealManager {
 
         let today = Helper.formatDate(Helper.currentDate());
 
-        let query = this.databaseManager.distinct('ixmDealNegotiations.proposalID', 'partnerID')
+        let query = this.databaseManager.distinct('ixmNegotiations.proposalID', 'partnerID')
                                         .select()
-                                        .from('ixmDealNegotiations')
-                                        .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+                                        .from('ixmNegotiations')
+                                        .join('ixmNegotiationDealMappings', 'ixmNegotiations.negotiationID',
                                             'ixmNegotiationDealMappings.negotiationID')
                                         .join('rtbDeals', 'ixmNegotiationDealMappings.dealID', 'rtbDeals.dealID')
                                         .join('rtbDealSections', 'rtbDeals.dealID', 'rtbDealSections.dealID')
                                         .join('rtbSections', 'rtbSections.sectionID', 'rtbDealSections.sectionID')
                                         .join('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
                                         .join('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                        .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
-                                        .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
+                                        .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
+                                        .join('users as partner', 'partner.userID', 'ixmNegotiations.partnerID')
+                                        .join('users as owner', 'owner.userID', 'ixmProposals.ownerID')
                                         .where(function() {
                                             this.where('partnerID', user.company.id)
                                                 .orWhere('ownerID', user.company.id);
@@ -211,14 +211,14 @@ class SettledDealManager {
      */
     public async fetchSettledDealsFromUserProposalIds(userID: number, proposalID: number, pagination: PaginationModel) {
 
-        let query = this.databaseManager.select('partnerID', 'ixmDealProposals.proposalID')
-                                        .from('ixmDealNegotiations')
-                                        .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+        let query = this.databaseManager.select('partnerID', 'ixmProposals.proposalID')
+                                        .from('ixmNegotiations')
+                                        .join('ixmNegotiationDealMappings', 'ixmNegotiations.negotiationID',
                                             'ixmNegotiationDealMappings.negotiationID')
                                         .join('rtbDeals', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
-                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                        .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
                                         .whereNot('rtbDeals.status', 'D')
-                                        .andWhere('ixmDealProposals.proposalID', proposalID)
+                                        .andWhere('ixmProposals.proposalID', proposalID)
                                         .andWhere(function() {
                                             this.where('ownerID', userID)
                                                 .orWhere('partnerID', userID);
@@ -257,14 +257,14 @@ class SettledDealManager {
 
     public async fetchSettledDealFromPartyIds(proposalID: number, partyID: number, otherPartyID: number) {
 
-        let rows = await this.databaseManager.select('partnerID', 'ixmDealProposals.proposalID')
-                                             .from('ixmDealNegotiations')
-                                             .join('ixmNegotiationDealMappings', 'ixmDealNegotiations.negotiationID',
+        let rows = await this.databaseManager.select('partnerID', 'ixmProposals.proposalID')
+                                             .from('ixmNegotiations')
+                                             .join('ixmNegotiationDealMappings', 'ixmNegotiations.negotiationID',
                                                    'ixmNegotiationDealMappings.negotiationID')
                                              .join('rtbDeals', 'rtbDeals.dealID', 'ixmNegotiationDealMappings.dealID')
-                                             .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
+                                             .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
                                              .whereNot('rtbDeals.status', 'D')
-                                             .andWhere('ixmDealProposals.proposalID', proposalID)
+                                             .andWhere('ixmProposals.proposalID', proposalID)
                                              .andWhere(function() {
                                                  this.where('ownerID', otherPartyID)
                                                      .andWhere('partnerID', partyID)

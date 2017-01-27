@@ -41,4 +41,6 @@ Thumbs.db
 .env
 entrypoint_local.sh
 *override.yaml
+*.development.yaml
+*.production.yaml
 .rsyncignore

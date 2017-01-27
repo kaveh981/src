@@ -7,7 +7,7 @@ const handlers = require('shortstop-handlers');
 const shortstop = require('shortstop');
 const finder = require('fs-finder');
 
-require('dotenv').config();
+require('dotenv').config({ silent: true });
 
 /** Simple configuration loader, reads from the config folder at ./config. */
 class ConfigLoader {
@@ -53,7 +53,18 @@ class ConfigLoader {
         // Load config
         for (let i = 0; i < configFiles.length; i++) {
             let file = configFiles[i];
-            let configName = path.basename(file).split('.').shift();
+            let filename = path.basename(file);
+            let configName = filename.split('.').shift();
+
+            if (filename.match(/\.example\./)) {
+                continue;
+            } else if (filename.match(/\.production\./) && process.env.NODE_ENV !== 'production') {
+                continue;
+            } else if (filename.match(/\.development\./) && process.env.NODE_ENV !== 'development') {
+                continue;
+            } else if (!filename.match(/\.development\./) && !filename.match(/\.production\./) && this.configMap[configName]) {
+                continue;
+            }
 
             this.configMap[configName] = await this.loadConfig(file);
         }

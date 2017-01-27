@@ -47,7 +47,7 @@ config.initialize()
 
             let desiredFilterMapping = {
                 owner_id: {
-                    table: 'ixmDealProposals',
+                    table: 'ixmProposals',
                     operator: '=',
                     column: 'ownerID'
                 }

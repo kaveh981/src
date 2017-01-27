@@ -115,7 +115,7 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmUserCompanyMapping".
+     * Creates a new buyer entry based on "new-buyer-schema". Inserts to "Viper2.users", "Viper2.ixmUserCompanyMappings".
      * @returns {Promise<INewBuyerData>} A promise which resolves with the new buyer data
      */
     public async createBuyer(companyID: number, permissions: 'read' | 'write', userFields?: INewUserData) {
@@ -132,7 +132,7 @@ class DatabasePopulator {
         newBuyerData.user = newUserData;
 
         await this.dbm.insert({ userID: newBuyerData.user.userID, companyID: newBuyerData.companyID,
-                                permissions: newBuyerData.permissions }).into('ixmUserCompanyMapping');
+                                permissions: newBuyerData.permissions }).into('ixmUserCompanyMappings');
 
         Log.debug(`Added new Buyer with userID: ${newBuyerData.user.userID}, companyID: ${newBuyerData.companyID}, permissions: ${newBuyerData.permissions}`);
 
@@ -141,7 +141,7 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers", "Viper2.ixmUserCompanyMapping".
+     * Creates a new publisher entry based on "new-pub-schema". Inserts to "Viper2.users", "Viper2.publishers", "Viper2.ixmUserCompanyMappings".
      * @returns {Promise<INewPubData>} A promise which resolves with the new publisher's data
      */
     public async createPublisher(companyID: number, permissions: 'read' | 'write', userFields?: INewUserData, publisherFields?: INewPubData) {
@@ -168,7 +168,7 @@ class DatabasePopulator {
         await this.dbm.insert(publisherData).into('publishers');
 
         await this.dbm.insert({ userID: newPubData.user.userID, companyID: newPubData.companyID,
-                                permissions: newPubData.permissions }).into('ixmUserCompanyMapping');
+                                permissions: newPubData.permissions }).into('ixmUserCompanyMappings');
 
         Log.debug(`Added new Publisher with userID: ${newPubData.user.userID}, companyID: ${newPubData.companyID}, permissions: ${newPubData.permissions}`);
 
@@ -415,7 +415,7 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new proposal entity based on "new-proposal-schema". Inserts into "Viper2.ixmDealProposals",
+     * Creates a new proposal entity based on "new-proposal-schema". Inserts into "Viper2.ixmProposals",
      * "Viper2.ixmProposalSectionMappings"
      * @param ownerID {int} - the userID of the proposal owner
      * @param sectionIDs {int[]} - an array of sectionIDs to be mapped to the new proposal
@@ -444,11 +444,11 @@ class DatabasePopulator {
             newProposal.proposal.endDate.setHours(0, 0, 0, 0);
         }
 
-        let proposalID = await this.dbm.insert(newProposal.proposal, 'proposalID').into('ixmDealProposals');
+        let proposalID = await this.dbm.insert(newProposal.proposal, 'proposalID').into('ixmProposals');
         Log.debug(`Created proposal ID: ${proposalID[0]}`);
         newProposal.proposal.proposalID = proposalID[0];
 
-        let modifyDate = await this.dbm.select('modifyDate').from('ixmDealProposals').where('proposalID', proposalID[0]);
+        let modifyDate = await this.dbm.select('modifyDate').from('ixmProposals').where('proposalID', proposalID[0]);
         newProposal.proposal.modifyDate = modifyDate[0].modifyDate;
 
         if (newProposal.sectionIDs) {
@@ -464,8 +464,8 @@ class DatabasePopulator {
     }
 
     /**
-     * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmDealNegotiations",
-     * "Viper2.ixmDealNegotiations".
+     * Creates a new section entry based on "new-negotiation-schema". Inserts into "Viper2.ixmNegotiations",
+     * "Viper2.ixmNegotiations".
      * @param proposalID {int} - proposalID of the proposal being negotiated
      * @param ownerID {int} - ownerID to whom the proposal belongs to
      * @param partnerID {int} - partnerID of partner negotiating with owner
@@ -500,7 +500,7 @@ class DatabasePopulator {
         }
 
         // Check if there are any differences between proposal and negotiation
-        let proposals = await this.dbm.select().from('ixmDealProposals').where('proposalID', proposalID);
+        let proposals = await this.dbm.select().from('ixmProposals').where('proposalID', proposalID);
 
         let proposal = proposals[0];
 
@@ -519,11 +519,11 @@ class DatabasePopulator {
             }
         }
 
-        let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmDealNegotiations');
+        let newDealNegotiationIds = await this.dbm.insert(newDealNegotiationData, 'negotiationID').into('ixmNegotiations');
 
         newDealNegotiationData.negotiationID = newDealNegotiationIds[0];
 
-        let selection = await this.dbm.select('createDate', 'modifyDate').from('ixmDealNegotiations')
+        let selection = await this.dbm.select('createDate', 'modifyDate').from('ixmNegotiations')
                                     .where('negotiationID', newDealNegotiationData.negotiationID);
 
         newDealNegotiationData.modifyDate = selection[0].modifyDate;

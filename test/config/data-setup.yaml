@@ -3,13 +3,13 @@ suffix: _backup
 
 # Tables list that will be backed up and restored
 tables:
-    - ixmDealNegotiations
+    - ixmNegotiations
     - ixmNegotiationDealMappings
     - ixmNegotiationSectionMappings
-    - ixmDealProposals
+    - ixmProposals
     - ixmProposalSectionMappings
     - ixmProposalTargeting
-    - ixmUserCompanyMapping
+    - ixmUserCompanyMappings
     - ixmCompanyWhitelist
     - users
     - publishers

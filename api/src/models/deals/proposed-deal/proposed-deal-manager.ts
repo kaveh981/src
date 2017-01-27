@@ -15,7 +15,7 @@ class ProposedDealManager {
 
     private readonly filterMapping = {
         owner_id: {
-            table: 'ixmDealProposals',
+            table: 'ixmProposals',
             operator: '=',
             column: 'ownerID'
         }
@@ -49,18 +49,18 @@ class ProposedDealManager {
      */
     public async fetchProposedDeals(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]) {
 
-        let query = this.databaseManager.distinct('ixmDealProposals.proposalID', 'ownerID', 'ownerContactID', 'ixmDealProposals.name',
-                                                'ixmDealProposals.description', 'ixmDealProposals.status', 'startDate', 'endDate', 'price',
-                                                'impressions', 'budget', 'auctionType', 'terms', 'ixmDealProposals.createDate',
-                                                'ixmDealProposals.modifyDate')
-                                        .from('ixmDealProposals')
-                                        .leftJoin('ixmProposalSectionMappings', 'ixmDealProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
+        let query = this.databaseManager.distinct('ixmProposals.proposalID', 'ownerID', 'ownerContactID', 'ixmProposals.name',
+                                                'ixmProposals.description', 'ixmProposals.status', 'startDate', 'endDate', 'price',
+                                                'impressions', 'budget', 'auctionType', 'terms', 'ixmProposals.createDate',
+                                                'ixmProposals.modifyDate')
+                                        .from('ixmProposals')
+                                        .leftJoin('ixmProposalSectionMappings', 'ixmProposals.proposalID', 'ixmProposalSectionMappings.proposalID')
                                         .leftJoin('rtbSections', 'rtbSections.sectionID', 'ixmProposalSectionMappings.sectionID')
                                         .leftJoin('rtbSiteSections', 'rtbSections.sectionID', 'rtbSiteSections.sectionID')
                                         .leftJoin('sites', 'rtbSiteSections.siteID', 'sites.siteID')
-                                        .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
-                                        .join('users as contact', 'contact.userID', 'ixmDealProposals.ownerContactID')
-                                        .leftJoin('ixmProposalTargeting', 'ixmDealProposals.proposalID', 'ixmProposalTargeting.proposalID')
+                                        .join('users as owner', 'owner.userID', 'ixmProposals.ownerID')
+                                        .join('users as contact', 'contact.userID', 'ixmProposals.ownerContactID')
+                                        .leftJoin('ixmProposalTargeting', 'ixmProposals.proposalID', 'ixmProposalTargeting.proposalID')
                                         .where((db) => { clauses.forEach(filter => filter(db) ); });
 
         if (pagination) {
@@ -124,7 +124,7 @@ class ProposedDealManager {
      * @returns Returns a proposed deal object and includes associated section IDs
      */
     public async fetchProposedDealFromId(proposalID: number) {
-        return (await this.fetchProposedDeals(null, (db) => { db.where('ixmDealProposals.proposalID', proposalID); }))[0];
+        return (await this.fetchProposedDeals(null, (db) => { db.where('ixmProposals.proposalID', proposalID); }))[0];
     }
 
     /** 
@@ -142,7 +142,7 @@ class ProposedDealManager {
                 db.where('ixmProposalTargeting.userID', user.company.id);
             },
             (db) => {
-                db.where('ixmDealProposals.status', 'active')
+                db.where('ixmProposals.status', 'active')
                 .andWhere('startDate', '<=', 'endDate')
                 .andWhere('owner.status', 'A');
             });
@@ -155,8 +155,8 @@ class ProposedDealManager {
 
         return await this.fetchProposedDeals(pagination, dbFiltering,
             (db) => {
-                db.where('ixmDealProposals.ownerID', user.company.id)
-                  .whereNot('ixmDealProposals.status', 'deleted');
+                db.where('ixmProposals.ownerID', user.company.id)
+                  .whereNot('ixmProposals.status', 'deleted');
             });
 
     }
@@ -173,7 +173,7 @@ class ProposedDealManager {
         let dbFiltering = this.databaseManager.createFilter(filters, this.filterMapping);
 
         return await this.fetchProposedDeals(pagination, dbFiltering, (db) => {
-            db.where('ixmDealProposals.status', 'active')
+            db.where('ixmProposals.status', 'active')
               .andWhere('startDate', '<=', 'endDate')
               .andWhere(function() {
                   this.where('endDate', '>=', today)
@@ -202,7 +202,7 @@ class ProposedDealManager {
             return;
         }
 
-        // Insert proposal into ixmDealProposals
+        // Insert proposal into ixmProposals
         let proposalID = (await transaction.insert({
             ownerID: proposedDeal.owner.company.id,
             ownerContactID: proposedDeal.owner.contact.id,
@@ -218,7 +218,7 @@ class ProposedDealManager {
             terms: proposedDeal.terms,
             createDate: proposedDeal.createDate,
             modifyDate: proposedDeal.modifyDate
-        }).into('ixmDealProposals').returning('proposalID'))[0];
+        }).into('ixmProposals').returning('proposalID'))[0];
 
         // Insert proposal sections mappings into ixmProposalSectionMappings
         if (proposedDeal.sections.length > 0) {
@@ -254,7 +254,7 @@ class ProposedDealManager {
 
         proposedDeal.id = proposalID;
         proposedDeal.modifyDate = (await transaction.select('modifyDate')
-                                                    .from('ixmDealProposals')
+                                                    .from('ixmProposals')
                                                     .where('proposalID', proposalID))[0].modifyDate;
 
     }
@@ -278,7 +278,7 @@ class ProposedDealManager {
             return;
         }
 
-        await transaction.from('ixmDealProposals').update({
+        await transaction.from('ixmProposals').update({
             proposalID: proposedDeal.id,
             ownerID: proposedDeal.owner.company.id,
             ownerContactID: proposedDeal.owner.contact.id,
@@ -296,7 +296,7 @@ class ProposedDealManager {
         }).where('proposalID', proposedDeal.id);
 
         let updatedProposal = (await transaction.select('modifyDate')
-                                                .from('ixmDealProposals')
+                                                .from('ixmProposals')
                                                 .where('proposalID', proposedDeal.id))[0];
 
         proposedDeal.modifyDate = updatedProposal.modifyDate;

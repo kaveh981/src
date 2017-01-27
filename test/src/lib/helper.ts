@@ -410,12 +410,12 @@ class Helper {
     }
 
     public static async getProposalById(proposalID: number) {
-         let proposal: IProposal = await databaseManager.select().from('ixmDealProposals').where('proposalID', proposalID);
+         let proposal: IProposal = await databaseManager.select().from('ixmProposals').where('proposalID', proposalID);
          return proposal;
      }
 
      public static async getNegotiationsByProposalID(proposalID: number) {
-         let negotiations: IDealNegotiationData[] = await databaseManager.select().from('ixmDealNegotiations')
+         let negotiations: IDealNegotiationData[] = await databaseManager.select().from('ixmNegotiations')
              .where('proposalID', proposalID);
          return negotiations;
      }
@@ -423,8 +423,8 @@ class Helper {
      public static async getDealsByProposalID(proposalID: number) {
          let negotiations: ISettledDeal[] = await databaseManager.select().from('rtbDeals')
              .join('ixmNegotiationDealMappings', 'ixmNegotiationDealMappings.dealID', 'rtbDeals.dealID')
-             .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
-             .where('ixmDealNegotiations.proposalID', proposalID);
+             .join('ixmNegotiations', 'ixmNegotiations.negotiationID', 'ixmNegotiationDealMappings.negotiationID')
+             .where('ixmNegotiations.proposalID', proposalID);
          return negotiations;
      }
 
