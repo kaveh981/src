@@ -269,7 +269,10 @@ class Helper {
             }) || [],
             name: sectionInfo.name,
             publisher_id: sectionInfo.userID,
-            sites: await Helper.fetchActiveSitesFromSectionId(sectionInfo.sectionID),
+            sites: await Promise.all(section.siteIDs.map(async (id) => {
+                let site = await Helper.getSiteFromId(id);
+                return site;
+            })),
             status: Helper.statusLetterToWord(sectionInfo.status)
         };
     }
