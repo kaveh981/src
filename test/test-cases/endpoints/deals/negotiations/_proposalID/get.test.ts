@@ -186,7 +186,7 @@ export async function ATW_DNP_GET_04 (assert: test.Test) {
 }
 
 /*
- * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
+ * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmProposals  
  * @expect  - 404_PROPOSAL_NOT_FOUND 
  * @route   - GET deals/negotiations/:proposalID
  * @status  - passing

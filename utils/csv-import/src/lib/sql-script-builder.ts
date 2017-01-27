@@ -50,7 +50,7 @@ class SQLScriptBuilder {
 
         insertScript += this.getExpectedChanges(proposals);
 
-        insertScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+        insertScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmProposals);\n";
         insertScript += "SET @existing_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
         insertScript += "SET @existing_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
@@ -60,7 +60,7 @@ class SQLScriptBuilder {
             insertScript += await this.buildInsertQuery(proposals[i]);
         }
 
-        insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+        insertScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmProposals);\n";
         insertScript += "SET @final_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
         insertScript += "SET @final_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
@@ -90,7 +90,7 @@ class SQLScriptBuilder {
 
         deleteScript += this.getExpectedChanges(proposals);
 
-        deleteScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+        deleteScript += "SET @existing_proposals = (SELECT COUNT(*) FROM ixmProposals);\n";
         deleteScript += "SET @existing_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
         deleteScript += "SET @existing_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
@@ -99,7 +99,7 @@ class SQLScriptBuilder {
         for (let i = 0; i < proposals.length; i += 1) {
             deleteScript += await this.buildDeleteQuery(proposals[i]);
         }
-        deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmDealProposals);\n";
+        deleteScript += "SET @final_proposals = (SELECT COUNT(*) FROM ixmProposals);\n";
         deleteScript += "SET @final_section_mappings = (SELECT COUNT(*) FROM ixmProposalSectionMappings);\n";
         deleteScript += "SET @final_targeted_users = (SELECT COUNT(*) FROM ixmProposalTargeting);\n";
 
@@ -128,7 +128,7 @@ class SQLScriptBuilder {
 
         proposalCopy.createDate = this.createDate;
 
-        query = await this.queryBuilder.insert(proposalCopy).into('ixmDealProposals').toString() + ";\n";
+        query = await this.queryBuilder.insert(proposalCopy).into('ixmProposals').toString() + ";\n";
         query += "SET @last_id = LAST_INSERT_ID();\n";
 
         proposal.sectionIDs.forEach((sectionID: number) => {
@@ -156,7 +156,7 @@ class SQLScriptBuilder {
         proposalCopy.createDate = this.createDate;
 
         query = "SET @proposal_id = ("  + await this.queryBuilder.select('proposalID')
-                                        .from('ixmDealProposals')
+                                        .from('ixmProposals')
                                         .where(proposalCopy)
                                         .toString() + "); ";
 
@@ -164,14 +164,14 @@ class SQLScriptBuilder {
 
         query += "DELETE FROM ixmProposalSectionMappings WHERE proposalID = @proposal_id; ";
 
-        query += "DELETE FROM ixmDealProposals WHERE proposalID = @proposal_id; ";
+        query += "DELETE FROM ixmProposals WHERE proposalID = @proposal_id; ";
 
         return query;
 
     }
 
     /**
-     * Get string of SQL commands that store changes of ixmDealProposals,
+     * Get string of SQL commands that store changes of ixmProposals,
      * ixmProposalSectionMappings and ixmProposalTargeting tables in variables
      */
     public getExpectedChanges(proposals: IProposal[]) {

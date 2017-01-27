@@ -105,7 +105,7 @@ export async function ATW_API_DNPP_GET_01(assert: test.Test) {
  }
 
 /*
- * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmDealProposals  
+ * @case    - Proposal relating to proposal ID (valid number) does not exist in ixmProposals  
  * @expect  - 404 NOT FOUND
  * @route   - GET deals/negotiations/:proposalID/partner/:partnerID
  * @status  - working
