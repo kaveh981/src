@@ -157,6 +157,20 @@ traits:
                 required: false
                 displayName: Keywords
                 description: A particular set of keywords that must be present in the returned proposals/negotiations/deals' names/descriptions. Multiple words are separated by spaces.
+    section_filterable:
+        queryParameters:
+            name:
+                type: string
+                required: false
+                displayName: Section Name
+                description: A string that must be present in the returned sections' name
+                maxLength: 255
+            status:
+                type: string
+                required: false
+                displayName: Status
+                description: The desired status of the returned sections
+                enum: ["active", "deleted"]
 
 
 ################################
