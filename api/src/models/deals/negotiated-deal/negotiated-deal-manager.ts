@@ -83,10 +83,10 @@ class NegotiatedDealManager {
 
         let query = this.databaseManager.distinct('ixmNegotiations.proposalID', 'ownerID', 'partnerID')
                                         .select()
-                                        .from('ixmDealNegotiations')
-                                        .join('ixmDealProposals', 'ixmDealProposals.proposalID', 'ixmDealNegotiations.proposalID')
-                                        .join('users as owner', 'owner.userID', 'ixmDealProposals.ownerID')
-                                        .join('users as partner', 'partner.userID', 'ixmDealNegotiations.partnerID')
+                                        .from('ixmNegotiations')
+                                        .join('ixmProposals', 'ixmProposals.proposalID', 'ixmNegotiations.proposalID')
+                                        .join('users as owner', 'owner.userID', 'ixmProposals.ownerID')
+                                        .join('users as partner', 'partner.userID', 'ixmNegotiations.partnerID')
                                         .where(function() {
                                             this.where('ownerID', user.company.id)
                                                 .orWhere('partnerID', user.company.id);

@@ -882,7 +882,7 @@ export async function ATW_DN_GET_26 (assert: test.Test) {
     let response = await apiRequest.get(route, {}, pubCompany.user);
 
     assert.equal(response.status, 200, "Reponse 200");
-    assert.same(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, pubCompany.user) ],
+    assert.same(response.body['data'], [ await Helper.dealNegotiationToPayload(dealNegotiation, proposal, pubCompany.user, buyerCompany.user) ],
                      "1 DN Returned");
 }
 

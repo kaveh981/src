@@ -62,7 +62,7 @@ async function getPartnerStatus(proposal: IProposal, partnerID: number): Promise
 async function getSectionMappings(proposalID: number, partnerID: number) {
     let row = await databaseManager.select('sectionID')
                                    .from('ixmNegotiationSectionMappings')
-                                   .join('ixmDealNegotiations', 'ixmNegotiationSectionMappings.negotiationID', '=', 'ixmDealNegotiations.negotiationID')
+                                   .join('ixmNegotiations', 'ixmNegotiationSectionMappings.negotiationID', '=', 'ixmNegotiations.negotiationID')
                                    .where('proposalID', proposalID)
                                    .andWhere('partnerID', partnerID);
     return row.map((section) => { return section.sectionID; });
@@ -600,9 +600,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_11 (assert: test.Test) {
     };
 
    /** Test */
-    Object.assign(negotiation, { start_date: '0000-00-00' });
-    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user);
-
     Object.assign(negotiation, { start_date: '999-12-31' });
     let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
@@ -615,7 +612,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_11 (assert: test.Test) {
     Object.assign(negotiation, { start_date: 'goose' });
     let responseNonDate = await apiRequest.put(route, negotiation, buyer.user);
 
-    assert.equal(responseZeroDate.status, 400);
     assert.equal(responseMinLess.status, 400);
     assert.equal(responseMaxMore.status, 400);
     assert.equal(responseWrongFormat.status, 400);
@@ -691,9 +687,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_13 (assert: test.Test) {
     };
 
    /** Test */
-    Object.assign(negotiation, { end_date: '0000-00-00' });
-    let responseZeroDate = await apiRequest.put(route, negotiation, buyer.user);
-
     Object.assign(negotiation, { end_date: '999-12-31' });
     let responseMinLess = await apiRequest.put(route, negotiation, buyer.user);
 
@@ -706,7 +699,6 @@ export async function ATW_API_PUT_DEANEG_FUNC_13 (assert: test.Test) {
     Object.assign(negotiation, { end_date: 'goose' });
     let responseNonDate = await apiRequest.put(route, negotiation, buyer.user);
 
-    assert.equal(responseZeroDate.status, 400);
     assert.equal(responseMinLess.status, 400);
     assert.equal(responseMaxMore.status, 400);
     assert.equal(responseWrongFormat.status, 400);
