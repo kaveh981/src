@@ -64,7 +64,7 @@ export async function IXM_API_DEALS_PUT_01(assert: test.Test) {
                                             .from('rtbDeals')
                                             .join('ixmNegotiationDealMappings', 'rtbDeals.dealID',
                                                   'ixmNegotiationDealMappings.dealID')
-                                            .join('ixmDealNegotiations', 'ixmDealNegotiations.negotiationID',
+                                            .join('ixmNegotiations', 'ixmNegotiations.negotiationID',
                                                   'ixmNegotiationDealMappings.negotiationID')
                                             .where({
                                                 proposalID: proposal.proposal.proposalID,
