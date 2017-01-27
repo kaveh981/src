@@ -1,5 +1,18 @@
 # Database Manager Configuration
 
+# Database Configuration
+
+# DB information
+host: dl01.casalemedia.com
+database: Viper2
+
+# DB User information
+user: viper
+password: viper123
+
+# The client to use.
+client: mysql
+
 # Pool2 configuration
 pool:
     # Minimum pool size

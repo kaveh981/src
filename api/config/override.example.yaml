@@ -1,0 +1,22 @@
+# The first key should be the file to override.
+# The second level is the key to override.
+
+# Below is a standard development override.
+# Defaults for the config are production values.
+
+# Logger override
+logger:
+    humanReadable: true
+    consoleLevel: 1
+    filewriteLevel: 2
+
+# Notifications override
+notification:
+    enabled: false
+
+# Middleware override
+middleware:
+    cors-dev:
+        priority: 20
+        module:
+            name: cors
