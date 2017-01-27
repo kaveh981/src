@@ -87,7 +87,8 @@ class CSVLoader extends Loader {
 
         return parsedCsv.map((proposal: any) => {
             // ownerContactID defaults to ownerID
-            proposal.ownerContactID = (typeof proposal.ownerContactID === "undefined" || proposal.ownerContactID === "") ? proposal.ownerID : proposal.ownerContactID
+            proposal.ownerContactID = (typeof proposal.ownerContactID === "undefined" || proposal.ownerContactID === "") ?
+                proposal.ownerID : proposal.ownerContactID;
 
             proposal.sectionIDs = proposal.sectionIDs && proposal.sectionIDs.toString().split(',').map(Number);
             // Translate falsy values to [], but have 0 translate to ["0"]
