@@ -78,7 +78,6 @@ export async function ATW_API_DELETE_DEAPROID_01(assert: test.Test) {
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }
@@ -207,7 +206,6 @@ export async function ATW_API_DELETE_DEAPROID_05(assert: test.Test) {
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }
@@ -243,7 +241,6 @@ export async function ATW_API_DELETE_DEAPROID_06(assert: test.Test) {
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }

@@ -583,7 +583,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_10 (assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_11 (assert: test.Test) {
 
    /** Setup */
-    assert.plan(9);
+    assert.plan(8);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -670,7 +670,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_12 (assert: test.Test) {
 export async function ATW_API_PUT_DEANEG_FUNC_13 (assert: test.Test) {
 
    /** Setup */
-    assert.plan(9);
+    assert.plan(8);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
