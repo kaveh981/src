@@ -58,8 +58,9 @@ traits:
                 minimum: 1
                 default: 1
     user_filterable:
+        (not_implemented): true
         queryParameters:
-            user_id:
+            id:
                 type: number
                 required: false
                 description: The unique identifier of the user(s).
@@ -70,6 +71,11 @@ traits:
                 required: false
                 displayName: Email Address
                 description: The email address of the user.
+            status:
+                type: string
+                required: false
+                displayName: Status
+                description: The status of the user
     deal_filterable:
         queryParameters:
             owner_id:
@@ -80,12 +86,14 @@ traits:
                 minimum: 1
                 maximum: 16777215
             auction_type:
+                (not_implemented): true
                 type: string
                 required: false
                 displayName: Auction Type
                 description: The auction type of the proposal/negotiation/deal. Used to only obtain proposals/negotiations/deals of a specific auction type.
                 enum: ['first','second','fixed']
             min_price:
+                (not_implemented): true
                 type: number
                 required: false
                 displayName: Min Price
@@ -93,6 +101,7 @@ traits:
                 minimum: 0.01
                 maximum: 655.35
             max_price:
+                (not_implemented): true
                 type: number
                 required: false
                 displayName: Max Price
@@ -100,6 +109,7 @@ traits:
                 minimum: 0.01
                 maximum: 655.35
             min_impressions:
+                (not_implemented): true
                 type: integer
                 required: false
                 displayName: Min Impressions
@@ -107,6 +117,7 @@ traits:
                 minimum: 1
                 maximum: 16777215
             max_impressions:
+                (not_implemented): true
                 type: integer
                 required: false
                 displayName: Max Impressions
@@ -114,6 +125,7 @@ traits:
                 minimum: 1
                 maximum: 16777215
             min_budget:
+                (not_implemented): true
                 type: integer
                 required: false
                 displayName: Min Budget
@@ -121,6 +133,7 @@ traits:
                 minimum: 1
                 maximum: 16777215
             max_budget:
+                (not_implemented): true
                 type: integer
                 required: false
                 displayName: Max Budget
@@ -128,36 +141,43 @@ traits:
                 minimum: 1
                 maximum: 16777215
             currency:
+                (not_implemented): true
                 type: string
                 required: false
                 displayName: Currency
                 description: Specific currency for returned proposals/negotiations/deals
             min_start_date:
+                (not_implemented): true
                 type: date-only
                 required: false
                 displayName: Min Start Date
                 description: The minimum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
             max_start_date:
+                (not_implemented): true
                 type: date-only
                 required: false
                 displayName: Max Start Date
                 description: The maximum start date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
             min_end_date:
+                (not_implemented): true
                 type: date-only
                 required: false
                 displayName: Min End Date
                 description: The minimum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
             max_end_date:
+                (not_implemented): true
                 type: date-only
                 required: false
                 displayName: Max End Date
                 description: The maximum end date for the returned proposals/negotiations/deals. Format is yyyy-mm-dd.
             keywords:
+                (not_implemented): true
                 type: string
                 required: false
                 displayName: Keywords
                 description: A particular set of keywords that must be present in the returned proposals/negotiations/deals' names/descriptions. Multiple words are separated by spaces.
     section_filterable:
+        (not_implemented): true
         queryParameters:
             name:
                 type: string
@@ -212,12 +232,13 @@ types:
             is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve available deals from Index Market. The returned objects describe terms available to purchase on a set of inventory. The terms may be purchased as-is, or counter-offers sent.
             queryParameters:
-                # purchaseable:
-                #     type: boolean
-                #     required: false
-                #     displayName: Purchaseable
-                #     description: Flag indicating whether to only return proposals that are purchaseable/negotiable
-                #     default: true
+                purchaseable:
+                    (not_implemented): true
+                    type: boolean
+                    required: false
+                    displayName: Purchaseable
+                    description: Flag indicating whether to only return proposals that are purchaseable/negotiable
+                    default: true
                 owner_id:
                     type: integer
                     required: false
@@ -235,7 +256,6 @@ types:
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
         put:
-            (not_implemented): true
             is: [ auth_required ]
             description: Create a deal proposal in the IX system. Partner(s) may accept as offered, or create a counter-offer. Only available to the proposal creator.
             body:
@@ -328,7 +348,6 @@ types:
                     404: # 404 = "Not found" provided proposal ID does not exist in the database
                     500: # 500 = "Internal Server Error" something done broke
             delete:
-                (not_implemented): true
                 is: [ auth_required ]
                 description: Delete a specific proposal from Index Market
                 responses:
@@ -345,6 +364,7 @@ types:
             is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve current negotiation states for this user. Negotiation objects will display the current offered terms, with a reference to the original proposal. If no deals in negotiation are found, a 200 response code will still be sent. The data will be empty and the message will state that nothing could be found.
             queryParameters:
+                (not_implemented): true
                 partner_id:
                     type: integer
                     required: false
@@ -405,6 +425,7 @@ types:
                 is: [ auth_required, pageable, deal_filterable ]
                 description: Retrieve all negotiations associated with a specific proposal ID involving the current user.
                 queryParameters:
+                    (not_implemented): true
                     partner_id:
                         type: integer
                         required: false
@@ -467,6 +488,7 @@ types:
             is: [ auth_required, pageable, deal_filterable ]
             description: Retrieve deals that are currently active in the system for the current user.
             queryParameters:
+                (not_implemented): true
                 partner_id:
                     type: integer
                     required: false
@@ -518,10 +540,10 @@ types:
                     minimum: 1
                     maximum: 16777215
             get:
-                (not_implemented): true
                 is: [ auth_required, pageable, deal_filterable ]
                 description: Retrieve all active deals associated with a specific proposal ID involving the current user.
                 queryParameters:
+                    (not_implemented): true
                     partner_id:
                         type: integer
                         required: false
@@ -554,7 +576,6 @@ types:
                             minimum: 1
                             maximum: 16777215
                     get:
-                        (not_implemented): true
                         is: [ auth_required ]
                         description: Retrieve a specific active deal associated with a specific proposal ID/partner ID combination for the current user.
                         responses:
@@ -817,6 +838,7 @@ types:
                 500: # 500
 /users:
     get:
+        (not_implemented): true
         is: [ auth_required, pageable, user_filterable ]
         description: Retrieve all users from Index Market. The returned objects describe the contact information for each user.
         queryParameters:
@@ -831,7 +853,11 @@ types:
                 required: false
                 displayName: Email Address
                 description: The email address of a user from Index Market. Used to obtain only users with that email.
-            
+            status:
+                type: string
+                required: false
+                displayName: Status
+                description: The status of the user
         responses:
                 200: # 200 = "OK"
                     body:
