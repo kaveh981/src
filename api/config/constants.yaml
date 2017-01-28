@@ -2,3 +2,9 @@
 
 # Usertype of a buyer
 BUYER_TYPES: [ ADV ]
+
+# Usertype of an IXM usertype
+IXM_USER_TYPE: IXMU
+
+# Usertype number of the IXM usertype
+IXM_USER_TYPE_NUMBER: 22

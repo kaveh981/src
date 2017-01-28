@@ -65,6 +65,59 @@ class UserManager {
     }
 
     /**
+     * Fetch a user from email.
+     * @param email - The email address.
+     */
+    public async fetchUserFromEmail(email: string) {
+
+        let user = await this.fetchUsers(null, (db) => { db.where('emailAddress', email); });
+
+        return user[0];
+
+    }
+
+    /**
+     * Insert a new user into the database.
+     * @param user - The user to insert.
+     * @param transaction - An optional transaction object to use.
+     */
+    public async insertUser(user: UserModel, transaction?: knex.Transaction) {
+
+        if (user.id) {
+            throw new Error('Attempted to insert an existing user.');
+        }
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.insertUser(user, trx);
+            });
+            return;
+        }
+
+        let userTypeNumber = (await transaction.pluck('userTypeID').from('userTypes').where('name', user.userType))[0];
+
+        let userID = await transaction.insert({
+            userType: userTypeNumber,
+            status: Helper.statusWordToLetter(user.status),
+            emailAddress: user.emailAddress,
+            password: Helper.generateId(64),
+            phone: user.phone,
+            country: user.country,
+            zipCode: user.zipCode,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            companyName: user.companyName,
+            address1: user.address,
+            state: user.state,
+            city: user.city
+        }).into('users').returning('userID');
+
+        user.id = userID[0];
+
+    }
+
+    /**
      * Returns a list of user models filtered by filter parameters.
      * @param pagination - The pagination parameters. This function modifies this parameter by setting its nextPageURL field based on whether there is more
      * data left to get or not.
@@ -74,7 +127,8 @@ class UserManager {
     public async fetchUsers(pagination: PaginationModel, ...clauses: ((db: knex.QueryBuilder) => any)[]): Promise<UserModel[]> {
 
         let query = this.databaseManager.select('userID as id', 'status', 'userTypes.name as userType',
-                                                'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone', 'userTypes.internal')
+                                                'ug.name as userGroup', 'firstName', 'lastName', 'emailAddress', 'phone', 'userTypes.internal',
+                                                'companyName', 'address1 as address', 'city', 'zipCode', 'country', 'state')
                                         .from('users')
                                         .innerJoin('userTypes', 'userType', '=', 'userTypeID')
                                         .innerJoin('userGroups as ug', 'userTypes.userGroupID', '=', 'ug.userGroupID')
@@ -108,7 +162,13 @@ class UserManager {
                 lastName: rows[i].lastName,
                 emailAddress: rows[i].emailAddress,
                 phone: rows[i].phone,
-                internal: !!rows[i].internal
+                internal: !!rows[i].internal,
+                country: rows[i].country,
+                address: rows[i].address,
+                companyName: rows[i].companyName,
+                city: rows[i].city,
+                zipCode: rows[i].zipCode,
+                state: rows[i].state
             });
         }
 

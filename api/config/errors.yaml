@@ -62,6 +62,9 @@ en-US:
     404_NEGOTIATION_NOT_FOUND: Negotiation not found.
     404_SECTION_NOT_FOUND: Deal section not found.
     404_DEAL_NOT_FOUND: Deal not found.
+    404_COMPANY_NOT_FOUND: The provided company email does not exist.
+    403_USER_NOT_COMPANY: The provided company email belongs to a representative.
+    403_EMAIL_IN_USE: The email you have provided is already in use.
 
     # 500 Status Code Messages
     500: Internal server error.

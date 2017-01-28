@@ -50,6 +50,10 @@ class MarketUserManager {
         return (await this.fetchMarketUsers(null, (db) => { db.where('contactID', userID); }))[0];
     }
 
+    public async fetchMarketUserFromEmail(email: string) {
+        return (await this.fetchMarketUsers(null, (db) => { db.where('contact.emailAddress', email); }))[0];
+    }
+
     /**
      * Get a list of all active market users
      * @param pagination - The pagination to use.
@@ -65,6 +69,96 @@ class MarketUserManager {
                 db.where('contact.status', 'A')
                   .where('company.status', 'A');
             });
+
+    }
+
+    /**
+     * Map a user to a company with permission
+     * @param userID - The user ID to map to a company.
+     * @param companyID - The company ID.
+     * @param permission - The permissions the user has to impersonate the company.
+     */
+    public async createUserCompanyMapping(userID: number, companyID: number, permission: 'read' | 'write', transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.createUserCompanyMapping(userID, companyID, permission, trx);
+            });
+            return;
+        }
+
+        await transaction.insert({
+            userID: userID,
+            companyID: companyID,
+            permissions: permission
+        }).into('ixmUserCompanyMappings');
+
+    }
+
+    /**
+     * Add or remove a company from the whitelist.
+     */
+    public async setCompanyWhitelist(userID: number, whitelist: boolean, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.setCompanyWhitelist(userID, whitelist, trx);
+            });
+            return;
+        }
+
+        let row = await transaction.select().from('ixmCompanyWhitelist').where('userID', userID);
+
+        if (whitelist && !row[0]) {
+            await transaction.insert({ userID: userID }).into('ixmCompanyWhitelist');
+        } else if (!whitelist && row[0]) {
+            await transaction.delete().from('ixmCompanyWhitelist').where({ userID: userID });
+        }
+
+    }
+
+    /**
+     * Update the market user's permissions.
+     * @param marketUser - The market user model to update.
+     */
+    public async updateMarketUser(marketUser: MarketUserModel, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.updateMarketUser(marketUser, trx);
+            });
+            return;
+        }
+
+        if (!marketUser.contact.id) {
+            throw new Error('The provided market user model has no ID.');
+        }
+
+        await transaction.from('ixmUserCompanyMappings').update({
+            permissions: marketUser.readOnly ? 'read' : 'write'
+        }).where('userID', marketUser.contact.id);
+
+    }
+
+    public async deleteMarketUser(marketUser: MarketUserModel, transaction?: knex.Transaction) {
+
+        // If there is no transaction, start one.
+        if (!transaction) {
+            await this.databaseManager.transaction(async (trx) => {
+                await this.deleteMarketUser(marketUser, trx);
+            });
+            return;
+        }
+
+        if (!marketUser.contact.id) {
+            throw new Error('The provided market user model has no ID.');
+        }
+
+        await transaction.from('ixmUserCompanyMappings').delete().where('userID', marketUser.contact.id);
+        await transaction.from('ixmCompanyWhitelist').delete().where('userID', marketUser.contact.id);
 
     }
 

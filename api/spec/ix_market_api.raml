@@ -221,6 +221,8 @@ types:
     Site:                   !include types/site.raml
     SiteCreate:             !include types/site_create.raml
     Pagination:             !include types/pagination.raml
+    UserCreate:             !include types/user_create.raml
+    UserUpdate:          !include types/user_update.raml
 
 ################################
 # Route Definitions
@@ -867,6 +869,38 @@ types:
                 401: # 401 = "Unauthorized" authentication has failed or was not provided
                 403: # 403 = "Forbidden" authentication successful but insufficient permissions
                 500: # 500 = "Internal Server Error" something done broke
+    post:
+        is: [ auth_required ]
+        description: Create a new Index Market user to represent a company.
+        body:
+            type: UserCreate
+            description: The fields required to create a new user.
+        responses:
+            201: # 200 = "Created"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            500: # 500
+
+    put:
+        is: [ auth_required ]
+        description: Add or remove a company from the whitelist.
+        body:
+            type: UserUpdate
+            description: The fields to whitelist a company.
+        responses:
+            200: # 200 = "OK"
+                body:
+                    application/json:
+                        type: Response
+            400: # 400 = "Bad Request" use for malformed requests
+            401: # 401 = "Unauthorized" authentication has failed or was not provided
+            403: # 403 = "Forbidden" authentication successful but insufficient permissions
+            500: # 500
+
     /{user_id}:
         uriParameters:
             user_id:
