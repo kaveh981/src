@@ -4,5 +4,5 @@ logs/
 test/
 build/
 *.log
-.env
-.env.example
+*.development.yaml
+*.production.yaml
