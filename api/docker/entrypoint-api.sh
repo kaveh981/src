@@ -26,6 +26,12 @@ if [ -d $SRC_DIR ]; then
     cp -rf $SRC_DIR/package.json $DEST_DIR
     cp -rf $SRC_DIR/spec $DEST_DIR
 
+    # Add logrotate config for production deployments
+    test "$ENVIRONMENT" = "production" \
+        && echo "Copying over logrotate config for atwater.." \
+        && cp -f $SRC_DIR/logrotate /etc/logrotate.d/atwater \
+        || echo "Didn't configure logrotate"
+
 fi
 
 test "$MODE" != "--deploy" \

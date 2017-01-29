@@ -1,0 +1,11 @@
+# Logs rotation config for atwater-api
+
+/opt/atwater/api/logs/*.log {
+        daily
+        rotate 10
+        missingok
+        notifempty
+        compress
+        copytruncate
+        size 100k
+}
