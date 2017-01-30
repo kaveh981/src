@@ -124,9 +124,9 @@ function NegotiationDeals(router: express.Router): void {
             } else if (targetProposal.owner.company.id !== receiverID) {
                 throw HTTPError('403_NEGOTIATION_BAD_PROPOSAL');
             } else if (targetProposal.hasInvalidSections() && targetProposal.targetedUsers.length === 0) {
-                throw HTTPError('403_NEGOTIATION_PROPOSAL_EXPIRED');
-            } else if (targetProposal.isExpired()) {
                 throw HTTPError('403_NEGOTIATION_INVALID_SECTIONS');
+            } else if (targetProposal.isExpired()) {
+                throw HTTPError('403_NEGOTIATION_PROPOSAL_EXPIRED');
             } else if (responseType !== 'counter-offer') {
                 throw HTTPError('403_NEGOTIATION_NOT_STARTED');
             } else if (!targetProposal.owner.isActive()) {

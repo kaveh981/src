@@ -21,7 +21,7 @@ en-US:
     400_INVALID_DATES: Start and/or end dates are invalid.
     400_BUYERS_MUST_TARGET: Buyers cannot create a proposal without targeting a publisher.
     400_BUYERS_CANNOT_SPECIFY_INVENTORY: Buyers cannot specify sections when creating a proposal or negotiating on one.
-    400_SPECIFY_INVENTORY_FOR_OPEN_PROPOSAL: Publishers must specifiy inventory when creating an open proposal.
+    400_SPECIFY_INVENTORY_FOR_OPEN_PROPOSAL: Publishers must specify inventory when creating an open proposal.
 
     # 401 Status Code Messages
     401: Unauthorized.
