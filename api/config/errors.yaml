@@ -8,7 +8,7 @@ en-US:
     200_NO_CONTENT: No content.
     200_NO_PROPOSALS: No deals are currently available. Come check again soon!
     200_NO_DEALS: You don't seem to have any active deals at the moment. Sorry, eh!
-    200_NO_NEGOTIATIONS: You have no negotiations you agreeable bastard.
+    200_NO_NEGOTIATIONS: You have no negotiations because you are perfect and everyone loves you.
     200_PROPOSAL_DELETED: Proposal deleted.
 
     # 201 Status Code Messages
@@ -28,9 +28,9 @@ en-US:
     401: Unauthorized.
     401_INVALID_HEADER: Authentication header is invalid.
     401_NO_HEADER: Authentication header not provided.
-    401_NOT_IXMUSER: 'Provided user ID is not an Index Market User. If you would like access, please contact your.mom@indexexchange.com'
-    401_NOT_ACTIVE: 'Provided user ID is not currently active. If you would like access, please contact jeff.bezos@indexexchange.com'
-    401_PRIVATE: 'The Index Market API is not open to the public. If you would like access, please contact larry.page@indexexchange.com'
+    401_NOT_IXMUSER: 'Provided user ID is not an Index Market User.'
+    401_NOT_ACTIVE: 'Provided user ID is not currently active.'
+    401_PRIVATE: 'The Index Market API is not open to the public.'
     401_CANNOT_IMPERSONATE: You do not have permission to impersonate the provided userID.
     401_PROVIDE_IMPERSONATEID: You must provided a user ID to impersonate.
 
@@ -82,6 +82,7 @@ en-US:
     404_SECTION_NOT_FOUND: Deal section not found.
     404_DEAL_NOT_FOUND: Deal not found.
     404_COMPANY_NOT_FOUND: The provided company email does not exist.
+    404_UUDDLRLRBAS:  'That doesn't seem to exist. Maybe you're making it up. If you think you're not making it up, absolutely do not contact your.mom@indexexchange.com'
 
     # 500 Status Code Messages
     500: Internal server error.
