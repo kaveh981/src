@@ -26,7 +26,7 @@ class SQLScriptBuilder {
      *
      * @param {string} ticketNumber JIRA Ticket Number for the csv insertion
      * @param {string} directory Path to store SQL scripts generated
-     * @param {INewProposalData[]} proposals Array of proposal data objects
+     * @param {IProposal[]} proposals Array of proposal data objects
      */
     public async buildScripts(ticketNumber: string, directory: string, proposals: IProposal[]) {
 

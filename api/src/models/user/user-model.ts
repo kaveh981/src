@@ -23,6 +23,14 @@ class UserModel {
     /** If the user is an internal user */
     public internal: boolean = false;
 
+    /* Personal information */
+    public companyName: string;
+    public address: string;
+    public city: string;
+    public zipCode: string;
+    public country: string;
+    public state: string;
+
     /**
      * Constructor
      * @param initParams - Initial parameters to populate the user model.
@@ -43,6 +51,13 @@ class UserModel {
      */
     public isBuyerCompany() {
         return IXM_CONSTANTS.BUYER_TYPES.indexOf(this.userType) !== -1;
+    }
+
+    /**
+     * Returns true if the user isn't a rep.
+     */
+    public isCompany() {
+        return this.userType !== IXM_CONSTANTS.IXM_USER_TYPE;
     }
 
     /** 

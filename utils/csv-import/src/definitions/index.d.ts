@@ -1,6 +1,7 @@
 interface IProposal {
     proposalID?: number;
     ownerID?: number;
+    ownerContactID?: number;
     name?: string;
     description?: string;
     status?: string;

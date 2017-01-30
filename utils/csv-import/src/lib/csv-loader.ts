@@ -81,11 +81,15 @@ class CSVLoader extends Loader {
     /**
      * Sanitises an array of proposal-like objects to conform with the IProposal Interface
      * @param parsedCsv - an array of proposal-like objects parsed from a csv file
-     * @returns {IProposal[]} - An array of proposal objects, sanitised into a valid IProposal[] type
+     * @returns {IProposal[]} - An array of proposal objects, sanitised into a valid proposal
      */
     private parseProposals(parsedCsv: IProposal[]): IProposal[] {
 
         return parsedCsv.map((proposal: any) => {
+            // ownerContactID defaults to ownerID
+            proposal.ownerContactID = (typeof proposal.ownerContactID === "undefined" || proposal.ownerContactID === "") ?
+                proposal.ownerID : proposal.ownerContactID;
+
             proposal.sectionIDs = proposal.sectionIDs && proposal.sectionIDs.toString().split(',').map(Number);
             // Translate falsy values to [], but have 0 translate to ["0"]
             proposal.targetedUsers = (proposal.targetedUsers || proposal.targetedUsers === 0) ? proposal.targetedUsers.toString().split(',').map(Number) : [];

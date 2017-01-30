@@ -19,7 +19,7 @@ class DealSectionModel {
     /** Section id */
     public id: number;
     /** URL Matches */
-    public urlMatches: string[];
+    public urlMatches: { matchType: string, url: string }[];
     /** Name */
     public name: string;
     /** Publisher Id */
@@ -53,7 +53,7 @@ class DealSectionModel {
             entire_site: this.entireSite,
             frequency_restrictions: this.frequencyRestrictions,
             id: this.id,
-            url_matches: this.urlMatches,
+            url_matches: this.urlMatches.map(match => { return { url: match.url, match_type: match.matchType }; }),
             name: this.name,
             publisher_id: this.publisherID,
             sites: this.sites.map((site) => { return site.toPayload(); }),

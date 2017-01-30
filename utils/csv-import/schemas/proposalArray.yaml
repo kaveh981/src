@@ -17,6 +17,8 @@ items:
             $ref: "#/definitions/ID"
         ownerID:
             $ref: "#/definitions/ID"
+        ownerContactID:
+            $ref: "#/definitions/ID"
         name:
             type: string
             minLength: 1
@@ -67,7 +69,7 @@ items:
                 $ref: "#/definitions/ID"
             minItems: 0
             uniqueItems: true
-    required: [ownerID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
+    required: [ownerID, ownerContactID, name, description, status, startDate, endDate, price, impressions, budget, auctionType,
     terms, createDate, modifyDate, sectionIDs, targetedUsers]
 definitions:
     ID:
