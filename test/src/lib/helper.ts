@@ -224,9 +224,9 @@ class Helper {
     public static async sectionToPayload(section: INewSectionData) {
         let sectionInfo = section.section;
         return {
-            ad_unit_restrictions: sectionInfo.adUnits && sectionInfo.adUnits.map(id => {
+            ad_unit_restrictions: await Promise.all(sectionInfo.adUnits.map(id => {
                 return Helper.adUnitToName(id);
-            }).sort(),
+            })).then( (names) => names.sort()),
             audience_restrictions: sectionInfo.audienceTargetingSegments && sectionInfo.audienceTargetingSegments.sort((a, b) => {
                 return a - b;
             }).map(segment => {
@@ -258,57 +258,9 @@ class Helper {
         };
     }
 
-    public static adUnitToName(adUnitID: number): string {
-        switch (adUnitID) {
-            case 1:
-                return 'Pop-Under';
-            case 2:
-                return '728x90 (Banner)';
-            case 3:
-                return '120x600 (Tower)';
-            case 4:
-                return '300x250 (Rectangle)';
-            case 5:
-                return '160x600 (Tower)';
-            case 6:
-                return '336x280 (Rectangle)';
-            case 7:
-                return '234x60 (Half Banner)';
-            case 8:
-                return '300x600 (Tower)';
-            case 9:
-                return '300x50 (Mobile Web)';
-            case 10:
-                return '320x50 (Mobile Web)';
-            case 11:
-                return 'Any size (VAST)';
-            case 12:
-                return '970x250 (Billboard)';
-            case 13:
-                return '300x1050 (Portrait)';
-            case 14:
-                return '970x90 (Pushdown)';
-            case 15:
-                return '180x150 (Rectangle)';
-            case 16:
-                return '900x550 (Full-Screen)';
-            case 17:
-                return '800x1100 (Full-Screen Mobile)';
-            case 25:
-                return '240x400 (Tower)';
-            case 30:
-                return '320x100 (Mobile Web)';
-            case 34:
-                return '320x480 (Mobile Web)';
-            case 42:
-                return '480x320 (Mobile Web)';
-            case 63:
-                return '468x60 (Mobile Web)';
-            case 64:
-                return '980x552 (Banner)';
-            default:
-                return '';
-        }
+    public static async adUnitToName(adUnitID: number): Promise<string> {
+        let adUnitName = await databaseManager.select('name').from('adUnits').where('adUnitID', adUnitID);
+        return adUnitName[0].name;
     }
 
     public static depthBucketToName(depthBucket: number) {
