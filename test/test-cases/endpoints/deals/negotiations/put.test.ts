@@ -987,7 +987,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_21(assert: test.Test) {
 /**
  * @case    - Buyer send a negotiation to an existing negotiation
  * @expect  - 200 OK, negotiated filed changes
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -1903,7 +1903,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_46(assert: test.Test) {
 /**
  * @case    - Buyer user negotiate on a negotiation between partner and another buyer user in its company
  * @expect  - 200 OK, negotiated filed changes
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2006,7 +2006,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_48(assert: test.Test) {
  * @case    - Internal user impersonate impersonates a buyer to negotiate on a negotiation started by 
  *            another buyer in its company
  * @expect  - 200 OK, negotiated filed changes
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2064,7 +2064,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_49(assert: test.Test) {
 /**
  * @case    - Inactive section in counter-offer request
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2104,7 +2104,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_50(assert: test.Test) {
 /**
  * @case    - Not their section in counter-offer request
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2144,7 +2144,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_51(assert: test.Test) {
 /**
  * @case    - 0 sections on negotiation, counter-offer with multiple sections
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2189,7 +2189,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_52(assert: test.Test) {
 /**
  * @case    - Multiple sections on negotiation, counter-offer with 0 sections
  * @expect  - 400
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2230,7 +2230,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_53(assert: test.Test) {
 /**
  * @case    - Multiple sections on negotiation, counter-offer with different sections
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2275,7 +2275,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_54(assert: test.Test) {
 /**
  * @case    - Multiple sections on proposal, counter-offer with same sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2314,8 +2314,8 @@ export async function ATW_API_PUT_DEANEG_FUNC_55(assert: test.Test) {
 
 /**
  * @case    - Buyer negotiate on sections
- * @expect  - 403
- * @route   - PUT deals/active
+ * @expect  - 400
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2347,7 +2347,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_56(assert: test.Test) {
 /**
  * @case    - Multiple sections on negotiation, counter-offer with same sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2397,7 +2397,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_57(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by itself) without sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2434,7 +2434,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_58(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by partner) without sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2479,7 +2479,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_59(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by pub) with sections in proposal
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2522,7 +2522,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_60(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by pub) with sections in proposal
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2572,7 +2572,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_61(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by pub) with sections in negotiation
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2622,7 +2622,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_62(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by pub) with sections in negotiation
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2681,7 +2681,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_63(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by pub) with sections in both proposal and negotiation
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2734,7 +2734,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_64(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by pub) with sections in both proposal and negotiation
  * @expect  - 200
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2794,7 +2794,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_65(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by buyer) without sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2839,7 +2839,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_66(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by itself) without sections
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2877,7 +2877,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_67(assert: test.Test) {
 /**
  * @case    - Buyer accept a negotiation (proposal created by buyer) with sections in negotiation
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */
@@ -2922,7 +2922,7 @@ export async function ATW_API_PUT_DEANEG_FUNC_68(assert: test.Test) {
 /**
  * @case    - Pub accept a negotiation (proposal created by buyer) with sections in negotiation
  * @expect  - 403
- * @route   - PUT deals/active
+ * @route   - PUT deals/negotiations
  * @status  - working
  * @tags    - put, negotiations, deals
  */

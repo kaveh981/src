@@ -238,7 +238,7 @@ export async function ATW_API_PUT_DEAPRO_03_01 (assert: test.Test) {
 
 /*
  * @case    - Publisher create proposal with targets but without sections
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -273,7 +273,7 @@ export async function ATW_API_PUT_DEAPRO_03_02 (assert: test.Test) {
 
 /*
  * @case    - Publisher create proposal with multiple targets
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -341,7 +341,7 @@ export async function ATW_API_PUT_DEAPRO_03_04 (assert: test.Test) {
 
 /*
  * @case    - Buyer create proposal with targets without sections
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -377,7 +377,7 @@ export async function ATW_API_PUT_DEAPRO_04_01 (assert: test.Test) {
 
 /*
  * @case    - Buyer create proposal with targets and sections
- * @expect  - 403 FORBIDDEN
+ * @expect  - 400 Malformed request
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -997,7 +997,7 @@ export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
 
 /*
  * @case    - Pub company create proposal without targets
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -1034,7 +1034,7 @@ export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
 
 /*
  * @case    - Internal user create proposal on behalf of a pub company without targets
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -1112,7 +1112,7 @@ export async function ATW_API_PUT_DEAPRO_23 (assert: test.Test) {
 
 /*
  * @case    - publisher create proposal with multiple sections
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -1151,7 +1151,7 @@ export async function ATW_API_PUT_DEAPRO_24 (assert: test.Test) {
 
 /*
  * @case    - publisher create proposal with sections owned by other publisher
- * @expect  - 200 OK, Proposal created
+ * @expect  - 403 Forbidden
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
