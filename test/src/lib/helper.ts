@@ -226,7 +226,7 @@ class Helper {
         return {
             ad_unit_restrictions: await Promise.all(sectionInfo.adUnits.map(id => {
                 return Helper.adUnitToName(id);
-            })).then( (names) => names.sort()),
+            })).then(names => names.sort()),
             audience_restrictions: sectionInfo.audienceTargetingSegments && sectionInfo.audienceTargetingSegments.sort((a, b) => {
                 return a - b;
             }).map(segment => {
