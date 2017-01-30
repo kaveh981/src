@@ -75,13 +75,9 @@ class SettledDealManager {
             sections: []
         });
 
-        await Promise.all(rows.map(async (row) => {
-            let section = await this.dealSectionManager.fetchDealSectionById(row.sections);
+        let dealSections = await this.dealSectionManager.fetchDealSectionsByIds(rows.map((row) => { return row.sections; }));
 
-            if (section && section.isActive()) {
-                settledDeal.sections.push(section);
-            }
-        }));
+        settledDeal.sections = dealSections.filter((dealSection) => dealSection.isActive());
 
         return settledDeal;
 
@@ -300,7 +296,7 @@ class SettledDealManager {
             createDate: Helper.currentDate(),
             modifyDate: Helper.currentDate(),
             auctionType: negotiatedDeal.proposedDeal.auctionType,
-            sections: negotiatedDeal.proposedDeal.sections,
+            sections: negotiatedDeal.sections.length === 0 ? negotiatedDeal.proposedDeal.sections : negotiatedDeal.sections,
             priority: 5,
             negotiatedDeal: negotiatedDeal,
             startDate: negotiatedDeal.startDate === null ? negotiatedDeal.proposedDeal.startDate : negotiatedDeal.startDate,

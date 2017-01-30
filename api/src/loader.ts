@@ -59,7 +59,7 @@ Injector.put(marketUserManager, 'MarketUserManager');
 const proposedDealManager = new ProposedDealManager(databaseManager, marketUserManager, dealSectionManager);
 Injector.put(proposedDealManager, 'ProposedDealManager');
 
-const negotiatedDealManager = new NegotiatedDealManager(databaseManager, proposedDealManager, marketUserManager);
+const negotiatedDealManager = new NegotiatedDealManager(databaseManager, proposedDealManager, marketUserManager, dealSectionManager);
 Injector.put(negotiatedDealManager, 'NegotiatedDealManager');
 
 const settledDealManager = new SettledDealManager(databaseManager, negotiatedDealManager, dealSectionManager);

@@ -19,6 +19,7 @@ const apiRequest = Injector.request<APIRequestManager>('APIRequestManager');
 /** Test constants */
 const route = 'deals/proposals';
 const DSP_ID = 1;
+const ANOTHER_DSP_ID = 2;
 
 async function commonDatabaseSetup() {
     let dsp = await databasePopulator.createDSP(123);
@@ -192,18 +193,18 @@ export async function ATW_API_PUT_DEAPRO_02 (assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, proposal, buyer.user);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 400);
 
 }
 
 /*
- * @case    - Publisher create proposal with targets
+ * @case    - Publisher create proposal with targets and sections
  * @expect  - 200 OK, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_03 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_03_01 (assert: test.Test) {
 
     /** Setup */
     assert.plan(6);
@@ -236,28 +237,128 @@ export async function ATW_API_PUT_DEAPRO_03 (assert: test.Test) {
 }
 
 /*
- * @case    - Buyer create proposal with targets
- * @expect  - 200 OK, Proposal created
+ * @case    - Publisher create proposal with targets but without sections
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_04 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_03_02 (assert: test.Test) {
 
     /** Setup */
-    assert.plan(6);
+    assert.plan(5);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        partners: [ buyerCompany.user.userID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user);
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.data[0].auction_type, proposal.auction_type);
+    assert.equal(response.body.data[0].name, proposal.name);
+    assert.equal(response.body.data[0].price, proposal.price);
+    assert.deepEqual(response.body.data[0].partners, proposal.partners);
+
+}
+
+/*
+ * @case    - Publisher create proposal with multiple targets
+ * @expect  - 201 Created, Proposal created
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_03_03 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(5);
+
+    await databasePopulator.createDSP(DSP_ID);
+    await databasePopulator.createDSP(ANOTHER_DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let anotherBuyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        partners: [ buyerCompany.user.userID, anotherBuyerCompany.user.userID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user);
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.data[0].auction_type, proposal.auction_type);
+    assert.equal(response.body.data[0].name, proposal.name);
+    assert.equal(response.body.data[0].price, proposal.price);
+    assert.deepEqual(response.body.data[0].partners, proposal.partners);
+
+}
+
+/*
+ * @case    - Publisher create proposal with no targets and no sections
+ * @expect  - 400 - Publishers must specify inventory on open (non-targeted) proposals
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_03_04 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    await databasePopulator.createDSP(ANOTHER_DSP_ID);
+
+    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, publisher.user);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - Buyer create proposal with targets without sections
+ * @expect  - 201 Created, Proposal created
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_04_01 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(5);
 
     await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
     let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
     let anotherPubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
 
     let proposal = {
         auction_type: 'second',
-        inventory: [ section.section.sectionID ],
         name: 'fabulous proposal',
         price: 5,
         partners: [ pubCompany.user.userID, anotherPubCompany.user.userID ]
@@ -270,7 +371,77 @@ export async function ATW_API_PUT_DEAPRO_04 (assert: test.Test) {
     assert.equal(response.body.data[0].auction_type, proposal.auction_type);
     assert.equal(response.body.data[0].name, proposal.name);
     assert.equal(response.body.data[0].price, proposal.price);
-    assert.equal(response.body.data[0].inventory[0].id, proposal.inventory[0]);
+    assert.deepEqual(response.body.data[0].partners, proposal.partners);
+
+}
+
+/*
+ * @case    - Buyer create proposal with targets and sections
+ * @expect  - 400 Malformed request
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_04_02 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section1 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let section2 = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        partners: [ pubCompany.user.userID ],
+        inventory: [ section1.section.sectionID, section2.section.sectionID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, buyer.user);
+
+    assert.equal(response.status, 400);
+
+}
+
+/*
+ * @case    - Buyer create proposal with multiple targets
+ * @expect  - 201 
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_04_03 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(5);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let buyerCompany = await databasePopulator.createCompany({}, DSP_ID);
+    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
+    let pubCompany = await databasePopulator.createCompany();
+    let anotherPubCompany = await databasePopulator.createCompany();
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        partners: [ pubCompany.user.userID, anotherPubCompany.user.userID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, buyer.user);
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.data[0].auction_type, proposal.auction_type);
+    assert.equal(response.body.data[0].name, proposal.name);
+    assert.equal(response.body.data[0].price, proposal.price);
     assert.deepEqual(response.body.data[0].partners, proposal.partners);
 
 }
@@ -487,8 +658,8 @@ export async function ATW_API_PUT_DEAPRO_10 (assert: test.Test) {
 }
 
 /*
- * @case    - The user does not specify a section
- * @expect  - 400 BAD REQUEST
+ * @case    - Section does not exist
+ * @expect  - 404 NOT FOUND
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
@@ -500,41 +671,8 @@ export async function ATW_API_PUT_DEAPRO_11 (assert: test.Test) {
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-
-    let proposal = {
-        auction_type: 'second',
-        name: 'fabulous proposal',
-        price: 5,
-        partners: [ pubCompany.user.userID ]
-    };
-
-    /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
-
-    assert.equal(response.status, 400);
-
-}
-
-/*
- * @case    - Section does not exist
- * @expect  - 404 NOT FOUND
- * @route   - PUT deals/proposals
- * @status  - working
- * @tags    - put, proposals, deals
- */
-export async function ATW_API_PUT_DEAPRO_12 (assert: test.Test) {
-
-    /** Setup */
-    assert.plan(1);
-
-    let dsp = await databasePopulator.createDSP(DSP_ID);
-    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
-    let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
 
@@ -543,11 +681,11 @@ export async function ATW_API_PUT_DEAPRO_12 (assert: test.Test) {
         name: 'fabulous proposal',
         inventory: [ section.section.sectionID + 1 ],
         price: 5,
-        partners: [ pubCompany.user.userID ]
+        partners: [ buyerCompany.user.userID ]
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 404);
 
@@ -560,15 +698,15 @@ export async function ATW_API_PUT_DEAPRO_12 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_13 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_12 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
 
@@ -577,11 +715,11 @@ export async function ATW_API_PUT_DEAPRO_13 (assert: test.Test) {
         name: 'fabulous proposal',
         inventory: [ section.section.sectionID ],
         price: 5,
-        partners: [ pubCompany.user.userID ]
+        partners: [ buyerCompany.user.userID ]
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -594,29 +732,29 @@ export async function ATW_API_PUT_DEAPRO_13 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_14 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_13 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let anotherPubCompany = await databasePopulator.createCompany();
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let site = await databasePopulator.createSite(anotherPubCompany.user.userID);
+    let section = await databasePopulator.createSection(anotherPubCompany.user.userID, [ site.siteID ]);
 
     let proposal = {
         auction_type: 'second',
         name: 'fabulous proposal',
         inventory: [ section.section.sectionID ],
         price: 5,
-        partners: [ anotherPubCompany.user.userID ]
+        partners: [ buyerCompany.user.userID ]
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -629,15 +767,15 @@ export async function ATW_API_PUT_DEAPRO_14 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_15 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_14 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID);
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID + 1 ]);
 
@@ -646,13 +784,13 @@ export async function ATW_API_PUT_DEAPRO_15 (assert: test.Test) {
         name: 'fabulous proposal',
         inventory: [ section.section.sectionID ],
         price: 5,
-        partners: [ pubCompany.user.userID ]
+        partners: [ buyerCompany.user.userID ]
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
-    assert.equal(response.status, 403);
+    assert.equal(response.status, 404);
 
 }
 
@@ -663,15 +801,15 @@ export async function ATW_API_PUT_DEAPRO_15 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_15 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
 
     let dsp = await databasePopulator.createDSP(DSP_ID);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
-    let buyer = await databasePopulator.createBuyer(buyerCompany.user.userID, 'write');
     let pubCompany = await databasePopulator.createCompany();
+    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
     let site = await databasePopulator.createSite(pubCompany.user.userID, { status: 'D' });
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
 
@@ -680,11 +818,11 @@ export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
         name: 'fabulous proposal',
         inventory: [ section.section.sectionID ],
         price: 5,
-        partners: [ pubCompany.user.userID ]
+        partners: [ buyerCompany.user.userID ]
     };
 
     /** Test */
-    let response = await apiRequest.put(route, proposal, buyer.user);
+    let response = await apiRequest.put(route, proposal, publisher.user);
 
     assert.equal(response.status, 403);
 
@@ -697,7 +835,7 @@ export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_16 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -734,7 +872,7 @@ export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_17 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -771,7 +909,7 @@ export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_18 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -802,7 +940,7 @@ export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_19 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -827,44 +965,13 @@ export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
 }
 
 /*
- * @case    - Inventory is missing
- * @expect  - 400 BAD REQUEST
- * @route   - PUT deals/proposals
- * @status  - working
- * @tags    - put, proposals, deals
- */
-export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
-
-    /** Setup */
-    assert.plan(1);
-
-    await databasePopulator.createDSP(DSP_ID);
-    let pubCompany = await databasePopulator.createCompany();
-    let publisher = await databasePopulator.createPublisher(pubCompany.user.userID, 'write');
-    let site = await databasePopulator.createSite(pubCompany.user.userID);
-    await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
-
-    let proposal = {
-        auction_type: 'second',
-        name: 'great name',
-        price: 5
-    };
-
-    /** Test */
-    let response = await apiRequest.put(route, proposal, publisher.user);
-
-    assert.equal(response.status, 400);
-
-}
-
-/*
  * @case    - Price is missing
  * @expect  - 400 BAD REQUEST
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_20 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -890,12 +997,12 @@ export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
 
 /*
  * @case    - Pub company create proposal without targets
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_23 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_21 (assert: test.Test) {
 
     /** Setup */
     assert.plan(7);
@@ -927,12 +1034,12 @@ export async function ATW_API_PUT_DEAPRO_23 (assert: test.Test) {
 
 /*
  * @case    - Internal user create proposal on behalf of a pub company without targets
- * @expect  - 200 OK, Proposal created
+ * @expect  - 201 Created, Proposal created
  * @route   - PUT deals/proposals
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_24 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_22 (assert: test.Test) {
 
     /** Setup */
     assert.plan(7);
@@ -976,7 +1083,7 @@ export async function ATW_API_PUT_DEAPRO_24 (assert: test.Test) {
  * @status  - working
  * @tags    - put, proposals, deals
  */
-export async function ATW_API_PUT_DEAPRO_25 (assert: test.Test) {
+export async function ATW_API_PUT_DEAPRO_23 (assert: test.Test) {
 
     /** Setup */
     assert.plan(1);
@@ -994,6 +1101,79 @@ export async function ATW_API_PUT_DEAPRO_25 (assert: test.Test) {
         name: 'fabulous proposal',
         price: 5,
         partners: [ buyer.user.userID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, pubCompany.user);
+
+    assert.equal(response.status, 403);
+
+}
+
+/*
+ * @case    - publisher create proposal with multiple sections
+ * @expect  - 201 Created, Proposal created
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_24 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(7);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let pubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSite = await databasePopulator.createSite(pubCompany.user.userID);
+    let anotherSection = await databasePopulator.createSection(pubCompany.user.userID, [ anotherSite.siteID ]);
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        inventory: [ section.section.sectionID, anotherSection.section.sectionID ]
+    };
+
+    /** Test */
+    let response = await apiRequest.put(route, proposal, pubCompany.user);
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.data[0].auction_type, proposal.auction_type);
+    assert.equal(response.body.data[0].name, proposal.name);
+    assert.equal(response.body.data[0].price, proposal.price);
+    assert.deepEqual(response.body.data[0].inventory.map( (s) => { return s.id; } ), proposal.inventory);
+    assert.equal(response.body.data[0].owner_id, pubCompany.user.userID);
+    assert.deepEqual(response.body.data[0].contact, Helper.contactToPayload(pubCompany.user));
+
+}
+
+/*
+ * @case    - publisher create proposal with sections owned by other publisher
+ * @expect  - 403 Forbidden
+ * @route   - PUT deals/proposals
+ * @status  - working
+ * @tags    - put, proposals, deals
+ */
+export async function ATW_API_PUT_DEAPRO_25 (assert: test.Test) {
+
+    /** Setup */
+    assert.plan(1);
+
+    await databasePopulator.createDSP(DSP_ID);
+    let pubCompany = await databasePopulator.createCompany();
+    let poorPubCompany = await databasePopulator.createCompany();
+    let site = await databasePopulator.createSite(pubCompany.user.userID);
+    let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
+    let anotherSite = await databasePopulator.createSite(poorPubCompany.user.userID);
+    let anotherSection = await databasePopulator.createSection(poorPubCompany.user.userID, [ anotherSite.siteID ]);
+
+    let proposal = {
+        auction_type: 'second',
+        name: 'fabulous proposal',
+        price: 5,
+        inventory: [ section.section.sectionID, anotherSection.section.sectionID ]
     };
 
     /** Test */

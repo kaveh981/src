@@ -130,7 +130,7 @@ class DealSectionManager {
                 frequencyRestrictions: row.domains && row.domains.split(',') || []
             });
 
-            newDealSection.sites = await this.siteManager.fetchActiveSitesFromSectionId(row.id);
+            newDealSection.sites = await this.siteManager.fetchSitesFromSectionId(row.id);
 
             return newDealSection;
 
@@ -157,18 +157,31 @@ class DealSectionManager {
     }
 
     /**
+     * Get all deal sections specified by id in the array.
+     * @param sectionIDs - The ids of the sections you want to retrieve.
+     * @returns An array of settled deal models corresponding to the sectionIDs.
+     */
+    public async fetchDealSectionsByIds(sectionIDs: number[]) {
+
+        return (await this.fetchDealSections(null,
+            (db) => {
+                db.whereIn('rtbSections.sectionID', sectionIDs);
+            }
+        ));
+
+    }
+
+    /**
      * Get the active section ids for the proposal
      * @param proposalID - The id of the proposed deal.
      * @returns An array of section objects for that proposal
      */
-    public async fetchActiveSectionsFromProposalId(proposalID: number) {
+    public async fetchSectionsFromProposalId(proposalID: number) {
 
         return await this.fetchDealSections(null,
             (db) => {
                 db.where({
-                    'ixmProposalSectionMappings.proposalID': proposalID,
-                    'rtbSections.status': 'A',
-                    'sites.status': 'A'
+                    'ixmProposalSectionMappings.proposalID': proposalID
                 })
                 .andWhere(function() {
                     this.where('adUnits.status', 'A')
@@ -180,6 +193,23 @@ class DealSectionManager {
     }
 
     /**
+     *  Get all negotiated sections relating to the specified negotiation.
+     *  @param negotiationID - the id of the negotiated deal. 
+     *  @returns An array of sections.
+     */
+    public async fetchSectionsFromNegotiationId(negotiationID: number) {
+
+        let dealSectionIds: number[] = [];
+        let rows = await this.databaseManager.select('sectionID')
+                                             .from('ixmNegotiationSectionMappings')
+                                             .where('negotiationID', negotiationID);
+
+        dealSectionIds = rows.map((row) => { return row.sectionID; });
+
+        return await this.fetchDealSectionsByIds(dealSectionIds);
+    }
+
+    /** 
      * Get all sections for a specific user
      * @param user - the user to find sections for
      * @param pagination - pagination details for this request
@@ -199,6 +229,47 @@ class DealSectionManager {
                 });
             }
         );
+
+    }
+
+    /**
+     * Insert a proposal-section mapping into negotiation by specifying a partnerID
+     * @param: negotiationID - id of the negotiation the section is being added to 
+     * @param: sectionID - the section to add
+     * @param: transaction - knex.Transaction
+     */
+    public async insertNegotiationSection(negotiationID: number, sectionID: number, transaction?: knex.Transaction) {
+
+        if (!transaction) {
+            await this.databaseManager.transaction (async (trx) => {
+                await this.insertNegotiationSection(negotiationID, sectionID, trx);
+            });
+        }
+
+        await transaction.insert({
+            negotiationID: negotiationID,
+            sectionID: sectionID
+            }).into('ixmNegotiationSectionMappings');
+
+    }
+
+    /**
+     * Remove sections from a negotiation 
+     * @param: negotiationID: the negotiation to remove from 
+     * @param: sectionIDs: all the sections to be removed from the negotiation 
+     * @param: transaction: knex.Transaction
+     */
+    public async removeSectionsFromNegotiation(negotiationID: number, sectionIDs: number[], transaction?: knex.Transaction) {
+
+        if (!transaction) {
+            await this.databaseManager.transaction (async (trx) => {
+                await this.removeSectionsFromNegotiation(negotiationID, sectionIDs, trx);
+            });
+        }
+
+        await transaction.delete().from('ixmNegotiationSectionMappings')
+                                  .whereIn('sectionID', sectionIDs)
+                                  .andWhere('negotiationID', negotiationID);
 
     }
 

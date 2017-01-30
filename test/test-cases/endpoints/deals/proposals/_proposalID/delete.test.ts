@@ -70,15 +70,13 @@ export async function ATW_API_DELETE_DEAPROID_01(assert: test.Test) {
 
     let deletedProposal = await Helper.getProposalById(proposal.proposal.proposalID);
     let deletedNegotiations = await Helper.getNegotiationsByProposalID(proposal.proposal.proposalID);
-    let plans = deletedNegotiations.length * 2 + 3;
 
-    assert.plan(plans);
+    assert.plan(4);
     assert.equals(response.status, 200, "Response ok");
     assert.equals(response.body.data[0].proposal_id, proposal.proposal.proposalID);
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }
@@ -199,15 +197,13 @@ export async function ATW_API_DELETE_DEAPROID_05(assert: test.Test) {
 
     let deletedProposal = await Helper.getProposalById(proposal.proposal.proposalID);
     let deletedNegotiations = await Helper.getNegotiationsByProposalID(proposal.proposal.proposalID);
-    let plans = deletedNegotiations.length * 2 + 3;
 
-    assert.plan(plans);
+    assert.plan(4);
     assert.equals(response.status, 200, "Response ok");
     assert.equals(response.body.data[0].proposal_id, proposal.proposal.proposalID);
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }
@@ -235,15 +231,13 @@ export async function ATW_API_DELETE_DEAPROID_06(assert: test.Test) {
 
     let deletedProposal = await Helper.getProposalById(proposal.proposal.proposalID);
     let deletedNegotiations = await Helper.getNegotiationsByProposalID(proposal.proposal.proposalID);
-    let plans = deletedNegotiations.length * 2 + 3;
 
-    assert.plan(plans);
+    assert.plan(4);
     assert.equals(response.status, 200, "Response ok");
     assert.equals(response.body.data[0].proposal_id, proposal.proposal.proposalID);
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }

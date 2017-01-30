@@ -54,11 +54,6 @@ function Proposals(router: express.Router): void {
             createDate: new Date()
         });
 
-        // Check that dates are valid
-        if (proposedDeal.isExpired()) {
-            throw HTTPError('400_INVALID_DATES');
-        }
-
         // Check that partners are valid
         if (req.body['partners']) {
             for (let i = 0; i < req.body['partners'].length; i++) {
@@ -76,7 +71,20 @@ function Proposals(router: express.Router): void {
             }
         }
 
-        let dealSectionIDs = req.body['inventory'];
+        let dealSectionIDs = req.body['inventory'] || [];
+        let isTargeted = proposedDeal.targetedUsers.length > 0;
+
+        if (req.ixmUserInfo.isBuyer()) {
+            if (!isTargeted) {
+                throw HTTPError('400_BUYERS_MUST_TARGET');
+            } else if (dealSectionIDs.length > 0) {
+                throw HTTPError('400_BUYERS_CANNOT_SPECIFY_INVENTORY');
+            }
+        } else {
+            if (!isTargeted && dealSectionIDs.length === 0) {
+                throw HTTPError('400_SPECIFY_INVENTORY_FOR_OPEN_PROPOSAL');
+            }
+        }
 
         // Check that sections are valid
         for (let i = 0; i < dealSectionIDs.length; i++) {
@@ -84,9 +92,9 @@ function Proposals(router: express.Router): void {
 
             if (!dealSection) {
                 throw HTTPError('404_SECTION_NOT_FOUND');
-            } else if (dealSection.publisherID !== user.company.id && proposedDeal.targetedUsers.indexOf(dealSection.publisherID) === -1) {
-                throw HTTPError('403_SECTION_OWNED');
-            } else if (!dealSection.isActive()) {
+            } else if (dealSection.publisherID !== user.company.id) {
+                throw HTTPError('403_SECTION_NOT_OWNED');
+            } else if (!dealSection.isActive() || !dealSection.allSitesValid()) {
                 throw HTTPError('403_SECTION_NOT_ACTIVE');
             }
 

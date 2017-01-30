@@ -69,6 +69,25 @@ class Helper {
                 status: "INACTIVE_USER"
             };
     }
+
+    /**
+     * Section ID array to pay load
+     * @param Section ID array
+     * @returns array of full section object
+     */
+    public static async sectionArrayToPayload(sectionIDs: number[]) {
+        let requestUser = await databasePopulator.createInternalUser();
+        let sections = [];
+
+        for (let i = 0; i < sectionIDs.length; i++) {
+            let section = (await apiRequest.get(`sections/${sectionIDs[i]}`, {}, requestUser)).body['data'][0];
+
+            sections.push(section);
+        };
+
+        return sections;
+    }
+
     /**
      * Construct a proposal payload from a proposal.
      * @param proposal - The proposal object.
@@ -76,7 +95,6 @@ class Helper {
      * @returns The expected payload for that proposal.
      */
     public static async proposalToPayload(proposal: INewProposalData, contact?: INewUserData) {
-        let requestUser = await databasePopulator.createInternalUser();
         if (proposal.proposal.status === 'deleted') {
             return {
                 created_at: proposal.proposal.createDate.toISOString(),
@@ -99,10 +117,7 @@ class Helper {
                 end_date: this.formatDate(proposal.proposal.endDate),
                 proposal_id: proposal.proposal.proposalID,
                 impressions: proposal.proposal.impressions,
-                inventory: await Promise.all(proposal.sectionIDs.map(async (id) => {
-                    let section = (await apiRequest.get(`sections/${id}`, {}, requestUser)).body['data'][0];
-                    return section;
-                })),
+                inventory: await Helper.sectionArrayToPayload(proposal.sectionIDs),
                 partners: proposal.targetedUsers,
                 modified_at: proposal.proposal.modifyDate.toISOString(),
                 name: proposal.proposal.name,
@@ -139,7 +154,8 @@ class Helper {
                 start_date: Helper.formatDate(dealNegotiation.startDate),
                 end_date: Helper.formatDate(dealNegotiation.endDate),
                 created_at: dealNegotiation.createDate.toISOString(),
-                modified_at: dealNegotiation.modifyDate.toISOString()
+                modified_at: dealNegotiation.modifyDate.toISOString(),
+                inventory: await Helper.sectionArrayToPayload(dealNegotiation.sectionIDs)
             };
         }
     }
@@ -253,7 +269,10 @@ class Helper {
             }) || [],
             name: sectionInfo.name,
             publisher_id: sectionInfo.userID,
-            sites: await Helper.fetchActiveSitesFromSectionId(sectionInfo.sectionID),
+            sites: await Promise.all(section.siteIDs.map(async (id) => {
+                let site = await Helper.getSiteFromId(id);
+                return site;
+            })),
             status: Helper.statusLetterToWord(sectionInfo.status)
         };
     }

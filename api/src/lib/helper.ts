@@ -142,6 +142,72 @@ class Helper {
         }
     }
 
+    /**
+     * Checks if 2 arrays have the same elements.
+     * @param: a - array 1
+     * @param: b - array 2
+     * @returns: true if they are equals, false if not. 
+     */
+    public static arrayEqual(a: number[], b: number[]) {
+
+        if (a.length !== b.length) {
+            return false;
+        }
+
+        a.sort();
+        b.sort();
+
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] - b[i] !== 0) {
+                return false;
+            }
+         }
+
+         return true;
+
+    }
+
+   /**
+    * Compares array 'a' with array 'b' and checks what values exist in b that do not exist in a (result.added)
+    * Also checks what values are in a that do not exist in b (result.removed)
+    * @param: a: number[] - the 'old' array 
+    * @param: b: number[] - the 'new' array 
+    * @return: result: {added: [...], removed: [...]}
+    */
+    public static checkDiff (a: number[], b: number[]) {
+
+        let hash = {};
+
+        // Create a set of enteries that already exist in array 'a'
+        for (let i = 0; i < a.length; i++) {
+            hash[a[i]] = 1;
+        }
+
+        let result: ArrayDiffResult = {
+            added: [],
+            removed: []
+        };
+
+        for (let i = 0; i < b.length; i++) {
+            if (hash[b[i]] !== 1) {
+                // element does not exist in hash, therefore it is a new value that needs to be added
+                result.added.push(b[i]);
+            } else {
+                // element does exist in hash, meaning that it was NOT removed
+                hash[b[i]]++;
+            }
+        }
+
+        // Now we need to loop over our hash set and save all values that were removed in array b into result.removed
+        for (let i = 0; i < a.length; i++) {
+            if (hash[a[i]] === 1) {
+                result.removed.push(a[i]);
+            }
+        }
+
+        return result;
+    }
+
 };
 
 export { Helper };

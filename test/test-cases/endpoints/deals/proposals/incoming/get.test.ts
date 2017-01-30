@@ -536,7 +536,6 @@ export async function ATW_API_GET_DEAPROINC_FUNC_13 (assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
 
     let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ], {}, [ pubCompany.user.userID ]);
-    proposal.sectionIDs = [];
 
     // Open proposal to make sure we aren't getting more than we want ie. only targeted proposals
     let openProposal = await databasePopulator.createProposal(buyerCompany.user.userID, [ section.section.sectionID ]);
@@ -573,7 +572,6 @@ export async function ATW_API_GET_DEAPROINC_FUNC_14 (assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ], { status: 'D' });
 
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ], {}, [ buyerCompany.user.userID ]);
-    proposal.sectionIDs = [];
 
     // Open proposal to make sure we aren't getting more than we want ie. only targeted proposals
     let openProposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ]);

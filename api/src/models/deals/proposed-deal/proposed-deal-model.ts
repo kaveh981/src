@@ -57,7 +57,7 @@ class ProposedDealModel {
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isActive(): boolean {
-        return (this.sections.length > 0) && (this.status === 'active') && this.owner.isActive();
+        return !this.hasInvalidSections() && this.status === 'active' && this.owner.isActive();
     }
 
     public isExpired(): boolean {
@@ -77,18 +77,17 @@ class ProposedDealModel {
      * @returns true if the proposal is purchasable by this user
      */
     public isPurchasableByUser(user: MarketUserModel) {
-        return this.isActive() && !this.isExpired() && user.isBuyer() !== this.owner.isBuyer() && this.targetsUser(user);
+        return this.sections.length > 0 && this.isActive() && !this.isExpired() && user.isBuyer() !== this.owner.isBuyer() && this.targetsUser(user);
     }
 
     /**
      * Checks that a proposed deal is readable by a specific user. The proposal must be available for the market
-     * and targeted towards the current user if it's a targeted proposal, or
-     * the proposal must be owned by the user and not deleted.
+     * and targeted towards the current user if it's a targeted proposal
      * @param user - the user in question
      * @returns true if the proposal is readable by this user
      */
     public isReadableByUser(user: MarketUserModel) {
-        return this.isActive() && !this.isExpired() && this.targetsUser(user) || this.owner.company.id === user.company.id && !this.isDeleted();
+        return !this.isDeleted() && this.targetsUser(user);
     }
 
     /**
@@ -204,6 +203,38 @@ class ProposedDealModel {
                 resource: infoURL
             };
         }
+
+    }
+
+    public hasInvalidSections() {
+
+        if (this.sections.length === 0) {
+            return false;
+        }
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (this.sections[i].isActive()) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Check if this proposed deal has at least one section and that it is valid
+     * @return: true if at least one section is valid, false otherwise. 
+     */
+    public oneSectionValid () {
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (this.sections[i].isActive()) {
+                return true;
+            }
+        }
+
+        return false;
 
     }
 

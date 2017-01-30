@@ -132,7 +132,7 @@ export async function IXM_API_DEALS_PUT_03(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal that is paused.
-* @expect  - 404 - NOT FOUND
+* @expect  - 403 - Not available for purchase
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -153,7 +153,7 @@ export async function IXM_API_DEALS_PUT_04(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(response.status, 404);
+    assert.equal(response.status, 403);
 
 }
 
@@ -186,7 +186,7 @@ export async function IXM_API_DEALS_PUT_05(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal that is expired.
-* @expect  - 404 - NOT FOUND 
+* @expect  - 403 - Not avaialable for purchase
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -207,7 +207,7 @@ export async function IXM_API_DEALS_PUT_06(assert: test.Test) {
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(response.status, 404);
+    assert.equal(response.status, 403);
 
 }
 
@@ -420,7 +420,7 @@ export async function IXM_API_DEALS_PUT_13(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal, but no sections are active.
-* @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user
+* @expect  - 403 - Proposal found, but not avaialabe for purchase 
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals
@@ -444,7 +444,7 @@ export async function IXM_API_DEALS_PUT_14(assert: test.Test) {
     /** Test */
     let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(responseOne.status, 404);
+    assert.equal(responseOne.status, 403);
 
 }
 
@@ -480,7 +480,7 @@ export async function IXM_API_DEALS_PUT_15(assert: test.Test) {
 
 /*
 * @case    - The buyer buys a proposal, but no sites are active.
-* @expect  - 404 - Proposal not found. Is not purchasable, does not exist to user
+* @expect  - 403 - Proposal found but not avaialable for purchase.
 * @route   - PUT deals/active
 * @status  - working
 * @tags    - put, live, deals, sites
@@ -504,7 +504,7 @@ export async function IXM_API_DEALS_PUT_16(assert: test.Test) {
     /** Test */
     let responseOne = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyer.user);
 
-    assert.equal(responseOne.status, 404);
+    assert.equal(responseOne.status, 403);
 
 }
 
@@ -737,6 +737,54 @@ export async function IXM_API_DEALS_PUT_24(assert: test.Test) {
 
     /** Test */
     let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyerBuyer.user);
+
+    assert.equal(response.status, 403);
+
+}
+
+/*
+ * @case    - Buyer tries to buy proposal without sections
+ * @expect  - 403 - FORBIDDEN  
+ * @route   - PUT deals/active
+ * @status  - working 
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_25(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let pubCompany = await databasePopulator.createCompany();
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [], {}, [ buyerCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, buyerCompany.user);
+
+    assert.equal(response.status, 403);
+
+}
+
+/*
+ * @case    - Pub tries to buy proposal without sections
+ * @expect  - 403 - FORBIDDEN  
+ * @route   - PUT deals/active
+ * @status  - working 
+ * @tags    - put, live, deals, proposal
+ */
+export async function IXM_API_DEALS_PUT_26(assert: test.Test) {
+
+     /** Setup */
+    assert.plan(1);
+
+    let dsp = await databasePopulator.createDSP(1);
+    let pubCompany = await databasePopulator.createCompany();
+    let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
+    let proposal = await databasePopulator.createProposal(buyerCompany.user.userID, [], {}, [ pubCompany.user.userID ]);
+
+    /** Test */
+    let response = await apiRequest.put(route, { proposal_id: proposal.proposal.proposalID }, pubCompany.user);
 
     assert.equal(response.status, 403);
 

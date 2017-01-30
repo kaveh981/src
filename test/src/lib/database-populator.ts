@@ -380,7 +380,7 @@ class DatabasePopulator {
     /**
      * Creates a new section match entities based on "new-section-match-schema", Inserts into "Viper2.rtbSectionMatches"
      * @param sectionID {int} - The section ID for this match
-     * @param numMatches {int} - Optional: the number of matches to generate. If 
+     * @param numMatches {int} - Optional: the number of matches to generate.
      * @param matchFields {INewMatchData} - Optional an array of new match objects to override random fields. Length should equal numMatches
      * @returns {Promise<INewMatchData>} - Promise which resolves with an object with new match data
      */
@@ -423,10 +423,10 @@ class DatabasePopulator {
      * @param targetedUsers {int[]} - Optional: userIDs of targeted ixmUsers
      * @returns {Promise<INewProposalData>} - Promise which resolves with an object of new proposal data
      */
-    public async createProposal(ownerID: number, sectionIDs: number[], proposalFields?: IProposal, targetedUsers?: number[], contactUserID?: number) {
+    public async createProposal(ownerID: number, sectionIDs?: number[], proposalFields?: IProposal, targetedUsers?: number[], contactUserID?: number) {
 
         let newProposalObj = this.generateDataObject<IProposal>('new-proposal-schema');
-        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs, targetedUsers: targetedUsers || [] };
+        let newProposal: INewProposalData = { proposal: newProposalObj, sectionIDs: sectionIDs || [], targetedUsers: targetedUsers || [] };
 
         if (proposalFields) {
             Object.assign(newProposal.proposal, proposalFields);
@@ -451,7 +451,9 @@ class DatabasePopulator {
         let modifyDate = await this.dbm.select('modifyDate').from('ixmProposals').where('proposalID', proposalID[0]);
         newProposal.proposal.modifyDate = modifyDate[0].modifyDate;
 
-        await this.mapProposalToSections(newProposal.proposal.proposalID, newProposal.sectionIDs);
+        if (newProposal.sectionIDs) {
+            await this.mapProposalToSections(newProposal.proposal.proposalID, newProposal.sectionIDs);
+        }
 
         if (newProposal.targetedUsers) {
             await this.mapProposalToTargets(newProposal.proposal.proposalID, newProposal.targetedUsers);
@@ -473,15 +475,29 @@ class DatabasePopulator {
 
         let newDealNegotiationData = this.generateDataObject<IDealNegotiationData>('new-negotiation-schema');
 
+        let newSectionIDs: number[] = [];
+
         if (optionalFields) {
+
+            if (optionalFields.sectionIDs) {
+                newSectionIDs = optionalFields.sectionIDs;
+                delete optionalFields.sectionIDs;
+            }
+
             Object.assign(newDealNegotiationData, optionalFields);
         }
 
         newDealNegotiationData.proposalID = proposalID;
         newDealNegotiationData.partnerID = partnerID;
         newDealNegotiationData.partnerContactID = partnerID;
-        newDealNegotiationData.startDate.setHours(0, 0, 0, 0);
-        newDealNegotiationData.endDate.setHours(0, 0, 0, 0);
+
+        if (newDealNegotiationData.startDate instanceof Date) {
+            newDealNegotiationData.startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (newDealNegotiationData.endDate instanceof Date) {
+            newDealNegotiationData.endDate.setHours(0, 0, 0, 0);
+        }
 
         // Check if there are any differences between proposal and negotiation
         let proposals = await this.dbm.select().from('ixmProposals').where('proposalID', proposalID);
@@ -515,6 +531,11 @@ class DatabasePopulator {
 
         Log.debug(`Created new negotiation, ID: ${newDealNegotiationData.negotiationID}`);
 
+        if (newSectionIDs) {
+            await this.mapNegotiationToSections(newDealNegotiationData.negotiationID, newSectionIDs);
+            newDealNegotiationData.sectionIDs = newSectionIDs;
+        }
+
         return newDealNegotiationData;
     }
 
@@ -531,6 +552,23 @@ class DatabasePopulator {
 
             await this.dbm.insert(mapping).into('ixmProposalSectionMappings');
             Log.debug(`Mapped proposalID ${proposalID} to sectionID ${sectionIDs[i]}`);
+        }
+
+    }
+
+    /**
+     * Maps a negotiation to 1 or more sections.
+     * @arg proposalID {int} - the proposalID to map
+     * @arg sectionIDs {int[]} - an array of sectionIDs to map to the given proposalID
+     * @returns {Promise<void>} Promise that resolves when all mappings done
+     */
+    public async mapNegotiationToSections(negotiationID: number, sectionIDs: number[]) {
+
+        for (let i = 0; i < sectionIDs.length; i += 1) {
+            let mapping = { negotiationID: negotiationID, sectionID: sectionIDs[i] };
+
+            await this.dbm.insert(mapping).into('ixmNegotiationSectionMappings');
+            Log.debug(`Mapped negotiationID ${negotiationID} to sectionID ${sectionIDs[i]}`);
         }
 
     }
