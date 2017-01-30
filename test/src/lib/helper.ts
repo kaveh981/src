@@ -242,11 +242,11 @@ class Helper {
             url_matches: sectionInfo.matches && sectionInfo.matches.map(match => {
                 return {
                     url: match.url,
-                    matchType: Helper.matchTypeToWord(match.matchType)
+                    match_type: Helper.matchTypeToWord(match.matchType)
                 };
             }).sort((a, b) => {
                 if (a.url === b.url) {
-                    return (a.matchType < b.matchType) ? -1 : (a.matchType > b.matchType) ? 1 : 0;
+                    return (a.match_type < b.match_type) ? -1 : (a.match_type > b.match_type) ? 1 : 0;
                 } else {
                     return (a.url < b.url) ? -1 : 1;
                 }

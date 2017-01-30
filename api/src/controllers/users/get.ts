@@ -50,7 +50,7 @@ function Users(router: express.Router): void {
     /**
      * GET request to get contact info for a user
      */
-    router.get('/:id', async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/:id', Permission('internal'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         let userID = req.params['id'];
         let user = await marketUserManager.fetchMarketUserFromId(userID);

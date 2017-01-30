@@ -1,0 +1,33 @@
+#%RAML 1.0 DataType
+
+type: object
+description: The fields needed to update a company's whitelist.
+additionalProperties: false
+properties: 
+    email:
+        type: string
+        required: true
+        displayName: Email address
+        description: The email address to associate to the user.
+    company_email:
+        type: string
+        required: false
+        displayName: Company Email address
+        description: The email address to associate to the company.
+    permissions:
+        type: string
+        required: false
+        displayName: permissions
+        enum: [ read, write ]
+        description: The permissions that this user will have to represent the company.
+    whitelist:
+        type: boolean
+        required: false
+        displayName: Whitelist Status
+        description: True to whitelist the company for IXM or false to remove from whitelist.
+
+example: |
+    {
+        "email": "publisher@company.com",
+        "whitelist": true
+    }

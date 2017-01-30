@@ -90,6 +90,27 @@ class APIRequestManager {
 
     }
 
+     /**
+      * Send a post request to the path with given params and userID.
+      * @param path - The path to send to, relative to the base domain.
+      * @param params - The query string parameters.
+      * @param userID - The userID of the IXM Buyer you are impersonating.
+      */
+    public post(path: string, body: any, user: { userID?: number, userType?: number, accessToken?: string }, impersonatedUserID?: number) {
+
+        let headers: any;
+
+        if (user) {
+            headers = {
+                [this.configLoader.get('api-config')['user-header']]: impersonatedUserID || user.userID,
+                [this.configLoader.get('api-config')['token-header']]: user.accessToken || this.createAccessToken(user)
+            };
+        }
+
+        return this.sendRequest(this.baseDomain, path, 'POST', body, headers);
+
+    }
+
     /** 
      * Get an access token from SH Auth.
      * @param username - The email address for the user.
