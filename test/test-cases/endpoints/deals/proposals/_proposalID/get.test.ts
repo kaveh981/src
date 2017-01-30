@@ -735,7 +735,7 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
 
 /*
  * @case    - There is no active site and the owner is NOT the user
- * @expect  - 404 - Proposal not found. Is not readable by user. It does not exist to current user. 
+ * @expect  - 200 - Proposal is returned
  * @route   - GET deals/proposals/:proposal_id
  * @status  - working
  * @tags    - get, proposal
@@ -743,7 +743,7 @@ export async function IXM_API_PROPOSAL_GET_SP_25(assert: test.Test) {
 export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
 
     /** Setup */
-    assert.plan(1);
+    assert.plan(2);
 
     let dsp = await databasePopulator.createDSP(1);
     let buyerCompany = await databasePopulator.createCompany({}, dsp.dspID);
@@ -756,7 +756,8 @@ export async function IXM_API_PROPOSAL_GET_SP_26(assert: test.Test) {
     /** Test */
     let response = await apiRequest.get(route + `/${proposal.proposal.proposalID}`, {}, buyer.user);
 
-    assert.equals(response.status, 404);
+    assert.equals(response.status, 200);
+    assert.deepEqual(response.body['data'][0], await Helper.proposalToPayload(proposal, pubCompany.user));
 
 }
 
