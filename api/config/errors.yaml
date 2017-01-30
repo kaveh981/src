@@ -67,15 +67,12 @@ en-US:
 
     403_CANT_ACCEPT: You cannot accept this negotiation, it is invalid.
     403_INVALID_TERMS: The negotiation terms you have provided are not valid.
-<<<<<<< HEAD
     403_NO_SECTIONS: A deal cannot be created from the negotiation because there are no sections specified.
-=======
     403_USER_NOT_COMPANY: The provided company email belongs to a representative.
     403_EMAIL_IN_USE: The email you have provided is already in use.
     403_NOT_MARKET_USER: The email provided is not a market user.
     403_ALREADY_MARKET_USER: The email provided already belongs to a user.
     403_BAD_USER_UPDATE: The email provided belongs to a company, permissions cannot be changed.
->>>>>>> ee8b4fa5d128c2bd02d3cddb0cd4b81a1be4252d
 
     # 404 Status Code Messages
     404: Not found.
