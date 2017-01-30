@@ -162,7 +162,7 @@ export async function ATW_API_DELETE_DEAPROID_04(assert: test.Test) {
     let section = await databasePopulator.createSection(pubCompany.user.userID, [ site.siteID ]);
     let currentDate = new Date();
     let proposal = await databasePopulator.createProposal(pubCompany.user.userID, [ section.section.sectionID ],
-                                                        { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
+        { endDate: new Date(currentDate.setDate(currentDate.getDate() - 5)) });
 
     /** Test */
     let response = await apiRequest.delete(route + `/${proposal.proposal.proposalID}`, {}, publisher.user);
@@ -273,15 +273,13 @@ export async function ATW_API_DELETE_DEAPROID_07(assert: test.Test) {
 
     let deletedProposal = await Helper.getProposalById(proposal.proposal.proposalID);
     let deletedNegotiations = await Helper.getNegotiationsByProposalID(proposal.proposal.proposalID);
-    let plans = deletedNegotiations.length * 2 + 3;
 
-    assert.plan(plans);
+    assert.plan(4);
     assert.equals(response.status, 200, "Response ok");
     assert.equals(response.body.data[0].proposal_id, proposal.proposal.proposalID);
     assert.equal(deletedProposal[0].status, 'deleted');
     deletedNegotiations.forEach((deletedNegotiation) => {
         assert.equal(deletedNegotiation.ownerStatus, 'deleted');
-        assert.equal(deletedNegotiation.partnerStatus, 'active');
     });
 
 }

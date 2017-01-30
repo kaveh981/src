@@ -8,18 +8,34 @@ They detail how to setup our repository on your local machine and how to set up 
 # Structure
 Atwater's project structure is currently divided into the following components:
 - `api/`
-    - contains source code, configuration, unit tests, and any other files that are only related to API functionality
-- `docs/`
-    - contains any project documentation, which is mainly API specifications at this point
+    - contains source code, configuration, unit tests, spec, and any other files that are only related to API functionality
 - `nginx/`
     - contains configuration files for the NGINX instance
 - `test/`
     - contains all end-to-end tests and test suites for the project
+- `utils/`
+    - contains utilities that can be used for importing IXM-related data into IX databases
 
 # Useful Links
 - [Confluence Space](http://confluence.indexexchange.com/display/ATW/Overview)
 
 # Release Notes
+## Release 0.3.0
+- Sections are now negotiable
+- `.env` file is no longer used
+- SH auth is now supported
+- Support has been added for user/company impersonation and representation
+- API validation is now done directly from the spec
+- CSV section import has been added
+- IXM user creation is now supported
+- Notifications are now supported
+- A whole new set of bugs, as requested by our community
+- ...and much, much more.
+
+<br>
+<sup>"So, yesterday, I worked on the button. Today, I'm gonna work on the button." - Alessandro Parisi, Atwater Button Specialist, 2017</sup>  
+<sup>All rights reserved. ®</sup>
+
 ## Release 0.2.0
 - Added several new routes (see below for details)
 - Added publisher support to all routes. Routes are now accessible by both publishers and buyers.
@@ -28,18 +44,6 @@ Atwater's project structure is currently divided into the following components:
 - Validator is now stricter
 - Pagination is now more user-friendly
 - API specification has been greatly expanded
-
-### Routes
-- `/deals` -> `/deals/proposals`
-    - `GET`
-    - `GET /{proposal_id}`
-- `/deals/negotiations`
-    - `GET`
-    - `GET /{proposal_id}`
-    - `GET /{proposal_id}/{partner_id}`
-    - `PUT`
-- `/deals/active`
-    - `GET`
 
 ### Features
 - List all proposals available for purchase by sending a `GET` request to `/deals/proposals`
@@ -52,7 +56,7 @@ Atwater's project structure is currently divided into the following components:
 - Import proposals into IX database by using a CSV import tool
 
 <br>
-<sup>"We need to crush it, not rush it" - Eusebio Olalde, 2016</sup>  
+<sup>"We need to crush it, not rush it." - Eusebio Olalde, 2016</sup>  
 <sup>All rights reserved. ®</sup>
 
 ## Release 0.1.0
@@ -70,12 +74,6 @@ Atwater's project structure is currently divided into the following components:
     - Works on local machine
     - Works on virtual machine
 - NGINX has been configured
-
-### Routes
-- `/deals`
-    - `GET`
-- `/deals/active`
-    - `PUT`
 
 ### Features
 - List all available deals for purchase by sending a `GET` request to `/deals`

@@ -69,7 +69,7 @@ async function ATW_AUTH_02 (route: string, verb: string, setup: Function, assert
     await setup();
 
     /** Test */
-    let user = await databasePopulator.createUser({ userType: 1 });
+    let user = await databasePopulator.createUser({ userType: 4 });
     let authResponse = await apiRequest.getAuthToken(user.emailAddress, user.password);
     let accessToken = authResponse.body.data.accessToken;
 

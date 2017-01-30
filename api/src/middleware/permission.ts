@@ -23,7 +23,7 @@ function Permission(permissions: 'public' | 'read' | 'write' | 'internal' = 'pub
             throw HTTPError('401_UNAUTHORIZED');
         }
 
-        if (permissions === 'write' && req.ixmUserInfo.readOnly) {
+        if (permissions === 'write' && (!req.ixmUserInfo || req.ixmUserInfo.readOnly)) {
             throw HTTPError('401_UNAUTHORIZED');
         }
 
