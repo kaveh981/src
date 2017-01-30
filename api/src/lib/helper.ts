@@ -174,7 +174,7 @@ class Helper {
     * @param: b: number[] - the 'new' array 
     * @return: result: {added: [...], removed: [...]}
     */
-    public static checkDiff (a: number[], b: number []) {
+    public static checkDiff (a: number[], b: number[]) {
 
         let hash = {};
 

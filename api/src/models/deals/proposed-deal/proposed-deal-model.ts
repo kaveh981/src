@@ -57,7 +57,7 @@ class ProposedDealModel {
      * @returns a boolean indicating whether the proposed deal is available to buy or not
      */
     public isActive(): boolean {
-        return (this.sections.length === 0  || this.oneSectionValid()) && this.status === 'active' && this.owner.isActive();
+        return !this.hasInvalidSections() && this.status === 'active' && this.owner.isActive();
     }
 
     public isExpired(): boolean {
@@ -229,7 +229,7 @@ class ProposedDealModel {
     public oneSectionValid () {
 
         for (let i = 0; i < this.sections.length; i++) {
-            if (this.sections[i].isActive() && this.sections[i].oneSiteValid()) {
+            if (this.sections[i].isActive()) {
                 return true;
             }
         }
