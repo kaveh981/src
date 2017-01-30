@@ -29,7 +29,7 @@
     "nodemailer-sendmail-transport": "^1.0.0",
     "nodemailer-smtp-transport": "^2.7.2",
     "raml-1-parser": "1.1.9",
-    "raml2obj": "^4.0.2",
+    "raml2obj": "4.0.2",
     "request": "^2.79.0",
     "request-promise-native": "1.0.3",
     "shortstop": "1.0.3",
