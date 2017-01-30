@@ -19,6 +19,7 @@ en-US:
     400_MISSING_NEG_FIELD: At least one field must be provided for a counter-offer.
     400_EXTRA_NEG_FIELD: No negotiation field can be provided along with given response.
     400_INVALID_DATES: Start and/or end dates are invalid.
+    400_PERMISSION_OR_WHITELIST: Provide one of permission or whitelist.    
     
     # 401 Status Code Messages
     401: Unauthorized.
@@ -54,6 +55,11 @@ en-US:
     403_NEGOTIATION_NOT_ACTIVE: This negotiation is no longer active.
     403_CANT_ACCEPT: You cannot accept this negotiation, it is invalid.
     403_INVALID_TERMS: The negotiation terms you have provided are not valid.
+    403_USER_NOT_COMPANY: The provided company email belongs to a representative.
+    403_EMAIL_IN_USE: The email you have provided is already in use.
+    403_NOT_MARKET_USER: The email provided is not a market user.
+    403_ALREADY_MARKET_USER: The email provided already belongs to a user.
+    403_BAD_USER_UPDATE: The email provided belongs to a company, permissions cannot be changed.
 
     # 404 Status Code Messages
     404: Not found.
@@ -63,8 +69,6 @@ en-US:
     404_SECTION_NOT_FOUND: Deal section not found.
     404_DEAL_NOT_FOUND: Deal not found.
     404_COMPANY_NOT_FOUND: The provided company email does not exist.
-    403_USER_NOT_COMPANY: The provided company email belongs to a representative.
-    403_EMAIL_IN_USE: The email you have provided is already in use.
 
     # 500 Status Code Messages
     500: Internal server error.

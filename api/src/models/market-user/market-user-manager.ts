@@ -97,25 +97,19 @@ class MarketUserManager {
     }
 
     /**
-     * Add or remove a company from the whitelist.
+     * Add a company to the whitelist.
      */
-    public async setCompanyWhitelist(userID: number, whitelist: boolean, transaction?: knex.Transaction) {
+    public async addCompanyToWhitelist(userID: number, transaction?: knex.Transaction) {
 
         // If there is no transaction, start one.
         if (!transaction) {
             await this.databaseManager.transaction(async (trx) => {
-                await this.setCompanyWhitelist(userID, whitelist, trx);
+                await this.addCompanyToWhitelist(userID, trx);
             });
             return;
         }
 
-        let row = await transaction.select().from('ixmCompanyWhitelist').where('userID', userID);
-
-        if (whitelist && !row[0]) {
-            await transaction.insert({ userID: userID }).into('ixmCompanyWhitelist');
-        } else if (!whitelist && row[0]) {
-            await transaction.delete().from('ixmCompanyWhitelist').where({ userID: userID });
-        }
+        await transaction.insert({ userID: userID }).into('ixmCompanyWhitelist');
 
     }
 

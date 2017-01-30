@@ -41,25 +41,47 @@ function Users(router: express.Router): void {
             throw HTTPError('404_USER_NOT_FOUND');
         } else if (companyEmail && (!companyUser || !companyUser.isActive())) {
             throw HTTPError('404_COMPANY_NOT_FOUND');
+        } else if (typeof whitelist === 'boolean' && permissions) {
+            throw HTTPError('400_PERMISSION_OR_WHITELIST');
         }
 
-        if (requestedMarketUser) {
-            Log.trace(`Attempting to update market user ${email}...`);
+        if (typeof whitelist === 'boolean' && !whitelist) {
 
-            if (typeof whitelist === 'boolean' && !whitelist) {
-                await marketUserManager.deleteMarketUser(requestedMarketUser);
-            } else if (permissions && !requestedMarketUser.isCompany()) {
-                requestedMarketUser.readOnly = permissions === 'read';
-                await marketUserManager.updateMarketUser(requestedMarketUser);
-            } else {
-                throw HTTPError('403_USER_BAD_UPDATE');
+            Log.trace(`Deleting market user ${email}...`);
+
+            if (!requestedMarketUser) {
+                throw HTTPError('403_NOT_MARKET_USER');
             }
-        } else if (whitelist && requestedUser.isCompany()) {
-            Log.trace(`Attempting to whitelist market user company ${email}...`);
 
-            await marketUserManager.setCompanyWhitelist(requestedUser.id, whitelist);
+            await marketUserManager.deleteMarketUser(requestedMarketUser);
+
+        } else if (whitelist) {
+
+            Log.trace(`Whitelisting market user company ${email}...`);
+
+            if (requestedMarketUser) {
+                throw HTTPError('403_ALREADY_MARKET_USER');
+            } else if (!requestedUser.isCompany()) {
+                throw HTTPError('403_USER_NOT_COMPANY');
+            }
+
+            await marketUserManager.addCompanyToWhitelist(requestedUser.id);
+
+        } else if (permissions) {
+
+            Log.trace(`Updating market user ${email}...`);
+
+            if (requestedUser.isCompany()) {
+                throw HTTPError('403_USER_BAD_UPDATE');
+            } else if (!requestedMarketUser) {
+                throw HTTPError('403_NOT_MARKET_USER');
+            }
+
+            requestedMarketUser.readOnly = permissions === 'read';
+            await marketUserManager.updateMarketUser(requestedMarketUser);
+
         } else {
-            throw HTTPError('403_NOT_MARKET_USER');
+            throw HTTPError('400_PERMISSION_OR_WHITELIST');
         }
 
         res.sendPayload({ user_id: requestedUser.id });

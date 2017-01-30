@@ -222,7 +222,7 @@ types:
     SiteCreate:             !include types/site_create.raml
     Pagination:             !include types/pagination.raml
     UserCreate:             !include types/user_create.raml
-    UserUpdate:          !include types/user_update.raml
+    UserUpdate:             !include types/user_update.raml
 
 ################################
 # Route Definitions
@@ -876,7 +876,7 @@ types:
             type: UserCreate
             description: The fields required to create a new user.
         responses:
-            201: # 200 = "Created"
+            201: # 201 = "Created"
                 body:
                     application/json:
                         type: Response
