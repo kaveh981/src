@@ -24,7 +24,8 @@ services:
         networks:
             - atwater
         volumes:
-            - "/services/ixm/atw-api/override.production.yaml:/opt/atwater/api/conf/override.production.yaml:ro"
+            - "/services/ixm/api/config/override.production.yaml:/opt/atwater/api/config/override.production.yaml:ro"
+            - "/services/ixm/api/log:/opt/atwater/api/logs"
     atw-nginx:
         container_name: "atw-nginx"
         restart: "always"
@@ -44,6 +45,4 @@ services:
         networks:
             - atwater
         ports:
-            - "4433:443"
-        volumes:
-            - "/services/ixm/atw-nginx/ssl:/etc/nginx/ssl:ro"
+            - "1337:80"

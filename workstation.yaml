@@ -46,11 +46,3 @@ services:
                     - market.indexexchange.com
         volumes:
             - "./nginx/:/src/:ro"
-        depends_on:
-            - atw-api
-    workstation-proxy:
-        extends:
-            file: ../docker.git/servers/workstation.yaml
-            service: workstation-proxy
-        depends_on:
-            - atw-nginx

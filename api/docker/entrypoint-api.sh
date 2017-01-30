@@ -26,12 +26,11 @@ if [ -d $SRC_DIR ]; then
     cp -rf $SRC_DIR/package.json $DEST_DIR
     cp -rf $SRC_DIR/spec $DEST_DIR
 
-    # Deploy secrets if found. Won't be found during image building, but will be found in workstation deployments when
-    # the /src/ dir is mounted to the container (development).
-    test -e $SRC_DIR/.env \
-    && echo "Copying .env from $SRC_DIR (workstation development deployment)" \
-    && cp -rf $SRC_DIR/.env $DEST_DIR \
-    || echo "Not deploying any secrets (build-time deployment).."
+    # Add logrotate config for production deployments
+    test "$ENVIRONMENT" = "production" \
+        && echo "Copying over logrotate config for atwater.." \
+        && cp -f $SRC_DIR/logrotate /etc/logrotate.d/atwater \
+        || echo "Didn't configure logrotate"
 
 fi
 

@@ -30,6 +30,9 @@ LABEL  SERVICE_NAME=atw-api \
     DATE=${DATE:-dev} \
     ENVIRONMENT=$ENVIRONMENT
 
+# Install OS dependencies with apt
+RUN apt update && apt install logrotate sendmail -y
+
 # Copy entrypoint-api.sh to /bin and add execution permissions
 COPY docker/entrypoint-api.sh /bin/entrypoint-api.sh
 RUN chmod +x /bin/entrypoint-api.sh
