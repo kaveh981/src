@@ -50,6 +50,10 @@ class MarketUserManager {
         return (await this.fetchMarketUsers(null, (db) => { db.where('contactID', userID); }))[0];
     }
 
+    /** 
+     * Get a market user from the contact email. 
+     * @param email - The email.
+     */
     public async fetchMarketUserFromEmail(email: string) {
         return (await this.fetchMarketUsers(null, (db) => { db.where('contact.emailAddress', email); }))[0];
     }
@@ -98,6 +102,8 @@ class MarketUserManager {
 
     /**
      * Add a company to the whitelist.
+     * @param userID - The company's userID.
+     * @param transaction - Optional knex transaction.
      */
     public async addCompanyToWhitelist(userID: number, transaction?: knex.Transaction) {
 
@@ -137,6 +143,11 @@ class MarketUserManager {
 
     }
 
+    /**
+     *  Delete a market user from the mapping tables.
+     *  @param marketUser - The market user to delete.
+     *  @param transation - An optional knex transaction.
+     */
     public async deleteMarketUser(marketUser: MarketUserModel, transaction?: knex.Transaction) {
 
         // If there is no transaction, start one.
