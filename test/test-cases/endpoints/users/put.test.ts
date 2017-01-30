@@ -166,7 +166,7 @@ export async function ATW_API_PUT_USE_FUNC_06(assert: test.Test) {
     assert.plan(2);
 
     let publisherCompany = await databasePopulator.createCompany({ userType: 18 });
-    let publisherRep = await databasePopulator.createPublisher(publisherCompany.user.userID, 'write');
+    let publisherRep = await databasePopulator.createPublisher(publisherCompany.user.userID, 'read');
     let internalUser = await databasePopulator.createInternalUser();
 
     let updateUserInfo = {
