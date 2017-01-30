@@ -55,6 +55,9 @@ async function verifyNewUser(userInfo: any, company: INewUserData, assert: test.
 
 /**
  * @case - Create a new IX user on an active company.
+ * @setup  - A publisher company.
+ * @expect - 201 and the user to be created.
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_01(assert: test.Test) {
 
@@ -81,6 +84,9 @@ export async function ATW_API_POST_USE_FUNC_01(assert: test.Test) {
 
 /**
  * @case - Attempt to create a new IX user for an inactive company.
+ * @setup  - A publisher company which is inactive.
+ * @expect - 404 user not found.
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_02(assert: test.Test) {
 
@@ -105,6 +111,9 @@ export async function ATW_API_POST_USE_FUNC_02(assert: test.Test) {
 
 /**
  * @case - Attempt to create a new IX user for a company that does not exist.
+ * @setup  - A publisher company.
+ * @expect - 404 company not found.
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_03(assert: test.Test) {
 
@@ -129,6 +138,9 @@ export async function ATW_API_POST_USE_FUNC_03(assert: test.Test) {
 
 /**
  * @case - Attempt to create two new IX users with the same email for an active company.
+ * @setup  - A publisher company.
+ * @expect - 201 for the first user, 403 for the second attempt.
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_04(assert: test.Test) {
 
@@ -168,6 +180,9 @@ export async function ATW_API_POST_USE_FUNC_04(assert: test.Test) {
 
 /**
  * @case - Attempt to create a new IX user for an IXM user.
+ * @setup  - An IXM user not associated to a company.
+ * @expect - 403 not a company.
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_05(assert: test.Test) {
 
@@ -192,6 +207,9 @@ export async function ATW_API_POST_USE_FUNC_05(assert: test.Test) {
 
 /**
  * @case - Attempt to create a new IX user for a company with a non-sense permission.
+ * @setup  - A publisher company.
+ * @expect - 400 bad permission
+ * @route  - POST /users
  */
 export async function ATW_API_POST_USE_FUNC_06(assert: test.Test) {
 
