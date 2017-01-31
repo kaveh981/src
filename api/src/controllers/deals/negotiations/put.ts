@@ -15,7 +15,6 @@ import { DealSectionModel } from '../../../models/deal-section/deal-section-mode
 import { DealSectionManager } from '../../../models/deal-section/deal-section-manager';
 import { DatabaseManager } from '../../../lib/database-manager';
 import { DspManager } from '../../../models/dsp/dsp-manager';
-import { MarketUserManager } from '../../../models/market-user/market-user-manager';
 import { Notifier } from '../../../lib/notifier';
 
 const proposedDealManager = Injector.request<ProposedDealManager>('ProposedDealManager');
@@ -25,7 +24,6 @@ const settledDealManager = Injector.request<SettledDealManager>('SettledDealMana
 const dspManager = Injector.request<DspManager>('DspManager');
 const validator = Injector.request<RamlTypeValidator>('Validator');
 const databaseManager = Injector.request<DatabaseManager>('DatabaseManager');
-const marketUserManager = Injector.request<MarketUserManager>('MarketUserManager');
 const notifier = Injector.request<Notifier>('Notifier');
 
 const Log: Logger = new Logger('ROUT');
@@ -107,13 +105,13 @@ function NegotiationDeals(router: express.Router): void {
         let proposalID: number = req.body.proposal_id;
         let receiverID = req.body.partner_id;
         let sender = req.ixmUserInfo;
-        let receiver = await marketUserManager.fetchMarketUserFromId(receiverID);
         let currentNegotiation = await negotiatedDealManager.fetchNegotiatedDealFromPartyIds(proposalID, receiverID, sender.company.id);
 
         // If the negotiation had not started yet, then it gets created
         if (!currentNegotiation) {
 
             let targetProposal = await proposedDealManager.fetchProposedDealFromId(proposalID);
+            let receiver = targetProposal && targetProposal.owner;
 
             if (!targetProposal || !targetProposal.isReadableByUser(sender)) {
                 throw HTTPError('404_PROPOSAL_NOT_FOUND');
