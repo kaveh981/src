@@ -63,9 +63,9 @@ function Proposals(router: express.Router): void {
 
             Log.trace(`Deleted all negotiations associated to ${proposalID}.`, req.id);
 
-            res.sendMessage('200_PROPOSAL_DELETED', { proposal_id: proposal.id });
-
         });
+
+        res.sendMessage('200_PROPOSAL_DELETED', { proposal_id: proposal.id });
 
     } catch (error) { next(error); } });
 

@@ -7,7 +7,7 @@ tokenHeader: IXM-AccessToken
 userHeader: IXM-UserID
 
 # A switch for allowing public use of API
-public: true
+public: false
 
 # The JWT secret.
 jwtSecret: qwerty
