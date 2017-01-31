@@ -4,7 +4,7 @@ GIT_TAG=${1:-master}
 ATW_GITLAB_BASEURL="http://gitlab.internal.casalemedia.com/index-market/atwater/blob/$GIT_TAG"
 
 # Hard-coded Api image version
-export ATW_APIVER=:0.3.0
+export ATW_APIVER=:0.3.1
 # Hard-coded Nginx image version
 export ATW_NGINXVER=:0.3.0
 # Api Dockerfile URL on gitlab
