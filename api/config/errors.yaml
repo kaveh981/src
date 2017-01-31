@@ -82,7 +82,7 @@ en-US:
     404_SECTION_NOT_FOUND: Deal section not found.
     404_DEAL_NOT_FOUND: Deal not found.
     404_COMPANY_NOT_FOUND: The provided company email does not exist.
-    404_UUDDLRLRBAS:  'That doesn't seem to exist. Maybe you're making it up. If you think you're not making it up, absolutely do not contact your.mom@indexexchange.com'
+    404_UUDDLRLRBAS:  "That doesn't seem to exist. Maybe you're making it up. If you think you're not making it up, absolutely do not contact your.mom@indexexchange.com"
 
     # 500 Status Code Messages
     500: Internal server error.
