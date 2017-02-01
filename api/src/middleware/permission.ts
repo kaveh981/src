@@ -11,15 +11,15 @@ const authConfig = config.get('auth');
 /**
  * Control the permissions allowed to use this route.
  */
-function Permission(permissions: 'public' | 'read' | 'write' | 'internal' = 'public') {
+function Permission(permissions: 'public' | 'read' | 'write' | 'internal' | 'impersonating' = 'public') {
 
     return (req: express.Request, res: express.Response, next: Function) => {
 
-        if (!authConfig['public'] && (!req.ixmUserInfo || !req.ixmUserInfo.company) && !req.impersonator) {
+        if (permissions === 'public' && !authConfig['public'] && !req.ixmUserInfo && !req.impersonator) {
             throw HTTPError('401_PRIVATE');
         }
 
-        if (permissions === 'read' && (!req.ixmUserInfo || !req.ixmUserInfo.company)) {
+        if (permissions === 'read' && !req.ixmUserInfo) {
             throw HTTPError('401_UNAUTHORIZED');
         }
 
@@ -27,8 +27,12 @@ function Permission(permissions: 'public' | 'read' | 'write' | 'internal' = 'pub
             throw HTTPError('401_UNAUTHORIZED');
         }
 
-        if (permissions === 'internal' && !req.impersonator) {
+        if ((permissions === 'internal' || permissions === 'impersonating') && !req.impersonator) {
             throw HTTPError('404');
+        }
+
+        if (permissions === 'impersonating' && (!req.impersonator || !req.ixmUserInfo)) {
+            throw HTTPError('401_PROVIDE_IMPERSONATEID');
         }
 
         next();
