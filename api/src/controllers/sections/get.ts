@@ -24,7 +24,7 @@ function Section(router: express.Router): void {
     /**
      * GET request to get sections for the current user
      */
-    router.get('/', Permission('internal'), async (req: express.Request, res: express.Response, next: Function) => { try {
+    router.get('/', Permission('impersonating'), async (req: express.Request, res: express.Response, next: Function) => { try {
 
         /** Validation */
 
