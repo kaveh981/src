@@ -1,0 +1,16 @@
+{
+  "COMMON": {
+    "mySqlDbConfig": {
+      "host": "10.6.10.145",
+      "port": 3306,
+      "database": "Viper2",
+      "user": "viper",
+      "password": "viper123"
+    },
+    "mongoDbConfig": "username:password@localhost/dbname",
+    "log": {
+      "fileName": "api-error-logs.log",
+      "logsDirectory": "logs"
+    }
+  }
+}

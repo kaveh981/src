@@ -34,7 +34,7 @@ async function identifyUser(userID: number, accessToken: string, req: express.Re
     } catch (invalid) {
         throw HTTPError('401');
     }
-
+ 
     if (typeof userToken.userID !== 'number' || typeof userToken.userID !== 'number') {
         Log.error(new Error('Generated token was invalid, either SH Auth has created an invalid token, or token generation has been compromised.'));
         throw HTTPError('401');
